@@ -36,9 +36,11 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       </nav>
 
       <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
-        <h1 className="text-2xl font-bold text-center mb-1">{lesson.title}</h1>
-        <p className="text-center text-[10pt] text-gray-500 mb-1">Word Up</p>
+        <div className="flex justify-center mb-1">
+          <img src="/word_up_clean.jpeg" alt="Word Up" className="h-20 object-contain" />
+        </div>
         <p className="text-center text-[10pt] text-gray-500 mb-3">AI Generated S2C Lesson</p>
+        <h1 className="text-2xl font-bold text-center mb-1">{lesson.title}</h1>
 
         {lesson.hashtags?.length > 0 && (
           <p className="text-center text-sm text-blue-500 mb-8">

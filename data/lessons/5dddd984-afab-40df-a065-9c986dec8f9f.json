@@ -1,0 +1,249 @@
+{
+  "id": "5dddd984-afab-40df-a065-9c986dec8f9f",
+  "topic": "Don't eat anything your grandmother wouldn't recognize!",
+  "ageGroup": "Adults (18+)",
+  "title": "Don't Eat Anything Your Grandmother Wouldn't Recognize! – Adults (18+)",
+  "createdAt": "2026-04-08T22:13:51.515Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Food writer Michael Pollan gave the world a simple but powerful rule: don't eat anything your GRANDMOTHER wouldn't recognize as food. The idea behind this PRINCIPLE is that if a product is so processed, so artificial, or so loaded with strange INGREDIENTS that someone from an older generation would have no idea what it is, it probably isn't worth eating. This rule isn't about nostalgia — it's about the QUALITY of what we put in our bodies. Pollan laid out this thinking most famously in his 2008 book, 'In Defense of Food,' which challenged the way modern people think about NUTRITION. It's a reminder that real food doesn't need a label explaining what it is.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Michael Pollan's grandmother rule appeared in his 2008 book, 'In Defense of ______.'",
+          "answer": "FOOD"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Pollan's rule is not about nostalgia — it's about the ______ of what we eat.",
+          "answer": "QUALITY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what are some reasons a grandmother might not recognize a modern product as food?",
+          "answer": "TOO PROCESSED / TOO ARTIFICIAL / LOADED WITH STRANGE INGREDIENTS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Michael Pollan is known as a food writer, but what is another common term for someone who writes about food and cooking?",
+          "answer": "JOURNALIST / AUTHOR / FOOD JOURNALIST"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1758874960025-85d40fde6252?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxncmFuZG1vdGhlciUyMGNvb2tpbmclMjBraXRjaGVufGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Grandmother and granddaughter preparing food in kitchen."
+    },
+    {
+      "number": 2,
+      "text": "To understand Pollan's rule, we need to understand what ULTRA-PROCESSED food actually means. In the early 2000s, Brazilian nutrition researcher Carlos Monteiro developed a food classification system called NOVA, which ranks foods from unprocessed to ultra-processed. Ultra-processed foods are INDUSTRIAL formulations made mostly from substances extracted from foods — think emulsifiers, colorings, flavor enhancers, and stabilizers — rather than from whole foods themselves. Examples include packaged snack cakes, instant noodles, flavored chips, and RECONSTITUTED meat products. These products often look like food and taste like food, but their COMPOSITION would be almost unrecognizable to someone cooking a century ago. The Nova system is now used by researchers worldwide to study how food processing affects health.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The food classification system developed by Carlos Monteiro is called ______.",
+          "answer": "NOVA"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Ultra-processed foods are described as ______ formulations made from extracted substances.",
+          "answer": "INDUSTRIAL"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name some examples of ultra-processed foods listed in the text.",
+          "answer": "PACKAGED SNACK CAKES / INSTANT NOODLES / FLAVORED CHIPS / RECONSTITUTED MEAT PRODUCTS"
+        },
+        {
+          "type": "MATH",
+          "question": "Approximately what decade did Carlos Monteiro develop the NOVA classification system?",
+          "answer": "EARLY 2000S"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1704137410635-35882ba43c71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHx1bHRyYSUyMHByb2Nlc3NlZCUyMHNuYWNrJTIwZm9vZHxlbnwwfDB8fHwxNzc1Njg2NDMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a variety of snacks are displayed on a table"
+    },
+    {
+      "number": 3,
+      "text": "There is a growing body of EVIDENCE linking ultra-processed food consumption to serious health problems. Large studies, including one published in the British Medical Journal in 2019, found that higher intake of ultra-processed foods was associated with a greater risk of CARDIOVASCULAR disease, cancer, and early death. A landmark study of over 100,000 French adults — known as the NutriNet-Santé cohort — tracked eating habits over several years and found these associations to be remarkably consistent. Researchers believe the ADDITIVES, poor NUTRIENT profiles, and high calorie density of these foods all contribute to harm. The pattern is clear: the more of your diet that comes from ultra-processed sources, the greater the RISK to your long-term health. This is exactly the kind of outcome Pollan's grandmother test was designed to help us avoid.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The large French study tracking eating habits is known as the NutriNet-Santé ______.",
+          "answer": "COHORT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Higher intake of ultra-processed food was associated with greater risk of ______ disease, among others.",
+          "answer": "CARDIOVASCULAR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what factors do researchers believe contribute to the harm caused by ultra-processed foods?",
+          "answer": "ADDITIVES / POOR NUTRIENT PROFILES / HIGH CALORIE DENSITY"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture your own grandmother or an older woman you know standing in a grocery store. She picks up a package covered in words like 'emulsified,' 'xanthan gum,' and 'maltodextrin.' What expression do you imagine on her face?",
+          "answer": "CONFUSED / SUSPICIOUS / PUZZLED / CONCERNED"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1574400901674-b28bb483afc3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxoZWFsdGh5JTIwZm9vZCUyMHJlc2VhcmNoJTIwc3R1ZHl8ZW58MHwwfHx8MTc3NTY4NjQzMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "bowl of salad"
+    },
+    {
+      "number": 4,
+      "text": "One of the most important concepts in understanding modern food is the difference between PROCESSING and ultra-processing. Not all food processing is bad — cooking, fermenting, drying, and salting have preserved and improved food for thousands of years. Your grandmother likely made FERMENTED foods like pickles, sauerkraut, or yogurt, all of which involve processing but retain their whole-food INTEGRITY. The problem arises when processing is used to create entirely new edible SUBSTANCES from isolated components — stripping away fiber, vitamins, and minerals in the process. This is why a loaf of sourdough bread made from flour, water, salt, and a STARTER culture is fundamentally different from a packaged bread containing dozens of additives. The distinction is not processing itself — it is the degree and the purpose of that processing.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "According to the text, what is stripped away when processing creates new edible substances from isolated components?",
+          "answer": "FIBER / VITAMINS / MINERALS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Sourdough bread is made from flour, water, salt, and a ______ culture.",
+          "answer": "STARTER"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name traditional food processing methods that the text says have preserved and improved food for thousands of years.",
+          "answer": "COOKING / FERMENTING / DRYING / SALTING"
+        },
+        {
+          "type": "OPEN",
+          "question": "When you think about the foods you grew up eating versus what you eat now, which shift feels most significant to you personally?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1564529726702-e1cb05b106b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxzb3VyZG91Z2glMjBicmVhZCUyMGZlcm1lbnRlZCUyMGZvb2RzfGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "pastry bread beside red sauce"
+    },
+    {
+      "number": 5,
+      "text": "The MARKETING of ultra-processed food is designed specifically to bypass your better judgment. Food companies invest heavily in PACKAGING, color psychology, and strategic placement in stores to make processed products feel familiar, comforting, and even healthy. Terms like 'natural,' 'wholesome,' and 'farm-fresh' appear on products that contain lengthy lists of synthetic COMPOUNDS — terms that would be meaningless on a real carrot or a fresh egg. Researchers at the University of North Carolina found that over 60% of foods sold in U.S. supermarkets meet the definition of ultra-processed. The grandmother test is useful precisely because it cuts through ADVERTISING and asks a simple, honest question: would she know what this is? If not, put it down. Your body deserves the same SCRUTINY your grandmother would apply.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Researchers at the University of North Carolina found that over ______ percent of foods in U.S. supermarkets are ultra-processed.",
+          "answer": "SIXTY PERCENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The grandmother test cuts through advertising and asks whether she would ______ what the product is.",
+          "answer": "KNOW"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what misleading terms do food companies put on ultra-processed packaging to make products seem healthier?",
+          "answer": "NATURAL / WHOLESOME / FARM-FRESH"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "The FDA regulates food labeling in the United States. What does the acronym FDA stand for?",
+          "answer": "FOOD AND DRUG ADMINISTRATION"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1757800945895-a08e7eff9702?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxncm9jZXJ5JTIwc3RvcmUlMjBwcm9kdWN0JTIwcGFja2FnaW5nfGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Boxes of oreo o's and cheerios cereal on shelf."
+    },
+    {
+      "number": 6,
+      "text": "Pollan's grandmother rule also invites us to think about CULINARY tradition and the wisdom embedded in centuries of food culture. Every food tradition in the world — whether it is the MEDITERRANEAN diet, Japanese washoku, or West African grain cooking — developed over generations with whole, recognizable ingredients. These traditions weren't built by SCIENTISTS in laboratories; they were built by grandmothers, mothers, and communities experimenting with what the land provided. The longevity and health outcomes associated with traditional food cultures are well-documented, particularly in the famous 'BLUE ZONES' research by Dan Buettner, which identified communities around the world with the highest concentrations of centenarians. The common thread in every Blue Zone was a diet built almost entirely from whole, minimally processed, recognizable foods. Grandmothers, it turns out, had the right idea all along.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The research identifying communities with the highest concentrations of centenarians is called the ______ Zones research.",
+          "answer": "BLUE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The Blue Zones research was conducted by ______.",
+          "answer": "DAN BUETTNER"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name some traditional food cultures mentioned in the text as examples of whole-ingredient cooking traditions.",
+          "answer": "MEDITERRANEAN DIET / JAPANESE WASHOKU / WEST AFRICAN GRAIN COOKING"
+        },
+        {
+          "type": "MATH",
+          "question": "A centenarian is a person who has reached at least how many years of age?",
+          "answer": "100 YEARS"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1553352796-69f09cba2a97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxNZWRpdGVycmFuZWFuJTIwd2hvbGUlMjBmb29kcyUyMHRyYWRpdGlvbmFsfGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "variety of beans"
+    },
+    {
+      "number": 7,
+      "text": "Applying the grandmother rule in daily life does not require PERFECTION — it requires awareness. A practical STRATEGY is to shop primarily from the perimeter of the grocery store, where whole foods like produce, meat, dairy, and eggs tend to be located, and to treat the center aisles with SKEPTICISM. Reading INGREDIENT lists is more informative than reading nutrition labels — if the list is long, contains chemical-sounding names, or includes ingredients you would not find in a home kitchen, the product likely fails the grandmother test. Food writer Mark Bittman, in his book 'Food Matters,' echoes Pollan's thinking by encouraging people to eat more plants and fewer EDIBLE food-like substances. The grandmother test doesn't demand perfection; it demands honest DISCERNMENT about what you are putting in your body.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Reading ______ lists is described as more informative than reading nutrition labels.",
+          "answer": "INGREDIENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Mark Bittman's book echoing Pollan's thinking is called 'Food ______.'",
+          "answer": "MATTERS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what are some signals in an ingredient list that a product likely fails the grandmother test?",
+          "answer": "LIST IS LONG / CHEMICAL-SOUNDING NAMES / INGREDIENTS NOT IN A HOME KITCHEN"
+        },
+        {
+          "type": "VAKT",
+          "question": "Walk to your kitchen or pantry right now — or picture it vividly in your mind — and pick up one item. Read the ingredient list out loud. What do you notice?",
+          "answer": ""
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1668397674252-ab35313224f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxncm9jZXJ5JTIwc3RvcmUlMjBwZXJpbWV0ZXIlMjBwcm9kdWNlfGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a fruit stand with people in it"
+    },
+    {
+      "number": 8,
+      "text": "The grandmother rule is ultimately about SOVEREIGNTY — taking back control over what you eat from an industry designed to keep you dependent on its products. FOOD SOVEREIGNTY means having the knowledge, access, and agency to choose real food over engineered substitutes. Critics of the modern food system, including journalist Joanna Blythman in her book 'Swallow This,' argue that the food industry deliberately engineers HYPER-PALATABILITY — the combination of fat, salt, sugar, and texture that makes processed foods nearly impossible to put down. Understanding this is EMPOWERING, because once you see the system clearly, you can step outside it. The grandmother test is simple enough to remember in the middle of any supermarket aisle, under any amount of marketing pressure. Next time you pick something up, ask honestly: would your grandmother call this food? If the answer is a hard NO, you probably already know what to do.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Journalist Joanna Blythman wrote a book about the food industry called 'Swallow ______.'",
+          "answer": "THIS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The text describes hyper-palatability as the engineered combination of fat, salt, sugar, and ______.",
+          "answer": "TEXTURE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what does food sovereignty mean in practical terms?",
+          "answer": "KNOWLEDGE TO CHOOSE REAL FOOD / ACCESS TO REAL FOOD / AGENCY OVER FOOD CHOICES"
+        },
+        {
+          "type": "OPEN",
+          "question": "After exploring this topic, what is one concrete change you feel inspired to make in the way you shop for or think about food?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1614969263964-f381e32b337d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxyZWFsJTIwd2hvbGUlMjBmb29kJTIwbWFya2V0fGVufDB8MHx8fDE3NzU2ODY0MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "brown and white concrete building during daytime"
+    }
+  ],
+  "citations": [
+    "Pollan, Michael. In Defense of Food: An Eater's Manifesto. Penguin Press, 2008.",
+    "Monteiro, Carlos A. et al. 'Ultra-processed foods: what they are and how to identify them.' Public Health Nutrition, 2019. Cambridge University Press.",
+    "Rico-Campà, Anaïs et al. 'Association between consumption of ultra-processed foods and all cause mortality: SUN prospective cohort study.' BMJ, 2019.",
+    "Buettner, Dan. The Blue Zones: Lessons for Living Longer From the People Who've Lived the Longest. National Geographic Society, 2008.",
+    "Blythman, Joanna. Swallow This: Serving Up the Food Industry's Darkest Secrets. Fourth Estate, 2015."
+  ],
+  "hashtags": [
+    "#RealFood",
+    "#GrandmotherTest",
+    "#UltraProcessed",
+    "#MichaelPollan",
+    "#FoodSovereignty",
+    "#WordUp",
+    "#S2C"
+  ]
+}

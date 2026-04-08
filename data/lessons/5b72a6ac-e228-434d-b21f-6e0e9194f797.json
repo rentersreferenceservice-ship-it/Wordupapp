@@ -1,0 +1,230 @@
+{
+  "id": "5b72a6ac-e228-434d-b21f-6e0e9194f797",
+  "topic": "Snoopy!",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Snoopy – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-08T01:06:09.981Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "SNOOPY is a dog in a comic strip called Peanuts. His owner is a boy named CHARLIE BROWN. Snoopy is funny and has lots of adventures. He likes to play and use his imagination. Snoopy makes people smile and laugh.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is Snoopy?",
+          "answer": "A DOG"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Who is Snoopy's owner?",
+          "answer": "CHARLIE BROWN"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Snoopy does.",
+          "answer": "PLAYS / GOES ON ADVENTURES / USES HIS IMAGINATION"
+        },
+        {
+          "type": "OPEN",
+          "question": "What do you think is funny about Snoopy?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "Snoopy is a BEAGLE. Beagles are small dogs with long ears and short legs. They have brown, black, and white fur. Snoopy's fur is mostly white with a black spot on one eye. Beagles love to eat, and Snoopy loves his dog food bowl.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What kind of dog is Snoopy?",
+          "answer": "A BEAGLE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What colors is Snoopy's fur?",
+          "answer": "WHITE AND BLACK"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something true about beagles.",
+          "answer": "THEY ARE SMALL / THEY HAVE LONG EARS / THEY HAVE SHORT LEGS"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes. Imagine petting Snoopy's soft white fur. What does it feel like?",
+          "answer": "SOFT / SMOOTH / FLUFFY / WARM"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Snoopy has a best friend named WOODSTOCK. Woodstock is a small yellow BIRD. Snoopy and Woodstock do everything together. They go on pretend adventures and play games. The two friends love each other very much.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Who is Snoopy's best friend?",
+          "answer": "WOODSTOCK"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is Woodstock?",
+          "answer": "A BIRD"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What color is Woodstock?",
+          "answer": "YELLOW"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Snoopy and Woodstock do together.",
+          "answer": "GO ON ADVENTURES / PLAY GAMES / HAVE FUN"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "Snoopy has a RED DOGHOUSE where he lives. His doghouse is his special place. Sometimes Snoopy sits on top of his doghouse and thinks about things. He pretends his doghouse is a castle, a car, or even a spaceship. Snoopy's imagination makes everything fun.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What color is Snoopy's doghouse?",
+          "answer": "RED"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "What does Snoopy pretend his doghouse is?",
+          "answer": "A CASTLE / A CAR / A SPACESHIP"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are sitting on top of a red doghouse like Snoopy. What do you see all around you?",
+          "answer": "THE SKY / CLOUDS / TREES / HOUSES / GRASS"
+        },
+        {
+          "type": "OPEN",
+          "question": "What would you pretend your doghouse is?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Snoopy loves FOOD. His favorite treat is a DOG BISCUIT. He also loves PIZZA and other yummy things. When Snoopy smells food, he gets excited and jumps around. His tummy rumbles and he wags his TAIL.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is Snoopy's favorite treat?",
+          "answer": "A DOG BISCUIT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Snoopy loves to eat.",
+          "answer": "DOG BISCUITS / PIZZA / FOOD"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does Snoopy wag when he gets excited?",
+          "answer": "HIS TAIL"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you smell Snoopy's pizza. What happens to your mouth?",
+          "answer": "IT WATERS / YOU SMILE / YOU GET HUNGRY"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Snoopy has lots of friends in Peanuts. There is LUCY, who is a girl with curly hair. There is LINUS, who carries a blanket. There is PEPPERMINT PATTY, who plays BASEBALL. Everyone likes Snoopy, and Snoopy likes them too.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a friend of Snoopy's from Peanuts.",
+          "answer": "LUCY / LINUS / PEPPERMINT PATTY / CHARLIE BROWN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does Linus carry around with him?",
+          "answer": "A BLANKET"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What sport does Peppermint Patty play?",
+          "answer": "BASEBALL"
+        },
+        {
+          "type": "OPEN",
+          "question": "Which Peanuts character would you like to be friends with?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "Snoopy is very BRAVE and smart. He is not afraid to try new things. He does silly dances and funny tricks. Snoopy is also kind and loyal to his friends. He will do anything to help the people and animals he loves.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something good about Snoopy.",
+          "answer": "HE IS BRAVE / HE IS SMART / HE IS KIND / HE IS LOYAL"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Is Snoopy afraid to try new things?",
+          "answer": "NO"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are watching Snoopy do a silly dance. What does it look like?",
+          "answer": "FUNNY / WIGGLY / HAPPY / GOOFY"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is your favorite thing about Snoopy?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Snoopy was created by a man named CHARLES SCHULZ. Schulz drew Snoopy and the Peanuts comic strip for many years. Snoopy is now famous all around the WORLD. People love Snoopy because he is funny, kind, and full of joy. Snoopy will always be a special friend to everyone.",
+      "questions": [
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is a comic STRIP?",
+          "answer": "FUNNY DRAWINGS IN NEWSPAPERS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Who made Snoopy?",
+          "answer": "CHARLES SCHULZ"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Why do people love Snoopy?",
+          "answer": "HE IS FUNNY / HE IS KIND / HE IS FULL OF JOY"
+        },
+        {
+          "type": "OPEN",
+          "question": "How do you feel when you see Snoopy?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Schulz, Charles M. Peanuts Comic Strip Collection. United Feature Syndicate.",
+    "Peanuts Official Website. Peanuts Worldwide LLC. www.peanuts.com",
+    "The Smithsonian Magazine. 'The Enduring Legacy of Charles Schulz's Peanuts.' Art history and cultural impact documentation."
+  ],
+  "hashtags": [
+    "#Snoopy",
+    "#Peanuts",
+    "#CharlieBrown",
+    "#Woodstock",
+    "#WordUp",
+    "#S2C"
+  ]
+}

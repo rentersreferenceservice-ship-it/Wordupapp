@@ -1,0 +1,231 @@
+{
+  "id": "3f92f071-01ba-48ae-84ba-433bb1543a82",
+  "topic": "Artemis is on the moon!",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Artemis Is on the Moon! – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-07T01:18:42.113Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Long, long ago, people looked up at the night sky and saw the MOON shining bright. They wondered what it was like up there. Now, in 2025, NASA scientists and ASTRONAUTS have a special plan called the ARTEMIS MISSION. This mission will send real people all the way to the MOON for the very first time in many years! The ARTEMIS MISSION is named after a GODDESS from ancient stories who was very brave and smart.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the name of NASA's special plan to send people to the Moon?",
+          "answer": "THE ARTEMIS MISSION"
+        },
+        {
+          "type": "PRIOR_KNOWLEDGE",
+          "question": "What do you already know about the Moon?",
+          "answer": "IT IS BRIGHT / IT SHINES AT NIGHT / IT IS IN THE SKY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text tells us about the Artemis Mission.",
+          "answer": "IT WILL SEND ASTRONAUTS TO THE MOON / NASA IS DOING IT / IT IS NAMED AFTER A GODDESS / IT WILL HAPPEN FOR THE FIRST TIME IN MANY YEARS"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are looking up at the night sky. What do you see?",
+          "answer": "THE MOON / STARS / DARKNESS / LIGHT FROM THE MOON"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "The ARTEMIS MISSION has many important steps. First, NASA builds big ROCKETS that are super strong and can hold lots of FUEL. The rockets must be tall enough to reach high above the CLOUDS and push through EARTH'S ATMOSPHERE. Inside the rockets, there are special rooms called SPACECRAFT where ASTRONAUTS will sit safely. These rockets will blast off from Earth and fly through SPACE to reach the Moon!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do the rockets need to push through to reach the Moon?",
+          "answer": "EARTH'S ATMOSPHERE / THE CLOUDS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is the special room inside the rocket called where astronauts sit?",
+          "answer": "SPACECRAFT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two things that help the Artemis rockets work.",
+          "answer": "FUEL / ROCKETS / SPACECRAFT"
+        },
+        {
+          "type": "MATH",
+          "question": "How many main parts did the text mention about the mission setup: rockets, fuel, and spacecraft?",
+          "answer": "3"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Getting to the Moon is a very long JOURNEY that takes several days. The ASTRONAUTS have to wear special SPACESUITS that protect them from the COLD and the lack of AIR in space. These spacesuits are like super fancy pajamas made of thick material! Inside the spacecraft, astronauts can breathe, eat, sleep, and talk to people back on Earth using RADIOS. Every person on this mission is trained for many, many years to be ready for this big adventure!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do astronauts wear to protect themselves in space?",
+          "answer": "SPACESUITS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "How long does it take to get to the Moon?",
+          "answer": "SEVERAL DAYS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something astronauts can do inside the spacecraft.",
+          "answer": "BREATHE / EAT / SLEEP / TALK TO PEOPLE ON EARTH"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are an astronaut in a spacecraft flying to the Moon. What do you feel?",
+          "answer": "EXCITED / FLOATING / WEIGHTLESS / SAFE / CURIOUS"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "When the spacecraft lands on the Moon, the ASTRONAUTS put on their spacesuits and step outside onto the LUNAR SURFACE. The Moon's ground is covered with fine DUST and lots of ROCKS. There is no WATER and no AIR to breathe outside, so the spacesuits are super important! Astronauts can bounce and jump on the Moon because it has much less GRAVITY than Earth. This means they weigh less and can move in really cool, bouncy ways!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What covers the ground on the Moon?",
+          "answer": "DUST AND ROCKS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Why can astronauts bounce on the Moon?",
+          "answer": "THE MOON HAS LESS GRAVITY THAN EARTH"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two things the text says about the Moon's surface.",
+          "answer": "IT HAS DUST / IT HAS ROCKS / THERE IS NO WATER / THERE IS NO AIR"
+        },
+        {
+          "type": "OPEN",
+          "question": "If you could bounce on the Moon, how would that feel?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "The ARTEMIS MISSION will help scientists learn amazing things about the Moon. Astronauts will collect MOON ROCKS and MOON SOIL to bring back to Earth for study. Scientists want to find out if there might be WATER hidden under the Moon's surface. They also want to see if people could build a LUNAR BASE where astronauts could stay and work for a long time. All this knowledge will help us understand our Moon better!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What two things will astronauts collect on the Moon to bring back to Earth?",
+          "answer": "MOON ROCKS AND MOON SOIL"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something scientists want to learn about the Moon.",
+          "answer": "IF THERE IS WATER UNDER THE SURFACE / HOW TO BUILD A LUNAR BASE / MORE ABOUT THE MOON"
+        },
+        {
+          "type": "PRIOR_KNOWLEDGE",
+          "question": "Why do scientists think water might be important for people living on the Moon?",
+          "answer": "PEOPLE NEED WATER TO DRINK / WATER IS NEEDED FOR LIFE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Picture a scientist looking at a Moon rock through a microscope. What might they be looking for?",
+          "answer": "TINY PIECES / CRYSTALS / WATER / SIGNS OF LIFE"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "The ARTEMIS MISSION is named after a goddess, but the real team includes many different people. ENGINEERS design and build the rockets and spacecraft. SCIENTISTS study the Moon and plan what astronauts should look for. DOCTORS make sure astronauts are healthy and strong. TECHNICIANS check everything to make sure it is safe. People from all over the world work together on this amazing project, and everyone's job is important!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Who designs and builds the rockets and spacecraft?",
+          "answer": "ENGINEERS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two jobs that people do for the Artemis Mission.",
+          "answer": "ENGINEERS / SCIENTISTS / DOCTORS / TECHNICIANS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do doctors do on the Artemis team?",
+          "answer": "MAKE SURE ASTRONAUTS ARE HEALTHY AND STRONG"
+        },
+        {
+          "type": "OPEN",
+          "question": "Which job on the Artemis team sounds the most interesting to you and why?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "This mission is very exciting, but it is also very difficult and takes a long time to plan. NASA has been working on the ARTEMIS MISSION since 2017. The first UNCREWED MISSIONS sent spacecraft without people to test that everything works safely. Now, NASA is getting ready for the CREWED MISSION, which will finally send ASTRONAUTS to the Moon. It took years of hard work, but the dream of going to the Moon is becoming real!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "When did NASA start working on the Artemis Mission?",
+          "answer": "2017"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What kind of missions were sent to the Moon first to test things?",
+          "answer": "UNCREWED MISSIONS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two types of missions the text talks about.",
+          "answer": "UNCREWED MISSIONS / CREWED MISSIONS"
+        },
+        {
+          "type": "MATH",
+          "question": "If NASA started the Artemis Mission in 2017 and it is now 2025, how many years has NASA been working on it?",
+          "answer": "8 YEARS"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "The ARTEMIS MISSION shows us that big dreams can come true with teamwork and hard work. Astronauts are brave explorers who go to places no one has been in a very long time. Their journey to the Moon inspires children all around the world to learn about SPACE and science. Maybe one day, you could become an astronaut, an engineer, or a scientist and help explore the Moon yourself! The Moon is waiting, and the future of space exploration is exciting!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What does the Artemis Mission show us is possible?",
+          "answer": "BIG DREAMS CAN COME TRUE WITH TEAMWORK AND HARD WORK"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two jobs you could do to help explore space.",
+          "answer": "ASTRONAUT / ENGINEER / SCIENTIST / TECHNICIAN / DOCTOR"
+        },
+        {
+          "type": "OPEN",
+          "question": "What job on the Artemis Mission would you most like to have when you grow up?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are standing on the Moon looking back at Earth. What do you see?",
+          "answer": "EARTH / BLUE AND CLOUDS / HOME / THE SUN / STARS"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "NASA Official – Artemis Mission. https://www.nasa.gov/artemis/",
+    "NASA Space Place – All About the Moon. https://spaceplace.nasa.gov/all-about-the-moon/en/",
+    "Kennedy Space Center – Artemis: America's Moonshot. Kennedy Space Center Visitor Complex Educational Resources."
+  ],
+  "hashtags": [
+    "#ArtemisMission",
+    "#MoonLanding",
+    "#NASAExplorers",
+    "#SpaceExploration",
+    "#FutureAstronauts",
+    "#WordUp",
+    "#S2C"
+  ]
+}

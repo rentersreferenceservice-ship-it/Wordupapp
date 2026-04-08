@@ -1,0 +1,231 @@
+{
+  "id": "79a15a78-0ed6-4137-894c-6b92bd7e3e21",
+  "topic": "That smells red!",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "That Smells Red! – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-08T00:45:22.148Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Some people's brains work in a special way. When they smell something, they might see a COLOR in their mind. When they hear a SOUND, they might taste something. This is called SYNESTHESIA. It means their senses are all mixed up together in a fun way. Their brain connects things that usually don't go together.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What happens inside the brain when someone has synesthesia?",
+          "answer": "SENSES ARE MIXED UP"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text says people with synesthesia might do.",
+          "answer": "SMELL A COLOR / HEAR A SOUND AND TASTE / SEE A COLOR WHEN THEY SMELL"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes. Imagine you smell a rose. What color might you see in your mind?",
+          "answer": "RED / PINK / ORANGE / YELLOW"
+        },
+        {
+          "type": "OPEN",
+          "question": "Does having synesthesia sound like something you would like to try?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "A girl named Olivia has SYNESTHESIA. When she smells food, she sees COLORS. A BANANA smells YELLOW to her. CHOCOLATE smells BROWN. STRAWBERRIES smell PINK or RED. Her nose and her eyes work together in her BRAIN. She thinks it is pretty and fun.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What color does Olivia see when she smells a banana?",
+          "answer": "YELLOW"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does Olivia have?",
+          "answer": "SYNESTHESIA"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a food that Olivia smells in the story.",
+          "answer": "BANANA / CHOCOLATE / STRAWBERRIES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you open a jar of peanut butter and smell it. What color might pop into your mind?",
+          "answer": "BROWN / TAN / YELLOW / ORANGE"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Not everyone has SYNESTHESIA. Most people smell FOOD and just smell it. They do not see COLORS. People without synesthesia use one SENSE at a time. Their eyes are for seeing. Their nose is for smelling. Their ears are for hearing. This is NORMAL and wonderful too.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do most people's noses do?",
+          "answer": "SMELL"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What word means the way most people use one sense at a time?",
+          "answer": "NORMAL"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a body part that helps us use our senses.",
+          "answer": "EYES / NOSE / EARS"
+        },
+        {
+          "type": "OPEN",
+          "question": "Which way of sensing do you think is cooler — mixing senses or using one at a time?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "Some famous MUSICIANS have SYNESTHESIA too. They hear MUSIC and see COLORS while they play. STEVIE WONDER is a very famous MUSICIAN. He hears SOUNDS and feels COLORS in his MIND. This helps him write beautiful SONGS. His BRAIN is very special and creative.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What does Stevie Wonder do for a job?",
+          "answer": "MUSICIAN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does Stevie Wonder's brain help him make?",
+          "answer": "SONGS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Stevie Wonder experiences with his synesthesia.",
+          "answer": "HEARS SOUNDS / SEES COLORS / FEELS COLORS IN HIS MIND"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you hear a happy, fast song. What bright colors might you see?",
+          "answer": "YELLOW / ORANGE / RED / GOLD / BRIGHT PINK"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Your BRAIN is amazing. It helps you see, hear, smell, taste, and TOUCH. Every brain is different. Some BRAINS see COLORS when they smell. Other BRAINS just smell. Both are SPECIAL. Your brain makes you who you are.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What part of your body helps you see, hear, and smell?",
+          "answer": "BRAIN"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something your brain helps you do.",
+          "answer": "SEE / HEAR / SMELL / TASTE / TOUCH"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and think about your favorite smell. What happens in your mind?",
+          "answer": "YOU REMEMBER / YOU SMILE / YOU FEEL HAPPY / YOU SEE COLORS"
+        },
+        {
+          "type": "OPEN",
+          "question": "What makes your brain special and different from everyone else?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Some people with SYNESTHESIA see COLORS when they read LETTERS. The LETTER A might look RED. The LETTER B might look BLUE. This does not mean the letters are actually colored. It is just how their BRAIN sees them. It is like a SUPER POWER for their imagination.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What might people with synesthesia see when they read?",
+          "answer": "COLORS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a letter and a color that someone with synesthesia might see together.",
+          "answer": "A AND RED / B AND BLUE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine the letter C is your favorite color. What color would you pick for it?",
+          "answer": "RED / BLUE / GREEN / YELLOW / PURPLE / PINK / ORANGE"
+        },
+        {
+          "type": "OPEN",
+          "question": "Would you want your alphabet to have colors?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "Kids with SYNESTHESIA can do everything other kids do. They can play, learn, run, sing, and be friends. Having synesthesia does not stop them. It just makes their brain different in a cool way. Some kids with synesthesia love art and MUSIC. Some like science and sports. They are all kinds of people.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something kids with synesthesia can do.",
+          "answer": "PLAY / LEARN / RUN / SING / BE FRIENDS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Does having synesthesia stop kids from doing things?",
+          "answer": "NO"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you have synesthesia and you see colors when you hear music. What instrument would you like to play?",
+          "answer": "PIANO / GUITAR / DRUMS / TRUMPET / VIOLIN / FLUTE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is something you are good at that makes your brain special?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "When something SMELLS RED, it means your BRAIN sees a COLOR when your nose smells something. This is SYNESTHESIA, and it is WONDERFUL. Everyone's brain is different and SPECIAL. Maybe you mix your senses. Maybe you use one sense at a time. Either way, you are amazing.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the word for when a smell makes you see a color?",
+          "answer": "SYNESTHESIA"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something that the text says is wonderful.",
+          "answer": "SYNESTHESIA / YOUR BRAIN / BEING SPECIAL"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes. Imagine your favorite food. Does it have a color in your mind?",
+          "answer": "YES / NO / RED / YELLOW / BROWN / GREEN / ORANGE / MAYBE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What did you learn that surprised you most about synesthesia?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Cytowic, R. E., & Eagleman, D. M. (2009). Wednesday is Indigo Blue: Discovering the Brain of Synesthesia. MIT Press.",
+    "Baron-Cohen, S., Wyke, M. A., & Binnie, C. D. (1987). Hearing words and seeing colours. Nature, 706(6144), 381–382.",
+    "Ramachandran, V. S., & Hubbard, E. M. (2001). Psychophysical investigations into the neural basis of synaesthesia. Proceedings of the Royal Society B: Biological Sciences, 268(1470), 979–983."
+  ],
+  "hashtags": [
+    "#SynesthesiaSensory",
+    "#YoungBrains",
+    "#DifferentNotWrong",
+    "#SensoryMixing",
+    "#BrainFacts",
+    "#WordUp",
+    "#S2C"
+  ]
+}

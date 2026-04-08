@@ -1,0 +1,230 @@
+{
+  "id": "56a6ad92-bb77-4b1a-bc0a-5ffe8b915ab1",
+  "topic": "I like to jump!",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "I Like to Jump! – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-08T01:21:07.954Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Jumping is fun! When you JUMP, your legs push down hard on the ground. Then your body goes up into the air. Your feet leave the ground for just a moment. Many animals JUMP too. Kangaroos, frogs, and rabbits all love to JUMP. Jumping makes your muscles strong.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do your legs do when you jump?",
+          "answer": "PUSH DOWN"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name an animal that jumps.",
+          "answer": "KANGAROO / FROG / RABBIT"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes. Imagine you are jumping very high. What do you feel?",
+          "answer": "WIND / AIR MOVING / LIGHT / HAPPY"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is your favorite place to jump?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "There are many ways to JUMP. You can jump on one leg. You can jump on both legs at the same time. You can jump high up in the air. You can jump far across the ground. Some children like to JUMP on a TRAMPOLINE. A trampoline is a stretchy cloth that bounces you back up when you land on it. Each way of jumping is fun!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is a stretchy cloth that bounces you up?",
+          "answer": "TRAMPOLINE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What can you jump on when you play?",
+          "answer": "ONE LEG / BOTH LEGS / TRAMPOLINE"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is another place where you can safely jump?",
+          "answer": "BEACH / GRASS / BED / PLAYGROUND"
+        },
+        {
+          "type": "OPEN",
+          "question": "Which way of jumping do you like best?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Jumping is great EXERCISE. Exercise means moving your body to stay healthy and strong. When you JUMP, your heart beats faster. Your lungs help you breathe harder. Your muscles get stronger every time you jump. Kids who jump and play every day feel more ENERGY. Energy is the power that helps you run, play, and think. Jumping is a super way to get exercise!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What does exercise help your body do?",
+          "answer": "STAY HEALTHY AND STRONG"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What happens to your heart when you jump?",
+          "answer": "BEATS FASTER"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does energy help you do?",
+          "answer": "RUN / PLAY / THINK"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are jumping up and down. What does your heart feel like?",
+          "answer": "FAST / STRONG / BEATING / BUSY"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "You can JUMP inside your home or outside in the yard. Outside is a great place to jump. The grass feels soft under your feet. The sun feels warm on your skin. You can jump in a park. You can JUMP on a basketball court. You can jump at school with your friends. Inside, you can jump in your bedroom or playroom. Always make sure there is plenty of SPACE around you so you do not bump into things.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a place where you can jump.",
+          "answer": "YARD / PARK / BASKETBALL COURT / BEDROOM / PLAYROOM / SCHOOL"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does the grass feel like when you jump on it?",
+          "answer": "SOFT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Why do you need space around you when you jump?",
+          "answer": "SO YOU DO NOT BUMP INTO THINGS"
+        },
+        {
+          "type": "OPEN",
+          "question": "Where do you like to jump the most?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Jumping is fun for your BRAIN too! When you jump, your BRAIN is working hard. Your brain tells your legs when to push down. Your brain helps you balance so you do not fall. Your brain helps you know where you are in space. Your brain also helps you have FUN. When you are happy and laughing while you jump, that is your brain sending happy feelings to your whole body. Jumping makes your body and brain both happy!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What part of you tells your legs to push down?",
+          "answer": "BRAIN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does your brain help you do when you jump?",
+          "answer": "BALANCE / HAVE FUN"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine your brain is happy while you jump. What happy feeling comes to your body?",
+          "answer": "JOY / SMILE / LAUGHTER / CHEERFUL"
+        },
+        {
+          "type": "OPEN",
+          "question": "How does jumping make you feel?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Some jumping games are very fun. You can play HOPSCOTCH. Hopscotch is a game where you jump from one square to the next square on the ground. You can jump rope. When you jump rope, you swing a rope over your head and jump over it. You can play a jumping game called tag. In tag, you run and jump and try to catch your friends. All of these games make jumping even more fun!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What game do you play by jumping from square to square?",
+          "answer": "HOPSCOTCH"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a jumping game.",
+          "answer": "HOPSCOTCH / JUMP ROPE / TAG"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you swing over your head when you jump rope?",
+          "answer": "ROPE"
+        },
+        {
+          "type": "OPEN",
+          "question": "Which jumping game sounds the most fun to you?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "When you jump, your body changes. Your muscles get tight and then loose again. Your feet push hard into the ground. Your arms might swing up to help you jump higher. Your whole body works together like a team. Every time you practice jumping, you get better at it. You might jump higher. You might jump farther. You might be able to jump for longer without getting tired. Practice makes you a better jumper!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do your muscles do when you jump?",
+          "answer": "GET TIGHT AND LOOSE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What might swing up to help you jump higher?",
+          "answer": "ARMS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What helps you become a better jumper?",
+          "answer": "PRACTICE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are practicing jumping every day. Picture yourself jumping higher and higher. What do you see?",
+          "answer": "SKY / CLOUDS / TREES / MYSELF GETTING STRONGER"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Jumping is a wonderful thing your body can do. When you JUMP, you are having fun, getting exercise, and making your body strong. You use your BRAIN and your MUSCLES. Your heart pumps fast. Your lungs breathe hard. You feel HAPPY and full of life. Every time you jump, you are taking care of your health. So jump high! Jump far! Jump often! Your body and brain will love it. I like to jump, and you can like it too!",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something good that happens when you jump.",
+          "answer": "YOU HAVE FUN / YOU GET EXERCISE / YOUR BODY GETS STRONG / YOU FEEL HAPPY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What part of you does jumping help?",
+          "answer": "BRAIN / MUSCLES / HEART / LUNGS"
+        },
+        {
+          "type": "OPEN",
+          "question": "Why do you like to jump?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine jumping as high as you can. What does it feel like?",
+          "answer": "FREE / STRONG / LIGHT / PROUD / EXCITED"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "American Heart Association. (2023). Physical Activity Guidelines for Children. Retrieved from https://www.heart.org/",
+    "Mayo Clinic. (2024). Children's Exercise and Fitness. Retrieved from https://www.mayoclinic.org/",
+    "PBS Learning Media. (2023). Movement and Body Awareness for Early Learners. Retrieved from https://pbslearningmedia.org/"
+  ],
+  "hashtags": [
+    "#JumpingFun",
+    "#KidsExercise",
+    "#PhysicalActivity",
+    "#MovementIsLife",
+    "#WordUp",
+    "#S2C"
+  ]
+}

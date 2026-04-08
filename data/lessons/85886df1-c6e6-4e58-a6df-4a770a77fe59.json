@@ -1,0 +1,243 @@
+{
+  "id": "85886df1-c6e6-4e58-a6df-4a770a77fe59",
+  "topic": "To the Moon Artemis!",
+  "ageGroup": "Adults (18+)",
+  "title": "To the Moon Artemis! – Adults (18+)",
+  "createdAt": "2026-04-08T11:47:47.827Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Humanity is heading back to the Moon — and this time, we are going to stay. NASA's ARTEMIS PROGRAM is the ambitious plan to return humans to the lunar surface for the first time since 1972. The name Artemis comes from Greek MYTHOLOGY, where Artemis was the twin sister of Apollo and the goddess of the Moon. This is a fitting tribute, since NASA's original Moon missions were called the APOLLO PROGRAM. The Artemis program aims not just to visit the Moon, but to build a lasting PRESENCE there as a stepping stone to eventually sending humans to Mars.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "NASA's plan to return humans to the Moon is called the Artemis ______.",
+          "answer": "PROGRAM"
+        },
+        {
+          "type": "KNOWN",
+          "question": "In Greek mythology, Artemis was the twin sister of ______.",
+          "answer": "APOLLO"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text tells us about the Artemis program's goals.",
+          "answer": "RETURN HUMANS TO THE MOON / BUILD A LASTING PRESENCE / STEP TOWARD MARS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What U.S. government agency is responsible for the nation's civilian space program?",
+          "answer": "NASA"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1465788650867-51ac83b24ea4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxOQVNBJTIwQXJ0ZW1pcyUyMHJvY2tldHxlbnwwfDB8fHwxNzc1NjQ4ODY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "three huge gray metal towers inside building"
+    },
+    {
+      "number": 2,
+      "text": "The rocket carrying Artemis astronauts into space is called the SPACE LAUNCH SYSTEM, or SLS. The SLS is the most powerful rocket NASA has ever built, generating more than 8.8 million pounds of THRUST at liftoff. Mounted on top of the SLS is the ORION spacecraft, the crew capsule designed to carry astronauts to the Moon and back safely. Orion is equipped with a HEAT SHIELD on its base that must withstand temperatures of around 5,000 degrees Fahrenheit during re-entry into Earth's atmosphere. Together, the SLS and Orion form the backbone of every crewed Artemis mission.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The crew capsule designed to carry astronauts to the Moon is called the Orion ______.",
+          "answer": "SPACECRAFT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The SLS generates more than 8.8 million pounds of ______ at liftoff.",
+          "answer": "THRUST"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two components the text identifies as forming the backbone of every crewed Artemis mission.",
+          "answer": "SLS / ORION"
+        },
+        {
+          "type": "MATH",
+          "question": "According to the text, approximately how hot does the Orion heat shield get during re-entry?",
+          "answer": "5,000 DEGREES FAHRENHEIT"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1517976487492-5750f3195933?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxTTFMlMjByb2NrZXQlMjBsYXVuY2h8ZW58MHwwfHx8MTc3NTY0ODg2Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "gray spacecraft taking off during daytime"
+    },
+    {
+      "number": 3,
+      "text": "Before any astronaut set foot on the Moon again, NASA launched ARTEMIS I — an uncrewed test flight — in November 2022. During Artemis I, the Orion capsule traveled farther from Earth than any spacecraft designed for humans had ever gone before, reaching a RECORD distance of approximately 268,563 miles from our planet. The mission lasted 25.5 days and splashed down safely in the PACIFIC OCEAN, proving that the heat shield, life support systems, and navigation technology were ready for a crew. Artemis I was a MILESTONE — a critical proof-of-concept that gave engineers the confidence to move forward. Every number measured and every system tested brought NASA one step closer to putting boots on the Moon.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Artemis I splashed down safely in the ______ Ocean.",
+          "answer": "PACIFIC"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The text describes Artemis I as a critical proof-of-concept and a ______.",
+          "answer": "MILESTONE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name things the text says were proven ready for a crew after Artemis I.",
+          "answer": "HEAT SHIELD / LIFE SUPPORT SYSTEMS / NAVIGATION TECHNOLOGY"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine you are inside the Orion capsule, floating in weightlessness 268,000 miles from Earth. What do you see when you look out the window?",
+          "answer": "EARTH / STARS / DARKNESS / THE MOON / BLACKNESS OF SPACE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1630696342254-6004aba46be2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxPcmlvbiUyMGNhcHN1bGUlMjBzcGxhc2hkb3dufGVufDB8MHx8fDE3NzU2NDg4NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "white and orange ship in a building"
+    },
+    {
+      "number": 4,
+      "text": "One of the most historic goals of Artemis is to land the first woman and the first person of COLOR on the Moon. NASA selected a diverse group of astronauts for the Artemis missions, including Commander Reid Wiseman, pilot Victor Glover, mission specialist Christina Koch, and Canadian astronaut Jeremy Hansen for the ARTEMIS II crewed flyby mission. Christina KOCH is a particularly exciting figure — she holds the record for the longest single spaceflight by a woman, spending 328 days aboard the International Space Station. Victor Glover will become the first person of color to travel to the Moon. This commitment to DIVERSITY reflects NASA's vision that space exploration should represent all of humanity.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Christina Koch holds the record for the longest single spaceflight by a ______.",
+          "answer": "WOMAN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "NASA's commitment to having all of humanity represented in space is called ______.",
+          "answer": "DIVERSITY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name astronauts the text identifies as part of the Artemis II crew.",
+          "answer": "REID WISEMAN / VICTOR GLOVER / CHRISTINA KOCH / JEREMY HANSEN"
+        },
+        {
+          "type": "OPEN",
+          "question": "Why do you think it matters that the Artemis program prioritizes sending the first woman and first person of color to the Moon?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1545977747-c72af50d060a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwTkFTQSUyMGFzdHJvbmF1dHN8ZW58MHwwfHx8MTc3NTY0ODg2Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "NASA uniform"
+    },
+    {
+      "number": 5,
+      "text": "Artemis III will be the mission that actually lands astronauts back on the LUNAR SURFACE — the first time humans will walk on the Moon since Apollo 17 in December 1972. The landing will take place near the Moon's SOUTH POLE, a region never before visited by humans. Scientists are especially excited about the south pole because permanently shadowed CRATERS there may hold billions of tons of water ice. That water ice is a game-changer — it could be converted into drinking water, oxygen to breathe, and even rocket PROPELLANT to fuel future missions deeper into space. The south pole is not just a destination; it is a potential base camp for all of humanity's future beyond Earth.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The Artemis III landing will take place near the Moon's ______ Pole.",
+          "answer": "SOUTH"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Water ice found at the south pole could be converted into rocket ______ to fuel future missions.",
+          "answer": "PROPELLANT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name things the text says water ice could be converted into.",
+          "answer": "DRINKING WATER / OXYGEN / ROCKET PROPELLANT"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What was the name of the last Apollo mission to land humans on the Moon?",
+          "answer": "APOLLO 17"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "To land Artemis astronauts on the Moon, NASA needed a LUNAR LANDER — a spacecraft capable of descending from orbit to the surface. NASA selected SpaceX and its STARSHIP vehicle to serve as the Human Landing System, or HLS, for early Artemis Moon landings. This was a landmark decision, marking the first time a commercial company was contracted to carry NASA astronauts to the lunar surface. Starship is enormous — standing taller than the Statue of Liberty — and is designed to be fully REUSABLE, a concept that could dramatically reduce the cost of future missions. The partnership between NASA and SpaceX represents a new era of COLLABORATION between government space agencies and private industry.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "NASA selected SpaceX and its Starship vehicle to serve as the Human Landing System, also called ______.",
+          "answer": "HLS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Starship is designed to be fully ______, which could reduce the cost of future missions.",
+          "answer": "REUSABLE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name things the text tells us about Starship.",
+          "answer": "TALLER THAN THE STATUE OF LIBERTY / FULLY REUSABLE / SELECTED AS THE HUMAN LANDING SYSTEM"
+        },
+        {
+          "type": "OPEN",
+          "question": "What do you think are the benefits and risks of NASA partnering with private companies like SpaceX for Moon missions?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1714254795644-710ad9a7e046?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxTcGFjZVglMjBTdGFyc2hpcCUyMHJvY2tldHxlbnwwfDB8fHwxNzc1NjQ4ODY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a large metal object sitting on top of a sidewalk"
+    },
+    {
+      "number": 7,
+      "text": "In addition to the Moon landings, Artemis includes plans to build the GATEWAY — a small space station that will orbit the Moon and serve as a hub for lunar exploration. Gateway will not orbit Earth like the International Space Station; instead, it will follow a NEAR-RECTILINEAR HALO ORBIT, a unique elongated path that takes it close to the Moon's south pole region on each pass. The station will be built in PHASES over multiple missions and is designed to be a stopping point for astronauts traveling to and from the lunar surface. International partners including the European Space Agency, JAXA of Japan, and the Canadian Space Agency are contributing MODULES and systems to Gateway. This makes Gateway a truly global endeavor, much like the International Space Station before it.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The small space station planned to orbit the Moon as part of Artemis is called the ______.",
+          "answer": "GATEWAY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Gateway will follow a unique elongated orbit called a near-rectilinear halo ______.",
+          "answer": "ORBIT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name international partners the text identifies as contributing to the Gateway project.",
+          "answer": "EUROPEAN SPACE AGENCY / JAXA / CANADIAN SPACE AGENCY"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are a crew member aboard the Gateway station, watching the Moon slowly fill your window as you make your closest pass over its south pole. What details do you notice about the lunar surface below you?",
+          "answer": "CRATERS / SHADOWS / GRAY SURFACE / ICY REGIONS / MOUNTAINS / DARKNESS"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "The ultimate purpose of the Artemis program extends far beyond the Moon itself — it is NASA's BLUEPRINT for sending humans to Mars. Every technology tested at the Moon, from life support and navigation to in-situ RESOURCE UTILIZATION (using local materials like water ice), will be refined for the far longer journey to Mars. Mars is, on average, about 140 million miles from Earth, making it a mission that will require months of deep-space travel without the possibility of a quick return. SUSTAINABILITY — the ability to live off the land and resources of another world — is the core challenge that the Moon will help humanity solve. The Artemis generation is not just going back to the Moon; they are writing the ROADMAP for humans becoming a truly MULTI-PLANETARY species.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The text describes Artemis as NASA's ______ for sending humans to Mars.",
+          "answer": "BLUEPRINT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The ability to live off the land and resources of another world is called ______.",
+          "answer": "SUSTAINABILITY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name technologies or concepts the text says will be tested at the Moon and refined for the journey to Mars.",
+          "answer": "LIFE SUPPORT / NAVIGATION / RESOURCE UTILIZATION"
+        },
+        {
+          "type": "MATH",
+          "question": "According to the text, what is the average distance between Earth and Mars?",
+          "answer": "140 MILLION MILES"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1770723963970-ace02c7db50e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxNYXJzJTIwZXhwbG9yYXRpb24lMjBmdXR1cmV8ZW58MHwwfHx8MTc3NTY0ODg2Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "The planet mars against a black background"
+    }
+  ],
+  "citations": [
+    "NASA. (2024). Artemis — NASA's Moon to Mars Mission. https://www.nasa.gov/artemis",
+    "NASA. (2023). Artemis I Mission Overview. NASA Technical Reports and Mission Pages. https://www.nasa.gov/mission/artemis-i/",
+    "Foust, Jeff. (2021). 'NASA selects SpaceX to develop lunar lander for Artemis program.' SpaceNews. https://spacenews.com/nasa-selects-spacex-to-develop-lunar-lander-for-artemis-program/",
+    "Howell, Elizabeth. (2023). 'Artemis 2 crew: Meet the astronauts going around the Moon.' Space.com. https://www.space.com/artemis-2-crew-astronauts"
+  ],
+  "hashtags": [
+    "#ArtemisMission",
+    "#MoonToMars",
+    "#NASAArtemis",
+    "#SpaceExploration",
+    "#WordUp",
+    "#S2C"
+  ]
+}

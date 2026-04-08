@@ -1,0 +1,230 @@
+{
+  "id": "3e4529e9-083d-44a0-960f-23e2c7738ddf",
+  "topic": "building blocks",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Building Blocks – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-08T00:51:13.276Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "BLOCKS are things you can hold and put together. You can STACK them on top of each other to make tall towers. BLOCKS come in many COLORS like red, blue, yellow, and green. When you play with BLOCKS, you use your hands to move them around. BLOCKS can be made of WOOD, plastic, or foam. Playing with BLOCKS is fun and helps your BRAIN grow strong.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What can you do with blocks to make them tall?",
+          "answer": "STACK"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "What colors can blocks be?",
+          "answer": "RED / BLUE / YELLOW / GREEN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What body part do you use to move blocks?",
+          "answer": "HANDS"
+        },
+        {
+          "type": "OPEN",
+          "question": "What do you like to build with blocks?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "SHAPES are important when you build with blocks. A SQUARE has four equal sides and looks like a box. A CIRCLE is round with no corners. A TRIANGLE has three sides and looks pointy. A RECTANGLE is long and flat, like a door. When you learn SHAPES, building becomes easier and more fun. You can make houses, cars, and bridges using different SHAPES.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "How many sides does a square have?",
+          "answer": "FOUR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a shape you can build with blocks.",
+          "answer": "SQUARE / CIRCLE / TRIANGLE / RECTANGLE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What shape is round with no corners?",
+          "answer": "CIRCLE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture a block. What shape do you imagine?",
+          "answer": "SQUARE / RECTANGLE / CUBE"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "When you BUILD with blocks, you are using your BRAIN to think and plan. First, you might IMAGINE what you want to make in your head. Next, you pick out the BLOCKS you need. Then, you START putting them together, one by one. If your tower falls down, you can TRY again. Building teaches you that MISTAKES are okay and help you learn better.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do you use to plan what you will build?",
+          "answer": "BRAIN"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What happens when you practice something many times?",
+          "answer": "YOU GET BETTER"
+        },
+        {
+          "type": "OPEN",
+          "question": "How do you feel when you build something?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are building the tallest tower. What do your hands do?",
+          "answer": "STACK / REACH / HOLD / PICK"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "BLOCKS help you learn SIZE. Some BLOCKS are BIG and some are SMALL. You can put a BIG block under a SMALL block. You can also put SMALL BLOCKS on top of BIG ones. When you understand SIZE, you can build stronger buildings. A BIG block at the BOTTOM helps your creation stay up. A SMALL block at the TOP is easier to balance. Learning SIZE makes you a better builder.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a size a block can be.",
+          "answer": "BIG / SMALL"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Where is a good place to put a big block?",
+          "answer": "BOTTOM"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does understanding size help you do?",
+          "answer": "BUILD BETTER"
+        },
+        {
+          "type": "OPEN",
+          "question": "Would you rather build with big blocks or small blocks?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "When you PLAY with BLOCKS, you are also learning PATTERNS. A PATTERN is when the same thing happens over and over. You might put a red BLOCK, then a blue BLOCK, then a red BLOCK, then a blue BLOCK again. That is a PATTERN. PATTERNS help your BRAIN recognize order. You can make PATTERNS with COLORS or SHAPES. Making PATTERNS with BLOCKS is fun and makes your mind stronger.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is it called when the same thing happens over and over?",
+          "answer": "PATTERN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What can you make patterns with?",
+          "answer": "COLORS / SHAPES"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something you can use to make a pattern.",
+          "answer": "COLORS / SHAPES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine red, blue, red, blue blocks in a line. What color comes next?",
+          "answer": "RED"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "BUILDING with BLOCKS is even more fun when you do it with friends. You can TAKE TURNS putting blocks together. One friend might BUILD a wall, and another friend might BUILD a roof. Working TOGETHER teaches you how to SHARE and be KIND. When you WORK TOGETHER, you can build bigger and more amazing things. Friends help each other when someone gets stuck. Playing BLOCKS with others makes playtime happy.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What should you do when it is someone else's turn?",
+          "answer": "WAIT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "What can you learn when you build with friends?",
+          "answer": "SHARE / BE KIND / WORK TOGETHER"
+        },
+        {
+          "type": "OPEN",
+          "question": "Who do you like to build blocks with?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine building with your best friend. What do you hear?",
+          "answer": "LAUGHTER / TALKING / BLOCKS FALLING"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "Some people BUILD with BLOCKS in their JOB. An ARCHITECT is someone who DESIGNS buildings. ARCHITECTS draw pictures of houses before workers build them. A builder is someone who puts materials together to make real buildings. You can DESIGN your own buildings with BLOCKS before you build them. Watching what ARCHITECTS do might give you IDEAS for new things to build. Playing with BLOCKS now can help you have an amazing JOB when you grow up.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What job does someone do who designs buildings?",
+          "answer": "ARCHITECT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do architects do before a building is built?",
+          "answer": "DRAW PICTURES"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What are real buildings made of?",
+          "answer": "BRICKS / WOOD / STEEL / CONCRETE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What kind of building would you like to design?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Playing with BLOCKS gives your BRAIN many gifts. BLOCKS help you learn MATH because you count and see SHAPES. BLOCKS help you get CREATIVE and use your IMAGINATION. When you build something, you feel PROUD and HAPPY. BLOCKS are safe and fun for your hands to use. Every time you PLAY with BLOCKS, you are teaching your BRAIN and body to work together. Building with BLOCKS is one of the best ways to learn and have fun.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "What skills does playing with blocks help you learn?",
+          "answer": "MATH / CREATIVITY / IMAGINATION"
+        },
+        {
+          "type": "KNOWN",
+          "question": "How do you feel when you finish building something?",
+          "answer": "PROUD / HAPPY"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is another toy that helps you learn and have fun?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What will you build with blocks next time?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Ginsburg, K. R. (2007). 'The Importance of Play in Promoting Healthy Child Development and Maintaining Strong Parent-Child Bonds.' Pediatrics, 119(1), 182–191.",
+    "Piaget, J. (1962). 'Play, Dreams and Imitation in Childhood.' W.W. Norton & Company.",
+    "Hirsh-Pasek, K., & Golinkoff, R. M. (2003). 'Einstein Never Used Flash Cards: How Our Children Really Learn—and Why They Need to Play More and Memorize Less.' Rodale Press."
+  ],
+  "hashtags": [
+    "#BuildingBlocks",
+    "#PlayLearning",
+    "#ChildDevelopment",
+    "#CreativePlay",
+    "#WordUp",
+    "#S2C"
+  ]
+}

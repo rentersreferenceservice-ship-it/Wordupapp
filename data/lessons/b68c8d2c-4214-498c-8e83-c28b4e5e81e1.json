@@ -1,0 +1,271 @@
+{
+  "id": "b68c8d2c-4214-498c-8e83-c28b4e5e81e1",
+  "topic": "How big is the universe?",
+  "ageGroup": "Adults (18+)",
+  "title": "How Big Is the Universe? – Adults (18+)",
+  "createdAt": "2026-04-07T01:25:00.765Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "The UNIVERSE is everything that exists — all the GALAXIES, STARS, PLANETS, and empty SPACE combined. Scientists believe the OBSERVABLE UNIVERSE, which is the part we can actually see with telescopes, is about 93 billion light-years across. A LIGHT-YEAR is the distance light travels in one year, which is about 5.88 trillion miles. When you look at the night sky with a telescope, you're seeing light that has traveled through space for millions or even billions of years to reach your eyes. This means you're looking back in time whenever you gaze at distant stars and galaxies.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What distance measurement is used to describe the width of the observable universe?",
+          "answer": "93 BILLION LIGHT-YEARS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is a LIGHT-YEAR?",
+          "answer": "THE DISTANCE LIGHT TRAVELS IN ONE YEAR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two things the text says exist in the universe.",
+          "answer": "GALAXIES / STARS / PLANETS / SPACE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine looking through a telescope at a star that is millions of light-years away. What are you actually doing when you see that light?",
+          "answer": "LOOKING BACK IN TIME / SEEING LIGHT THAT TRAVELED FOR MILLIONS OF YEARS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is the closest star to Earth besides the Sun?",
+          "answer": "PROXIMA CENTAURI"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "Our own MILKY WAY GALAXY is a spiral galaxy containing an estimated 100 to 200 billion STARS, and the Sun is just one of them. The Milky Way is so large that light from one edge to the other takes about 100,000 years to cross. Inside our galaxy, there are STAR CLUSTERS, NEBULAE (clouds of gas and dust where stars form), and SUPERMASSIVE BLACK HOLES at the center. When astronomers look beyond the Milky Way, they find billions of other galaxies scattered throughout the universe, each containing billions or trillions of their own stars. The sheer NUMBER of stars and galaxies is almost impossible for the human mind to fully grasp.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Approximately how many stars does the Milky Way contain?",
+          "answer": "100 TO 200 BILLION STARS"
+        },
+        {
+          "type": "MATH",
+          "question": "How many years does it take for light to travel from one edge of the Milky Way to the other?",
+          "answer": "100,000 YEARS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name at least two features found inside the Milky Way galaxy.",
+          "answer": "STAR CLUSTERS / NEBULAE / SUPERMASSIVE BLACK HOLES"
+        },
+        {
+          "type": "OPEN",
+          "question": "When you think about the fact that our Sun is just one of billions of stars in our galaxy, and our galaxy is just one of billions of galaxies, how does that make you feel?",
+          "answer": "STUDENT CHOICE"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What type of object is located at the center of most large galaxies?",
+          "answer": "A SUPERMASSIVE BLACK HOLE"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Scientists measure cosmic DISTANCES using tools like the HUBBLE SPACE TELESCOPE and newer instruments like the JAMES WEBB SPACE TELESCOPE (JWST). These telescopes help astronomers observe GALAXIES that are billions of light-years away, showing us that the universe is far more expansive than we once imagined. The Hubble Space Telescope, launched by NASA in 1990, revolutionized our understanding of the universe's true scale. In 2021, the James Webb Space Telescope was deployed to study even more distant objects and the earliest galaxies. Every few years, as technology improves, our estimate of the universe's size seems to grow, revealing new realms of cosmic wonder.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What year was the Hubble Space Telescope launched by NASA?",
+          "answer": "1990"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two space telescopes mentioned in the text that help scientists measure cosmic distances.",
+          "answer": "HUBBLE SPACE TELESCOPE / JAMES WEBB SPACE TELESCOPE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What major space telescope was deployed in 2021 to study distant objects and early galaxies?",
+          "answer": "THE JAMES WEBB SPACE TELESCOPE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine watching a video feed from the James Webb Space Telescope showing galaxies from billions of light-years away. What incredible sights might you hear described as you watch?",
+          "answer": "ANCIENT GALAXIES / STARS FORMING / COSMIC CLOUDS / THE EARLIEST PARTS OF THE UNIVERSE"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What improvements in technology generally help scientists see farther into space?",
+          "answer": "BETTER / MORE POWERFUL TELESCOPES"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "The universe is not only vast in space but also in TIME. The BIG BANG THEORY suggests that the universe began approximately 13.8 billion years ago from an incredibly hot and dense point. Since that beginning, the universe has been continuously EXPANDING, pushing GALAXIES farther and farther apart. Scientists discovered this expansion in the 1920s when astronomer Edwin Hubble observed that distant galaxies were moving away from us. This discovery changed everything we thought we knew about the cosmos and earned it the name of 'Hubble's Law' — the observation that galaxies recede from each other at speeds proportional to their distance. Understanding this expansion helps us realize just how enormous and ancient the universe truly is.",
+      "questions": [
+        {
+          "type": "MATH",
+          "question": "According to the Big Bang Theory, approximately how many billion years ago did the universe begin?",
+          "answer": "13.8 BILLION YEARS AGO"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is the universe continuously doing, according to the text?",
+          "answer": "EXPANDING / PUSHING GALAXIES FARTHER APART"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two things mentioned about Edwin Hubble and his discoveries.",
+          "answer": "HE DISCOVERED THE EXPANSION OF THE UNIVERSE / HE LIVED IN THE 1920S / HE OBSERVED DISTANT GALAXIES MOVING AWAY / HUBBLE'S LAW IS NAMED AFTER HIM"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine yourself standing still while watching colored dots (representing galaxies) painted on an inflating balloon. What would you observe happening to those dots as the balloon expands?",
+          "answer": "THEY MOVE AWAY FROM EACH OTHER / THEY GET FARTHER APART / THEY SEPARATE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What aspect of the universe's age and expansion surprises or interests you the most?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Beyond what we can see lies a concept called the INFINITE UNIVERSE. While the OBSERVABLE UNIVERSE has limits — about 93 billion light-years across — many scientists believe the entire universe extends far beyond what our telescopes can detect. Some theorists propose the existence of the MULTIVERSE, the idea that countless universes might exist beyond our own. The COSMIC HORIZON is the edge of what we can theoretically see, set by the speed of light and the age of the universe. Because light from beyond this horizon hasn't had time to reach us yet, we may never know what lies beyond. This possibility fascinates philosophers, physicists, and anyone curious about the ultimate nature of reality.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the outer limit of what we can see called?",
+          "answer": "THE COSMIC HORIZON / THE OBSERVABLE UNIVERSE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two ideas the text mentions about what might exist beyond our observable universe.",
+          "answer": "AN INFINITE UNIVERSE / THE MULTIVERSE / COUNTLESS OTHER UNIVERSES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What sets the limit of our cosmic horizon?",
+          "answer": "THE SPEED OF LIGHT AND THE AGE OF THE UNIVERSE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine standing at the edge of everything we can see in the universe. What do you sense beyond that edge — mystery, darkness, possibility?",
+          "answer": "DARKNESS / MYSTERY / UNKNOWN / POSSIBILITY / INFINITY"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Can anything travel faster than the speed of light according to Einstein's theory?",
+          "answer": "NO"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Our solar system sits in an OUTER SUBURB of the Milky Way, and Earth is a tiny PLANET orbiting a medium-sized STAR we call the Sun. On a cosmic scale, our planet is almost impossibly small — if Earth were a grain of sand, the entire observable universe would be larger than all the oceans combined. PERSPECTIVE helps us appreciate how humbling our place truly is in the grand scheme of things. The Voyager spacecraft, launched in 1977, has traveled farther than any human-made object and still transmits data after more than 45 years in space. Yet even after traveling for decades, the Voyager probes haven't left our solar system, let alone our galaxy — a reminder of just how vast the distances truly are.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What year were the Voyager spacecraft launched?",
+          "answer": "1977"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Where in the Milky Way is our solar system located?",
+          "answer": "IN AN OUTER SUBURB"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two facts the text states about Earth's place in the universe.",
+          "answer": "IT IS A TINY PLANET / THE SUN IS A MEDIUM-SIZED STAR / IT ORBITS THE SUN / EARTH IS SMALLER THAN A GRAIN OF SAND ON A COSMIC SCALE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine reducing Earth to the size of a grain of sand. As you hold that grain, picture how vast the observable universe would need to be to contain all the oceans. What does this size comparison help you understand?",
+          "answer": "HOW SMALL EARTH IS / HOW VAST THE UNIVERSE IS / PERSPECTIVE / SCALE"
+        },
+        {
+          "type": "OPEN",
+          "question": "Does thinking about Earth's smallness in the universe make you feel connected to others, humbled, or something else entirely?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "The discovery that the universe is not only expanding but ACCELERATING in its expansion came in 1998 when scientists studying SUPERNOVAE (exploding stars) won the Nobel Prize for their findings. This acceleration is caused by a mysterious force called DARK ENERGY, which makes up about 68 percent of the universe. DARK MATTER, another invisible component, accounts for roughly 27 percent of the universe, while ordinary matter (the stuff we can see and touch) makes up only about 5 percent. Together, dark matter and dark energy shape the universe's structure and its future. Despite centuries of astronomical advancement, we still understand only a tiny fraction of what the universe actually contains.",
+      "questions": [
+        {
+          "type": "MATH",
+          "question": "What percentage of the universe does dark energy make up?",
+          "answer": "ABOUT 68 PERCENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What year did scientists discover that the universe's expansion is accelerating?",
+          "answer": "1998"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name the two invisible forces or substances that make up most of the universe.",
+          "answer": "DARK ENERGY / DARK MATTER"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What percentage of the universe is ordinary matter that we can see and touch?",
+          "answer": "ABOUT 5 PERCENT"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine looking at a cosmic map where dark energy glows one color, dark matter glows another, and visible matter (stars and galaxies) glows a third. Which color would take up the most space on your map, and what does that tell you?",
+          "answer": "DARK ENERGY WOULD TAKE THE MOST SPACE / MOST OF THE UNIVERSE IS INVISIBLE / WE CAN ONLY SEE A SMALL PART OF THE UNIVERSE"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Contemplating the universe's true size reshapes how we understand our place and purpose on Earth. The COSMOS stretches beyond human comprehension, yet we are the only known form of CONSCIOUSNESS capable of studying and appreciating it. From quantum physics to cosmology, modern science reveals that the universe operates according to elegant mathematical LAWS that scientists continue to discover and test. Organizations like NASA, the European Southern Observatory (ESO), and universities worldwide dedicate resources to understanding cosmic origins and the universe's ultimate fate. Whether the universe is finite or infinite, whether other universes exist or not, the act of asking these questions and seeking answers is fundamentally human. We are stardust learning to understand the stars.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "According to the text, what unique ability do humans possess regarding the universe?",
+          "answer": "CONSCIOUSNESS / THE ABILITY TO STUDY AND APPRECIATE THE UNIVERSE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name at least two organizations mentioned that work to understand the universe.",
+          "answer": "NASA / THE EUROPEAN SOUTHERN OBSERVATORY / UNIVERSITIES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does the universe operate according to, according to the text?",
+          "answer": "ELEGANT MATHEMATICAL LAWS"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine yourself as part of the universe — made of the same atoms and energy as stars, connected to distant galaxies through gravity and time. How does this realization feel in your body?",
+          "answer": "AWE / WONDER / CONNECTION / HUMILITY / AMAZEMENT / PEACE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What question about the universe would you most want answered if you could ask anything?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "NASA – Observable Universe: https://science.nasa.gov/universe/observable-universe/",
+    "Hubble Space Telescope Official Site – Measuring the Universe: https://hubblesite.org/",
+    "Carroll, Sean M. 'The Big Picture: On the Origins of Life, Meaning, and the Universe Itself.' Dutton, 2016.",
+    "European Southern Observatory (ESO) – Cosmic Distance Measurements: https://www.eso.org/"
+  ],
+  "hashtags": [
+    "#UniverseSize",
+    "#Cosmology",
+    "#SpaceExploration",
+    "#DarkEnergy",
+    "#WordUp",
+    "#S2C"
+  ]
+}

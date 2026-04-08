@@ -1,0 +1,230 @@
+{
+  "id": "a9a6c0d9-9ef6-4fd5-a3f7-f518892fb769",
+  "topic": "Mozart for the Soul",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Mozart for the Soul – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-07T23:14:52.847Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Wolfgang Amadeus Mozart was one of the most amazing COMPOSERS who ever lived. He was born in Austria in the year 1756. Mozart started playing MUSIC when he was just a tiny boy—only three years old! His father, Leopold Mozart, taught him how to play the PIANO and the VIOLIN. Even as a small child, Mozart was already making beautiful MELODIES that people loved to hear.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What country was Mozart born in?",
+          "answer": "AUSTRIA"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What instrument did Mozart's father teach him to play?",
+          "answer": "PIANO"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Mozart could do as a child.",
+          "answer": "PLAY MUSIC / PLAY PIANO / PLAY VIOLIN / MAKE MELODIES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are three years old and someone is teaching you to play piano. What does the piano sound like in your ears?",
+          "answer": "PRETTY / BEAUTIFUL / TINKLY / SOFT / LOUD"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "Mozart was so talented that he became famous all across Europe when he was still very young. He traveled to different countries like Germany, Italy, and France with his father and sister. They would perform CONCERTS in big THEATERS and fancy PALACES where important people watched him play. Mozart wrote his very first OPERA when he was only twelve years old! An OPERA is a very long musical story where singers sing the words and an ORCHESTRA plays beautiful music.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is an opera?",
+          "answer": "A MUSICAL STORY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Where did Mozart perform concerts?",
+          "answer": "THEATERS / PALACES"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a country that Mozart traveled to.",
+          "answer": "GERMANY / ITALY / FRANCE"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Do you think Mozart was happy when people clapped for him?",
+          "answer": "YES"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "Mozart loved to write SYMPHONIES, which are long pieces of CLASSICAL MUSIC played by many MUSICIANS together with different INSTRUMENTS. A SYMPHONY can have many parts—some parts are fast and exciting, and some parts are slow and peaceful. Mozart wrote over forty symphonies in his lifetime! Each symphony took lots of time to plan and write down on paper with special MUSICAL NOTES. His symphonies made people feel happy, sad, excited, or calm depending on the MELODY and the TEMPO—which is how fast or slow the music plays.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is a symphony?",
+          "answer": "CLASSICAL MUSIC"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is tempo?",
+          "answer": "HOW FAST OR SLOW THE MUSIC PLAYS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a feeling that Mozart's symphonies could give people.",
+          "answer": "HAPPY / SAD / EXCITED / CALM"
+        },
+        {
+          "type": "VAKT",
+          "question": "Listen in your mind to a fast, exciting part of a symphony. Does the music go boom-boom-boom really fast, or does it go slow?",
+          "answer": "REALLY FAST / FAST / BOOM-BOOM-BOOM"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "One of Mozart's most famous pieces of music is called \"Eine kleine Nachtmusik,\" which is a German name that means \"A Little Night Music.\" This SERENADE is happy and playful, and it makes people smile when they hear it. Mozart wrote it probably around the year 1787. The piece uses STRINGS like violins to make pretty, bouncy melodies that dance around. Even if you have never heard the name before, you might have heard this music in movies, cartoons, or other places—it is that famous and loved!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What does \"Eine kleine Nachtmusik\" mean in English?",
+          "answer": "A LITTLE NIGHT MUSIC"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What instruments play in Eine kleine Nachtmusik?",
+          "answer": "STRINGS / VIOLINS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a place where you might hear this famous Mozart music.",
+          "answer": "MOVIES / CARTOONS / CONCERTS / THEATERS"
+        },
+        {
+          "type": "OPEN",
+          "question": "What do you think about when you hear bouncy, happy music like this?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Mozart also wrote many beautiful CONCERTOS, which are pieces where one INSTRUMENT stands out and plays the main MELODY while the ORCHESTRA plays along in the background. He wrote lots of PIANO CONCERTOS because he loved to play the piano so much. He also wrote VIOLIN CONCERTOS that are full of tricky, speedy notes that make you feel amazed. People who play these concertos have to practice for many, many hours because the parts for the solo player are very difficult but very rewarding.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is a concerto?",
+          "answer": "A PIECE WITH ONE INSTRUMENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What kind of concertos did Mozart write a lot of?",
+          "answer": "PIANO CONCERTOS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name an instrument Mozart wrote a concerto for.",
+          "answer": "PIANO / VIOLIN"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Do you think learning to play a concerto takes a lot of hard work?",
+          "answer": "YES"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Mozart wrote so much MUSIC in his life that he created over six hundred pieces! That is an incredible number. He wrote OPERAS, SYMPHONIES, CONCERTOS, CHAMBER MUSIC, SERENADES, and even SACRED MUSIC for churches. Even though Mozart lived for only thirty-five years, he packed his short life full of creating beautiful COMPOSITIONS. Many of his pieces are still played in CONCERT HALLS all around the world today by musicians who want to share his amazing gift with everyone.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is a composition?",
+          "answer": "MUSIC / A PIECE OF MUSIC"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a type of music Mozart wrote.",
+          "answer": "OPERAS / SYMPHONIES / CONCERTOS / CHAMBER MUSIC / SERENADES / SACRED MUSIC"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Why do you think people still play Mozart's music today?",
+          "answer": "BECAUSE IT IS BEAUTIFUL / BECAUSE PEOPLE LOVE IT"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine a huge CONCERT HALL full of people listening to Mozart. What do you picture seeing?",
+          "answer": "PEOPLE / MUSICIANS / INSTRUMENTS / LIGHTS"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "Scientists have found that listening to Mozart's MUSIC can help people feel calm and peaceful. Some people call this the \"Mozart Effect.\" When you hear Mozart's MELODIES, your BRAIN might work better and you might feel more relaxed. Teachers and doctors sometimes play Mozart's MUSIC in the background to help children feel happy and focused. The gentle, organized PATTERNS in Mozart's music seem to be good for both your BODY and your MIND. This is one reason why Mozart is sometimes called \"music for the soul.\"",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the \"Mozart Effect\"?",
+          "answer": "LISTENING TO MOZART HELPS PEOPLE FEEL CALM"
+        },
+        {
+          "type": "KNOWN",
+          "question": "How might listening to Mozart help you?",
+          "answer": "FEEL CALM / FEEL RELAXED / FOCUS BETTER"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a place where someone might play Mozart's music.",
+          "answer": "SCHOOLS / DOCTORS' OFFICES / CONCERT HALLS / YOUR HOME"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine listening to calm Mozart music. How does your body feel?",
+          "answer": "RELAXED / PEACEFUL / HAPPY / QUIET"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Today, Mozart is remembered as one of the greatest MUSICIANS and COMPOSERS in all of HISTORY. People all around the world love his MUSIC because it is beautiful, clever, and full of JOY. Even children who are only six, seven, or eight years old can enjoy listening to Mozart! You can hear his music in many places—in movies, on the radio, at concerts, or even on the internet. If you listen to Mozart's music, you are joining millions of people throughout HISTORY who have felt happy and amazed by this incredible composer's GIFT to the world.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is Mozart remembered as?",
+          "answer": "ONE OF THE GREATEST COMPOSERS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Why do people love Mozart's music?",
+          "answer": "BEAUTIFUL / CLEVER / FULL OF JOY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a place where you might hear Mozart's music.",
+          "answer": "MOVIES / RADIO / CONCERTS / INTERNET"
+        },
+        {
+          "type": "OPEN",
+          "question": "What kind of Mozart music would you like to listen to first?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Drabkin, William. 'Wolfgang Amadeus Mozart.' Grove Music Online, Oxford University Press, 2003.",
+    "Guthrie, Julian. 'The Mozart Effect: Tapping the Power of Music to Heal the Body, Strengthen the Mind, and Unlock the Creative Spirit.' Avery Publishing, 1997.",
+    "Schonberg, Harold C. 'The Lives of the Great Composers.' W. W. Norton & Company, 1997."
+  ],
+  "hashtags": [
+    "#MozartMusic",
+    "#ClassicalMusic",
+    "#YoungChildren",
+    "#MusicForTheSoul",
+    "#WordUp",
+    "#S2C"
+  ]
+}

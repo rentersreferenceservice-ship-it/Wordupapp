@@ -1,0 +1,230 @@
+{
+  "id": "0ef69db7-3db4-4fd3-a6e6-20a12592fca5",
+  "topic": "hopscotch",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Hopscotch – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-08T00:56:50.897Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "HOPSCOTCH is a fun GAME you play outside. You JUMP from square to square on the ground. Someone draws the squares with CHALK on pavement or concrete. The squares are numbered one through ten. Kids have played hopscotch for hundreds of years.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do you jump on in hopscotch?",
+          "answer": "SQUARES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you use to draw hopscotch squares?",
+          "answer": "CHALK"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something you learn about hopscotch from this part.",
+          "answer": "IT IS A GAME / YOU JUMP / KIDS HAVE PLAYED IT FOR HUNDREDS OF YEARS"
+        },
+        {
+          "type": "OPEN",
+          "question": "Would you like to play hopscotch?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "text": "To play hopscotch, you need a ROCK or a STONE. You throw the rock into the first square. Then you JUMP over that square and land in the next ones. You hop on one FOOT when there is only one square. You hop on both FEET when there are two squares next to each other.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What do you throw in hopscotch?",
+          "answer": "A ROCK"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you use to hop on one square?",
+          "answer": "ONE FOOT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "When do you use both feet at the same time?",
+          "answer": "WHEN THERE ARE TWO SQUARES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are playing hopscotch. What do you feel under your feet?",
+          "answer": "HARD GROUND / PAVEMENT / CONCRETE / ROUGH SQUARES"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "text": "The PATTERN of hopscotch squares is special. Most hopscotch games have single squares, then double squares, then single squares again. The squares go up and down in a special WAY. You have to follow the pattern to play the game right. The pattern helps you know where to jump.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the layout of hopscotch squares called?",
+          "answer": "A PATTERN"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "What does the hunk tell us about hopscotch squares?",
+          "answer": "THEY HAVE SINGLE SQUARES / THEY HAVE DOUBLE SQUARES / THEY GO UP AND DOWN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Why do you need to follow the pattern?",
+          "answer": "TO PLAY RIGHT"
+        },
+        {
+          "type": "OPEN",
+          "question": "How would you feel jumping to the top of hopscotch?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "When you play hopscotch, you SKIP the square with your ROCK in it. Your rock helps you know which square to skip. When you jump back down, you pick up your rock. Then you throw your rock into the next square. The GOAL is to go all the way to the top and back down.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Which square do you skip over?",
+          "answer": "THE ONE WITH YOUR ROCK"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you pick up when you jump back down?",
+          "answer": "YOUR ROCK"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is the goal of hopscotch?",
+          "answer": "GO TO THE TOP AND BACK"
+        },
+        {
+          "type": "VAKT",
+          "question": "Picture yourself throwing your rock into a square. What does that feel like?",
+          "answer": "EXCITING / TRICKY / FUN / CHALLENGING"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "Hopscotch is GREAT EXERCISE for your BODY. When you hop and jump, your LEGS get strong. You practice BALANCE when you stand on one foot. Hopscotch helps you stay HEALTHY. You are also playing outside in the fresh air and sunshine.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What body part gets strong when you hop?",
+          "answer": "LEGS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something good about playing hopscotch.",
+          "answer": "GREAT EXERCISE / YOUR LEGS GET STRONG / YOU PRACTICE BALANCE / YOU STAY HEALTHY / FRESH AIR / SUNSHINE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you practice when you stand on one foot?",
+          "answer": "BALANCE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is your favorite thing about playing outside?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "Hopscotch is a SOCIAL GAME. That means friends play it TOGETHER. You can take TURNS throwing your rock and jumping. You CHEER for your friends when they do well. Playing with others is more FUN than playing alone. Hopscotch teaches you how to be a FRIEND.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What does social mean?",
+          "answer": "PLAYING TOGETHER"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you do when someone jumps well?",
+          "answer": "CHEER"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Tell me something the text says about playing hopscotch with friends.",
+          "answer": "YOU TAKE TURNS / YOU CHEER FOR THEM / IT IS MORE FUN / IT TEACHES YOU TO BE A FRIEND"
+        },
+        {
+          "type": "OPEN",
+          "question": "Who would you like to play hopscotch with?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "There are many ways to CHANGE hopscotch and make it harder. Some kids play with their eyes closed. Some kids jump backwards instead of forwards. You can add more squares to make a longer game. You can throw two rocks instead of one. RULES can be different in different places.",
+      "questions": [
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a way to change hopscotch and make it harder.",
+          "answer": "PLAY WITH EYES CLOSED / JUMP BACKWARDS / ADD MORE SQUARES / THROW TWO ROCKS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What can be different in different places?",
+          "answer": "RULES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What do you do instead of going forwards?",
+          "answer": "JUMP BACKWARDS"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is your favorite way to play hopscotch?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "text": "Hopscotch is played all around the WORLD. Children in different PLACES play this game. Some countries call it by different NAMES. Hopscotch helps KIDS everywhere stay active and have FUN. It is a TIMELESS game that will never go out of style.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Where is hopscotch played?",
+          "answer": "ALL AROUND THE WORLD"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "What is true about hopscotch in different places?",
+          "answer": "CHILDREN PLAY IT / IT HAS DIFFERENT NAMES / KIDS STAY ACTIVE / IT IS FUN"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What kind of game is hopscotch?",
+          "answer": "TIMELESS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What country do you live in?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Opie, Iona and Peter Opie. Children's Games in Street and Playground. Oxford University Press, 1969.",
+    "Bronner, Simon J. American Children's Folklore: A Book of Rhymes, Jokes, Rituals, and Street Play. Utah State University Press, 1988.",
+    "King, Billie Jean and Johnette Howard. All In: An Autobiography. Knopf, 2021."
+  ],
+  "hashtags": [
+    "#Hopscotch",
+    "#PlayOutside",
+    "#PhysicalActivity",
+    "#FriendshipGames",
+    "#WordUp",
+    "#S2C"
+  ]
+}

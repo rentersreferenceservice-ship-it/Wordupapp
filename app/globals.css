@@ -27,40 +27,49 @@ body {
 }
 
 @media print {
-  nav { display: none !important; }
-  body { font-size: 14pt; font-family: Arial, sans-serif; margin: 0; }
-
   @page {
     size: letter;
-    margin: 1in 1in 1.2in 1in;
+    margin: 0.75in 0.75in 0.75in 0.75in;
   }
 
-  /* Repeating footer on every page */
-  .print-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 9pt;
-    color: #666;
-    border-top: 1px solid #ccc;
-    padding-top: 4pt;
-    background: white;
-  }
+  /* Hide everything except the article */
+  body > * { display: none !important; }
+  body > div > nav { display: none !important; }
 
-  /* Page numbers */
-  .print-page-number::after {
-    content: counter(page);
-    counter-increment: page;
-  }
-
-  body {
-    counter-reset: page 1;
-  }
-
-  /* Add space at bottom of content so footer doesn't overlap */
+  /* Show only the article */
   article {
-    padding-bottom: 60pt !important;
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+    backdrop-filter: none !important;
+    font-size: 12pt !important;
+    font-family: Arial, sans-serif !important;
+    color: black !important;
+  }
+
+  article img {
+    max-height: 150px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+  }
+
+  section {
+    break-inside: avoid;
+  }
+
+  .print-footer {
+    display: none !important;
+  }
+
+  footer {
+    display: none !important;
   }
 }
