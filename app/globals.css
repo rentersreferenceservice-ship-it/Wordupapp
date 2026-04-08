@@ -20,7 +20,47 @@
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #fdfdf5;
+  background-color: white;
+}
+
+@media print {
+  nav { display: none !important; }
+  body { font-size: 14pt; font-family: Arial, sans-serif; margin: 0; }
+
+  @page {
+    size: letter;
+    margin: 1in 1in 1.2in 1in;
+  }
+
+  /* Repeating footer on every page */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+    border-top: 1px solid #ccc;
+    padding-top: 4pt;
+    background: white;
+  }
+
+  /* Page numbers */
+  .print-page-number::after {
+    content: counter(page);
+    counter-increment: page;
+  }
+
+  body {
+    counter-reset: page 1;
+  }
+
+  /* Add space at bottom of content so footer doesn't overlap */
+  article {
+    padding-bottom: 60pt !important;
+  }
 }
