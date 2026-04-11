@@ -27,10 +27,10 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         <div className="flex gap-3">
           <PrintButton />
           <a
-            href={`/api/lessons/${lesson.id}/pdf`}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            href="mailto:wordups2c@gmail.com"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
           >
-            Download PDF
+            Contact
           </a>
         </div>
       </nav>
@@ -89,7 +89,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         </footer>
 
         <div className="print-footer hidden print:block">
-          <div>Question Type Key: KNOWN | SEMI-OPEN | MATH | PRIOR KNOWLEDGE | OPEN | VAKT</div>
+          <div><span style={{color:'#15803d'}}>KNOWN</span> | <span style={{color:'#f97316'}}>SEMI-OPEN</span> | <span style={{color:'#7e22ce'}}>MATH</span> | <span style={{color:'#2563eb'}}>PRIOR KNOWLEDGE</span> | <span style={{color:'#db2777'}}>OPEN</span> | <span style={{color:'#dc2626'}}>VAKT</span></div>
           <div className="print-page-number">Page </div>
         </div>
       </article>

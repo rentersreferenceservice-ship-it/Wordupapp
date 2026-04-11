@@ -1,0 +1,247 @@
+{
+  "id": "3b99400c-037d-4d16-bea2-6c3c160f4c07",
+  "topic": "AI in the Workforce",
+  "ageGroup": "Adults (18+)",
+  "title": "AI in the Workforce – Adults (18+)",
+  "createdAt": "2026-04-11T22:42:52.243Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "ARTIFICIAL INTELLIGENCE, or AI, refers to computer systems designed to perform tasks that normally require human thinking. AI can analyze data, recognize patterns, and make decisions — often faster than any person could. The WORKFORCE is the total group of people employed or available for work in a given economy. Today, AI is reshaping the workforce in ways that are both exciting and deeply complex. Understanding how AI works and what it means for jobs is one of the most important conversations happening in our world right now.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "AI stands for Artificial ________.",
+          "answer": "INTELLIGENCE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The workforce is the total group of people employed or available for work in a given ________.",
+          "answer": "ECONOMY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text says AI can do.",
+          "answer": "ANALYZE DATA / RECOGNIZE PATTERNS / MAKE DECISIONS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is the name of the device most people use to access the internet at home?",
+          "answer": "COMPUTER / LAPTOP / PHONE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1758626044744-463ce33546a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxBSSUyMHRlY2hub2xvZ3klMjB3b3JrZm9yY2V8ZW58MHwwfHx8MTc3NTk0NzM3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Person typing on laptop with ai gateway logo."
+    },
+    {
+      "number": 2,
+      "text": "AUTOMATION is the use of technology to perform tasks with minimal human involvement, and it is one of AI's most visible impacts on work. Factory assembly lines, for example, have used automation for decades — but modern AI-driven automation is smarter and more ADAPTIVE, meaning it can learn and adjust to new situations. Jobs that involve repetitive, predictable tasks are most vulnerable to being replaced by automated systems. However, DISPLACEMENT — the loss of a job due to technology — is not a new phenomenon; every major technological revolution has shifted which types of work humans do. What makes today different is the sheer speed and BREADTH of change across so many industries at once.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Automation is the use of technology to perform tasks with minimal human ________.",
+          "answer": "INVOLVEMENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What word in this hunk means the loss of a job due to technology?",
+          "answer": "DISPLACEMENT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text tells us about modern AI-driven automation.",
+          "answer": "IT IS SMARTER / IT IS ADAPTIVE / IT CAN LEARN / IT CAN ADJUST"
+        },
+        {
+          "type": "MATH",
+          "question": "For how many decades have factory assembly lines used automation?",
+          "answer": "DECADES"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1761195696590-3490ea770aa1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxmYWN0b3J5JTIwYXV0b21hdGlvbiUyMHJvYm90c3xlbnwwfDB8fHwxNzc1OTQ3MzcyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Men observe automated conveyor belt system in warehouse"
+    },
+    {
+      "number": 3,
+      "text": "Not all AI news in the workplace is about job loss — AI is also creating entirely new ROLES and industries that did not exist a generation ago. Positions like AI ETHICIST, machine learning engineer, and data scientist are now in high demand across sectors from healthcare to finance. An AI ethicist is a professional who examines the moral and social implications of how AI systems are designed and used. The AUGMENTATION of human work — where AI assists rather than replaces — is already happening in fields like medicine, law, and education. When a radiologist uses AI to help spot a tumor in a scan, both the human and the machine contribute something the other cannot do alone.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "An AI ethicist examines the moral and social implications of how AI systems are designed and ________.",
+          "answer": "USED"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What word in this hunk describes AI assisting rather than replacing human work?",
+          "answer": "AUGMENTATION"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a field the text says is already experiencing augmentation of human work.",
+          "answer": "MEDICINE / LAW / EDUCATION"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine you are a radiologist sitting at a screen. An AI highlights a faint shadow in a scan your eyes almost missed. What does that moment of collaboration feel like?",
+          "answer": "RELIEVING / POWERFUL / UNSETTLING / FASCINATING"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1694903089438-bf28d4697d9a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxBSSUyMGNvbGxhYm9yYXRpb24lMjBodW1hbiUyMHdvcmt8ZW58MHwwfHx8MTc3NTk0NzM3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "two hands touching each other in front of a blue background"
+    },
+    {
+      "number": 4,
+      "text": "One of the most debated topics is how AI affects WAGES — the money workers earn for their labor. Some economists argue that automation raises productivity, which can eventually lead to higher wages for workers who adapt to new roles. Others warn of a POLARIZATION effect, where high-skill workers who work alongside AI earn significantly more, while low-skill workers face falling wages or unemployment. The concept of a SKILLS GAP refers to the mismatch between the abilities workers currently have and the abilities employers need in an AI-driven economy. Closing that skills gap through training and RESKILLING — learning entirely new skills for a new type of work — is considered critical by many policymakers and researchers.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The mismatch between the abilities workers have and the abilities employers need is called the skills ________.",
+          "answer": "GAP"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What word in this hunk means learning entirely new skills for a new type of work?",
+          "answer": "RESKILLING"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text says some economists argue about automation.",
+          "answer": "IT RAISES PRODUCTIVITY / IT CAN LEAD TO HIGHER WAGES"
+        },
+        {
+          "type": "OPEN",
+          "question": "If you had the opportunity to reskill for an AI-driven economy, what field would you most want to explore and why?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1546827209-9cd2145a81ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHx3b3JrZm9yY2UlMjBza2lsbHMlMjB0cmFpbmluZ3xlbnwwfDB8fHwxNzc1OTQ3MzcyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "man wearing white apron and mask"
+    },
+    {
+      "number": 5,
+      "text": "GENERATIVE AI — systems that can produce text, images, code, and other content — has introduced a new wave of disruption specifically targeting creative and knowledge-based professions. Tools like large language models can now draft legal documents, write marketing copy, generate software code, and even produce original music. This has raised urgent questions about INTELLECTUAL PROPERTY — the legal ownership of creative work — when AI produces content trained on human-made material. The line between AI as a tool and AI as a CREATOR is blurry and contested in courts, legislatures, and boardrooms around the world. Writers, designers, musicians, and programmers are all navigating what it means to compete with — or collaborate with — systems that never sleep and never charge overtime.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Generative AI systems can produce text, images, code, and other ________.",
+          "answer": "CONTENT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What term in this hunk refers to the legal ownership of creative work?",
+          "answer": "INTELLECTUAL PROPERTY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a profession the text says is navigating what it means to compete with or collaborate with AI.",
+          "answer": "WRITERS / DESIGNERS / MUSICIANS / PROGRAMMERS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What branch of the United States government is responsible for passing new laws?",
+          "answer": "CONGRESS / LEGISLATURE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1682056598904-9aa7ea5e8991?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxnZW5lcmF0aXZlJTIwQUklMjBjcmVhdGl2ZSUyMHdvcmt8ZW58MHwwfHx8MTc3NTk0NzM3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a laptop computer sitting on top of a desk"
+    },
+    {
+      "number": 6,
+      "text": "ALGORITHMIC MANAGEMENT is a growing workplace reality in which AI systems monitor, evaluate, and direct workers rather than human supervisors doing so. Warehouse workers, delivery drivers, and call center employees are among those whose pace, performance, and even bathroom breaks can be tracked and scored by algorithms. Proponents argue that algorithmic management increases EFFICIENCY and removes human bias from performance evaluation. Critics argue it creates a dehumanizing work environment, strips workers of AUTONOMY — the ability to make independent decisions — and generates SURVEILLANCE anxiety. Understanding these dynamics is essential for workers, employers, and policymakers who want to build workplaces that remain dignified and humane.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What word in this hunk means the ability to make independent decisions?",
+          "answer": "AUTONOMY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Algorithmic management involves AI systems that monitor, evaluate, and _________ workers.",
+          "answer": "DIRECT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a type of worker the text says can be tracked and scored by algorithms.",
+          "answer": "WAREHOUSE WORKERS / DELIVERY DRIVERS / CALL CENTER EMPLOYEES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Press your fingertips firmly against your desk or armrest and hold them there for ten seconds. Now imagine every moment of your workday — every pause, every movement — being logged by a system. What does that pressure feel like as a metaphor for surveillance?",
+          "answer": "HEAVY / CONSTANT / SUFFOCATING / INESCAPABLE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1558912513-fc28dbbc65ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHx3b3JrcGxhY2UlMjBzdXJ2ZWlsbGFuY2UlMjB0ZWNobm9sb2d5fGVufDB8MHx8fDE3NzU5NDczNzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "black CCTV camera"
+    },
+    {
+      "number": 7,
+      "text": "Governments and international bodies are beginning to grapple with AI REGULATION — the creation of rules and laws to govern how AI can be used in employment and other areas of life. The European Union passed the EU AI ACT in 2024, one of the first comprehensive legal frameworks specifically designed to classify and regulate AI systems by their level of risk. In the United States, executive orders and proposed legislation have begun addressing how AI should be used in hiring, lending, and BENEFITS determination. BIAS in AI hiring tools — where systems discriminate against candidates based on race, gender, or age — has already been documented in multiple studies. Fair regulation will require collaboration between technologists, legal scholars, civil rights advocates, and the workers themselves.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The EU AI Act was passed in what year?",
+          "answer": "2024"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What word in this hunk describes AI systems discriminating against candidates based on race, gender, or age?",
+          "answer": "BIAS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a group the text says fair AI regulation will require collaboration from.",
+          "answer": "TECHNOLOGISTS / LEGAL SCHOLARS / CIVIL RIGHTS ADVOCATES / WORKERS"
+        },
+        {
+          "type": "MATH",
+          "question": "What year did the European Union pass the EU AI Act?",
+          "answer": "2024"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1614610741181-2bce5e06976d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxBSSUyMHJlZ3VsYXRpb24lMjBnb3Zlcm5tZW50JTIwcG9saWN5fGVufDB8MHx8fDE3NzU5NDczNzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "brown wooden blocks on white surface"
+    },
+    {
+      "number": 8,
+      "text": "The future of work in an AI-driven world is not predetermined — it will be shaped by the choices societies make about INVESTMENT, EQUITY, and human dignity. Universal basic income, stronger LABOR protections, and expanded public education in technology are among the policy proposals being seriously debated by economists and governments worldwide. Some futurists argue that AI could eventually free humanity from drudge work, allowing people to focus on creativity, caregiving, and community. Others caution that without deliberate intervention, AI's benefits will concentrate among a small ELITE while the majority of workers bear the costs. Every person working, learning, or participating in public life today has a stake in ensuring AI serves the many, not just the few.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Some futurists argue that AI could eventually free humanity from _________ work.",
+          "answer": "DRUDGE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Others caution that AI's benefits will concentrate among a small ________.",
+          "answer": "ELITE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a policy proposal the text says is being seriously debated by economists and governments.",
+          "answer": "UNIVERSAL BASIC INCOME / STRONGER LABOR PROTECTIONS / EXPANDED PUBLIC EDUCATION IN TECHNOLOGY"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is one thing you personally hope AI will change for the better in your lifetime, and one thing you hope society works hard to protect?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1554200877-40aae1bb6ec1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxmdXR1cmUlMjBvZiUyMHdvcmslMjBzb2NpZXR5fGVufDB8MHx8fDE3NzU5NDczNzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "white and black printed ceramic mug beside laptop computer"
+    }
+  ],
+  "citations": [
+    "Acemoglu, D., & Restrepo, P. (2018). Artificial Intelligence, Automation, and Work. National Bureau of Economic Research. https://www.nber.org/papers/w24196",
+    "European Parliament. (2024). EU Artificial Intelligence Act. https://www.europarl.europa.eu/topics/en/article/20230601STO93804/eu-ai-act-first-regulation-on-artificial-intelligence",
+    "World Economic Forum. (2023). Future of Jobs Report 2023. https://www.weforum.org/reports/the-future-of-jobs-report-2023/",
+    "Brynjolfsson, E., & McAfee, A. (2014). The Second Machine Age: Work, Progress, and Prosperity in a Time of Brilliant Technologies. W. W. Norton & Company."
+  ],
+  "hashtags": [
+    "#AIInTheWorkforce",
+    "#FutureOfWork",
+    "#ArtificialIntelligence",
+    "#WorkforceReskilling",
+    "#WordUp",
+    "#S2C"
+  ]
+}

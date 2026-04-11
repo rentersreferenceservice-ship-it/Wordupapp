@@ -29,7 +29,7 @@ body {
 @media print {
   @page {
     size: letter;
-    margin: 0.75in 0.75in 0.75in 0.75in;
+    margin: 1in 0.75in 0.75in 0.75in;
   }
 
   /* Hide everything except the article */
@@ -39,9 +39,7 @@ body {
   /* Show only the article */
   article {
     display: block !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    position: static !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;

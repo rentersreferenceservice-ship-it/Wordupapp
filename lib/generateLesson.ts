@@ -124,12 +124,24 @@ MATH:
   - Both become KNOWN questions and are better for the student than a MATH question. Only use MATH when the number itself is the key thing you want the student to recall (e.g. a historical date, a scientific measurement).
 
 VAKT (Visual/Auditory/Kinesthetic/Tactile):
-- A short sensory break or activity. Two forms:
-  1. MOVEMENT BREAK — student does something physical. Answer must be left blank (""). No answer options listed. Example: "Pretend you are hiding under a big rock in a cold river. Make your body small and curl up tight!" → answer: ""
-  2. IMAGINATION — student imagines or visualizes something, then answers. Answer is sensory responses separated by slashes. Example: "Close your eyes and imagine you are floating in space. What do you see?" → STARS / EARTH / DARKNESS / THE MOON
-- VAKT is an activity, not just a descriptive question. If the question simply asks what something feels/looks/sounds like without asking the student to DO or IMAGINE something actively, it is NOT VAKT.
+- VAKT stands for Visual, Auditory, Kinesthetic, Tactile. Each VAKT question must incorporate one of these four senses as a sensory break that connects to the lesson topic.
+- A short sensory break activity — the student does something active using one of the four senses. Always tie it to the lesson topic.
+- Four types of VAKT sensory breaks:
+  1. VISUAL — student looks at, pictures, or imagines something. Example: "Close your eyes and picture yourself watching Mozart conduct an orchestra. What colors do you see in the concert hall?" → GOLD / RED / DEEP BLUE
+  2. AUDITORY — student listens or imagines a sound. Example: "Close your eyes and imagine you can hear Mozart's music playing right now. What does it sound like?" → FAST / SOFT / BEAUTIFUL / FLOWING
+  3. KINESTHETIC — student makes a physical movement. Answer is blank (""). Example: "Stand up and conduct an imaginary orchestra with your arms for 10 seconds!" → answer: ""
+  4. TACTILE — student touches or imagines touching something related to the topic. Example: "Rub your fingertips together and imagine you are touching the smooth keys of a piano. What does it feel like?" → SMOOTH / COOL / HARD
+- Rotate through all four types (Visual, Auditory, Kinesthetic, Tactile) across the lesson so students get a variety of sensory experiences.
+- Age-appropriate VAKT:
+  - Young Children (ages 6–8): simple, playful movements and imagination. "Flap your arms like a bird!" "Close your eyes and picture a big yellow sun."
+  - Children (ages 9–11): slightly more complex. "March in place like a soldier." "Imagine you can feel the moon dust under your boots."
+  - Tweens (ages 12–14): more nuanced sensory connections to the topic.
+  - Teens (ages 15–17): deeper sensory reflection tied to the lesson theme.
+  - Adults (18+): sophisticated sensory and reflective connections.
+- CRITICAL: VAKT questions must NOT copy or paraphrase words directly from the hunk text. They should use the topic as inspiration to create an original sensory experience. If the hunk says "Mozart played piano," the VAKT should not say "Imagine Mozart playing piano" — instead say "Close your eyes and imagine you are sitting at a grand piano. What do your fingers feel on the keys?" The sensory experience is original, not a restatement of the hunk.
+- Kinesthetic movement break answers are always blank — no answer listed.
+- Visual, Auditory, Tactile VAKT answers are sensory responses separated by slashes.
 - Never use STUDENT CHOICE as a VAKT answer.
-- Movement break answers must always be blank — never list responses for a movement instruction.
 
 OPEN:
 - Self-expression allowed
