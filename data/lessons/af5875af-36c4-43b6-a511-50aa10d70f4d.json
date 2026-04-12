@@ -1,0 +1,246 @@
+{
+  "id": "af5875af-36c4-43b6-a511-50aa10d70f4d",
+  "topic": "Lets Play Ball!!!! Little League",
+  "ageGroup": "Children (ages 9–11)",
+  "title": "Let's Play Ball! Little League – Children (ages 9–11)",
+  "createdAt": "2026-04-12T13:37:21.138Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "LITTLE LEAGUE baseball is one of the most popular youth sports programs in the world. It was founded in 1939 by a man named Carl Stotz in Williamsport, Pennsylvania. Carl wanted to create a safe and fun place where KIDS could play organized baseball. Today, millions of children in over 80 countries play Little League every single year. The PROGRAM teaches teamwork, sportsmanship, and a love of the game.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Little League was founded in what city?",
+          "answer": "WILLIAMSPORT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Carl Stotz wanted to create a safe place for kids to play organized what?",
+          "answer": "BASEBALL"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the Little League program teaches players.",
+          "answer": "TEAMWORK / SPORTSMANSHIP / LOVE OF THE GAME"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is the name of the large league where professional baseball players compete?",
+          "answer": "MAJOR LEAGUES"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1595532770706-efa48452dfc3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjBiYXNlYmFsbHxlbnwwfDB8fHwxNzc2MDAxMDQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "group of men playing baseball during daytime"
+    },
+    {
+      "number": 2,
+      "text": "A baseball FIELD has a special shape that is sometimes called a diamond. The diamond is made up of four BASES — first base, second base, third base, and home plate. Players on the BATTING team try to hit the ball and run around all the bases to score a RUN. The team in the FIELD tries to get batters out before they can reach base. Understanding the layout of the field helps every player know exactly where to go.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What shape is the baseball field sometimes called?",
+          "answer": "DIAMOND"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Players run around all the bases to score a what?",
+          "answer": "RUN"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two of the four bases on a baseball field.",
+          "answer": "FIRST BASE / SECOND BASE / THIRD BASE / HOME PLATE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Stand up and jog in place like you are running the bases as fast as you can for 10 seconds!",
+          "answer": ""
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1705593697621-84ac9c0c05c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxiYXNlYmFsbCUyMGRpYW1vbmQlMjBmaWVsZHxlbnwwfDB8fHwxNzc2MDAxMDQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "an aerial view of a baseball field and a baseball field"
+    },
+    {
+      "number": 3,
+      "text": "Every Little League team has a ROSTER of players who each play a special POSITION. The PITCHER throws the ball toward home plate, and the CATCHER squats behind home plate to catch pitches. Other players take positions in the infield and outfield to catch balls that are hit. Every position on the team is important, and good teams work together to cover the whole field. Learning your position is one of the first things a new player does.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The pitcher throws the ball toward what?",
+          "answer": "HOME PLATE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The player who squats behind home plate to catch pitches is called the what?",
+          "answer": "CATCHER"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something true about positions on a Little League team.",
+          "answer": "PITCHER THROWS / CATCHER CATCHES / EVERY POSITION IS IMPORTANT"
+        },
+        {
+          "type": "OPEN",
+          "question": "If you could play any position on a baseball team, which one would you choose and why?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1595883565795-fb9e37b4fa9d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjBwaXRjaGVyJTIwY2F0Y2hlcnxlbnwwfDB8fHwxNzc2MDAxMDQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "white and red baseball on brown wooden table"
+    },
+    {
+      "number": 4,
+      "text": "When a BATTER steps up to home plate, they hold the BAT and wait for the pitcher to throw. A good batter watches the ball closely and swings at the right moment to make CONTACT. If the batter hits the ball into fair territory and no one catches it, they run to first base. A STRIKEOUT happens when a batter swings and misses three times or lets three good pitches go by. Practicing your SWING over and over is the best way to become a better hitter.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "A strikeout happens when a batter misses or lets good pitches go by how many times?",
+          "answer": "THREE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "After hitting the ball into fair territory, the batter runs to what?",
+          "answer": "FIRST BASE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something a good batter does at home plate.",
+          "answer": "WATCHES THE BALL / SWINGS AT THE RIGHT MOMENT / MAKES CONTACT"
+        },
+        {
+          "type": "MATH",
+          "question": "How many strikes does it take to get a strikeout?",
+          "answer": "THREE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1670738048318-37430361c0d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjBiYXR0ZXIlMjBzd2luZ2luZ3xlbnwwfDB8fHwxNzc2MDAxMDQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a woman holding a baseball bat on top of a field"
+    },
+    {
+      "number": 5,
+      "text": "Safety is a very important part of Little League baseball. Every batter must wear a HELMET to protect their head while batting and running the bases. CLEATS are special shoes with small rubber or metal points on the bottom that help players grip the grass so they do not slip. Players also wear GLOVES on their throwing hand to catch the ball safely. Little League rules make sure all players have the right GEAR before they step onto the field.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Every batter must wear a helmet to protect their what?",
+          "answer": "HEAD"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Cleats help players grip the grass so they do not do what?",
+          "answer": "SLIP"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two pieces of safety gear a Little League player wears.",
+          "answer": "HELMET / CLEATS / GLOVES"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and imagine you are putting on a baseball glove for the first time. What does the leather feel like on your hand?",
+          "answer": "STIFF / ROUGH / SMOOTH / TIGHT"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1503486579284-2418f27ccaf7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxiYXNlYmFsbCUyMGhlbG1ldCUyMGdsb3ZlJTIwY2xlYXRzfGVufDB8MHx8fDE3NzYwMDEwNDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "two black and blue baseball mitts on rail"
+    },
+    {
+      "number": 6,
+      "text": "A Little League GAME is divided into sections of play called INNINGS. In each inning, both teams get a turn to bat and a turn to play in the field. Most Little League games for younger players last about SIX innings. During each half inning, the fielding team tries to get three OUTS to stop the other team from scoring. Getting an out can happen by striking a batter out, catching a fly ball, or throwing to a base before the runner arrives.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "A game is divided into sections of play called what?",
+          "answer": "INNINGS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The fielding team needs to get how many outs to end each half inning?",
+          "answer": "THREE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a way the fielding team can get an out.",
+          "answer": "STRIKEOUT / CATCHING A FLY BALL / THROWING TO A BASE"
+        },
+        {
+          "type": "MATH",
+          "question": "How many innings do most younger-player Little League games last?",
+          "answer": "SIX"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1640720874254-d85c8cc6b9cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjBnYW1lJTIwaW5uaW5ncyUyMHNjb3JlYm9hcmR8ZW58MHwwfHx8MTc3NjAwMTA0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a scoreboard with some words on it"
+    },
+    {
+      "number": 7,
+      "text": "Little League is not just about baseball — it also has programs for SOFTBALL, which is played with a larger, softer ball on a smaller field. The Little League Softball program gives girls and boys a chance to play the sport they love most. Both baseball and softball players learn the same important values like RESPECT, teamwork, and playing fair. The Little League WORLD SERIES is a huge tournament held every August in Williamsport where the best teams from around the globe compete. Millions of fans watch the World Series on television each year.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The Little League World Series is held every year in what month?",
+          "answer": "AUGUST"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Softball is played with a larger, softer ball on a smaller what?",
+          "answer": "FIELD"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a value that both baseball and softball players learn in Little League.",
+          "answer": "RESPECT / TEAMWORK / PLAYING FAIR"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is the name of the country where the Little League World Series host city, Williamsport, is located?",
+          "answer": "UNITED STATES"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1733850262656-5f3a340cc4aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjB3b3JsZCUyMHNlcmllcyUyMHNvZnRiYWxsfGVufDB8MHx8fDE3NzYwMDEwNDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "A group of young men playing a game of baseball"
+    },
+    {
+      "number": 8,
+      "text": "Playing Little League teaches children skills that go far beyond the baseball DIAMOND. Working with COACHES and teammates helps kids learn how to communicate and support each other. Even when a player makes a mistake, the best response is to stay positive and keep trying — that is called RESILIENCE. Studies show that children who play team sports are more likely to develop strong CONFIDENCE and social skills. Little League is truly about growing as a player and as a person.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Staying positive and keep trying after a mistake is called what?",
+          "answer": "RESILIENCE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Children who play team sports are more likely to develop strong what?",
+          "answer": "CONFIDENCE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something Little League teaches children beyond baseball skills.",
+          "answer": "COMMUNICATE / SUPPORT EACH OTHER / RESILIENCE / CONFIDENCE"
+        },
+        {
+          "type": "OPEN",
+          "question": "What is one thing you would most want to learn or get better at if you joined a Little League team?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1652318694264-94cd2e2e5227?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxsaXR0bGUlMjBsZWFndWUlMjB0ZWFtJTIwY2VsZWJyYXRpb258ZW58MHwwfHx8MTc3NjAwMTA0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a group of boys playing football"
+    }
+  ],
+  "citations": [
+    "Little League International. (2023). About Little League. Retrieved from https://www.littleleague.org/about/",
+    "Rader, B. G. (2008). Baseball: A History of America's Game. University of Illinois Press.",
+    "Jayanthi, N., et al. (2013). Sports Specialization in Young Athletes: Evidence-Based Recommendations. Sports Health, 5(3), 251–257. https://doi.org/10.1177/1941738112464626"
+  ],
+  "hashtags": [
+    "#LittleLeague",
+    "#PlayBall",
+    "#YouthBaseball",
+    "#TeamSports",
+    "#WordUp",
+    "#S2C"
+  ]
+}

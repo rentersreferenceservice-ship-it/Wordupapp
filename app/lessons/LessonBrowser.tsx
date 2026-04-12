@@ -55,6 +55,7 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
     <main className="relative z-10 min-h-screen px-4 py-10 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6 bg-white border-4 border-gray-300 rounded-xl px-5 py-4">
         <div>
+          <Link href="/" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mb-3">← Generate Lesson</Link>
           <h1 className="text-2xl font-bold text-gray-900">Saved Lessons</h1>
           <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} saved</p>
         </div>

@@ -1,0 +1,245 @@
+{
+  "id": "29b6cd6c-89a9-4ea5-8e94-fdb7a51f850c",
+  "topic": "Hide And Seek with Sasquatch",
+  "ageGroup": "Tweens (ages 12–14)",
+  "title": "Hide And Seek with Sasquatch – Tweens (ages 12–14)",
+  "createdAt": "2026-04-12T22:19:41.241Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "SASQUATCH, also called Bigfoot, is one of the most famous MYSTERIES in North America. People describe it as a large, hairy, ape-like CREATURE that walks on two legs like a human. Reports of Sasquatch sightings come from forests, mountains, and WILDERNESS areas across the continent. The name Bigfoot came from large FOOTPRINTS discovered in Northern California in 1958. Nobody has ever proven that Sasquatch is real, yet the legend keeps growing stronger every year.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Another name for Sasquatch is ___.",
+          "answer": "BIGFOOT"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The name Bigfoot came from large ___ found in Northern California.",
+          "answer": "FOOTPRINTS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a place from the hunk where Sasquatch sightings have been reported.",
+          "answer": "FORESTS / MOUNTAINS / WILDERNESS AREAS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Another famous mystery creature said to live in a Scottish lake is the ___ Monster.",
+          "answer": "LOCH NESS"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1687394849785-699c21f6a238?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjB3aWxkZXJuZXNzJTIwbXlzdGVyeXxlbnwwfDB8fHwxNzc2MDMyMzgwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a fallen tree in the middle of a forest"
+    },
+    {
+      "number": 2,
+      "text": "Indigenous peoples of North America have shared LEGENDS about large, wild, hair-covered beings for thousands of years. Many TRIBES, including the Sts'ailes people of British Columbia, have their own names and stories for these creatures. For the Sts'ailes, the creature is known as SASQ'ETS, which is actually where the word Sasquatch comes from. These traditional stories treat the creature with great RESPECT, describing it as a powerful being connected to the spirit world. This shows that the idea of Sasquatch is far older than most people realize.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The word Sasquatch comes from the Indigenous word ___.",
+          "answer": "SASQ'ETS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Indigenous stories about Sasquatch treat the creature with great ___.",
+          "answer": "RESPECT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the hunk tells us about how Indigenous peoples view Sasquatch.",
+          "answer": "THOUSANDS OF YEARS OLD / POWERFUL BEING / CONNECTED TO SPIRIT WORLD"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture yourself standing at the edge of an ancient forest at dusk. What do you sense all around you?",
+          "answer": "SILENCE / SHADOWS / COOL AIR / RUSTLING LEAVES"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1562733303-51a0e55a4639?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxJbmRpZ2Vub3VzJTIwUGFjaWZpYyUyME5vcnRod2VzdCUyMGZvcmVzdHxlbnwwfDB8fHwxNzc2MDMyMzgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "tall trees"
+    },
+    {
+      "number": 3,
+      "text": "So what does a Sasquatch supposedly look like? Witnesses describe a creature standing between seven and ten feet tall and covered in dark brown or reddish-brown FUR. It reportedly weighs anywhere from 400 to 800 pounds, making it far larger than any known PRIMATE living in North America today. Sasquatch is said to move with surprising SPEED and AGILITY through thick forest. Some people also report a powerful, unpleasant smell near supposed sightings, which has earned the creature another nickname — the Skunk Ape.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Witnesses describe Sasquatch as being covered in dark brown or reddish-brown ___.",
+          "answer": "FUR"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Sasquatch is said to move through thick forest with surprising speed and ___.",
+          "answer": "AGILITY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something witnesses have reportedly noticed near a Sasquatch sighting.",
+          "answer": "LARGE SIZE / DARK FUR / POWERFUL SMELL / FAST MOVEMENT"
+        },
+        {
+          "type": "MATH",
+          "question": "According to witnesses, Sasquatch can stand up to ___ feet tall.",
+          "answer": "TEN"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1632753778720-c34023f21fd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxnaWFudCUyMGZvcmVzdCUyMGNyZWF0dXJlJTIwZm9vdHByaW50fGVufDB8MHx8fDE3NzYwMzIzODF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a bear's paw prints on a rock in the woods"
+    },
+    {
+      "number": 4,
+      "text": "One of the most discussed pieces of supposed EVIDENCE for Sasquatch is the Patterson-Gimlin FILM, shot in 1967 in Bluff Creek, California. Roger Patterson and Bob Gimlin claimed to have filmed an actual Sasquatch walking along a riverbank. The short clip shows a large, upright, hair-covered figure striding away from the camera. Scientists and filmmakers have debated the footage for decades, with some calling it a HOAX and others saying it cannot be easily explained. No one has ever conclusively proven the film is fake.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The Patterson-Gimlin Film was shot in the year ___ in California.",
+          "answer": "1967"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Some people call the Patterson-Gimlin Film a ___.",
+          "answer": "HOAX"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the hunk tells us about the Patterson-Gimlin Film.",
+          "answer": "SHOT IN 1967 / FILMED AT BLUFF CREEK / DEBATED BY SCIENTISTS"
+        },
+        {
+          "type": "OPEN",
+          "question": "If I watched the Patterson-Gimlin Film, I would probably think ___.",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1613387873694-a59f51073422?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxibHVycnklMjBmb3Jlc3QlMjBmaWd1cmUlMjBmaWxtJTIwcmVlbHxlbnwwfDB8fHwxNzc2MDMyMzgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "brown and green trees during daytime"
+    },
+    {
+      "number": 5,
+      "text": "Scientists who study CRYPTOZOOLOGY — the search for creatures whose existence has not been proven — take reported Sasquatch sightings seriously as data worth examining. Most mainstream scientists, however, believe a large primate could not stay HIDDEN in North America without leaving behind solid physical PROOF, like bones or a body. They point out that no Sasquatch skeleton has ever been found, which is considered a major OBSTACLE to accepting it as a real species. Some researchers suggest eyewitnesses may be misidentifying known animals like bears. Others think the legend spreads because humans are naturally drawn to mystery.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The search for creatures whose existence has not been proven is called ___.",
+          "answer": "CRYPTOZOOLOGY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Scientists say no Sasquatch ___ has ever been found.",
+          "answer": "SKELETON"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a reason scientists give for doubting that Sasquatch is real.",
+          "answer": "NO SKELETON FOUND / NO PHYSICAL PROOF / MISIDENTIFYING BEARS"
+        },
+        {
+          "type": "VAKT",
+          "question": "Imagine you are a scientist deep in a Pacific Northwest forest collecting evidence. Run your fingers across a rough tree bark and feel where something large has scratched it. What does the texture feel like?",
+          "answer": "ROUGH / JAGGED / DEEP / SPLINTERED"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1602610187228-ff21f0316be0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxzY2llbnRpc3QlMjBmb3Jlc3QlMjByZXNlYXJjaCUyMGV4cGVkaXRpb258ZW58MHwwfHx8MTc3NjAzMjM4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "man and woman sitting on chair"
+    },
+    {
+      "number": 6,
+      "text": "Even without proof, Sasquatch has become a massive part of American CULTURE. There are museums, annual FESTIVALS, and dedicated research organizations focused entirely on finding Bigfoot. The town of Willow Creek, California, even calls itself the Bigfoot capital of the world. Hundreds of thousands of people have reported ENCOUNTERS or strange experiences they believe involve Sasquatch. Documentaries, movies, TV shows, and merchandise have turned the legend into a PHENOMENON that generates millions of dollars each year.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The town that calls itself the Bigfoot capital of the world is ___.",
+          "answer": "WILLOW CREEK"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Sasquatch has become a massive part of American ___.",
+          "answer": "CULTURE"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the hunk tells us that shows how popular Sasquatch has become.",
+          "answer": "MUSEUMS / FESTIVALS / DOCUMENTARIES / MERCHANDISE"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "A story passed down through generations that people believe but cannot fully prove is called a ___.",
+          "answer": "LEGEND"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "text": "Some RESEARCHERS have used modern technology to hunt for Sasquatch more seriously than ever before. DRONES equipped with cameras, motion-sensor trail cameras, and DNA testing of hair samples are all being used in the field today. In 2012, a team led by geneticist Bryan Sykes tested dozens of hair samples claimed to belong to unknown primates, but each sample turned out to match a known SPECIES. Infrared cameras that can detect HEAT signatures at night have also been deployed in forests where sightings are common. So far, no technology has produced a confirmed piece of Sasquatch evidence.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "In the 2012 study, every tested hair sample matched a known ___.",
+          "answer": "SPECIES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Infrared cameras can detect ___ signatures at night in the forest.",
+          "answer": "HEAT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name a piece of technology the hunk says has been used to search for Sasquatch.",
+          "answer": "DRONES / TRAIL CAMERAS / DNA TESTING / INFRARED CAMERAS"
+        },
+        {
+          "type": "MATH",
+          "question": "The year Bryan Sykes led a team to test hair samples was ___.",
+          "answer": "2012"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1750923042325-8faffbd1478f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxkcm9uZSUyMGZvcmVzdCUyMGNhbWVyYSUyMHRlY2hub2xvZ3l8ZW58MHwwfHx8MTc3NjAzMjM4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "A jet flies between mountains in the distance."
+    },
+    {
+      "number": 8,
+      "text": "Whether Sasquatch is real or not, the FASCINATION with this creature tells us something important about human CURIOSITY. We are drawn to the idea that vast, wild WILDERNESS areas might still hold secrets we have not yet discovered. Sasquatch also raises genuine scientific questions about how well we truly know the natural world. Some scientists argue that new large animal SPECIES are still being discovered occasionally, which keeps a tiny door of possibility open. No matter what you believe, the game of hide and seek with Sasquatch is one that people clearly do not want to stop playing.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The fascination with Sasquatch tells us something important about human ___.",
+          "answer": "CURIOSITY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Some scientists argue that new large animal ___ are still being discovered.",
+          "answer": "SPECIES"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the hunk says Sasquatch makes people think about.",
+          "answer": "WILDERNESS SECRETS / HOW WELL WE KNOW NATURE / NEW SPECIES"
+        },
+        {
+          "type": "OPEN",
+          "question": "After learning all of this, my personal belief about Sasquatch is ___.",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1763202365664-9b0c6351b724?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxtaXN0eSUyMHdpbGRlcm5lc3MlMjB1bmtub3duJTIwbmF0dXJlfGVufDB8MHx8fDE3NzYwMzIzODF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Misty forest with tall trees and dense undergrowth"
+    }
+  ],
+  "citations": [
+    "Meldrum, J. (2006). Sasquatch: Legend Meets Science. Forge Books.",
+    "Sykes, B.C. et al. (2014). Genetic analysis of hair samples attributed to yeti, bigfoot and other anomalous primates. Proceedings of the Royal Society B, 281(1789). https://royalsocietypublishing.org/doi/10.1098/rspb.2014.0161",
+    "Sts'ailes Nation. (n.d.). Sasq'ets — The Hairy Man. https://www.stsailes.com",
+    "Loxton, D., & Prothero, D.R. (2013). Abominable Science! Origins of the Yeti, Nessie, and Other Famous Cryptids. Columbia University Press."
+  ],
+  "hashtags": [
+    "#Sasquatch",
+    "#BigfootMystery",
+    "#Cryptozoology",
+    "#HideAndSeek",
+    "#WordUp",
+    "#S2C"
+  ]
+}

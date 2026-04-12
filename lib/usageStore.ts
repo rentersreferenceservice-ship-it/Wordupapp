@@ -112,8 +112,7 @@ export function markFreeVisitorUsed(visitorId: string) {
   saveUsage(data)
 }
 
-export const LESSON_LIMIT = 10
-export const PRINT_LIMIT = 10
+export const MONTHLY_LIMIT = 20 // combined lessons + prints
 export const FREE_LESSON_LIMIT = 2
 
 export function storePendingVerification(email: string, code: string) {

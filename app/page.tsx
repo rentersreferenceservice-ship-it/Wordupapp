@@ -160,7 +160,7 @@ export default function HomePage() {
         {!isSignedIn && !showSignup && !verifiedEmail && verifyStep === 'idle' && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-5">
             <p className="text-sm font-semibold text-blue-800">Try 2 free lessons — no account needed</p>
-            <p className="text-xs text-blue-600 mt-0.5">Just verify your email to get started. Subscribe for $9.99/mo for full access.</p>
+            <p className="text-xs text-blue-600 mt-0.5">Just verify your email to get started. Subscribe for $9.99/mo for up to 20 lessons and prints per month.</p>
           </div>
         )}
 
@@ -243,7 +243,7 @@ export default function HomePage() {
         {showSubscribe && (
           <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5 text-center mb-4">
             <p className="font-semibold text-gray-800 mb-1">Subscription required</p>
-            <p className="text-sm text-gray-600 mb-3">Subscribe for $9.99/month to generate up to 10 lessons per month.</p>
+            <p className="text-sm text-gray-600 mb-3">Subscribe for $9.99/month for up to 20 lessons and prints per month.</p>
             <a
               href="https://buy.stripe.com/test_9B6fZgfIy6AxaO83sH1RC00"
               target="_blank"
@@ -258,7 +258,7 @@ export default function HomePage() {
         {showLimitReached && (
           <div className="bg-red-50 border border-red-300 rounded-xl p-5 text-center mb-4">
             <p className="font-semibold text-gray-800 mb-1">Monthly limit reached</p>
-            <p className="text-sm text-gray-600">You&apos;ve generated 10 lessons this month. Your limit resets next month.</p>
+            <p className="text-sm text-gray-600">You&apos;ve reached your 20 lesson limit this month. Your limit resets next month.</p>
           </div>
         )}
 

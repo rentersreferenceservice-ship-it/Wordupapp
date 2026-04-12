@@ -1,0 +1,246 @@
+{
+  "id": "cf54d97f-c6d9-4e3e-bc09-bee3ebe8dcdb",
+  "topic": "Wake Up, Its Spring!",
+  "ageGroup": "Young Children (ages 6–8)",
+  "title": "Wake Up, It's Spring! – Young Children (Ages 6–8)",
+  "createdAt": "2026-04-12T22:25:32.591Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "SPRING is a time of year called a SEASON. There are four seasons in a year. Spring comes after the cold WINTER. In spring, the days get WARM and bright. The SUN shines more and more each day. Everything starts to WAKE up and come alive!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Spring comes after cold _____.",
+          "answer": "WINTER"
+        },
+        {
+          "type": "KNOWN",
+          "question": "In spring, the days get _____ and bright.",
+          "answer": "WARM"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something the text tells us about spring.",
+          "answer": "DAYS GET WARM / SUN SHINES / THINGS WAKE UP"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "The season that comes after spring is _____.",
+          "answer": "SUMMER"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1687184410026-65692fb33ead?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxzcHJpbmclMjBzdW5zaGluZSUyMG1lYWRvd3xlbnwwfDB8fHwxNzc2MDMyNzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a close up of a plant with yellow flowers"
+    },
+    {
+      "number": 2,
+      "text": "In spring, RAIN falls from the sky. Rain is very important for plants. It gives them the WATER they need to grow. The SOIL soaks up the rain like a sponge. SEEDS are tiny things that grow into plants. Rain and warm sun help seeds START to grow.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "In spring, rain falls from the _____.",
+          "answer": "SKY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Seeds grow into _____.",
+          "answer": "PLANTS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name two things that help seeds grow.",
+          "answer": "RAIN / WARM SUN"
+        },
+        {
+          "type": "VAKT",
+          "question": "Stretch your arms up tall like a tiny seed growing into a big plant. Hold it for five seconds!",
+          "answer": ""
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1709733125037-e4f091a4be51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxzcHJpbmclMjByYWluJTIwc2VlZHN8ZW58MHwwfHx8MTc3NjAzMjczMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a close up of a flower on a tree branch"
+    },
+    {
+      "number": 3,
+      "text": "FLOWERS are one of the best parts of spring. They BLOOM, which means they open up and show their colors. Flowers come in many colors like RED, yellow, and pink. Bees and butterflies love to visit flowers. They drink a sweet juice called nectar from inside the flower. Flowers make the world look so BRIGHT and beautiful!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "When flowers open up and show their colors, they _____.",
+          "answer": "BLOOM"
+        },
+        {
+          "type": "KNOWN",
+          "question": "The sweet juice inside a flower is called _____.",
+          "answer": "NECTAR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something that loves to visit flowers.",
+          "answer": "BEES / BUTTERFLIES"
+        },
+        {
+          "type": "OPEN",
+          "question": "My favorite color of flower is _____.",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1588174829800-aaddd659be9a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHNwcmluZyUyMGZsb3dlcnN8ZW58MHwwfHx8MTc3NjAzMjczMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "purple and white flowers during daytime"
+    },
+    {
+      "number": 4,
+      "text": "Many ANIMALS wake up from a long winter SLEEP in spring. This long sleep is called hibernation. BEARS are one animal that hibernates all winter long. FROGS also wake up from the cold mud and start to JUMP around again. Birds fly back from warm places they visited in winter. Spring is a very BUSY time for animals!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Animals that sleep all winter are doing something called _____.",
+          "answer": "HIBERNATION"
+        },
+        {
+          "type": "KNOWN",
+          "question": "In spring, frogs wake up and start to _____ around.",
+          "answer": "JUMP"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name an animal the text says wakes up in spring.",
+          "answer": "BEARS / FROGS / BIRDS"
+        },
+        {
+          "type": "MATH",
+          "question": "There are _____ seasons in a year.",
+          "answer": "FOUR"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1760837984047-bdbdb478159c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxiZWFyJTIwd2FraW5nJTIwdXAlMjBzcHJpbmd8ZW58MHwwfHx8MTc3NjAzMjczMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "A young bear yawns while lying on wood chips."
+    },
+    {
+      "number": 5,
+      "text": "Spring is a great time for baby animals to be BORN. Mother birds build NESTS out of twigs and grass. They lay EGGS in the nest and keep them warm. Baby birds hatch, or come out, from the eggs. Baby DEER are called fawns, and they are born in spring too. New life is everywhere you LOOK in spring!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Mother birds build nests out of twigs and _____.",
+          "answer": "GRASS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Baby deer are called _____.",
+          "answer": "FAWNS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something mother birds do in spring.",
+          "answer": "BUILD NESTS / LAY EGGS / KEEP EGGS WARM"
+        },
+        {
+          "type": "VAKT",
+          "question": "Cup your hands together like a nest and pretend to hold a tiny egg. What does the smooth egg feel like in your hands?",
+          "answer": "SMOOTH / ROUND / WARM"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1551993459-2349a5df3bb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxiYWJ5JTIwYmlyZHMlMjBuZXN0JTIwZWdnc3xlbnwwfDB8fHwxNzc2MDMyNzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "birds on nest during daytime"
+    },
+    {
+      "number": 6,
+      "text": "TREES grow new LEAVES in spring. In winter, many trees lose all their leaves and look bare. When spring comes, tiny GREEN buds appear on the branches. Those buds slowly open into fresh new leaves. Some trees grow PINK or white flowers called blossoms. Cherry trees are famous for their beautiful pink BLOOMS!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "In winter, many trees lose all their leaves and look _____.",
+          "answer": "BARE"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Flowers that grow on trees are called _____.",
+          "answer": "BLOSSOMS"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something that happens to trees in spring.",
+          "answer": "GROW LEAVES / BUDS APPEAR / FLOWERS BLOOM"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "Leaves use sunlight to make food for trees in a process called _____.",
+          "answer": "PHOTOSYNTHESIS"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1711706163574-2e110e6aff7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxjaGVycnklMjBibG9zc29tJTIwdHJlZSUyMHNwcmluZ3xlbnwwfDB8fHwxNzc2MDMyNzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a tree branch with white flowers in the foreground"
+    },
+    {
+      "number": 7,
+      "text": "Spring is a fun time to go OUTSIDE and play. The ground is no longer frozen and hard. GRASS grows green and soft under your feet. Kids love to run, skip, and FLY kites in the spring wind. Puddles from spring rain are perfect for JUMPING in with boots on. Being outside in spring makes people feel HAPPY and full of energy!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "In spring, grass grows green and soft under your _____.",
+          "answer": "FEET"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Kids love to fly _____ in the spring wind.",
+          "answer": "KITES"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something kids love to do outside in spring.",
+          "answer": "RUN / SKIP / FLY KITES / JUMP IN PUDDLES"
+        },
+        {
+          "type": "OPEN",
+          "question": "My favorite thing to do outside in spring is _____.",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1769421516040-0c9b69ce3b27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMHBsYXlpbmclMjBzcHJpbmclMjBvdXRkb29yc3xlbnwwfDB8fHwxNzc2MDMyNzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Child in a white hoodie looks through a fence."
+    },
+    {
+      "number": 8,
+      "text": "Spring is a season full of new LIFE and new beginnings. The world goes from cold and GRAY to warm and colorful. Plants GROW, animals wake up, and baby animals are born. Rain, SUN, and warm air all work together to make spring happen. Spring reminds us that even after the coldest winter, GOOD things are always coming. It is nature's way of saying HELLO again!",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "In spring, the world goes from cold and gray to warm and _____.",
+          "answer": "COLORFUL"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Rain, sun, and warm _____ all work together to make spring happen.",
+          "answer": "AIR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something that happens when spring comes.",
+          "answer": "PLANTS GROW / ANIMALS WAKE UP / BABIES ARE BORN"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture a sunny spring meadow full of flowers. What colors do you see?",
+          "answer": "PINK / YELLOW / GREEN / RED"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1643184687766-3cf51738e679?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxzcHJpbmclMjBuYXR1cmUlMjBncmVlbiUyMGNvbG9yZnVsfGVufDB8MHx8fDE3NzYwMzI3MzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a bunch of pink flowers on a tree branch"
+    }
+  ],
+  "citations": [
+    "Zoehfeld, Kathleen Weidner. What Is Spring? (Scholastic Reader, Level 1). Scholastic, 2012.",
+    "NASA Science. 'The Reasons for the Seasons.' science.nasa.gov/earth/seasons. Accessed 2024.",
+    "National Geographic Kids. 'Spring Animals and Nature Facts.' kids.nationalgeographic.com. Accessed 2024."
+  ],
+  "hashtags": [
+    "#WakeUpItsSpring",
+    "#SpringScience",
+    "#SeasonsOfTheYear",
+    "#NatureForKids",
+    "#WordUp",
+    "#S2C"
+  ]
+}

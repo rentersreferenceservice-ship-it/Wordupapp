@@ -67,10 +67,20 @@ KNOWN (2 required per hunk):
 - NOT yes/no. NOT opinion. NOT a number or date (those are MATH).
 - CRITICAL: There must be only ONE possible correct answer. If more than one answer could be correct, it is SEMI-OPEN not KNOWN. Do not use slashes in KNOWN answers. A KNOWN answer NEVER contains a slash — if you find yourself writing a slash, stop and change the type.
 - CRITICAL: Never use the same answer twice in the same hunk. If NOCTURNAL is the answer to one question, do not ask another question in the same hunk whose answer is also NOCTURNAL. Redundant questions waste precious letterboard effort.
-- Fill-in-the-blank format is encouraged for KNOWN questions — it naturally produces one clear answer. Examples:
-  - "Daddy long legs has a _____ body?" → SMALL (better than "How big is a daddy long legs body?" which invites multiple answers)
-  - "Daddy long legs like to _____ in cool, dark, damp places." → LIVE (better than "What kind of place do daddy long legs like?" → DARK / DAMP / COOL which has multiple answers and none is the key concept)
+- CRITICAL: Questions must NEVER begin with What, Where, Who, When, Why, How, Does, Do, Did, Is, Are, Was, Were, Can, or any other interrogative word. This applies to ALL question types — KNOWN, SEMI-OPEN, PRIOR KNOWLEDGE, MATH, OPEN, and VAKT. Every question must be a statement with a blank or a prompt that leads into the answer.
+- Fill-in-the-blank format is MANDATORY for KNOWN questions. Rewrite every question as a statement with a blank. Examples:
+  - BAD: "When was John Henry born?" → GOOD: "John Henry was born in the year _____."
+  - BAD: "What did Mozart compose?" → GOOD: "Mozart was famous for composing _____."
+  - BAD: "Who invented the telephone?" → GOOD: "The telephone was invented by _____."
+  - BAD: "Where did Mozart grow up?" → GOOD: "Mozart grew up in _____."
+  - BAD: "How many legs does a spider have?" → GOOD: "A spider has _____ legs."
+  - "Daddy long legs has a _____ body." → SMALL
+  - "Daddy long legs like to _____ in cool, dark, damp places." → LIVE
   - Put the descriptive details INTO the question and ask for the key word as the answer.
+- For SEMI-OPEN, OPEN, VAKT, and PRIOR KNOWLEDGE, also use statement or prompt form instead of a question word. Examples:
+  - BAD: "What are some things the text tells us about NASA?" → GOOD: "Name something the text tells us about NASA."
+  - BAD: "How does this make you feel?" → GOOD: "This makes me feel _____."
+  - BAD: "What would you bring to the Moon?" → GOOD: "If I could visit the Moon, I would bring _____."
 - CRITICAL: The answer must NOT already appear as a word inside the question. "How fast did Mozart's brain work? → FAST" is invalid — the word FAST is already in the question. "What instrument do many piano players play? → PIANO" is invalid — PIANO is already in the question. Rewrite the question so the student must recall the answer, not just repeat a word they just read in the question.
 - CRITICAL: "What does your brain help you do? → THINK / MOVE / REMEMBER / FEEL" is invalid as KNOWN for two reasons: (1) it has multiple slash answers — KNOWN never has slashes, and (2) the answers are not taken from the hunk text. This must never happen.
 - CRITICAL: "What does your brain help you do when you jump? → BALANCE / HAVE FUN" is invalid as KNOWN — same violations: slashes and answers not from the hunk text. This pattern must never appear as KNOWN.

@@ -32,11 +32,15 @@ body {
     margin: 1in 0.75in 0.75in 0.75in;
   }
 
-  /* Hide everything except the article */
-  body > * { display: none !important; }
-  body > div > nav { display: none !important; }
+  .print\:hidden { display: none !important; }
 
-  /* Show only the article */
+  nav, footer, .print-footer { display: none !important; }
+
+  body, html {
+    background: white !important;
+    color: black !important;
+  }
+
   article {
     display: block !important;
     position: static !important;
@@ -61,13 +65,5 @@ body {
 
   section {
     break-inside: avoid;
-  }
-
-  .print-footer {
-    display: none !important;
-  }
-
-  footer {
-    display: none !important;
   }
 }

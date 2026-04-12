@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
 import { auth } from '@clerk/nextjs/server'
-import { getUserUsage, incrementPrints, PRINT_LIMIT } from '@/lib/usageStore'
+import { getUserUsage, incrementPrints, MONTHLY_LIMIT } from '@/lib/usageStore'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -22,25 +22,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const { userId } = await auth()
-  if (!userId) {
-    return new Response('Login required', { status: 401 })
-  }
+  if (!userId) return new Response('Login required', { status: 401 })
+
   const usage = getUserUsage(userId)
-  if (!usage.isSubscribed) {
-    return new Response('Subscription required', { status: 403 })
-  }
-  if (usage.printsThisMonth >= PRINT_LIMIT) {
-    return new Response('Monthly print limit reached', { status: 403 })
-  }
+  if (!usage.isSubscribed) return new Response('Subscription required', { status: 403 })
+  if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) return new Response('Monthly print limit reached', { status: 403 })
+
   incrementPrints(userId)
 
-  // Load logo as base64
   const logoPath = path.join(process.cwd(), 'public', 'word_up_clean.jpeg')
   const logoBase64 = fs.existsSync(logoPath)
     ? `data:image/jpeg;base64,${fs.readFileSync(logoPath).toString('base64')}`
     : null
 
-  // Build HTML
   const hunksHtml = lesson.hunks.map(hunk => {
     const questionsHtml = hunk.questions.map(q => `
       <div class="question">

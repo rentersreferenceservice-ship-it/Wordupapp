@@ -1,0 +1,242 @@
+{
+  "id": "584afd10-b652-49f0-8ae5-93ee49d3d2ac",
+  "topic": "To The Moon, Artemis!",
+  "ageGroup": "Adults (18+)",
+  "title": "To The Moon, Artemis! – Adults (18+)",
+  "createdAt": "2026-04-12T22:01:47.234Z",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "Humanity is heading back to the MOON for the first time in over fifty years, and this time, we are going to stay. NASA's ARTEMIS PROGRAM is the mission to return astronauts to the lunar surface and build a lasting presence there. The program is named after Artemis, the twin sister of Apollo in Greek mythology — a fitting tribute since the original Apollo missions took humans to the Moon between 1969 and 1972. What makes Artemis truly historic is that it aims to land the first woman and the first person of color on the Moon. This is not just a return trip — it is the foundation of a new era of DEEP SPACE EXPLORATION.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "The Artemis Program is run by which U.S. space agency?",
+          "answer": "NASA"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Artemis aims to land the first woman and the first person of color on what celestial body?",
+          "answer": "THE MOON"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name something that makes the Artemis Program historically significant according to the text.",
+          "answer": "FIRST WOMAN ON THE MOON / FIRST PERSON OF COLOR ON THE MOON / LASTING PRESENCE ON THE MOON / NEW ERA OF DEEP SPACE EXPLORATION"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What was the name of the first NASA program to successfully land humans on the Moon?",
+          "answer": "APOLLO"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1766272566280-d675efc1b84e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxtb29uJTIwTkFTQSUyMEFydGVtaXN8ZW58MHwwfHx8MTc3NjAzMTMwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Tokyo tower illuminated at night with a bright moon."
+    },
+    {
+      "number": 2,
+      "text": "At the heart of the Artemis Program is the most powerful rocket ever built — the SPACE LAUNCH SYSTEM, commonly called the SLS. This massive rocket stands about 322 feet tall, which is taller than the Statue of Liberty, and it generates more thrust than any rocket in history. Riding on top of the SLS is the ORION SPACECRAFT, the capsule that will carry astronauts from Earth all the way to lunar orbit. Orion is designed to support a crew of up to four astronauts and is built to withstand the extreme heat of re-entry when returning from deep space. Together, the SLS and Orion form the backbone of every crewed Artemis mission.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the name of the capsule designed to carry astronauts to lunar orbit?",
+          "answer": "ORION"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Orion is designed to support a crew of up to how many astronauts?",
+          "answer": "FOUR"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what are two remarkable physical or performance facts about the Space Launch System?",
+          "answer": "322 FEET TALL / TALLER THAN THE STATUE OF LIBERTY / MORE THRUST THAN ANY ROCKET IN HISTORY"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture yourself strapped into the Orion capsule, pressed back into your seat as the SLS ignites beneath you. What physical sensations do you imagine in that moment?",
+          "answer": "VIBRATION / PRESSURE / HEAT / ROARING SOUND / WEIGHTLESSNESS"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1770116316553-9ba33a5666fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxTcGFjZSUyMExhdW5jaCUyMFN5c3RlbSUyMHJvY2tldCUyME5BU0F8ZW58MHwwfHx8MTc3NjAzMTMwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Rocket engine with multiple nozzles on display"
+    },
+    {
+      "number": 3,
+      "text": "Before any astronaut sets foot on the lunar surface again, NASA needed to prove the hardware could handle the journey — and that is exactly what ARTEMIS I accomplished. Artemis I was an UNCREWED test flight that launched on November 16, 2022, sending the Orion capsule on a 25-and-a-half-day journey around the Moon and back. Orion traveled more than 1.4 million miles in total and reached a maximum distance of about 268,563 miles from Earth — the farthest any spacecraft designed for human travel has ever ventured. The mission successfully tested Orion's heat shield as it re-entered Earth's atmosphere at speeds exceeding 24,500 miles per hour. Artemis I gave engineers the real-world data they needed to certify the system as safe for a human crew.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Artemis I was an uncrewed test flight — what does the word 'uncrewed' tell us about who was aboard?",
+          "answer": "NO ASTRONAUTS"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What component of Orion did Artemis I specifically test during re-entry into Earth's atmosphere?",
+          "answer": "HEAT SHIELD"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name at least two pieces of data or milestones confirmed by the Artemis I mission according to the text.",
+          "answer": "25.5-DAY JOURNEY / 1.4 MILLION MILES TRAVELED / 268,563 MILES FROM EARTH / HEAT SHIELD TESTED / 24,500 MPH RE-ENTRY SPEED"
+        },
+        {
+          "type": "MATH",
+          "question": "On what date did the Artemis I mission launch?",
+          "answer": "NOVEMBER 16, 2022"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "text": "Artemis II will be the first crewed flight of the SLS and Orion, taking four astronauts on a flight path around the Moon without landing — a crucial shakedown of the entire system with human lives aboard. The crew includes Commander REID WISEMAN, Pilot VICTOR GLOVER, Mission Specialist CHRISTINA KOCH, and Canadian Space Agency astronaut JEREMY HANSEN. Victor Glover will become the first African American to fly to the Moon, and Christina Koch will become the first woman to travel to lunar distance. The mission is designed to follow a FREE RETURN TRAJECTORY, meaning that if something goes wrong, the spacecraft's path around the Moon will naturally bring it back to Earth without requiring a major engine burn. Artemis II is scheduled to demonstrate that the Orion crew systems — life support, navigation, and communications — all perform as expected when humans are actually aboard.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What type of trajectory is Artemis II designed to follow, allowing the spacecraft to return to Earth naturally if something goes wrong?",
+          "answer": "FREE RETURN TRAJECTORY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Which astronaut on the Artemis II crew will become the first woman to travel to lunar distance?",
+          "answer": "CHRISTINA KOCH"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Identify at least two crew systems that Artemis II is designed to test with humans aboard.",
+          "answer": "LIFE SUPPORT / NAVIGATION / COMMUNICATIONS"
+        },
+        {
+          "type": "OPEN",
+          "question": "Victor Glover and Christina Koch are both making history with this mission. What does it mean to you personally that representation in space exploration is expanding?",
+          "answer": "STUDENT CHOICE"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "text": "The landing mission — ARTEMIS III — is the one that will make history by returning human footprints to the lunar surface for the first time since December 1972. For the descent to the surface, NASA has contracted with SpaceX to use a version of their STARSHIP vehicle as the HUMAN LANDING SYSTEM, or HLS. Astronauts will first travel to lunar orbit aboard Orion, then transfer to the Starship HLS for the final trip down to the Moon's South Pole region. NASA chose the South Pole because scientists believe water ice is trapped in permanently shadowed CRATERS there — and water is one of the most valuable resources imaginable for a long-term lunar presence. That water ice could be converted into drinking water, breathable oxygen, and even rocket PROPELLANT for future missions deeper into the solar system.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "Which company did NASA contract to provide the Human Landing System for Artemis III?",
+          "answer": "SPACEX"
+        },
+        {
+          "type": "KNOWN",
+          "question": "Water ice at the lunar South Pole could be converted into drinking water, oxygen, and what else?",
+          "answer": "PROPELLANT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "List the reasons the text gives for why NASA chose the lunar South Pole as the landing site for Artemis III.",
+          "answer": "WATER ICE TRAPPED THERE / PERMANENTLY SHADOWED CRATERS / WATER IS VALUABLE FOR LONG-TERM PRESENCE"
+        },
+        {
+          "type": "VAKT",
+          "question": "Reach down and press your fingertips firmly against the floor. Now imagine that surface is not a floor but the powdery, frozen regolith of the Moon's South Pole. What words come to mind for what that alien ground might feel like beneath your hands?",
+          "answer": "COLD / GRITTY / POWDERY / HARD / SHARP"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "text": "One of the most ambitious elements of the entire Artemis Program is GATEWAY — a small space station that NASA and its international partners plan to build in orbit around the Moon. Gateway will serve as a staging point for lunar surface missions, a laboratory for scientific research, and eventually a waypoint for crewed missions heading even deeper into the solar system, toward Mars. Unlike the International Space Station, which orbits Earth, Gateway will sit in a unique elongated orbit called a NEAR RECTILINEAR HALO ORBIT, or NRHO, that keeps it accessible from both the lunar surface and from Earth. International partners including the European Space Agency, the Japan Aerospace Exploration Agency, and the Canadian Space Agency are all contributing hardware and expertise to Gateway's construction. This collaborative approach mirrors the spirit that built the International Space Station and underscores that the future of space exploration is a global endeavor.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the name of the small space station planned to orbit the Moon as part of the Artemis Program?",
+          "answer": "GATEWAY"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What is the name of the unique elongated orbit that Gateway will use around the Moon?",
+          "answer": "NEAR RECTILINEAR HALO ORBIT"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "According to the text, what are the planned purposes of Gateway?",
+          "answer": "STAGING POINT FOR LUNAR MISSIONS / SCIENTIFIC RESEARCH LABORATORY / WAYPOINT TOWARD MARS"
+        },
+        {
+          "type": "PRIOR KNOWLEDGE",
+          "question": "What is the name of the current international space station that orbits Earth today?",
+          "answer": "INTERNATIONAL SPACE STATION"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1754641944507-81f566d6de7f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxHYXRld2F5JTIwbHVuYXIlMjBzcGFjZSUyMHN0YXRpb24lMjBvcmJpdHxlbnwwfDB8fHwxNzc2MDMxMzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "Model of a lunar landing with spacecraft and solar panel"
+    },
+    {
+      "number": 7,
+      "text": "Artemis is not only about planting flags and taking photographs — it is fundamentally about learning how humans can live and work beyond Earth for extended periods. One of the greatest challenges of long-duration spaceflight is the effect of COSMIC RADIATION on the human body, since beyond Earth's protective magnetic field, astronauts are exposed to high-energy particles from the Sun and from deep space. NASA is developing advanced DOSIMETRY tools and radiation-shielding strategies to monitor and protect crew members throughout the journey. Another major challenge is the psychological toll of ISOLATION — being hundreds of thousands of miles from home, in a confined spacecraft, with only a small crew, demands extraordinary mental resilience. Research conducted on the Artemis missions will directly inform the planning of future crewed missions to MARS, where astronauts could spend years away from Earth.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "What is the psychological challenge of being confined in a small spacecraft, far from home, with only a small crew called?",
+          "answer": "ISOLATION"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What type of tool is NASA developing to monitor radiation exposure in crew members?",
+          "answer": "DOSIMETRY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name at least two major human health or wellbeing challenges that the text identifies for long-duration spaceflight.",
+          "answer": "COSMIC RADIATION / ISOLATION / PSYCHOLOGICAL TOLL / EXPOSURE TO HIGH-ENERGY PARTICLES"
+        },
+        {
+          "type": "OPEN",
+          "question": "If you were selected for a mission that would keep you isolated in a small spacecraft for months, what personal strengths or strategies would help you cope?",
+          "answer": "STUDENT CHOICE"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1654122107610-9b3b024f1a27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxhc3Ryb25hdXQlMjBkZWVwJTIwc3BhY2UlMjByYWRpYXRpb24lMjBwcm90ZWN0aW9ufGVufDB8MHx8fDE3NzYwMzEzMDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a man in a space suit with a gas mask"
+    },
+    {
+      "number": 8,
+      "text": "The Artemis Program represents a profound shift in humanity's relationship with the cosmos — from occasional visitor to PERMANENT RESIDENT of the Moon and beyond. Every rocket launched, every dataset collected, and every boundary pushed through Artemis brings us closer to the long-dreamed goal of becoming a MULTI-PLANETARY species. Scientists and engineers envision a future where a lunar base called LUNAR GATEWAY serves as the launchpad for crewed missions to asteroids, Mars, and eventually far beyond our solar system. The lessons learned from living on the Moon — growing food in low gravity, generating power far from Earth, recycling water in a closed-loop system — will be the survival manual for wherever humanity ventures next. As NASA Administrator Bill Nelson has said, we are not going back to the Moon to leave footprints; we are going back to learn how to stay.",
+      "questions": [
+        {
+          "type": "KNOWN",
+          "question": "According to the text, what is the long-dreamed goal that the Artemis Program is moving humanity toward?",
+          "answer": "MULTI-PLANETARY SPECIES"
+        },
+        {
+          "type": "KNOWN",
+          "question": "What does the text say we are going back to the Moon to learn how to do?",
+          "answer": "STAY"
+        },
+        {
+          "type": "SEMI-OPEN",
+          "question": "Name at least two survival skills or systems the text says humans must master on the Moon before venturing further into space.",
+          "answer": "GROWING FOOD IN LOW GRAVITY / GENERATING POWER / RECYCLING WATER / CLOSED-LOOP SYSTEMS"
+        },
+        {
+          "type": "VAKT",
+          "question": "Close your eyes and picture yourself standing outside a lunar habitat at the Moon's South Pole. The Earth hangs huge and blue in the black sky above you. Take ten seconds to hold that image. What feelings or words does that vision stir in you?",
+          "answer": "AWE / WONDER / SMALL / HOPEFUL / PEACEFUL / PROUD"
+        }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1707380636291-54c345a6a7a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTg1NjR8MHwxfHNlYXJjaHwxfHxmdXR1cmUlMjBsdW5hciUyMGJhc2UlMjBoYWJpdGF0JTIwTkFTQXxlbnwwfDB8fHwxNzc2MDMxMzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageAlt": "a bunch of different types of objects on a black background"
+    }
+  ],
+  "citations": [
+    "NASA Artemis Program Official Site: https://www.nasa.gov/artemis",
+    "NASA Artemis I Mission Overview: https://www.nasa.gov/artemis-1",
+    "Foust, Jeff. 'Artemis: The Next Generation of Lunar Exploration.' SpaceNews, 2023. https://spacenews.com",
+    "European Space Agency — Gateway Overview: https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/Gateway",
+    "NASA Human Research Program — Radiation and Space Weather: https://humanresearchroadmap.nasa.gov"
+  ],
+  "hashtags": [
+    "#ArtemisMission",
+    "#MoonLanding",
+    "#DeepSpaceExploration",
+    "#NASAArtemis",
+    "#WordUp",
+    "#S2C"
+  ]
+}

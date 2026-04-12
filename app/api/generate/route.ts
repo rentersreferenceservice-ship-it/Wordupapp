@@ -7,7 +7,7 @@ import {
   incrementLessons,
   getVerifiedEmailUsage,
   incrementVerifiedEmailLesson,
-  LESSON_LIMIT,
+  MONTHLY_LIMIT,
   FREE_LESSON_LIMIT,
 } from '@/lib/usageStore'
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     if (!usage.isSubscribed) {
       return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
     }
-    if (usage.lessonsThisMonth >= LESSON_LIMIT) {
+    if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
       return Response.json({ error: 'LESSON_LIMIT_REACHED' }, { status: 403 })
     }
 

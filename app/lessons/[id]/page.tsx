@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation'
 import { getLesson } from '@/lib/lessonStore'
 import type { QuestionType } from '@/lib/types'
 import PrintButton from './PrintButton'
+import DeleteButton from './DeleteButton'
 import Link from 'next/link'
+import { auth } from '@clerk/nextjs/server'
+
+const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +24,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   const lesson = getLesson(id)
   if (!lesson) notFound()
 
+  const { userId } = await auth()
+  const isAdmin = userId === ADMIN_USER_ID
+
   return (
     <div className="min-h-screen">
       <nav className="relative z-10 print:hidden flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
@@ -32,6 +39,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           >
             Contact
           </a>
+          {isAdmin && <DeleteButton />}
         </div>
       </nav>
 
