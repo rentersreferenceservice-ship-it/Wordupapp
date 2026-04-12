@@ -2,8 +2,6 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { Lesson, Hunk } from './types'
 import { v4 as uuidv4 } from 'uuid'
 
-const client = new Anthropic()
-
 const SYSTEM_PROMPT = `You are an expert Spelling to Communicate (S2C) lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
 You generate complete, clinically consistent S2C lessons with exactly 8 HUNKS.
@@ -195,6 +193,7 @@ Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 4 questions
 For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #S2C.`
 
 export async function generateLesson(topic: string, ageGroup: string): Promise<Lesson> {
+  const client = new Anthropic()
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 8192,
