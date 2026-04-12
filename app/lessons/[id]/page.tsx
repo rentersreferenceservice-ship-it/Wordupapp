@@ -23,7 +23,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   return (
     <div className="min-h-screen">
       <nav className="relative z-10 print:hidden flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
-        <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
+        <Link href="/lessons" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">← All Lessons</Link>
         <div className="flex gap-3">
           <PrintButton />
           <a

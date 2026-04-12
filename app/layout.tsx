@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import BackgroundText from "./BackgroundText";
 import { ClerkProvider, SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
+import SubscribeButton from "./SubscribeButton";
 
 export const metadata: Metadata = {
   title: "Word Up — S2C Lesson Generator",
@@ -30,14 +31,7 @@ export default function RootLayout({
               </SignUpButton>
             </Show>
             <Show when="signed-in">
-              <a
-                href="https://buy.stripe.com/test_9B6fZgfIy6AxaO83sH1RC00"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors"
-              >
-                Subscribe $9.99/mo
-              </a>
+              <SubscribeButton />
               <UserButton />
             </Show>
           </div>
