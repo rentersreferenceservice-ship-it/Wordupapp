@@ -22,7 +22,7 @@ export default function RootLayout({
           <div className="relative z-20 flex justify-end items-center gap-3 px-6 py-3 print:hidden">
             <Show when="signed-out">
               <SignInButton>
-                <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Log In</button>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Log In</button>
               </SignInButton>
             </Show>
             <Show when="signed-out">
