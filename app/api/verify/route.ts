@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     storePendingVerification(email, code)
 
     await resend.emails.send({
-      from: 'Word Up <onboarding@resend.dev>',
+      from: 'Word Up <noreply@worduplessongenerator.com>',
       to: email,
       subject: 'Your Word Up verification code',
       html: `
