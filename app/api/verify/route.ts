@@ -2,8 +2,6 @@ import { NextRequest } from 'next/server'
 import { Resend } from 'resend'
 import { storePendingVerification, verifyEmailCode } from '@/lib/usageStore'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // POST /api/verify  { action: 'request', email }  — sends code
 // POST /api/verify  { action: 'confirm', email, code }  — verifies code
 export async function POST(req: NextRequest) {
@@ -18,6 +16,7 @@ export async function POST(req: NextRequest) {
     const code = String(Math.floor(100000 + Math.random() * 900000)) // 6-digit code
     storePendingVerification(email, code)
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: 'Word Up <noreply@worduplessongenerator.com>',
       to: email,
