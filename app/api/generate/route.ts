@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
       return Response.json({ ...lesson, freeUsed: true })
     }
 
+    const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
     const usage = await getUserUsage(userId)
+    if (userId === ADMIN_USER_ID) usage.isSubscribed = true
     if (!usage.isSubscribed) {
       return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
     }
