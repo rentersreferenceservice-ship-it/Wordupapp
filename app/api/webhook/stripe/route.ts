@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
     return new Response('Webhook Error', { status: 400 })
   }
 
-  // Get the Clerk user ID from the Stripe customer metadata
   async function getClerkUserId(customerId: string): Promise<string | null> {
     try {
       const customer = await stripe.customers.retrieve(customerId)
@@ -32,7 +31,7 @@ export async function POST(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session
       const clerkUserId = session.metadata?.clerkUserId
       if (clerkUserId) {
-        setSubscribed(clerkUserId, true)
+        await setSubscribed(clerkUserId, true)
         console.log('Subscribed user:', clerkUserId)
       }
       break
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
       const clerkUserId = await getClerkUserId(sub.customer as string)
       if (clerkUserId) {
         const active = sub.status === 'active' || sub.status === 'trialing'
-        setSubscribed(clerkUserId, active)
+        await setSubscribed(clerkUserId, active)
       }
       break
     }
@@ -51,7 +50,7 @@ export async function POST(req: NextRequest) {
       const sub = event.data.object as Stripe.Subscription
       const clerkUserId = await getClerkUserId(sub.customer as string)
       if (clerkUserId) {
-        setSubscribed(clerkUserId, false)
+        await setSubscribed(clerkUserId, false)
         console.log('Unsubscribed user:', clerkUserId)
       }
       break

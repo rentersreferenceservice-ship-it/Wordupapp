@@ -22,14 +22,12 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
 
     if (!userId) {
-      // Visitor — must have a verified email
       if (!verifiedEmail) {
         return Response.json({ error: 'EMAIL_REQUIRED' }, { status: 403 })
       }
 
-      const used = getVerifiedEmailUsage(verifiedEmail)
+      const used = await getVerifiedEmailUsage(verifiedEmail)
       if (used === -1) {
-        // Email not verified
         return Response.json({ error: 'EMAIL_REQUIRED' }, { status: 403 })
       }
       if (used >= FREE_LESSON_LIMIT) {
@@ -37,13 +35,12 @@ export async function POST(request: NextRequest) {
       }
 
       const lesson = await generateLesson(topic, ageGroup)
-      saveLesson(lesson)
-      incrementVerifiedEmailLesson(verifiedEmail)
+      await saveLesson(lesson)
+      await incrementVerifiedEmailLesson(verifiedEmail)
       return Response.json({ ...lesson, freeUsed: true })
     }
 
-    // Logged in user — check subscription and limit
-    const usage = getUserUsage(userId)
+    const usage = await getUserUsage(userId)
     if (!usage.isSubscribed) {
       return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
     }
@@ -52,8 +49,8 @@ export async function POST(request: NextRequest) {
     }
 
     const lesson = await generateLesson(topic, ageGroup)
-    saveLesson(lesson)
-    incrementLessons(userId)
+    await saveLesson(lesson)
+    await incrementLessons(userId)
     return Response.json(lesson)
 
   } catch (e: unknown) {

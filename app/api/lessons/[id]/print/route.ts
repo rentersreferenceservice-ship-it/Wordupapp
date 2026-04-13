@@ -18,17 +18,17 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const lesson = getLesson(id)
+  const lesson = await getLesson(id)
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const { userId } = await auth()
   if (!userId) return new Response('Login required', { status: 401 })
 
-  const usage = getUserUsage(userId)
+  const usage = await getUserUsage(userId)
   if (!usage.isSubscribed) return new Response('Subscription required', { status: 403 })
   if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) return new Response('Monthly print limit reached', { status: 403 })
 
-  incrementPrints(userId)
+  await incrementPrints(userId)
 
   const logoPath = path.join(process.cwd(), 'public', 'word_up_clean.jpeg')
   const logoBase64 = fs.existsSync(logoPath)

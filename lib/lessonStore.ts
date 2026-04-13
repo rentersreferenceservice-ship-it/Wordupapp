@@ -1,45 +1,45 @@
-import fs from 'fs'
-import path from 'path'
+import { supabase } from './supabase'
 import type { Lesson } from './types'
 
-const DATA_DIR = path.join(process.cwd(), 'data', 'lessons')
+export async function saveLesson(lesson: Lesson): Promise<void> {
+  await supabase.from('lessons').upsert({
+    id: lesson.id,
+    topic: lesson.topic,
+    age_group: lesson.ageGroup,
+    title: lesson.title,
+    created_at: lesson.createdAt,
+    hunks: lesson.hunks,
+    citations: lesson.citations,
+    hashtags: lesson.hashtags ?? [],
+  })
+}
 
-function ensureDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true })
+export async function getLesson(id: string): Promise<Lesson | null> {
+  const { data } = await supabase.from('lessons').select('*').eq('id', id).single()
+  if (!data) return null
+  return dbRowToLesson(data)
+}
+
+export async function listLessons(): Promise<Lesson[]> {
+  const { data } = await supabase.from('lessons').select('*').order('created_at', { ascending: false })
+  if (!data) return []
+  return data.map(dbRowToLesson)
+}
+
+export async function deleteLesson(id: string): Promise<boolean> {
+  const { error } = await supabase.from('lessons').delete().eq('id', id)
+  return !error
+}
+
+function dbRowToLesson(row: Record<string, unknown>): Lesson {
+  return {
+    id: row.id as string,
+    topic: row.topic as string,
+    ageGroup: row.age_group as string,
+    title: row.title as string,
+    createdAt: row.created_at as string,
+    hunks: row.hunks as Lesson['hunks'],
+    citations: row.citations as string[],
+    hashtags: row.hashtags as string[],
   }
-}
-
-export function saveLesson(lesson: Lesson): void {
-  ensureDir()
-  const filePath = path.join(DATA_DIR, `${lesson.id}.json`)
-  fs.writeFileSync(filePath, JSON.stringify(lesson, null, 2), 'utf-8')
-}
-
-export function getLesson(id: string): Lesson | null {
-  const filePath = path.join(DATA_DIR, `${id}.json`)
-  if (!fs.existsSync(filePath)) return null
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as Lesson
-}
-
-export function listLessons(): Lesson[] {
-  ensureDir()
-  const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json'))
-  return files
-    .map(f => {
-      try {
-        return JSON.parse(fs.readFileSync(path.join(DATA_DIR, f), 'utf-8')) as Lesson
-      } catch {
-        return null
-      }
-    })
-    .filter(Boolean)
-    .sort((a, b) => new Date(b!.createdAt).getTime() - new Date(a!.createdAt).getTime()) as Lesson[]
-}
-
-export function deleteLesson(id: string): boolean {
-  const filePath = path.join(DATA_DIR, `${id}.json`)
-  if (!fs.existsSync(filePath)) return false
-  fs.unlinkSync(filePath)
-  return true
 }

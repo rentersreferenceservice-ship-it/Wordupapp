@@ -11,7 +11,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   const { id } = await params
-  const deleted = deleteLesson(id)
+  const deleted = await deleteLesson(id)
   if (!deleted) {
     return Response.json({ error: 'Lesson not found' }, { status: 404 })
   }

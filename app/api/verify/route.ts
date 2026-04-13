@@ -2,8 +2,6 @@ import { NextRequest } from 'next/server'
 import { Resend } from 'resend'
 import { storePendingVerification, verifyEmailCode } from '@/lib/usageStore'
 
-// POST /api/verify  { action: 'request', email }  — sends code
-// POST /api/verify  { action: 'confirm', email, code }  — verifies code
 export async function POST(req: NextRequest) {
   const body = await req.json()
 
@@ -13,8 +11,8 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Invalid email' }, { status: 400 })
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000)) // 6-digit code
-    storePendingVerification(email, code)
+    const code = String(Math.floor(100000 + Math.random() * 900000))
+    await storePendingVerification(email, code)
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
@@ -41,7 +39,7 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Missing email or code' }, { status: 400 })
     }
 
-    const valid = verifyEmailCode(email, code)
+    const valid = await verifyEmailCode(email, code)
     if (!valid) {
       return Response.json({ error: 'Invalid or expired code' }, { status: 400 })
     }

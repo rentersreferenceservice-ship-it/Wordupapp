@@ -3,7 +3,7 @@ import LessonBrowser from './LessonBrowser'
 
 export const dynamic = 'force-dynamic'
 
-export default function LessonsPage() {
-  const lessons = listLessons()
+export default async function LessonsPage() {
+  const lessons = await listLessons()
   return <LessonBrowser lessons={lessons} />
 }
