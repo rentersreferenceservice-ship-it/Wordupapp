@@ -1,8 +1,8 @@
-import { supabase } from './supabase'
+import { getSupabase } from './supabase'
 import type { Lesson } from './types'
 
 export async function saveLesson(lesson: Lesson): Promise<void> {
-  await supabase.from('lessons').upsert({
+  await getSupabase().from('lessons').upsert({
     id: lesson.id,
     topic: lesson.topic,
     age_group: lesson.ageGroup,
@@ -15,19 +15,19 @@ export async function saveLesson(lesson: Lesson): Promise<void> {
 }
 
 export async function getLesson(id: string): Promise<Lesson | null> {
-  const { data } = await supabase.from('lessons').select('*').eq('id', id).single()
+  const { data } = await getSupabase().from('lessons').select('*').eq('id', id).single()
   if (!data) return null
   return dbRowToLesson(data)
 }
 
 export async function listLessons(): Promise<Lesson[]> {
-  const { data } = await supabase.from('lessons').select('*').order('created_at', { ascending: false })
+  const { data } = await getSupabase().from('lessons').select('*').order('created_at', { ascending: false })
   if (!data) return []
   return data.map(dbRowToLesson)
 }
 
 export async function deleteLesson(id: string): Promise<boolean> {
-  const { error } = await supabase.from('lessons').delete().eq('id', id)
+  const { error } = await getSupabase().from('lessons').delete().eq('id', id)
   return !error
 }
 

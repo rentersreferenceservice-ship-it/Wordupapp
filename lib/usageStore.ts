@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { getSupabase } from './supabase'
 
 interface UserUsage {
   lessonsThisMonth: number
@@ -14,7 +14,7 @@ function getMonthKey() {
 
 export async function getUserUsage(userId: string): Promise<UserUsage> {
   const monthKey = getMonthKey()
-  const { data } = await supabase.from('user_usage').select('*').eq('user_id', userId).single()
+  const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
   if (!data || data.month_key !== monthKey) {
     return { lessonsThisMonth: 0, printsThisMonth: 0, monthKey, isSubscribed: data?.is_subscribed ?? false }
   }
@@ -28,9 +28,9 @@ export async function getUserUsage(userId: string): Promise<UserUsage> {
 
 export async function incrementLessons(userId: string): Promise<void> {
   const monthKey = getMonthKey()
-  const { data } = await supabase.from('user_usage').select('*').eq('user_id', userId).single()
+  const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
   const isNewMonth = !data || data.month_key !== monthKey
-  await supabase.from('user_usage').upsert({
+  await getSupabase().from('user_usage').upsert({
     user_id: userId,
     lessons_this_month: isNewMonth ? 1 : data.lessons_this_month + 1,
     prints_this_month: isNewMonth ? 0 : data.prints_this_month,
@@ -41,9 +41,9 @@ export async function incrementLessons(userId: string): Promise<void> {
 
 export async function incrementPrints(userId: string): Promise<void> {
   const monthKey = getMonthKey()
-  const { data } = await supabase.from('user_usage').select('*').eq('user_id', userId).single()
+  const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
   const isNewMonth = !data || data.month_key !== monthKey
-  await supabase.from('user_usage').upsert({
+  await getSupabase().from('user_usage').upsert({
     user_id: userId,
     lessons_this_month: isNewMonth ? 0 : data.lessons_this_month,
     prints_this_month: isNewMonth ? 1 : data.prints_this_month + 1,
@@ -54,9 +54,9 @@ export async function incrementPrints(userId: string): Promise<void> {
 
 export async function setSubscribed(userId: string, subscribed: boolean): Promise<void> {
   const monthKey = getMonthKey()
-  const { data } = await supabase.from('user_usage').select('*').eq('user_id', userId).single()
+  const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
   const isNewMonth = !data || data.month_key !== monthKey
-  await supabase.from('user_usage').upsert({
+  await getSupabase().from('user_usage').upsert({
     user_id: userId,
     lessons_this_month: isNewMonth ? 0 : data.lessons_this_month,
     prints_this_month: isNewMonth ? 0 : data.prints_this_month,
@@ -66,7 +66,7 @@ export async function setSubscribed(userId: string, subscribed: boolean): Promis
 }
 
 export async function storePendingVerification(email: string, code: string): Promise<void> {
-  await supabase.from('pending_verifications').upsert({
+  await getSupabase().from('pending_verifications').upsert({
     email: email.toLowerCase(),
     code,
     expires: Date.now() + 10 * 60 * 1000,
@@ -74,28 +74,28 @@ export async function storePendingVerification(email: string, code: string): Pro
 }
 
 export async function verifyEmailCode(email: string, code: string): Promise<boolean> {
-  const { data } = await supabase.from('pending_verifications').select('*').eq('email', email.toLowerCase()).single()
+  const { data } = await getSupabase().from('pending_verifications').select('*').eq('email', email.toLowerCase()).single()
   if (!data) return false
   if (Date.now() > data.expires) return false
   if (data.code !== code) return false
-  await supabase.from('pending_verifications').delete().eq('email', email.toLowerCase())
-  const { data: existing } = await supabase.from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
+  await getSupabase().from('pending_verifications').delete().eq('email', email.toLowerCase())
+  const { data: existing } = await getSupabase().from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
   if (!existing) {
-    await supabase.from('verified_emails').insert({ email: email.toLowerCase(), lessons_used: 0 })
+    await getSupabase().from('verified_emails').insert({ email: email.toLowerCase(), lessons_used: 0 })
   }
   return true
 }
 
 export async function getVerifiedEmailUsage(email: string): Promise<number> {
-  const { data } = await supabase.from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
+  const { data } = await getSupabase().from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
   if (!data) return -1
   return data.lessons_used
 }
 
 export async function incrementVerifiedEmailLesson(email: string): Promise<void> {
-  const { data } = await supabase.from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
+  const { data } = await getSupabase().from('verified_emails').select('*').eq('email', email.toLowerCase()).single()
   if (data) {
-    await supabase.from('verified_emails').update({ lessons_used: data.lessons_used + 1 }).eq('email', email.toLowerCase())
+    await getSupabase().from('verified_emails').update({ lessons_used: data.lessons_used + 1 }).eq('email', email.toLowerCase())
   }
 }
 
