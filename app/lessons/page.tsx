@@ -7,7 +7,13 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export default async function LessonsPage() {
-  const { userId } = await auth()
+  let userId: string | null = null
+  try {
+    const session = await auth()
+    userId = session.userId
+  } catch (e) {
+    console.error('Auth error on lessons page:', e)
+  }
 
   if (!userId) {
     return (
@@ -24,7 +30,13 @@ export default async function LessonsPage() {
     )
   }
 
-  const usage = await getUserUsage(userId)
+  let usage = { isSubscribed: false, lessonsThisMonth: 0, printsThisMonth: 0, monthKey: '' }
+  try {
+    usage = await getUserUsage(userId)
+  } catch (e) {
+    console.error('Supabase error on lessons page:', e)
+  }
+
   if (!usage.isSubscribed) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-4">
