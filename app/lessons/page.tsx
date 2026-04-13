@@ -55,6 +55,24 @@ export default async function LessonsPage() {
     )
   }
 
-  const lessons = await listLessons()
+  let lessons: Awaited<ReturnType<typeof listLessons>> = []
+  let listError = ''
+  try {
+    lessons = await listLessons()
+  } catch (e) {
+    listError = e instanceof Error ? e.message : String(e)
+  }
+
+  if (listError) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+        <div className="w-full max-w-md bg-white/90 rounded-3xl shadow-xl p-8 text-center">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Error loading lessons</h2>
+          <p className="text-sm font-mono bg-gray-100 p-3 rounded-lg text-left break-all">{listError}</p>
+        </div>
+      </main>
+    )
+  }
+
   return <LessonBrowser lessons={lessons} />
 }
