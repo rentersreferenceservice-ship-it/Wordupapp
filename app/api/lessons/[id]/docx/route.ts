@@ -23,7 +23,7 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const lesson = getLesson(id)
+  const lesson = await getLesson(id)
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const children: Paragraph[] = []

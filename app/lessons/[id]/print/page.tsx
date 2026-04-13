@@ -17,17 +17,17 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
 
 export default async function PrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const lesson = getLesson(id)
+  const lesson = await getLesson(id)
   if (!lesson) redirect('/')
 
   const { userId } = await auth()
   if (!userId) redirect('/')
 
-  const usage = getUserUsage(userId)
+  const usage = await getUserUsage(userId)
   if (!usage.isSubscribed) redirect(`/lessons/${id}`)
   if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
 
-  incrementPrints(userId)
+  await incrementPrints(userId)
 
   const logoPath = path.join(process.cwd(), 'public', 'word_up_clean.jpeg')
   const logoBase64 = fs.existsSync(logoPath)
