@@ -97,7 +97,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <span className="text-red-600 font-medium">VAKT</span>
         </footer>
 
-        <div className="print-running-footer hidden">
+        <div className="print-running-footer" style={{display:'none'}}>
           Key: <span style={{color:'#15803d',fontWeight:'bold'}}>KNOWN</span> | <span style={{color:'#f97316',fontWeight:'bold'}}>SEMI-OPEN</span> | <span style={{color:'#7e22ce',fontWeight:'bold'}}>MATH</span> | <span style={{color:'#2563eb',fontWeight:'bold'}}>PRIOR KNOWLEDGE</span> | <span style={{color:'#db2777',fontWeight:'bold'}}>OPEN</span> | <span style={{color:'#dc2626',fontWeight:'bold'}}>VAKT</span>
         </div>
       </article>
