@@ -8,7 +8,7 @@ export default function PrintButton() {
 
   return (
     <a
-      href={`/lessons/${id}/print`}
+      href={`/api/lessons/${id}/print`}
       target="_blank"
       rel="noopener noreferrer"
       className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"

@@ -20,13 +20,12 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
   const lesson = await getLesson(id)
   if (!lesson) redirect('/')
 
-  const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
   const { userId } = await auth()
   if (!userId) redirect('/')
 
   const usage = await getUserUsage(userId)
-  if (userId !== ADMIN_USER_ID && !usage.isSubscribed) redirect(`/lessons/${id}`)
-  if (userId !== ADMIN_USER_ID && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
+  if (!usage.isSubscribed) redirect(`/lessons/${id}`)
+  if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
 
   await incrementPrints(userId)
 
@@ -65,25 +64,24 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         <title>{lesson.title}</title>
         <style dangerouslySetInnerHTML={{ __html: `
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; font-size: 13pt; color: #1e1e1e; padding: 1in 0.75in 1in; }
+          body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; }
           .header { text-align: center; margin-bottom: 16px; }
-          .logo { width: 130px; margin-bottom: 4px; }
-          .credit { font-size: 10pt; color: #666; margin-bottom: 2px; }
-          .site { font-size: 10pt; color: #888; margin-bottom: 2px; }
+          .logo { width: 140px; margin-bottom: 8px; }
+          .credit { font-size: 9pt; color: #666; margin-bottom: 4px; }
           .title { font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
-          .hashtags { font-size: 9pt; color: #3b82f6; margin-bottom: 16px; }
-          .hunk { margin-bottom: 22px; }
-          .hunk-text { margin-bottom: 10px; line-height: 1.6; }
-          .question { margin-bottom: 6px; line-height: 1.5; }
-          .answer { margin-left: 20px; font-weight: bold; color: #000; margin-bottom: 4px; }
-          .refs { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
-          .refs h3 { font-size: 11pt; margin-bottom: 6px; }
-          .citation { font-size: 9pt; color: #555; margin-bottom: 4px; line-height: 1.4; }
+          .hashtags { font-size: 8pt; color: #3b82f6; margin-bottom: 16px; }
+          .hunk { margin-bottom: 16px; page-break-inside: avoid; }
+          .hunk-text { margin-bottom: 8px; line-height: 1.5; }
+          .question { margin-bottom: 4px; }
+          .answer { margin-left: 16px; font-weight: bold; color: #000; }
+          .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }
+          .refs h3 { font-size: 10pt; margin-bottom: 6px; }
+          .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
           .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
           @media print {
             .no-print { display: none; }
             body { padding: 0; }
-            @page { margin: 1in 0.75in 1in; }
+            @page { margin: 1in 0.75in 0.75in; }
           }
         ` }} />
       </head>
@@ -91,8 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         <script dangerouslySetInnerHTML={{ __html: `window.onload = function(){ window.print(); }` }} />
         <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
-          <div style={{ fontSize: '10pt', color: '#888', marginBottom: 2 }}>worduplessongenerator.com</div>
-          <div style={{ fontSize: '10pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
+          <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
           <div style={{ fontSize: '16pt', fontWeight: 'bold', marginBottom: 4 }}>{lesson.title}</div>
           {lesson.hashtags?.length ? <div style={{ fontSize: '8pt', color: '#3b82f6', marginBottom: 16 }}>{lesson.hashtags.join(' ')}</div> : null}
         </div>
@@ -101,7 +98,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           <h3 style={{ fontSize: '10pt', marginBottom: 6 }}>References</h3>
           <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
         </div>
-        <div className="footer-key" dangerouslySetInnerHTML={{ __html: `Key: ${footerKey} &nbsp;|&nbsp; worduplessongenerator.com` }} />
+        <div className="footer-key" dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
       </body>
     </html>
   )
