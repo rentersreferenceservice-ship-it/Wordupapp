@@ -107,7 +107,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         headerTemplate: '<span></span>',
         footerTemplate: `<div style="width:100%;font-size:8pt;text-align:center;padding:0 0.75in;font-family:Arial,sans-serif;color:#444;">
           Key: <span style="color:#15803d;font-weight:bold;">KNOWN</span> | <span style="color:#f97316;font-weight:bold;">SEMI-OPEN</span> | <span style="color:#7e22ce;font-weight:bold;">MATH</span> | <span style="color:#2563eb;font-weight:bold;">PRIOR KNOWLEDGE</span> | <span style="color:#db2777;font-weight:bold;">OPEN</span> | <span style="color:#dc2626;font-weight:bold;">VAKT</span>
-          &nbsp;&nbsp;Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+          &nbsp;&nbsp;| worduplessongenerator.com |&nbsp;&nbsp;Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>`,
         printBackground: true,
       }
