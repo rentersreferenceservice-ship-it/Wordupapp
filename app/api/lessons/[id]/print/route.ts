@@ -67,7 +67,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .site { font-size: 10pt; color: #888; margin-bottom: 2px; }
     .title { font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
     .hashtags { font-size: 9pt; color: #3b82f6; margin-bottom: 16px; }
-    .hunk { margin-bottom: 22px; page-break-inside: avoid; }
+    .hunk { margin-bottom: 22px; }
     .hunk-text { margin-bottom: 10px; line-height: 1.6; }
     .question { margin-bottom: 6px; line-height: 1.5; }
     .answer { margin-left: 20px; font-weight: bold; color: #000; margin-bottom: 4px; }
