@@ -41,12 +41,12 @@ export async function POST(request: NextRequest) {
     }
 
     const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
+    const isAdmin = userId === ADMIN_USER_ID
     const usage = await getUserUsage(userId)
-    if (userId === ADMIN_USER_ID) usage.isSubscribed = true
-    if (!usage.isSubscribed) {
+    if (!isAdmin && !usage.isSubscribed) {
       return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
     }
-    if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
+    if (!isAdmin && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
       return Response.json({ error: 'LESSON_LIMIT_REACHED' }, { status: 403 })
     }
 
