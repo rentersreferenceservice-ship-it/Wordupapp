@@ -60,20 +60,20 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   <meta charset="utf-8">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; }
-    .header { text-align: center; margin-bottom: 12px; }
-    .logo { width: 120px; margin-bottom: 4px; }
-    .credit { font-size: 9pt; color: #666; margin-bottom: 2px; }
-    .site { font-size: 9pt; color: #888; margin-bottom: 2px; }
-    .title { font-size: 15pt; font-weight: bold; margin-bottom: 3px; }
-    .hashtags { font-size: 8pt; color: #3b82f6; margin-bottom: 12px; }
-    .hunk { margin-bottom: 14px; page-break-inside: avoid; }
-    .hunk-text { margin-bottom: 6px; line-height: 1.4; }
-    .question { margin-bottom: 3px; }
-    .answer { margin-left: 16px; font-weight: bold; color: #000; }
-    .refs { margin-top: 14px; border-top: 1px solid #ccc; padding-top: 6px; }
-    .refs h3 { font-size: 10pt; margin-bottom: 4px; }
-    .citation { font-size: 8pt; color: #555; margin-bottom: 2px; }
+    body { font-family: Arial, sans-serif; font-size: 13pt; color: #1e1e1e; }
+    .header { text-align: center; margin-bottom: 16px; }
+    .logo { width: 130px; margin-bottom: 4px; }
+    .credit { font-size: 10pt; color: #666; margin-bottom: 2px; }
+    .site { font-size: 10pt; color: #888; margin-bottom: 2px; }
+    .title { font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
+    .hashtags { font-size: 9pt; color: #3b82f6; margin-bottom: 16px; }
+    .hunk { margin-bottom: 22px; page-break-inside: avoid; }
+    .hunk-text { margin-bottom: 10px; line-height: 1.6; }
+    .question { margin-bottom: 6px; line-height: 1.5; }
+    .answer { margin-left: 20px; font-weight: bold; color: #000; margin-bottom: 4px; }
+    .refs { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    .refs h3 { font-size: 11pt; margin-bottom: 6px; }
+    .citation { font-size: 9pt; color: #555; margin-bottom: 4px; line-height: 1.4; }
   </style>
 </head>
 <body>
