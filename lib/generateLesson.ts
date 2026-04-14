@@ -268,13 +268,24 @@ export async function generateLesson(topic: string, ageGroup: string): Promise<L
     })
   )
 
+  // Enforce: any question whose answer is a number must be MATH
+  const correctedHunks = hunksWithImages.map(hunk => ({
+    ...hunk,
+    questions: hunk.questions.map(q => {
+      if (q.type !== 'MATH' && /^\s*[\d,.\-]+\s*$/.test(q.answer ?? '')) {
+        return { ...q, type: 'MATH' as const }
+      }
+      return q
+    }),
+  }))
+
   return {
     id: uuidv4(),
     topic,
     ageGroup,
     title: parsed.title,
     createdAt: new Date().toISOString(),
-    hunks: hunksWithImages,
+    hunks: correctedHunks,
     citations: parsed.citations,
     hashtags: parsed.hashtags ?? [],
   }
