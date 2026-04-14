@@ -13,8 +13,8 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   'SEMI-OPEN': '#f97316',
   'PRIOR KNOWLEDGE': '#2563eb',
   MATH: '#7e22ce',
-  VAKT: '#dc2626',
-  OPEN: '#db2777',
+  VAKT: '#ef4444',
+  OPEN: '#ec4899',
 }
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

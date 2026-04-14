@@ -43,6 +43,19 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
 
+  // Build a lesson number per subject+ageGroup combo (oldest first = #1)
+  const lessonNumbers = useMemo(() => {
+    const sorted = [...lessons].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    const counters: Record<string, number> = {}
+    const numbers: Record<string, number> = {}
+    for (const lesson of sorted) {
+      const key = `${detectSubject(lesson)}|${lesson.ageGroup}`
+      counters[key] = (counters[key] ?? 0) + 1
+      numbers[lesson.id] = counters[key]
+    }
+    return numbers
+  }, [lessons])
+
   const filtered = useMemo(() => {
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
@@ -113,6 +126,8 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
               >
                 <div className="font-medium text-gray-900">{lesson.title}</div>
                 <div className="text-sm text-gray-500 mt-0.5 flex gap-2 flex-wrap items-center">
+                  <span className="font-semibold text-blue-600">#{lessonNumbers[lesson.id]}</span>
+                  <span>·</span>
                   <span>{lesson.ageGroup}</span>
                   <span>·</span>
                   <span>{detectSubject(lesson)}</span>

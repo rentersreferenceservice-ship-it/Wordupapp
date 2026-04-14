@@ -20,12 +20,13 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
   const lesson = await getLesson(id)
   if (!lesson) redirect('/')
 
+  const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
   const { userId } = await auth()
   if (!userId) redirect('/')
 
   const usage = await getUserUsage(userId)
-  if (!usage.isSubscribed) redirect(`/lessons/${id}`)
-  if (usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
+  if (userId !== ADMIN_USER_ID && !usage.isSubscribed) redirect(`/lessons/${id}`)
+  if (userId !== ADMIN_USER_ID && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
 
   await incrementPrints(userId)
 

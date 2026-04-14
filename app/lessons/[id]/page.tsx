@@ -15,8 +15,8 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   'SEMI-OPEN': 'text-orange-500',
   'PRIOR KNOWLEDGE': 'text-blue-600',
   'MATH': 'text-purple-700',
-  'VAKT': 'text-red-600',
-  'OPEN': 'text-pink-600',
+  'VAKT': 'text-red-500',
+  'OPEN': 'text-pink-500',
 }
 
 export default async function LessonPage({ params }: { params: Promise<{ id: string }> }) {
