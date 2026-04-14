@@ -97,9 +97,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <span className="text-red-600 font-medium">VAKT</span>
         </footer>
 
-        <div className="print-footer hidden print:block">
-          <div><span style={{color:'#15803d'}}>KNOWN</span> | <span style={{color:'#f97316'}}>SEMI-OPEN</span> | <span style={{color:'#7e22ce'}}>MATH</span> | <span style={{color:'#2563eb'}}>PRIOR KNOWLEDGE</span> | <span style={{color:'#db2777'}}>OPEN</span> | <span style={{color:'#dc2626'}}>VAKT</span></div>
-          <div className="print-page-number">Page </div>
+        <div className="print-running-footer hidden">
+          Key: <span style={{color:'#15803d',fontWeight:'bold'}}>KNOWN</span> | <span style={{color:'#f97316',fontWeight:'bold'}}>SEMI-OPEN</span> | <span style={{color:'#7e22ce',fontWeight:'bold'}}>MATH</span> | <span style={{color:'#2563eb',fontWeight:'bold'}}>PRIOR KNOWLEDGE</span> | <span style={{color:'#db2777',fontWeight:'bold'}}>OPEN</span> | <span style={{color:'#dc2626',fontWeight:'bold'}}>VAKT</span>
+          &nbsp;&nbsp;|&nbsp;&nbsp;worduplessongenerator.com
         </div>
       </article>
     </div>
