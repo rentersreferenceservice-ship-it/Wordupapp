@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import Stripe from 'stripe'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey) {
