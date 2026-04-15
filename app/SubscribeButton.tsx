@@ -21,7 +21,7 @@ export default function SubscribeButton() {
       clearTimeout(timeout)
       const data = await res.json()
       if (data.url) {
-        window.location.href = data.url
+        window.open(data.url, '_blank')
       } else {
         setError(`Error: ${data.error || 'Unknown error'}`)
         setLoading(false)
