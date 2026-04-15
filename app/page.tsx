@@ -245,7 +245,7 @@ export default function HomePage() {
             <p className="font-semibold text-gray-800 mb-1">Subscription required</p>
             <p className="text-sm text-gray-600 mb-3">Subscribe for $9.99/month for up to 20 lessons and prints per month.</p>
             <a
-              href="https://buy.stripe.com/test_9B6fZgfIy6AxaO83sH1RC00"
+              href="https://buy.stripe.com/fZu9AVb5r9Ep3xy4q44Vy00"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-yellow-400 text-gray-900 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors inline-block"
