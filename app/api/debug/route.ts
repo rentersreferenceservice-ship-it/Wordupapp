@@ -1,11 +1,11 @@
 export async function GET() {
   return Response.json({
-    supabaseUrl: 'https://ybniybezkdpqkvhjrjdr.supabase.co',
     hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length ?? 0,
-    hasNextPublicUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    nextPublicUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'MISSING',
+    hasResendKey: !!process.env.RESEND_API_KEY,
+    hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+    hasClerkSecret: !!process.env.CLERK_SECRET_KEY,
+    hasStripeSecret: !!process.env.STRIPE_SECRET_KEY,
+    hasBrowserlessKey: !!process.env.BROWSERLESS_API_KEY,
     nodeEnv: process.env.NODE_ENV,
-    buildTime: new Date().toISOString(),
   })
 }
