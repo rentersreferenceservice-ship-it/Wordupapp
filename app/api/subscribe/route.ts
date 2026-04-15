@@ -1,11 +1,29 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import Stripe from 'stripe'
+import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+async function getStripeKey(): Promise<string | null> {
+  // Try env var first
+  if (process.env.STRIPE_SECRET_KEY) return process.env.STRIPE_SECRET_KEY
+  // Fall back to Supabase config table
+  try {
+    const supabase = getSupabase()
+    const { data } = await supabase
+      .from('config')
+      .select('value')
+      .eq('key', 'stripe_secret_key')
+      .single()
+    return data?.value ?? null
+  } catch {
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
-  const stripeKey = process.env.STRIPE_SECRET_KEY
+  const stripeKey = await getStripeKey()
   if (!stripeKey) {
     return Response.json({ error: 'Stripe not configured' }, { status: 500 })
   }
