@@ -45,15 +45,23 @@ LESSON STRUCTURE RULES (non-negotiable):
 QUESTION TYPE DEFINITIONS — READ CAREFULLY:
 
 QUESTION STRUCTURE PER HUNK (mandatory, no exceptions):
-Each hunk must have EXACTLY 4 questions in this order:
+Each hunk must have questions in this order:
 1. KNOWN (green)
 2. KNOWN (green)
-3. SEMI-OPEN (orange)
-4. One of: MATH, VAKT, OPEN, or PRIOR KNOWLEDGE — rotate through all 4 across the 8 hunks so every lesson contains at least one of each type
+3. KNOWN (green)
+4. SEMI-OPEN (orange)
+5. SEMI-OPEN (orange)
+6. One or two of: MATH, VAKT, OPEN, or PRIOR KNOWLEDGE
 
-Across all 8 hunks, you MUST include at least one MATH, one VAKT, one OPEN, and one PRIOR KNOWLEDGE question. Do not use the same 4th type for every hunk.
+Across all 8 hunks, you MUST include at least one MATH, one VAKT, one OPEN, and one PRIOR KNOWLEDGE question. Rotate through all four types — do not repeat the same type every hunk. Some hunks may have 2 rotating questions when the content supports it.
 
-KNOWN (2 required per hunk):
+NUMERIC ANSWER RULE (absolute, no exceptions):
+- ANY question whose answer includes a number, date, year, count, or measurement MUST be a MATH question. This applies regardless of what type you would otherwise assign it. A KNOWN or SEMI-OPEN question must NEVER have a numeric answer. If you find yourself writing a number as the answer to a KNOWN question, change it to MATH immediately. Examples:
+  - "Mozart was born in the year _____." → MATH (answer: 1756)
+  - "A spider has _____ legs." → MATH (answer: 8) — or rewrite as KNOWN by putting the number in the question: "What animal has 8 legs?" → SPIDER
+  - "The moon orbits Earth every _____ days." → MATH (answer: 27)
+
+KNOWN (3 required per hunk):
 - ONE short, direct answer taken directly from the hunk text
 - Answer length MUST match the age group — every letter costs physical and regulatory effort:
   - Young Children (ages 6–8): STRICTLY 1 word. Never more. This is non-negotiable — every letter is physical effort on the letterboard. If you cannot find a 1-word answer in the hunk, rewrite the question until you can. Example: "What is tempo?" → SPEED (not "HOW FAST OR SLOW THE MUSIC PLAYS"). Example: "Why do you need space when you jump?" → SAFETY (not "SO YOU DO NOT BUMP INTO THINGS"). If your answer is a sentence or phrase, you have broken this rule — fix it.
