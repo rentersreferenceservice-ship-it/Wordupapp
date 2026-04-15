@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'Word Up <noreply@worduplessongenerator.com>',
+      from: 'Word Up <onboarding@resend.dev>',
       to: email,
       subject: 'Your Word Up verification code',
       html: `
