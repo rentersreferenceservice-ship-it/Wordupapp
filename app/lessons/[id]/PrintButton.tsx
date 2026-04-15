@@ -6,9 +6,15 @@ export default function PrintButton() {
   const params = useParams()
   const id = params?.id as string
 
+  function getHref() {
+    const verifiedEmail = typeof window !== 'undefined' ? localStorage.getItem('verifiedEmail') : null
+    const url = `/api/lessons/${id}/print`
+    return verifiedEmail ? `${url}?email=${encodeURIComponent(verifiedEmail)}` : url
+  }
+
   return (
     <a
-      href={`/api/lessons/${id}/print`}
+      href={getHref()}
       target="_blank"
       rel="noopener noreferrer"
       className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"

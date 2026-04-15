@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
 import { auth } from '@clerk/nextjs/server'
-import { getUserUsage, incrementPrints, MONTHLY_LIMIT, FREE_LESSON_LIMIT } from '@/lib/usageStore'
+import { getUserUsage, incrementPrints, MONTHLY_LIMIT, FREE_LESSON_LIMIT, getVerifiedEmailUsage } from '@/lib/usageStore'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
@@ -17,21 +17,28 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   OPEN: '#ec4899',
 }
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const lesson = await getLesson(id)
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const { userId } = await auth()
-  if (!userId) return new Response('Login required', { status: 401 })
+  const verifiedEmail = req.nextUrl.searchParams.get('email')
 
-  const usage = await getUserUsage(userId)
-  const isAdmin = userId === ADMIN_USER_ID
-  const isFreeUser = !usage.isSubscribed && usage.lessonsThisMonth < FREE_LESSON_LIMIT
-  if (!isAdmin && !usage.isSubscribed && !isFreeUser) return new Response('Subscription required', { status: 403 })
-  if (!isAdmin && usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) return new Response('Monthly print limit reached', { status: 403 })
-
-  await incrementPrints(userId)
+  // Allow free email-verified users to print
+  if (!userId) {
+    if (!verifiedEmail) return new Response('Login required', { status: 401 })
+    const used = await getVerifiedEmailUsage(verifiedEmail)
+    if (used === -1 || used > FREE_LESSON_LIMIT) return new Response('Subscription required', { status: 403 })
+    // Allow print — don't increment (print is free for free users)
+  } else {
+    const usage = await getUserUsage(userId)
+    const isAdmin = userId === ADMIN_USER_ID
+    const isFreeUser = !usage.isSubscribed && usage.lessonsThisMonth <= FREE_LESSON_LIMIT
+    if (!isAdmin && !usage.isSubscribed && !isFreeUser) return new Response('Subscription required', { status: 403 })
+    if (!isAdmin && usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) return new Response('Monthly print limit reached', { status: 403 })
+    if (!isAdmin) await incrementPrints(userId)
+  }
 
   const logoPath = path.join(process.cwd(), 'public', 'word_up_clean.jpeg')
   const logoBase64 = fs.existsSync(logoPath)
