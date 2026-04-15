@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const code = String(Math.floor(100000 + Math.random() * 900000))
     await storePendingVerification(email, code)
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = new Resend(process.env.RESEND_API_KEY || 're_JuHXuQP9_6Koqn4CSBcsoPpqXwJ249Preetoth')
     await resend.emails.send({
       from: 'Word Up <onboarding@resend.dev>',
       to: email,

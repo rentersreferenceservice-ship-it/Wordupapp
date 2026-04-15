@@ -44,9 +44,12 @@ export async function POST(request: NextRequest) {
     const isAdmin = userId === ADMIN_USER_ID
     const usage = await getUserUsage(userId)
     if (!isAdmin && !usage.isSubscribed) {
-      return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
+      // Allow up to 2 free lessons for signed-in but unsubscribed users
+      if (usage.lessonsThisMonth >= FREE_LESSON_LIMIT) {
+        return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
+      }
     }
-    if (!isAdmin && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
+    if (!isAdmin && usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
       return Response.json({ error: 'LESSON_LIMIT_REACHED' }, { status: 403 })
     }
 
