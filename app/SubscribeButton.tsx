@@ -10,16 +10,20 @@ export default function SubscribeButton() {
     setLoading(true)
     setError('')
     try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 8000)
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ origin: window.location.origin }),
+        signal: controller.signal,
       })
+      clearTimeout(timeout)
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
       } else {
-        setError('Could not start checkout. Please try again.')
+        setError(`Error: ${data.error || 'Unknown error'}`)
         setLoading(false)
       }
     } catch {
