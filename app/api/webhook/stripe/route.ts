@@ -1,12 +1,31 @@
 import { NextRequest } from 'next/server'
 import Stripe from 'stripe'
 import { setSubscribed } from '@/lib/usageStore'
+import { getSupabase } from '@/lib/supabase'
+
+async function getConfig(key: string): Promise<string | null> {
+  if (key === 'stripe_secret_key' && process.env.STRIPE_SECRET_KEY) return process.env.STRIPE_SECRET_KEY
+  if (key === 'stripe_webhook_secret' && process.env.STRIPE_WEBHOOK_SECRET) return process.env.STRIPE_WEBHOOK_SECRET
+  try {
+    const supabase = getSupabase()
+    const { data } = await supabase.from('config').select('value').eq('key', key).single()
+    return data?.value ?? null
+  } catch {
+    return null
+  }
+}
 
 export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  const stripeKey = await getConfig('stripe_secret_key')
+  const webhookSecret = await getConfig('stripe_webhook_secret')
+
+  if (!stripeKey || !webhookSecret) {
+    return new Response('Stripe not configured', { status: 500 })
+  }
+
+  const stripe = new Stripe(stripeKey)
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
   let event: Stripe.Event
   try {
