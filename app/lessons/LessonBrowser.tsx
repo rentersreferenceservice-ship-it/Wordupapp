@@ -5,14 +5,82 @@ import Link from 'next/link'
 import type { Lesson } from '@/lib/types'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
-  Science:        ['science', 'biology', 'chemistry', 'physics', 'astronomy', 'space', 'nature', 'earth', 'nasa', 'artemis', 'moon', 'planet', 'animal', 'plant', 'photosynthesis', 'ecology', 'environment'],
-  History:        ['history', 'american', 'world', 'civil', 'revolution', 'war', 'ancient', 'colonial', 'president', 'constitution', 'government', 'democracy'],
-  Math:           ['math', 'mathematics', 'geometry', 'algebra', 'numbers', 'counting', 'fraction', 'addition', 'subtraction', 'multiplication'],
-  'Language Arts':['writing', 'reading', 'grammar', 'paragraph', 'literature', 'story', 'poetry', 'sentence', 'vocabulary', 'spelling'],
-  'Social Emotional': ['emotion', 'feeling', 'sel', 'mental', 'social', 'friendship', 'kindness', 'empathy', 'selfcare', 'anxiety', 'confidence'],
-  Health:         ['health', 'nutrition', 'fitness', 'body', 'food', 'exercise', 'hygiene', 'brain', 'sleep'],
-  Technology:     ['technology', 'computer', 'coding', 'robot', 'internet', 'digital', 'stem', 'engineering'],
-  Arts:           ['art', 'music', 'dance', 'theater', 'creative', 'drawing', 'painting', 'drama'],
+  Science: [
+    // Life science — animals
+    'animal', 'frog', 'toad', 'amphibian', 'reptile', 'lizard', 'snake', 'turtle', 'crocodile', 'alligator',
+    'mammal', 'dog', 'cat', 'horse', 'cow', 'whale', 'dolphin', 'shark', 'fish', 'bird', 'eagle', 'owl', 'penguin',
+    'insect', 'butterfly', 'bee', 'ant', 'spider', 'bug', 'worm', 'beetle', 'dragonfly', 'moth',
+    'dinosaur', 'fossil', 'extinct', 'predator', 'prey', 'habitat', 'migration', 'hibernate',
+    // Life science — plants & ecology
+    'plant', 'tree', 'flower', 'seed', 'leaf', 'root', 'photosynthesis', 'ecosystem', 'ecology',
+    'forest', 'jungle', 'rainforest', 'desert', 'ocean', 'reef', 'wetland', 'biome', 'nature',
+    // Life science — body & health science
+    'cell', 'bacteria', 'virus', 'germ', 'immune', 'dna', 'genetics', 'evolution', 'organism',
+    // Earth science
+    'earth', 'volcano', 'earthquake', 'rock', 'mineral', 'crystal', 'geology', 'fossil', 'river',
+    'mountain', 'weather', 'hurricane', 'tornado', 'cloud', 'rain', 'snow', 'climate', 'atmosphere',
+    // Physical science
+    'science', 'biology', 'chemistry', 'physics', 'element', 'atom', 'molecule', 'energy', 'force',
+    'gravity', 'magnet', 'electricity', 'light', 'sound', 'heat', 'chemical', 'reaction', 'experiment',
+    // Space
+    'space', 'astronomy', 'nasa', 'artemis', 'moon', 'planet', 'star', 'galaxy', 'solar', 'sun',
+    'mars', 'jupiter', 'saturn', 'comet', 'asteroid', 'telescope', 'orbit', 'rocket', 'astronaut',
+    'universe', 'black hole', 'nebula',
+  ],
+  History: [
+    'history', 'historical', 'ancient', 'medieval', 'colonial', 'civilization', 'empire',
+    'revolution', 'revolutionary', 'civil war', 'world war', 'ww1', 'ww2', 'wwii', 'cold war',
+    'president', 'constitution', 'declaration', 'independence', 'democracy', 'government', 'congress',
+    'abraham lincoln', 'george washington', 'martin luther king', 'harriet tubman', 'rosa parks',
+    'slavery', 'abolition', 'suffrage', 'rights movement', 'holocaust', 'genocide',
+    'egypt', 'greek', 'roman', 'viking', 'aztec', 'mayan', 'inca', 'mesopotamia',
+    'war', 'battle', 'soldier', 'army', 'navy', 'military', 'treaty', 'election',
+    'explorer', 'columbus', 'pilgrims', 'pioneer', 'westward', 'gold rush',
+    'century', 'decade', 'era', 'period', 'dynasty',
+  ],
+  Math: [
+    'math', 'mathematics', 'geometry', 'algebra', 'calculus', 'statistics',
+    'number', 'counting', 'fraction', 'decimal', 'percent', 'ratio',
+    'addition', 'subtraction', 'multiplication', 'division', 'equation',
+    'shape', 'triangle', 'circle', 'square', 'rectangle', 'polygon',
+    'measurement', 'area', 'perimeter', 'volume', 'graph', 'probability',
+  ],
+  'Language Arts': [
+    'writing', 'reading', 'grammar', 'paragraph', 'sentence', 'vocabulary', 'spelling',
+    'literature', 'story', 'novel', 'poem', 'poetry', 'author', 'character', 'plot',
+    'metaphor', 'simile', 'figurative', 'punctuation', 'essay', 'narrative',
+    'alphabet', 'letter', 'word', 'language', 'communication', 'speech', 'debate',
+    'shakespeare', 'fiction', 'nonfiction', 'biography', 'memoir',
+  ],
+  'Social Emotional': [
+    'emotion', 'feeling', 'feelings', 'sel', 'mental health', 'social skills',
+    'friendship', 'kindness', 'empathy', 'compassion', 'gratitude', 'respect',
+    'selfcare', 'self-care', 'anxiety', 'confidence', 'self-esteem', 'mindfulness',
+    'anger', 'fear', 'sadness', 'happiness', 'joy', 'worry', 'stress', 'calm',
+    'bullying', 'inclusion', 'teamwork', 'cooperation', 'conflict', 'resolution',
+  ],
+  Health: [
+    'health', 'nutrition', 'fitness', 'exercise', 'hygiene', 'sleep', 'wellness',
+    'food', 'vegetable', 'fruit', 'vitamin', 'protein', 'diet', 'hydration', 'water',
+    'muscle', 'bone', 'heart', 'lung', 'stomach', 'organ', 'brain', 'nervous system',
+    'dentist', 'doctor', 'medicine', 'vaccine', 'disease', 'diabetes', 'allergy',
+    'puberty', 'growth', 'development',
+  ],
+  Technology: [
+    'technology', 'computer', 'coding', 'programming', 'robot', 'robotics',
+    'internet', 'digital', 'software', 'hardware', 'artificial intelligence', 'ai',
+    'stem', 'engineering', 'machine', 'invention', 'innovate', 'design',
+    'app', 'smartphone', 'tablet', 'video game', 'social media', 'cybersecurity',
+    '3d printing', 'drone', 'electric', 'renewable', 'solar panel', 'battery',
+  ],
+  Arts: [
+    'art', 'artist', 'painting', 'drawing', 'sculpture', 'pottery', 'craft',
+    'music', 'musician', 'song', 'singing', 'instrument', 'piano', 'guitar', 'violin',
+    'orchestra', 'symphony', 'jazz', 'classical', 'hip hop', 'rap', 'opera',
+    'dance', 'ballet', 'theater', 'drama', 'acting', 'film', 'movie', 'animation',
+    'creative', 'imagination', 'design', 'color', 'portrait', 'landscape',
+    'mozart', 'beethoven', 'picasso', 'shakespeare',
+  ],
 }
 
 function detectSubject(lesson: Lesson): string {
