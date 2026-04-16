@@ -45,6 +45,11 @@ const SUBJECT_KEYWORDS: Record<string, string[]> = {
     'mars', 'jupiter', 'saturn', 'comet', 'asteroid', 'telescope', 'orbit', 'rocket', 'astronaut',
     'universe', 'black hole', 'nebula',
   ],
+  Academics: [
+    'ged', 'academics', 'academic', 'study', 'studying', 'exam', 'test prep', 'standardized test',
+    'high school equivalency', 'diploma', 'degree', 'college', 'university', 'scholarship',
+    'homework', 'tutoring', 'curriculum', 'lesson plan', 'learning',
+  ],
   History: [
     'history', 'historical', 'ancient', 'medieval', 'colonial', 'civilization', 'empire',
     'revolution', 'revolutionary', 'civil war', 'world war', 'ww1', 'ww2', 'wwii', 'cold war',
@@ -55,6 +60,8 @@ const SUBJECT_KEYWORDS: Record<string, string[]> = {
     'war', 'battle', 'soldier', 'army', 'navy', 'military', 'treaty', 'election',
     'explorer', 'columbus', 'pilgrims', 'pioneer', 'westward', 'gold rush',
     'century', 'decade', 'era', 'period', 'dynasty',
+    'royal', 'royalty', 'royalties', 'king', 'queen', 'prince', 'princess', 'monarch', 'monarchy',
+    'throne', 'crown', 'castle', 'knight', 'noble', 'court', 'aristocrat', 'feudal',
   ],
   Math: [
     'math', 'mathematics', 'geometry', 'algebra', 'calculus', 'statistics',
@@ -110,6 +117,8 @@ function detectSubject(lesson: Lesson): string {
 
   // Direct subject name match in title/topic takes priority
   const subjectNames: Record<string, string> = {
+    'ged': 'Academics',
+    'academics': 'Academics',
     'relationship': 'Relationships',
     'relationships': 'Relationships',
     'geography': 'Geography',
