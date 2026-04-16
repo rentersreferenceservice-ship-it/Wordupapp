@@ -90,6 +90,26 @@ function detectSubject(lesson: Lesson): string {
     ...(lesson.hashtags ?? []),
   ].join(' ').toLowerCase().replace(/#/g, '')
 
+  // Direct subject name match in title/topic takes priority
+  const subjectNames: Record<string, string> = {
+    'science': 'Science',
+    'history': 'History',
+    'math': 'Math',
+    'mathematics': 'Math',
+    'language arts': 'Language Arts',
+    'social emotional': 'Social Emotional',
+    'health': 'Health',
+    'technology': 'Technology',
+    'arts': 'Arts',
+    'art': 'Arts',
+    'music': 'Arts',
+  }
+  for (const [name, subject] of Object.entries(subjectNames)) {
+    const titleTopic = [lesson.title, lesson.topic].join(' ').toLowerCase()
+    if (titleTopic.includes(name)) return subject
+  }
+
+  // Fall back to keyword matching
   for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {
     if (keywords.some(k => searchText.includes(k))) return subject
   }
