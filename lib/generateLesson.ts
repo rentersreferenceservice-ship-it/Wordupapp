@@ -197,7 +197,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
   "hashtags": ["#TopicTag", "#AnotherTag"]
 }
 
-Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 4 questions: KNOWN, KNOWN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 4th type so all four appear across the lesson.
+Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson.
 For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #S2C.`
 
 export async function generateLesson(topic: string, ageGroup: string): Promise<Lesson> {
