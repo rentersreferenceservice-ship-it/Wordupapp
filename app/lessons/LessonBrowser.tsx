@@ -5,6 +5,24 @@ import Link from 'next/link'
 import type { Lesson } from '@/lib/types'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
+  Relationships: [
+    'relationship', 'relationships', 'dating', 'romance', 'romantic', 'love', 'marriage', 'wedding',
+    'family', 'sibling', 'parent', 'mother', 'father', 'brother', 'sister', 'grandparent',
+    'trust', 'boundaries', 'consent', 'communication', 'intimacy', 'attraction', 'breakup',
+    'divorce', 'partner', 'spouse', 'couple', 'boyfriend', 'girlfriend', 'crush',
+    'community', 'neighbor', 'peer', 'colleague', 'social connection',
+  ],
+  Geography: [
+    'geography', 'continent', 'country', 'countries', 'nation', 'capital', 'city', 'cities',
+    'europe', 'european', 'asia', 'asian', 'africa', 'african', 'australia', 'oceania',
+    'north america', 'south america', 'latin america', 'middle east',
+    'cobblestone', 'landmark', 'monument', 'culture', 'cultural', 'tradition', 'customs',
+    'language', 'map', 'compass', 'latitude', 'longitude', 'equator', 'hemisphere',
+    'flag', 'population', 'immigration', 'migration', 'border', 'region',
+    'france', 'germany', 'spain', 'italy', 'england', 'britain', 'japan', 'china', 'india',
+    'brazil', 'mexico', 'canada', 'australia', 'russia', 'egypt', 'kenya', 'nigeria',
+    'community', 'neighborhood', 'urban', 'rural', 'suburban', 'village', 'town',
+  ],
   Science: [
     // Life science — animals
     'animal', 'frog', 'toad', 'amphibian', 'reptile', 'lizard', 'snake', 'turtle', 'crocodile', 'alligator',
@@ -92,6 +110,9 @@ function detectSubject(lesson: Lesson): string {
 
   // Direct subject name match in title/topic takes priority
   const subjectNames: Record<string, string> = {
+    'relationship': 'Relationships',
+    'relationships': 'Relationships',
+    'geography': 'Geography',
     'science': 'Science',
     'history': 'History',
     'math': 'Math',
