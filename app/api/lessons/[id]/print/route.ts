@@ -23,14 +23,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const { userId } = await auth()
-  const verifiedEmail = req.nextUrl.searchParams.get('email')
 
-  // Allow free email-verified users to print
+  // Non-logged-in users can print freely (free lesson flow uses localStorage tracking)
   if (!userId) {
-    if (!verifiedEmail) return new Response('Login required', { status: 401 })
-    const used = await getVerifiedEmailUsage(verifiedEmail)
-    if (used === -1 || used > FREE_LESSON_LIMIT) return new Response('Subscription required', { status: 403 })
-    // Allow print — don't increment (print is free for free users)
+    // Allow print — no restrictions for free users
   } else {
     const usage = await getUserUsage(userId)
     const isAdmin = userId === ADMIN_USER_ID
