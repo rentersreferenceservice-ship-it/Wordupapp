@@ -98,6 +98,21 @@ export default function HomePage() {
           <p className="text-gray-500 text-sm">S2C Lesson Generator</p>
         </div>
 
+        <div className="mb-6 text-center">
+          <p className="text-gray-700 text-sm leading-relaxed mb-3">
+            Generate professional, Gold Standard Spelling to Communicate (S2C) lessons in minutes. Built by Word Up, LLC — designed specifically for S2C practitioners, therapists, and educators.
+          </p>
+          <p className="text-gray-700 text-sm leading-relaxed mb-3">
+            Each lesson includes 8 scaffolded hunks, age-appropriate vocabulary, color-coded question types, and a print-ready PDF — all aligned to the Word Up methodology.
+          </p>
+          <div className="text-left bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 text-sm text-gray-700 space-y-1">
+            <p><span className="font-semibold">1.</span> Enter a topic — frogs, the American Revolution, managing emotions</p>
+            <p><span className="font-semibold">2.</span> Select an age group — lessons are fully tailored to your student</p>
+            <p><span className="font-semibold">3.</span> Generate — your lesson is ready in about a minute</p>
+            <p><span className="font-semibold">4.</span> Print — a clean, formatted PDF ready for your session</p>
+          </div>
+        </div>
+
         {!isSignedIn && !showSignup && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-5">
             <p className="text-sm font-semibold text-blue-800">Try 2 free lessons — no account needed</p>
