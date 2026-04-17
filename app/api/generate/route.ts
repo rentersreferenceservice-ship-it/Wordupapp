@@ -5,15 +5,13 @@ import { auth } from '@clerk/nextjs/server'
 import {
   getUserUsage,
   incrementLessons,
-  getVerifiedEmailUsage,
-  incrementVerifiedEmailLesson,
   MONTHLY_LIMIT,
   FREE_LESSON_LIMIT,
 } from '@/lib/usageStore'
 
 export async function POST(request: NextRequest) {
   try {
-    const { topic, ageGroup, verifiedEmail } = await request.json()
+    const { topic, ageGroup } = await request.json()
 
     if (!topic || !ageGroup) {
       return Response.json({ error: 'Topic and age group are required' }, { status: 400 })
@@ -21,30 +19,18 @@ export async function POST(request: NextRequest) {
 
     const { userId } = await auth()
 
+    // Non-logged-in users: allow freely — free lesson count tracked client-side via localStorage
     if (!userId) {
-      if (!verifiedEmail) {
-        return Response.json({ error: 'EMAIL_REQUIRED' }, { status: 403 })
-      }
-
-      const used = await getVerifiedEmailUsage(verifiedEmail)
-      if (used === -1) {
-        return Response.json({ error: 'EMAIL_REQUIRED' }, { status: 403 })
-      }
-      if (used >= FREE_LESSON_LIMIT) {
-        return Response.json({ error: 'FREE_USED' }, { status: 403 })
-      }
-
       const lesson = await generateLesson(topic, ageGroup)
       await saveLesson(lesson)
-      await incrementVerifiedEmailLesson(verifiedEmail)
-      return Response.json({ ...lesson, freeUsed: true })
+      return Response.json(lesson)
     }
 
     const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
     const isAdmin = userId === ADMIN_USER_ID
     const usage = await getUserUsage(userId)
+
     if (!isAdmin && !usage.isSubscribed) {
-      // Allow up to 2 free lessons for signed-in but unsubscribed users
       if (usage.lessonsThisMonth >= FREE_LESSON_LIMIT) {
         return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
       }
