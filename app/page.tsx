@@ -100,10 +100,10 @@ export default function HomePage() {
 
         <div className="mb-6 text-center">
           <p className="text-gray-700 text-sm leading-relaxed mb-3">
-            Generate professional, Gold Standard Spelling to Communicate (S2C) lessons in minutes. Built by Word Up, LLC — designed specifically for S2C practitioners, therapists, and educators.
+            Generate professional, I-ASC Gold Standard Spelling to Communicate (S2C) lessons in minutes. Built by Word Up, LLC — designed specifically for S2C practitioners, therapists, and educators.
           </p>
           <p className="text-gray-700 text-sm leading-relaxed mb-3">
-            Each lesson includes 8 scaffolded hunks, age-appropriate vocabulary, color-coded question types, and a print-ready PDF — all aligned to the Word Up methodology.
+            Each lesson includes 8 scaffolded hunks, age-appropriate vocabulary, color-coded question types, and a print-ready PDF — all aligned to the I-ASC Gold Standard.
           </p>
           <div className="text-left bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 text-sm text-gray-700 space-y-1">
             <p><span className="font-semibold">1.</span> Enter a topic — frogs, the American Revolution, managing emotions</p>
