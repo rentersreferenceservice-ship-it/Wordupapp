@@ -22,13 +22,12 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
 
   const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
   const { userId } = await auth()
-  if (!userId) redirect('/')
 
-  const usage = await getUserUsage(userId)
-  if (userId !== ADMIN_USER_ID && !usage.isSubscribed) redirect(`/lessons/${id}`)
-  if (userId !== ADMIN_USER_ID && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
-
-  await incrementPrints(userId)
+  if (userId && userId !== ADMIN_USER_ID) {
+    const usage = await getUserUsage(userId)
+    if (usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
+    await incrementPrints(userId)
+  }
 
   const logoPath = path.join(process.cwd(), 'public', 'word_up_clean.jpeg')
   const logoBase64 = fs.existsSync(logoPath)
