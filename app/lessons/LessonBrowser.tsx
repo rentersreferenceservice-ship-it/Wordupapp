@@ -6,11 +6,11 @@ import type { Lesson } from '@/lib/types'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
   Relationships: [
-    'relationship', 'relationships', 'dating', 'romance', 'romantic', 'love', 'marriage', 'wedding',
-    'family', 'sibling', 'parent', 'mother', 'father', 'brother', 'sister', 'grandparent',
-    'trust', 'boundaries', 'consent', 'intimacy', 'attraction', 'breakup',
-    'divorce', 'partner', 'spouse', 'couple', 'boyfriend', 'girlfriend', 'crush',
-    'neighbor', 'peer', 'colleague', 'social connection',
+    'relationship', 'relationships', 'dating', 'romance', 'romantic',
+    'marriage', 'wedding', 'divorce', 'breakup',
+    'trust', 'boundaries', 'consent', 'intimacy', 'attraction',
+    'spouse', 'couple', 'boyfriend', 'girlfriend', 'crush',
+    'social connection', 'healthy relationship', 'communication skills',
   ],
   History: [
     'history', 'historical', 'ancient', 'medieval', 'colonial', 'civilization', 'empire',
