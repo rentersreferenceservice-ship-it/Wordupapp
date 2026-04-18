@@ -91,6 +91,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
             setTimeout(function(){
               document.getElementById('preparing').style.display = 'none';
               window.print();
+              window.close();
             }, 800);
           }
         ` }} />
