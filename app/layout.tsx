@@ -3,6 +3,7 @@ import "./globals.css";
 import BackgroundText from "./BackgroundText";
 import { ClerkProvider, SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 import SubscribeButton from "./SubscribeButton";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Word Up — S2C Lesson Generator",
@@ -36,6 +37,7 @@ export default function RootLayout({
             </Show>
           </div>
           {children}
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
