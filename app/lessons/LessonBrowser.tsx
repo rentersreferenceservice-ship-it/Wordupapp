@@ -8,47 +8,9 @@ const SUBJECT_KEYWORDS: Record<string, string[]> = {
   Relationships: [
     'relationship', 'relationships', 'dating', 'romance', 'romantic', 'love', 'marriage', 'wedding',
     'family', 'sibling', 'parent', 'mother', 'father', 'brother', 'sister', 'grandparent',
-    'trust', 'boundaries', 'consent', 'communication', 'intimacy', 'attraction', 'breakup',
+    'trust', 'boundaries', 'consent', 'intimacy', 'attraction', 'breakup',
     'divorce', 'partner', 'spouse', 'couple', 'boyfriend', 'girlfriend', 'crush',
-    'community', 'neighbor', 'peer', 'colleague', 'social connection',
-  ],
-  Geography: [
-    'geography', 'continent', 'country', 'countries', 'nation', 'capital', 'city', 'cities',
-    'europe', 'european', 'asia', 'asian', 'africa', 'african', 'australia', 'oceania',
-    'north america', 'south america', 'latin america', 'middle east',
-    'cobblestone', 'landmark', 'monument', 'culture', 'cultural', 'tradition', 'customs',
-    'language', 'map', 'compass', 'latitude', 'longitude', 'equator', 'hemisphere',
-    'flag', 'population', 'immigration', 'migration', 'border', 'region',
-    'france', 'germany', 'spain', 'italy', 'england', 'britain', 'japan', 'china', 'india',
-    'brazil', 'mexico', 'canada', 'australia', 'russia', 'egypt', 'kenya', 'nigeria',
-    'community', 'neighborhood', 'urban', 'rural', 'suburban', 'village', 'town',
-  ],
-  Science: [
-    // Life science — animals
-    'animal', 'frog', 'toad', 'amphibian', 'reptile', 'lizard', 'snake', 'turtle', 'crocodile', 'alligator',
-    'mammal', 'dog', 'cat', 'horse', 'cow', 'whale', 'dolphin', 'shark', 'fish', 'bird', 'eagle', 'owl', 'penguin',
-    'insect', 'butterfly', 'bee', 'ant', 'spider', 'bug', 'worm', 'beetle', 'dragonfly', 'moth',
-    'dinosaur', 'fossil', 'extinct', 'predator', 'prey', 'habitat', 'migration', 'hibernate',
-    // Life science — plants & ecology
-    'plant', 'tree', 'flower', 'seed', 'leaf', 'root', 'photosynthesis', 'ecosystem', 'ecology',
-    'forest', 'jungle', 'rainforest', 'desert', 'ocean', 'reef', 'wetland', 'biome', 'nature',
-    // Life science — body & health science
-    'cell', 'bacteria', 'virus', 'germ', 'immune', 'dna', 'genetics', 'evolution', 'organism',
-    // Earth science
-    'earth', 'volcano', 'earthquake', 'rock', 'mineral', 'crystal', 'geology', 'fossil', 'river',
-    'mountain', 'weather', 'hurricane', 'tornado', 'cloud', 'rain', 'snow', 'climate', 'atmosphere',
-    // Physical science
-    'science', 'biology', 'chemistry', 'physics', 'element', 'atom', 'molecule', 'energy', 'force',
-    'gravity', 'magnet', 'electricity', 'light', 'sound', 'heat', 'chemical', 'reaction', 'experiment',
-    // Space
-    'space', 'astronomy', 'nasa', 'artemis', 'moon', 'planet', 'star', 'galaxy', 'solar', 'sun',
-    'mars', 'jupiter', 'saturn', 'comet', 'asteroid', 'telescope', 'orbit', 'rocket', 'astronaut',
-    'universe', 'black hole', 'nebula',
-  ],
-  Academics: [
-    'ged', 'academics', 'academic', 'study', 'studying', 'exam', 'test prep', 'standardized test',
-    'high school equivalency', 'diploma', 'degree', 'college', 'university', 'scholarship',
-    'homework', 'tutoring', 'curriculum', 'lesson plan', 'learning',
+    'neighbor', 'peer', 'colleague', 'social connection',
   ],
   History: [
     'history', 'historical', 'ancient', 'medieval', 'colonial', 'civilization', 'empire',
@@ -56,12 +18,50 @@ const SUBJECT_KEYWORDS: Record<string, string[]> = {
     'president', 'constitution', 'declaration', 'independence', 'democracy', 'government', 'congress',
     'abraham lincoln', 'george washington', 'martin luther king', 'harriet tubman', 'rosa parks',
     'slavery', 'abolition', 'suffrage', 'rights movement', 'holocaust', 'genocide',
-    'egypt', 'greek', 'roman', 'viking', 'aztec', 'mayan', 'inca', 'mesopotamia',
+    'greek', 'roman', 'viking', 'aztec', 'mayan', 'inca', 'mesopotamia',
     'war', 'battle', 'soldier', 'army', 'navy', 'military', 'treaty', 'election',
     'explorer', 'columbus', 'pilgrims', 'pioneer', 'westward', 'gold rush',
     'century', 'decade', 'era', 'period', 'dynasty',
     'royal', 'royalty', 'royalties', 'king', 'queen', 'prince', 'princess', 'monarch', 'monarchy',
-    'throne', 'crown', 'castle', 'knight', 'noble', 'court', 'aristocrat', 'feudal',
+    'throne', 'crown', 'castle', 'knight', 'noble', 'aristocrat', 'feudal',
+  ],
+  Geography: [
+    'geography', 'continent', 'country', 'countries', 'nation', 'capital', 'city', 'cities',
+    'europe', 'european', 'asia', 'asian', 'africa', 'african', 'australia', 'oceania',
+    'north america', 'south america', 'latin america', 'middle east',
+    'cobblestone', 'landmark', 'monument', 'culture', 'cultural', 'tradition', 'customs',
+    'map', 'compass', 'latitude', 'longitude', 'equator', 'hemisphere',
+    'flag', 'population', 'immigration', 'border', 'region',
+    'france', 'germany', 'spain', 'italy', 'england', 'britain', 'japan', 'china', 'india',
+    'brazil', 'mexico', 'canada', 'russia', 'egypt', 'kenya', 'nigeria',
+    'neighborhood', 'urban', 'rural', 'suburban', 'village', 'town',
+  ],
+  Academics: [
+    'ged', 'academics', 'academic', 'exam', 'test prep', 'standardized test',
+    'high school equivalency', 'diploma', 'degree', 'college', 'university', 'scholarship',
+    'homework', 'tutoring', 'curriculum',
+  ],
+  Science: [
+    // Life science — animals
+    'animal', 'frog', 'toad', 'amphibian', 'reptile', 'lizard', 'snake', 'turtle', 'crocodile', 'alligator',
+    'mammal', 'dog', 'cat', 'horse', 'cow', 'whale', 'dolphin', 'shark', 'fish', 'bird', 'eagle', 'owl', 'penguin',
+    'insect', 'butterfly', 'bee', 'ant', 'spider', 'bug', 'worm', 'beetle', 'dragonfly', 'moth',
+    'dinosaur', 'fossil', 'extinct', 'predator', 'prey', 'habitat', 'hibernate',
+    // Life science — plants & ecology
+    'plant', 'tree', 'flower', 'seed', 'leaf', 'root', 'photosynthesis', 'ecosystem', 'ecology',
+    'forest', 'jungle', 'rainforest', 'desert', 'ocean', 'reef', 'wetland', 'biome', 'nature',
+    // Life science — body & health science
+    'cell', 'bacteria', 'virus', 'germ', 'immune', 'dna', 'genetics', 'evolution', 'organism',
+    // Earth science
+    'volcano', 'earthquake', 'rock', 'mineral', 'crystal', 'geology',
+    'mountain', 'weather', 'hurricane', 'tornado', 'cloud', 'climate', 'atmosphere',
+    // Physical science
+    'science', 'biology', 'chemistry', 'physics', 'element', 'atom', 'molecule',
+    'gravity', 'magnet', 'electricity', 'chemical', 'experiment', 'laboratory',
+    // Space
+    'space', 'astronomy', 'nasa', 'artemis', 'moon', 'planet', 'star', 'galaxy', 'solar', 'sun',
+    'mars', 'jupiter', 'saturn', 'comet', 'asteroid', 'telescope', 'orbit', 'rocket', 'astronaut',
+    'universe', 'black hole', 'nebula',
   ],
   Math: [
     'math', 'mathematics', 'geometry', 'algebra', 'calculus', 'statistics',
