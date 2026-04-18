@@ -70,7 +70,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           .credit { font-size: 9pt; color: #666; margin-bottom: 4px; }
           .title { font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
           .hashtags { font-size: 8pt; color: #3b82f6; margin-bottom: 16px; }
-          .hunk { margin-bottom: 16px; page-break-inside: avoid; }
+          .hunk { margin-bottom: 16px; }
           .hunk-text { margin-bottom: 8px; line-height: 1.5; }
           .question { margin-bottom: 4px; }
           .answer { margin-left: 16px; font-weight: bold; color: #000; }
