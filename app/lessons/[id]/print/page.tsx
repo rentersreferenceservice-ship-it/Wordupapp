@@ -86,7 +86,21 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         ` }} />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `window.onload = function(){ setTimeout(function(){ window.print(); }, 800); }` }} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.onload = function(){
+            setTimeout(function(){
+              document.getElementById('preparing').style.display = 'none';
+              window.print();
+            }, 800);
+          }
+        ` }} />
+        <div id="preparing" style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 9999, fontSize: '16pt', color: '#1e40af', fontFamily: 'Arial, sans-serif'
+        }}>
+          Preparing your lesson for printing…
+        </div>
         <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
