@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, SignUpButton } from '@clerk/nextjs'
+import SubscribeButton from './SubscribeButton'
 import type { Lesson } from '@/lib/types'
 
 const AGE_GROUPS = [
@@ -136,11 +137,15 @@ export default function HomePage() {
           <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5 text-center mb-4">
             <p className="font-semibold text-gray-800 mb-1">Subscription required</p>
             <p className="text-sm text-gray-600 mb-3">Subscribe for $9.99/month for up to 20 lessons and prints per month.</p>
-            <SignUpButton>
-              <button className="bg-yellow-400 text-gray-900 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
-                Create Account to Subscribe
-              </button>
-            </SignUpButton>
+            {isSignedIn ? (
+              <SubscribeButton />
+            ) : (
+              <SignUpButton>
+                <button className="bg-yellow-400 text-gray-900 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
+                  Create Account to Subscribe
+                </button>
+              </SignUpButton>
+            )}
           </div>
         )}
 
