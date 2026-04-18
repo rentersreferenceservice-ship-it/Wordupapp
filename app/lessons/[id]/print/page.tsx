@@ -86,7 +86,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         ` }} />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `window.onload = function(){ window.print(); }` }} />
+        <script dangerouslySetInnerHTML={{ __html: `window.onload = function(){ setTimeout(function(){ window.print(); }, 800); }` }} />
         <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
