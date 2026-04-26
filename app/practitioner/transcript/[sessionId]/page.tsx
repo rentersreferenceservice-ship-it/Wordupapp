@@ -51,11 +51,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   }
 
   const keywords = responses.filter(r => r.questionType === 'KEYWORD')
-  const totalWords = keywords.length
   const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
   const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
-  const wordsWithMisspoke = keywords.filter(k => (k.misspokeCount ?? 0) > 0).length
-  const misspokePct = totalWords > 0 ? Math.round((wordsWithMisspoke / totalWords) * 100) : 0
+  const misspokePct = totalLetters > 0 ? Math.round((totalMisspokes / totalLetters) * 100) : 0
   const correctPct = 100 - misspokePct
 
   return (
@@ -85,14 +83,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           </div>
 
           {/* Summary stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
             <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">{totalWords}</p>
-              <p className="text-xs text-gray-500">Words Spelled</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-indigo-600">{totalLetters}</p>
-              <p className="text-xs text-gray-500">Total Letters</p>
+              <p className="text-2xl font-bold text-blue-600">{totalLetters}</p>
+              <p className="text-xs text-gray-500">Total Letters Poked</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-500">{totalMisspokes}</p>
