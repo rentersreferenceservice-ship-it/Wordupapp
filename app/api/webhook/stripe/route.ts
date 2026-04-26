@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import Stripe from 'stripe'
 import { setSubscribed } from '@/lib/usageStore'
+import { setPractitionerSubscription, PractitionerTier, BillingPeriod } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 
 async function getConfig(key: string): Promise<string | null> {
@@ -49,9 +50,16 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const clerkUserId = session.metadata?.clerkUserId
+      const practitionerTier = session.metadata?.practitionerTier as PractitionerTier | undefined
+      const billingPeriod = session.metadata?.billingPeriod as BillingPeriod | undefined
       if (clerkUserId) {
-        await setSubscribed(clerkUserId, true)
-        console.log('Subscribed user:', clerkUserId)
+        if (practitionerTier && billingPeriod) {
+          await setPractitionerSubscription(clerkUserId, practitionerTier, billingPeriod, true)
+          console.log('Practitioner subscribed:', clerkUserId, practitionerTier)
+        } else {
+          await setSubscribed(clerkUserId, true)
+          console.log('Family subscribed:', clerkUserId)
+        }
       }
       break
     }
