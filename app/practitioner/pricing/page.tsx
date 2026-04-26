@@ -72,7 +72,7 @@ export default function PractitionerPricingPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 bg-white">
+    <main className="relative z-10 min-h-screen px-4 py-12 bg-white">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-4" style={{ width: 160 }} />
