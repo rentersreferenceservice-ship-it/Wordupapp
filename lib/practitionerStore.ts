@@ -56,7 +56,12 @@ export interface SessionResponse {
   capturedAnswer?: string
 }
 
+const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
+
 export async function getPractitionerSubscription(userId: string): Promise<PractitionerSubscription | null> {
+  if (userId === ADMIN_USER_ID) {
+    return { userId, tier: 'agency', studentLimit: 100, isActive: true, billingPeriod: 'monthly' }
+  }
   const { data } = await getSupabase()
     .from('practitioner_subscriptions')
     .select('*')
