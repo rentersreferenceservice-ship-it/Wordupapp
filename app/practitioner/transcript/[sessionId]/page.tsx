@@ -146,9 +146,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             <p className="text-xs mt-0.5">
                               <span className="text-gray-400">Response: </span>
                               <span className="font-semibold text-gray-800">{q.capturedAnswer}</span>
-                              {q.expectedAnswer && q.questionType !== 'OPEN' && q.questionType !== 'PRIOR KNOWLEDGE' && (
-                                <span className={`ml-2 font-semibold ${q.capturedAnswer === q.expectedAnswer ? 'text-green-600' : 'text-orange-500'}`}>
-                                  {q.capturedAnswer === q.expectedAnswer ? '✓' : `(expected: ${q.expectedAnswer})`}
+                              {q.questionType !== 'OPEN' && q.questionType !== 'PRIOR KNOWLEDGE' && (
+                                <span className={`ml-2 font-semibold ${q.capturedAnswer === 'correct' || q.capturedAnswer === q.expectedAnswer ? 'text-green-600' : 'text-orange-500'}`}>
+                                  {q.capturedAnswer === 'correct' || q.capturedAnswer === q.expectedAnswer ? '✓' : '✗'}
                                 </span>
                               )}
                             </p>
