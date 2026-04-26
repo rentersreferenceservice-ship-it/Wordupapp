@@ -5,6 +5,7 @@ import { listLessons } from '@/lib/lessonStore'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
 import DeleteStudentButton from './DeleteStudentButton'
+import DeleteSessionButton from './DeleteSessionButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,14 +57,15 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         ) : (
           <ul className="space-y-2">
             {sessions.map(s => (
-              <li key={s.id}>
-                <Link href={`/practitioner/transcript/${s.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm group-hover:text-blue-600">{s.lessonTitle}</p>
-                    <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
-                  </div>
-                  <span className="text-xs text-blue-600 group-hover:underline">View Transcript</span>
+              <li key={s.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+                <Link href={`/practitioner/transcript/${s.id}`} className="flex-1">
+                  <p className="font-medium text-gray-900 text-sm group-hover:text-blue-600">{s.lessonTitle}</p>
+                  <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
                 </Link>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-blue-600 group-hover:underline">View</span>
+                  <DeleteSessionButton sessionId={s.id} />
+                </div>
               </li>
             ))}
           </ul>
