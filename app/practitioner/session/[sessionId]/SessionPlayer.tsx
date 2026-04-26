@@ -218,8 +218,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       {q.expectedAnswer && (
                         <div className="flex flex-wrap gap-2">
                           {q.expectedAnswer.split('/').map(a => a.trim()).filter(Boolean).map((ans, ai) => (
-                            <span key={ai} className="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-50 border border-green-200 text-green-800 flex items-center gap-1.5">
-                              {ans} <span className="text-xs text-green-500">{ans.replace(/\s/g, '').length}</span>
+                            <span key={ai} className="flex items-center gap-1.5">
+                              <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-50 border border-green-200 text-green-800">{ans}</span>
+                              <span className="px-2 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">{ans.replace(/\s/g, '').length}</span>
                             </span>
                           ))}
                         </div>
@@ -250,8 +251,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                             }`}
                             style={q.completedAnswers.includes(ans) ? { backgroundColor: color, borderColor: color } : {}}
                           >
-                            {ans} <span className={`text-xs ml-1 ${q.completedAnswers.includes(ans) ? 'text-orange-200' : 'text-gray-400'}`}>{ans.replace(/\s/g, '').length}</span>
+                            {ans}
                           </button>
+                          <span className="px-2 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">{ans.replace(/\s/g, '').length}</span>
                         ))}
                       </div>
                     </div>
