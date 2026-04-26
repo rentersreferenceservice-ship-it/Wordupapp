@@ -28,6 +28,8 @@ interface QuestionCapture {
   questionType: QuestionType
   expectedAnswer: string
   capturedAnswer: string
+  misspokeCount: number
+  completedAnswers: string[] // for SEMI-OPEN multi-select
 }
 
 interface KeywordCapture {
@@ -57,6 +59,8 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         questionType: q.type,
         expectedAnswer: q.answer ?? '',
         capturedAnswer: '',
+        misspokeCount: 0,
+        completedAnswers: [],
       })),
     }))
   )
@@ -65,12 +69,36 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const capture = captures[currentHunk]
   const isLast = currentHunk === lesson.hunks.length - 1
 
-  function updateMisspoke(keywordIdx: number, delta: number) {
+  function updateKeywordMisspoke(idx: number, delta: number) {
     setCaptures(prev => {
       const next = [...prev]
       const kws = [...next[currentHunk].keywords]
-      kws[keywordIdx] = { ...kws[keywordIdx], misspokeCount: Math.max(0, kws[keywordIdx].misspokeCount + delta) }
+      kws[idx] = { ...kws[idx], misspokeCount: Math.max(0, kws[idx].misspokeCount + delta) }
       next[currentHunk] = { ...next[currentHunk], keywords: kws }
+      return next
+    })
+  }
+
+  function updateQuestionMisspoke(idx: number, delta: number) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[currentHunk].questions]
+      qs[idx] = { ...qs[idx], misspokeCount: Math.max(0, qs[idx].misspokeCount + delta) }
+      next[currentHunk] = { ...next[currentHunk], questions: qs }
+      return next
+    })
+  }
+
+  function toggleCompletedAnswer(questionIdx: number, answer: string) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[currentHunk].questions]
+      const current = qs[questionIdx].completedAnswers
+      const updated = current.includes(answer)
+        ? current.filter(a => a !== answer)
+        : [...current, answer]
+      qs[questionIdx] = { ...qs[questionIdx], completedAnswers: updated }
+      next[currentHunk] = { ...next[currentHunk], questions: qs }
       return next
     })
   }
@@ -102,7 +130,10 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         questionType: q.questionType,
         questionText: q.questionText,
         expectedAnswer: q.expectedAnswer,
-        capturedAnswer: q.capturedAnswer,
+        capturedAnswer: q.questionType === 'SEMI-OPEN'
+          ? q.completedAnswers.join(', ')
+          : q.capturedAnswer,
+        misspokeCount: q.misspokeCount,
       })),
     ])
 
@@ -140,18 +171,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         </div>
 
         {/* Lesson content card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4 font-[Arial,sans-serif]">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunk.number}</p>
 
-          {/* Image */}
           {hunk.imageUrl && (
             <img src={hunk.imageUrl} alt={hunk.imageAlt || ''} className="w-full h-48 object-cover rounded-xl mb-4" />
           )}
 
-          {/* Hunk text */}
           <p className="text-gray-900 leading-relaxed mb-5">{hunk.text}</p>
 
-          {/* Keywords inline */}
+          {/* Spelling words */}
           {capture.keywords.length > 0 && (
             <div className="mb-5 p-3 bg-gray-50 rounded-xl">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Spelling Words</p>
@@ -162,67 +191,81 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       <span className="font-bold text-gray-900">{kw.keyword}</span>
                       <span className="text-xs text-gray-400">{kw.keyword.replace(/\s/g, '').length} letters</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">Misspoke:</span>
-                      <button onClick={() => updateMisspoke(i, -1)} className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-300 transition-colors">−</button>
-                      <span className={`w-6 text-center font-bold text-sm ${kw.misspokeCount > 0 ? 'text-red-600' : 'text-gray-400'}`}>{kw.misspokeCount}</span>
-                      <button onClick={() => updateMisspoke(i, 1)} className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold text-sm hover:bg-red-200 transition-colors">+</button>
-                    </div>
+                    <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} />
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Questions inline like lesson format */}
-          <div className="space-y-4">
+          {/* Questions */}
+          <div className="space-y-5">
             {capture.questions.map((q, i) => {
               const color = QUESTION_COLORS[q.questionType] ?? '#666'
-              const isCheckbox = q.questionType === 'KNOWN' || q.questionType === 'SEMI-OPEN' || q.questionType === 'MATH'
+              const isKnown = q.questionType === 'KNOWN'
+              const isSemiOpen = q.questionType === 'SEMI-OPEN'
               const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
               const isVakt = q.questionType === 'VAKT'
+              const answers = q.expectedAnswer.split('/').map(a => a.trim()).filter(Boolean)
 
               return (
-                <div key={i} className="flex items-start gap-3">
-                  {/* Checkbox for KNOWN / SEMI-OPEN / MATH */}
-                  {isCheckbox && (
-                    <button
-                      onClick={() => setCapturedAnswer(i, q.capturedAnswer === 'correct' ? '' : 'correct')}
-                      className={`mt-0.5 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${q.capturedAnswer === 'correct' ? 'border-transparent' : 'border-gray-300 bg-white'}`}
-                      style={q.capturedAnswer === 'correct' ? { backgroundColor: color, borderColor: color } : {}}
-                    >
-                      {q.capturedAnswer === 'correct' && <span className="text-white text-xs font-bold">✓</span>}
-                    </button>
+                <div key={i} className="border border-gray-100 rounded-xl p-4">
+                  <p className="text-sm font-semibold mb-3" style={{ color }}>{q.questionText}</p>
+
+                  {/* KNOWN — misspoke counter only */}
+                  {isKnown && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">Misspoke:</span>
+                      <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
+                    </div>
                   )}
 
-                  {/* VAKT completion button */}
+                  {/* SEMI-OPEN — misspoke counter + each answer toggleable */}
+                  {isSemiOpen && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500">Misspoke:</span>
+                        <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {answers.map((ans, ai) => (
+                          <button
+                            key={ai}
+                            onClick={() => toggleCompletedAnswer(i, ans)}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                              q.completedAnswers.includes(ans)
+                                ? 'text-white border-transparent'
+                                : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300'
+                            }`}
+                            style={q.completedAnswers.includes(ans) ? { backgroundColor: color, borderColor: color } : {}}
+                          >
+                            {ans}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* OPEN / PRIOR KNOWLEDGE — text input */}
+                  {isOpen && (
+                    <input
+                      type="text"
+                      value={q.capturedAnswer}
+                      onChange={e => setCapturedAnswer(i, e.target.value)}
+                      placeholder="Type student's response…"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
+
+                  {/* VAKT — completion toggle */}
                   {isVakt && (
                     <button
                       onClick={() => setCapturedAnswer(i, q.capturedAnswer === 'COMPLETED' ? '' : 'COMPLETED')}
-                      className={`mt-0.5 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${q.capturedAnswer === 'COMPLETED' ? 'bg-red-600 border-red-600' : 'border-gray-300 bg-white'}`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${q.capturedAnswer === 'COMPLETED' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
                     >
-                      {q.capturedAnswer === 'COMPLETED' && <span className="text-white text-xs font-bold">✓</span>}
+                      ✓ Activity Done
                     </button>
                   )}
-
-                  {/* OPEN / PRIOR KNOWLEDGE — no checkbox, just text */}
-                  {isOpen && <div className="w-5 flex-shrink-0" />}
-
-                  <div className="flex-1">
-                    <p className="text-sm font-medium" style={{ color }}>{q.questionText}</p>
-                    {q.expectedAnswer && !isOpen && (
-                      <p className="text-xs text-gray-400 mt-0.5">{q.expectedAnswer}</p>
-                    )}
-                    {isOpen && (
-                      <input
-                        type="text"
-                        value={q.capturedAnswer}
-                        onChange={e => setCapturedAnswer(i, e.target.value)}
-                        placeholder="Type student's response…"
-                        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    )}
-                  </div>
                 </div>
               )
             })}
@@ -248,5 +291,15 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         </div>
       </div>
     </main>
+  )
+}
+
+function MisspokeCounter({ value, onChange }: { value: number; onChange: (delta: number) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <button onClick={() => onChange(-1)} className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-300 transition-colors">−</button>
+      <span className={`w-6 text-center font-bold text-sm ${value > 0 ? 'text-red-600' : 'text-gray-400'}`}>{value}</span>
+      <button onClick={() => onChange(1)} className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold text-sm hover:bg-red-200 transition-colors">+</button>
+    </div>
   )
 }
