@@ -1,7 +1,10 @@
 'use client'
+import { usePathname } from 'next/navigation'
 import { UserButton, SignInButton, Show } from '@clerk/nextjs'
 
 export default function PractitionerNav() {
+  const pathname = usePathname()
+  if (pathname === '/practitioner/pricing') return null
   return (
     <div className="flex justify-end items-center gap-3 px-6 py-3 border-b border-gray-100">
       <Show when="signed-out">
