@@ -212,11 +212,20 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                 <div key={i} className="border border-gray-100 rounded-xl p-4">
                   <p className="text-sm font-semibold mb-3" style={{ color }}>{q.questionText}</p>
 
-                  {/* KNOWN — misspoke counter only */}
+                  {/* KNOWN — answer + misspoke counter */}
                   {isKnown && (
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-500">Misspoke:</span>
-                      <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
+                    <div className="space-y-2">
+                      {q.expectedAnswer && (
+                        <div className="flex flex-wrap gap-2">
+                          {q.expectedAnswer.split('/').map(a => a.trim()).filter(Boolean).map((ans, ai) => (
+                            <span key={ai} className="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-50 border border-green-200 text-green-800">{ans}</span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500">Misspoke:</span>
+                        <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
+                      </div>
                     </div>
                   )}
 
