@@ -72,7 +72,7 @@ export default function PractitionerPricingPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <main className="min-h-screen px-4 py-12 bg-white">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-4" style={{ width: 160 }} />
@@ -139,9 +139,11 @@ export default function PractitionerPricingPage() {
           })}
         </div>
 
-        <p className="text-center text-sm text-gray-400 mt-8">
-          Already subscribed? <a href="/practitioner/dashboard" className="text-blue-600 hover:underline">Go to your dashboard →</a>
-        </p>
+        <div className="mt-8 py-4 border-t border-gray-100 text-center">
+          <p className="text-sm text-gray-600">
+            Already subscribed? <a href="/practitioner/dashboard" className="text-blue-600 font-medium hover:underline">Go to your dashboard →</a>
+          </p>
+        </div>
       </div>
     </main>
   )
