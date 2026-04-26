@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useClerk } from '@clerk/nextjs'
 
 const TIERS = [
   {
@@ -41,13 +41,14 @@ const TIERS = [
 
 export default function PractitionerPricingPage() {
   const { isSignedIn } = useUser()
+  const { openSignUp } = useClerk()
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly')
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   async function handleSubscribe(tierId: string) {
     if (!isSignedIn) {
-      window.location.href = '/sign-up'
+      openSignUp({ redirectUrl: '/practitioner/pricing' })
       return
     }
     setLoading(tierId)
