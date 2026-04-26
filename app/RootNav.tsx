@@ -8,6 +8,7 @@ export default function RootNav() {
   if (pathname.startsWith('/practitioner')) return null
   return (
     <div className="relative z-20 flex justify-end items-center gap-3 px-6 py-3 print:hidden">
+      <a href="/practitioner/dashboard" className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Practitioner Login</a>
       <Show when="signed-out">
         <SignInButton>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Log In</button>
