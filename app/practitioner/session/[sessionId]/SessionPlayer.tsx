@@ -52,6 +52,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const router = useRouter()
   const [currentHunk, setCurrentHunk] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [captures, setCaptures] = useState<HunkCapture[]>(() =>
     lesson.hunks.map(hunk => ({
       keywords: extractKeywords(hunk.text).map(k => ({ keyword: k, misspokeCount: 0 })),
@@ -116,35 +117,46 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
 
   async function handleComplete() {
     setSaving(true)
-    const responses = captures.flatMap((hunkCapture, hunkIdx) => [
-      ...hunkCapture.keywords.map(k => ({
-        hunkNumber: hunkIdx + 1,
-        keyword: k.keyword,
-        misspokeCount: k.misspokeCount,
-        questionType: 'KEYWORD',
-        questionText: `Spell: ${k.keyword}`,
-        expectedAnswer: k.keyword,
-        capturedAnswer: '',
-      })),
-      ...hunkCapture.questions.map(q => ({
-        hunkNumber: hunkIdx + 1,
-        questionType: q.questionType,
-        questionText: q.questionText,
-        expectedAnswer: q.expectedAnswer,
-        capturedAnswer: q.questionType === 'SEMI-OPEN'
-          ? q.completedAnswers.join(', ')
-          : q.capturedAnswer,
-        misspokeCount: q.misspokeCount,
-      })),
-    ])
+    setSaveError('')
+    try {
+      const responses = captures.flatMap((hunkCapture, hunkIdx) => [
+        ...hunkCapture.keywords.map(k => ({
+          hunkNumber: hunkIdx + 1,
+          keyword: k.keyword,
+          misspokeCount: k.misspokeCount,
+          questionType: 'KEYWORD',
+          questionText: `Spell: ${k.keyword}`,
+          expectedAnswer: k.keyword,
+          capturedAnswer: '',
+        })),
+        ...hunkCapture.questions.map(q => ({
+          hunkNumber: hunkIdx + 1,
+          questionType: q.questionType,
+          questionText: q.questionText,
+          expectedAnswer: q.expectedAnswer,
+          capturedAnswer: q.questionType === 'SEMI-OPEN'
+            ? q.completedAnswers.join(', ')
+            : q.capturedAnswer,
+          misspokeCount: q.misspokeCount,
+        })),
+      ])
 
-    await fetch(`/api/practitioner/sessions/${sessionId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ responses }),
-    })
-
-    router.push(`/practitioner/transcript/${sessionId}`)
+      const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ responses }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setSaveError(`Save failed: ${data.error ?? res.status}`)
+        setSaving(false)
+        return
+      }
+      router.push(`/practitioner/transcript/${sessionId}`)
+    } catch (e) {
+      setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
+      setSaving(false)
+    }
   }
 
   return (
@@ -299,6 +311,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               ← Previous Hunk
             </button>
           )}
+          {saveError && <p className="text-sm text-red-600 text-center py-2">{saveError}</p>}
           {!isLast ? (
             <button onClick={() => setCurrentHunk(h => h + 1)} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
               Next Hunk →
