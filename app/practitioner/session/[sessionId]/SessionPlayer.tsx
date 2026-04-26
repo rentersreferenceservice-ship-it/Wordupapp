@@ -241,19 +241,20 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       </div>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {answers.map((ans, ai) => (
-                          <button
-                            key={ai}
-                            onClick={() => toggleCompletedAnswer(i, ans)}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                              q.completedAnswers.includes(ans)
-                                ? 'text-white border-transparent'
-                                : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300'
-                            }`}
-                            style={q.completedAnswers.includes(ans) ? { backgroundColor: color, borderColor: color } : {}}
-                          >
-                            {ans}
-                          </button>
-                          <span className="px-2 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">{ans.replace(/\s/g, '').length}</span>
+                          <span key={ai} className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => toggleCompletedAnswer(i, ans)}
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                                q.completedAnswers.includes(ans)
+                                  ? 'text-white border-transparent'
+                                  : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300'
+                              }`}
+                              style={q.completedAnswers.includes(ans) ? { backgroundColor: color, borderColor: color } : {}}
+                            >
+                              {ans}
+                            </button>
+                            <span className="px-2 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-500">{ans.replace(/\s/g, '').length}</span>
+                          </span>
                         ))}
                       </div>
                     </div>
