@@ -48,7 +48,7 @@ export default function PractitionerPricingPage() {
 
   async function handleSubscribe(tierId: string) {
     if (!isSignedIn) {
-      openSignUp({ redirectUrl: '/practitioner/pricing' })
+      openSignUp()
       return
     }
     setLoading(tierId)
