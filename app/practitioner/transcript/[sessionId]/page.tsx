@@ -61,7 +61,8 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
       <style>{`
         @media print {
           @page { margin: 0.5in; size: letter; }
-          body { font-size: 9pt !important; }
+          body { font-size: 9pt !important; line-height: 1.2 !important; }
+          * { line-height: 1.2 !important; }
           h1 { font-size: 13pt !important; }
           h2 { font-size: 9pt !important; margin-bottom: 4px !important; }
           p { margin: 1px 0 !important; font-size: 8pt !important; }
