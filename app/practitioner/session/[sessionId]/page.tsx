@@ -39,6 +39,7 @@ export default async function SessionPage({ params }: { params: Promise<{ sessio
       studentName={studentData?.name ?? 'Student'}
       sessionDate={session.session_date}
       lesson={lesson}
+      lessonId={session.lesson_id}
     />
   )
 }

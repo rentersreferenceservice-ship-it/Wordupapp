@@ -42,11 +42,12 @@ interface HunkCapture {
   questions: QuestionCapture[]
 }
 
-export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson }: {
+export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId }: {
   sessionId: string
   studentName: string
   sessionDate: string
   lesson: Lesson
+  lessonId: string
 }) {
   const router = useRouter()
   const [currentHunk, setCurrentHunk] = useState(0)
@@ -137,7 +138,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       })),
     ])
 
-    await fetch(`/api/practitioner/sessions/${sessionId}/responses`, {
+    await fetch(`/api/practitioner/sessions/${sessionId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses }),
@@ -158,10 +159,15 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             <p className="text-sm text-gray-500">{lesson.title}</p>
             <p className="text-xs text-gray-400">{new Date(sessionDate + 'T00:00:00').toLocaleDateString()}</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-400">Hunk</p>
-            <p className="text-3xl font-bold text-blue-600">{currentHunk + 1}</p>
-            <p className="text-xs text-gray-400">of {lesson.hunks.length}</p>
+          <div className="text-right flex flex-col items-end gap-2">
+            <a href={`/lessons/${lessonId}/print`} target="_blank" className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+              🖨 Print Lesson
+            </a>
+            <div>
+              <p className="text-xs text-gray-400">Hunk</p>
+              <p className="text-3xl font-bold text-blue-600">{currentHunk + 1}</p>
+              <p className="text-xs text-gray-400">of {lesson.hunks.length}</p>
+            </div>
           </div>
         </div>
 
