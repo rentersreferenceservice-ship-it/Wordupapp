@@ -51,9 +51,12 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   }
 
   const keywords = responses.filter(r => r.questionType === 'KEYWORD')
-  const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
   const totalWords = keywords.length
-  const accuracy = totalWords > 0 ? Math.round(((totalWords - keywords.filter(k => (k.misspokeCount ?? 0) > 0).length) / totalWords) * 100) : 100
+  const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
+  const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
+  const wordsWithMisspoke = keywords.filter(k => (k.misspokeCount ?? 0) > 0).length
+  const misspokePct = totalWords > 0 ? Math.round((wordsWithMisspoke / totalWords) * 100) : 0
+  const correctPct = 100 - misspokePct
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,18 +85,23 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           </div>
 
           {/* Summary stats */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100">
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-600">{totalWords}</p>
               <p className="text-xs text-gray-500">Words Spelled</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-indigo-600">{totalLetters}</p>
+              <p className="text-xs text-gray-500">Total Letters</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-500">{totalMisspokes}</p>
               <p className="text-xs text-gray-500">Total Misspokes</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{accuracy}%</p>
-              <p className="text-xs text-gray-500">Accuracy</p>
+              <p className="text-2xl font-bold text-green-600">{correctPct}%</p>
+              <p className="text-xs text-gray-500">Correct</p>
+              <p className="text-xs text-red-400 mt-0.5">{misspokePct}% misspoke</p>
             </div>
           </div>
         </div>
