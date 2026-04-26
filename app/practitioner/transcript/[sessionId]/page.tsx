@@ -4,6 +4,7 @@ import { getPractitionerSubscription, getSessionResponses } from '@/lib/practiti
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import type { QuestionType } from '@/lib/types'
+import PrintTranscriptButton from './PrintTranscriptButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,12 +63,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             ← Dashboard
           </Link>
-          <button
-            onClick={() => window.print()}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Print Transcript
-          </button>
+          <PrintTranscriptButton />
         </div>
 
         {/* Header */}
