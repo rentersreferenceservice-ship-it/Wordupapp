@@ -58,6 +58,19 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <style>{`
+        @media print {
+          @page { margin: 0.5in; size: letter; }
+          body { font-size: 9pt !important; }
+          h1 { font-size: 13pt !important; }
+          h2 { font-size: 9pt !important; margin-bottom: 4px !important; }
+          p { margin: 1px 0 !important; font-size: 8pt !important; }
+          .print-card { padding: 6px 8px !important; margin-bottom: 4px !important; border-radius: 4px !important; border: 1px solid #e5e7eb !important; }
+          .print-stat { padding: 4px !important; }
+          .print-keyword { padding: 2px 6px !important; font-size: 7.5pt !important; }
+          .print-question { padding: 3px 6px !important; gap: 4px !important; }
+        }
+      `}</style>
       <div className="max-w-3xl mx-auto px-6 py-8 print:px-0 print:py-0">
         {/* Nav - hidden on print */}
         <div className="flex gap-3 mb-6 print:hidden">
@@ -68,7 +81,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
         </div>
 
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 print:shadow-none print:border-0 print:rounded-none">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 print:shadow-none print:border-0 print:rounded-none print-card">
           <div className="flex items-start justify-between">
             <div>
               <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100, marginBottom: 8 }} />
@@ -105,7 +118,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD')
           const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD')
           return (
-            <div key={hunkNum} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg">
+            <div key={hunkNum} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunkNum}</h2>
 
               {hunkKeywords.length > 0 && (
@@ -113,7 +126,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   <p className="text-xs font-semibold text-gray-500 mb-2">Spelling Words</p>
                   <div className="flex flex-wrap gap-2">
                     {hunkKeywords.map((k, i) => (
-                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${(k.misspokeCount ?? 0) > 0 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
+                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm print-keyword ${(k.misspokeCount ?? 0) > 0 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
                         <span className="font-bold text-gray-800">{k.keyword}</span>
                         <span className="text-xs text-gray-400">{(k.keyword ?? '').replace(/\s/g, '').length} letters</span>
                         {(k.misspokeCount ?? 0) > 0 && (
@@ -134,7 +147,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   {hunkQuestions.map((q, i) => {
                     const color = QUESTION_COLORS[q.questionType] ?? '#666'
                     return (
-                      <div key={i} className="flex items-start gap-3 text-sm">
+                      <div key={i} className="flex items-start gap-3 text-sm print-question">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white shrink-0 mt-0.5" style={{ backgroundColor: color }}>
                           {q.questionType}
                         </span>
