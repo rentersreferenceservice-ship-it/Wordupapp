@@ -20,8 +20,8 @@ export default function RootNav() {
         </SignUpButton>
       </Show>
       <Show when="signed-in">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-white">My Account</span>
+        <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border-2 border-gray-900">
+          <span className="text-sm font-medium">My Account</span>
           <UserButton />
         </div>
       </Show>
