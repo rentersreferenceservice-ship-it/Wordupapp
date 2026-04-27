@@ -76,7 +76,7 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
           .q-answer { font-size: 9pt; color: #555; margin-left: 2px; }
           .footer { margin-top: 14px; text-align: center; font-size: 9pt; color: #aaa; border-top: 1px solid #eee; padding-top: 6px; }
         `}</style>
-        <script>{`window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 600); }`}</script>
+        <script>{`window.onload = function() { setTimeout(function() { window.print(); }, 600); }`}</script>
       </head>
       <body>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14,paddingBottom:10,borderBottom:'2px solid #111'}}>
