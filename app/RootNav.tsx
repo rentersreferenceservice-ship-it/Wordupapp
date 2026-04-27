@@ -11,12 +11,12 @@ export default function RootNav() {
       <a href="/practitioner/dashboard" className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">Practitioner Login</a>
       <Show when="signed-out">
         <SignInButton>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Log In</button>
+          <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">Log In</button>
         </SignInButton>
       </Show>
       <Show when="signed-out">
         <SignUpButton>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Create Account</button>
+          <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">Create Account</button>
         </SignUpButton>
       </Show>
       <Show when="signed-in">
