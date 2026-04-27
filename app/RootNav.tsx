@@ -1,7 +1,6 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton, UserButton, Show } from '@clerk/nextjs'
-import SubscribeButton from './SubscribeButton'
 
 export default function RootNav() {
   const pathname = usePathname()
@@ -20,7 +19,6 @@ export default function RootNav() {
         </SignUpButton>
       </Show>
       <Show when="signed-in">
-        <SubscribeButton />
         <UserButton />
       </Show>
     </div>
