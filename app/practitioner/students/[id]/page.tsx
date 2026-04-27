@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getStudent, getSessions } from '@/lib/practitionerStore'
+import { getPractitionerSubscription, getStudent, getSessions, getCompletedSessionIds } from '@/lib/practitionerStore'
 import { listLessons } from '@/lib/lessonStore'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
@@ -22,6 +22,8 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     getSessions(userId, id),
     listLessons(),
   ])
+
+  const completedIds = await getCompletedSessionIds(sessions.map(s => s.id))
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
 
@@ -56,18 +58,28 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           <p className="text-sm text-gray-400 text-center py-6">No sessions yet for {student.name}.</p>
         ) : (
           <ul className="space-y-2">
-            {sessions.map(s => (
-              <li key={s.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                <Link href={`/practitioner/transcript/${s.id}`} className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm group-hover:text-blue-600">{s.lessonTitle}</p>
-                  <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
-                </Link>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-blue-600 group-hover:underline">View</span>
-                  <DeleteSessionButton sessionId={s.id} />
-                </div>
-              </li>
-            ))}
+            {sessions.map(s => {
+              const isComplete = completedIds.has(s.id)
+              return (
+                <li key={s.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 text-sm truncate">{s.lessonTitle}</p>
+                    <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex items-center gap-3 ml-3 shrink-0">
+                    {isComplete ? (
+                      <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-blue-600 hover:underline">View Transcript</Link>
+                    ) : (
+                      <>
+                        <Link href={`/practitioner/session/${s.id}`} className="text-xs font-semibold text-orange-600 hover:underline">▶ Resume</Link>
+                        <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-gray-400 hover:underline">Transcript</Link>
+                      </>
+                    )}
+                    <DeleteSessionButton sessionId={s.id} />
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>

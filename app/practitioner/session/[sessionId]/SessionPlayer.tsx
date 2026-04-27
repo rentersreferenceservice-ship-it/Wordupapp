@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lesson, QuestionType } from '@/lib/types'
+import type { SessionResponse } from '@/lib/practitionerStore'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -29,12 +30,14 @@ interface QuestionCapture {
   expectedAnswer: string
   capturedAnswer: string
   misspokeCount: number
-  completedAnswers: string[] // for SEMI-OPEN multi-select
+  completedAnswers: string[]
+  asked: boolean
 }
 
 interface KeywordCapture {
   keyword: string
   misspokeCount: number
+  asked: boolean
 }
 
 interface HunkCapture {
@@ -42,34 +45,69 @@ interface HunkCapture {
   questions: QuestionCapture[]
 }
 
-export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId }: {
+export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [] }: {
   sessionId: string
   studentName: string
   sessionDate: string
   lesson: Lesson
   lessonId: string
+  studentId: string
+  initialResponses?: SessionResponse[]
 }) {
   const router = useRouter()
-  const [currentHunk, setCurrentHunk] = useState(0)
+
+  const resumeHunk = (() => {
+    const hunkNums = initialResponses.filter(r => r.hunkNumber > 0 && r.questionType !== 'SESSION_COMPLETE').map(r => r.hunkNumber)
+    if (!hunkNums.length) return 0
+    return Math.min(Math.max(...hunkNums) - 1, lesson.hunks.length - 1)
+  })()
+
+  const [currentHunk, setCurrentHunk] = useState(resumeHunk)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [captures, setCaptures] = useState<HunkCapture[]>(() =>
-    lesson.hunks.map(hunk => ({
-      keywords: extractKeywords(hunk.text).map(k => ({ keyword: k, misspokeCount: 0 })),
-      questions: hunk.questions.map(q => ({
-        questionText: q.question,
-        questionType: q.type,
-        expectedAnswer: q.answer ?? '',
-        capturedAnswer: '',
-        misspokeCount: 0,
-        completedAnswers: [],
-      })),
-    }))
+    lesson.hunks.map((hunk, hunkIdx) => {
+      const hunkNum = hunkIdx + 1
+      const existing = initialResponses.filter(r => r.hunkNumber === hunkNum)
+      return {
+        keywords: extractKeywords(hunk.text).map(k => {
+          const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
+          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: saved?.capturedAnswer !== 'SKIPPED' }
+        }),
+        questions: hunk.questions.map(q => {
+          const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
+          return {
+            questionText: q.question,
+            questionType: q.type,
+            expectedAnswer: q.answer ?? '',
+            capturedAnswer: saved?.capturedAnswer === 'NOT_ASKED' ? '' : (saved?.capturedAnswer ?? ''),
+            misspokeCount: saved?.misspokeCount ?? 0,
+            completedAnswers: saved && q.type === 'SEMI-OPEN'
+              ? (saved.capturedAnswer ?? '').split(', ').filter(Boolean)
+              : [],
+            asked: saved?.capturedAnswer !== 'NOT_ASKED',
+          }
+        }),
+      }
+    })
   )
+
+  const savedState = initialResponses.find(r => r.questionType === 'SESSION_STATE')
+  const savedNotes = initialResponses.find(r => r.questionType === 'SESSION_NOTES')
+  const [studentStates, setStudentStates] = useState<string[]>(
+    savedState?.capturedAnswer ? savedState.capturedAnswer.split(', ').filter(Boolean) : []
+  )
+  const [sessionNotes, setSessionNotes] = useState(savedNotes?.capturedAnswer ?? '')
 
   const hunk = lesson.hunks[currentHunk]
   const capture = captures[currentHunk]
   const isLast = currentHunk === lesson.hunks.length - 1
+
+  const STATE_OPTIONS = ['Regulated', 'Dysregulated', 'Overstimulated', 'Understimulated', 'Sick', 'Tired', 'Hungry', 'Stuck in loops']
+
+  function toggleState(s: string) {
+    setStudentStates(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
+  }
 
   function updateKeywordMisspoke(idx: number, delta: number) {
     setCaptures(prev => {
@@ -105,6 +143,26 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  function toggleKeywordAsked(idx: number) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const kws = [...next[currentHunk].keywords]
+      kws[idx] = { ...kws[idx], asked: !kws[idx].asked, misspokeCount: kws[idx].asked ? 0 : kws[idx].misspokeCount }
+      next[currentHunk] = { ...next[currentHunk], keywords: kws }
+      return next
+    })
+  }
+
+  function toggleQuestionAsked(idx: number) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[currentHunk].questions]
+      qs[idx] = { ...qs[idx], asked: !qs[idx].asked }
+      next[currentHunk] = { ...next[currentHunk], questions: qs }
+      return next
+    })
+  }
+
   function setCapturedAnswer(questionIdx: number, answer: string) {
     setCaptures(prev => {
       const next = [...prev]
@@ -115,32 +173,62 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
-  async function handleComplete() {
-    setSaving(true)
-    setSaveError('')
-    try {
-      const responses = captures.flatMap((hunkCapture, hunkIdx) => [
+  function buildResponses(complete: boolean) {
+    return [
+      { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
+      { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
+      ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...captures.flatMap((hunkCapture, hunkIdx) => [
         ...hunkCapture.keywords.map(k => ({
           hunkNumber: hunkIdx + 1,
           keyword: k.keyword,
-          misspokeCount: k.misspokeCount,
+          misspokeCount: k.asked ? k.misspokeCount : 0,
           questionType: 'KEYWORD',
           questionText: `Spell: ${k.keyword}`,
           expectedAnswer: k.keyword,
-          capturedAnswer: '',
+          capturedAnswer: k.asked ? '' : 'SKIPPED',
         })),
         ...hunkCapture.questions.map(q => ({
           hunkNumber: hunkIdx + 1,
           questionType: q.questionType,
           questionText: q.questionText,
           expectedAnswer: q.expectedAnswer,
-          capturedAnswer: q.questionType === 'SEMI-OPEN'
+          capturedAnswer: !q.asked ? 'NOT_ASKED' : q.questionType === 'SEMI-OPEN'
             ? q.completedAnswers.join(', ')
             : q.capturedAnswer,
-          misspokeCount: q.misspokeCount,
+          misspokeCount: q.asked ? q.misspokeCount : 0,
         })),
-      ])
+      ]),
+    ]
+  }
 
+  async function handleSaveAndExit() {
+    setSaving(true)
+    setSaveError('')
+    try {
+      const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ responses: buildResponses(false) }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setSaveError(`Save failed: ${data.error ?? res.status}`)
+        setSaving(false)
+        return
+      }
+      router.push(`/practitioner/students/${studentId}`)
+    } catch (e) {
+      setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
+      setSaving(false)
+    }
+  }
+
+  async function handleComplete() {
+    setSaving(true)
+    setSaveError('')
+    try {
+      const responses = buildResponses(true)
       const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,6 +276,33 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           <div className="bg-blue-600 h-2 rounded-full transition-all" style={{ width: `${((currentHunk + 1) / lesson.hunks.length) * 100}%` }} />
         </div>
 
+        {/* Observation panel — persistent */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student Observation</p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {STATE_OPTIONS.map(s => (
+              <button
+                key={s}
+                onClick={() => toggleState(s)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                  studentStates.includes(s)
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={sessionNotes}
+            onChange={e => setSessionNotes(e.target.value)}
+            placeholder="Session notes…"
+            rows={2}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+          />
+        </div>
+
         {/* Lesson content card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunk.number}</p>
@@ -204,12 +319,19 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Spelling Words</p>
               <div className="space-y-2">
                 {capture.keywords.map((kw, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                  <div key={i} className={`flex items-center justify-between rounded-lg px-2 py-1 transition-colors ${kw.asked ? '' : 'opacity-40'}`}>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{kw.keyword}</span>
+                      <button
+                        onClick={() => toggleKeywordAsked(i)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${kw.asked ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white'}`}
+                        title={kw.asked ? 'Mark as not asked' : 'Mark as asked'}
+                      >
+                        {kw.asked && <span className="text-xs font-bold">✓</span>}
+                      </button>
+                      <span className={`font-bold ${kw.asked ? 'text-gray-900' : 'text-gray-400 line-through'}`}>{kw.keyword}</span>
                       <span className="text-xs text-gray-400">{kw.keyword.replace(/\s/g, '').length} letters</span>
                     </div>
-                    <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} />
+                    <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} disabled={!kw.asked} />
                   </div>
                 ))}
               </div>
@@ -227,8 +349,18 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               const answers = q.expectedAnswer.split('/').map(a => a.trim()).filter(Boolean)
 
               return (
-                <div key={i} className="border border-gray-100 rounded-xl p-4">
-                  <p className="text-sm font-semibold mb-3" style={{ color }}>{q.questionText}</p>
+                <div key={i} className={`border rounded-xl p-4 transition-colors ${q.asked ? 'border-gray-100' : 'border-gray-100 opacity-50'}`}>
+                  <div className="flex items-start gap-2 mb-3">
+                    <button
+                      onClick={() => toggleQuestionAsked(i)}
+                      className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${q.asked ? 'border-transparent text-white' : 'border-gray-300 bg-white'}`}
+                      style={q.asked ? { backgroundColor: color, borderColor: color } : {}}
+                      title={q.asked ? 'Mark as not asked' : 'Mark as asked'}
+                    >
+                      {q.asked && <span className="text-xs font-bold">✓</span>}
+                    </button>
+                    <p className={`text-sm font-semibold ${q.asked ? '' : 'line-through text-gray-400'}`} style={q.asked ? { color } : {}}>{q.questionText}</p>
+                  </div>
 
                   {/* KNOWN — answer + misspoke counter */}
                   {isKnown && (
@@ -305,13 +437,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         </div>
 
         {/* Navigation */}
+        {saveError && <p className="text-sm text-red-600 text-center pb-2">{saveError}</p>}
         <div className="flex gap-3">
           {currentHunk > 0 && (
-            <button onClick={() => setCurrentHunk(h => h - 1)} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
-              ← Previous Hunk
+            <button onClick={() => setCurrentHunk(h => h - 1)} className="bg-gray-100 text-gray-700 px-4 py-3 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
+              ← Back
             </button>
           )}
-          {saveError && <p className="text-sm text-red-600 text-center py-2">{saveError}</p>}
+          <button onClick={handleSaveAndExit} disabled={saving} className="bg-white text-gray-700 px-4 py-3 rounded-xl font-medium text-sm border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-60 transition-colors">
+            {saving ? '…' : '💾 Save & Exit'}
+          </button>
           {!isLast ? (
             <button onClick={() => setCurrentHunk(h => h + 1)} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
               Next Hunk →
@@ -327,9 +462,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   )
 }
 
-function MisspokeCounter({ value, onChange }: { value: number; onChange: (delta: number) => void }) {
+function MisspokeCounter({ value, onChange, disabled }: { value: number; onChange: (delta: number) => void; disabled?: boolean }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${disabled ? 'pointer-events-none opacity-30' : ''}`}>
       <button onClick={() => onChange(-1)} className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-300 transition-colors">−</button>
       <span className={`w-6 text-center font-bold text-sm ${value > 0 ? 'text-red-600' : 'text-gray-400'}`}>{value}</span>
       <button onClick={() => onChange(1)} className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold text-sm hover:bg-red-200 transition-colors">+</button>

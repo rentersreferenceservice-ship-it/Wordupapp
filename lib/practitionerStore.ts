@@ -180,18 +180,31 @@ export async function createSession(
 }
 
 export async function saveSessionResponses(sessionId: string, responses: Omit<SessionResponse, 'id' | 'sessionId'>[]): Promise<void> {
-  await getSupabase().from('session_responses').insert(
-    responses.map(r => ({
-      session_id: sessionId,
-      hunk_number: r.hunkNumber,
-      keyword: r.keyword,
-      misspoke_count: r.misspokeCount,
-      question_type: r.questionType,
-      question_text: r.questionText,
-      expected_answer: r.expectedAnswer,
-      captured_answer: r.capturedAnswer,
-    }))
-  )
+  await getSupabase().from('session_responses').delete().eq('session_id', sessionId)
+  if (responses.length > 0) {
+    await getSupabase().from('session_responses').insert(
+      responses.map(r => ({
+        session_id: sessionId,
+        hunk_number: r.hunkNumber,
+        keyword: r.keyword,
+        misspoke_count: r.misspokeCount,
+        question_type: r.questionType,
+        question_text: r.questionText,
+        expected_answer: r.expectedAnswer,
+        captured_answer: r.capturedAnswer,
+      }))
+    )
+  }
+}
+
+export async function getCompletedSessionIds(sessionIds: string[]): Promise<Set<string>> {
+  if (sessionIds.length === 0) return new Set()
+  const { data } = await getSupabase()
+    .from('session_responses')
+    .select('session_id')
+    .in('session_id', sessionIds)
+    .eq('question_type', 'SESSION_COMPLETE')
+  return new Set((data ?? []).map((d: { session_id: string }) => d.session_id))
 }
 
 export async function getSessionResponses(sessionId: string): Promise<SessionResponse[]> {

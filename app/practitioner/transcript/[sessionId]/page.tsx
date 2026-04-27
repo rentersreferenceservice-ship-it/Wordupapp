@@ -43,14 +43,19 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   const responses = await getSessionResponses(sessionId)
 
-  // Group by hunk
+  // Extract session-level records
+  const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
+  const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
+
+  // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
+    if (r.hunkNumber === 0) continue
     if (!byHunk[r.hunkNumber]) byHunk[r.hunkNumber] = []
     byHunk[r.hunkNumber].push(r)
   }
 
-  const keywords = responses.filter(r => r.questionType === 'KEYWORD')
+  const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
   const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
   const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
   const misspokePct = totalLetters > 0 ? Math.round((totalMisspokes / totalLetters) * 100) : 0
@@ -112,6 +117,28 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               <p className="text-xs text-red-400 mt-0.5">{misspokePct}% misspoke</p>
             </div>
           </div>
+
+          {/* Student state & notes */}
+          {(sessionStateRecord?.capturedAnswer || sessionNotesRecord?.capturedAnswer) && (
+            <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+              {sessionStateRecord?.capturedAnswer && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Student State</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {sessionStateRecord.capturedAnswer.split(', ').filter(Boolean).map((s, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs text-indigo-700 font-medium">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {sessionNotesRecord?.capturedAnswer && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Session Notes</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{sessionNotesRecord.capturedAnswer}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Per-hunk detail */}
@@ -127,13 +154,14 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   <p className="text-xs font-semibold text-gray-500 mb-2">Spelling Words</p>
                   <div className="flex flex-wrap gap-2">
                     {hunkKeywords.map((k, i) => (
-                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm print-keyword ${(k.misspokeCount ?? 0) > 0 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
-                        <span className="font-bold text-gray-800">{k.keyword}</span>
+                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm print-keyword ${k.capturedAnswer === 'SKIPPED' ? 'bg-gray-50 border border-gray-200 opacity-50' : (k.misspokeCount ?? 0) > 0 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
+                        <span className={`font-bold ${k.capturedAnswer === 'SKIPPED' ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{k.keyword}</span>
                         <span className="text-xs text-gray-400">{(k.keyword ?? '').replace(/\s/g, '').length} letters</span>
-                        {(k.misspokeCount ?? 0) > 0 && (
+                        {k.capturedAnswer === 'SKIPPED' && <span className="text-xs text-gray-400">not asked</span>}
+                        {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) > 0 && (
                           <span className="text-xs text-red-600 font-semibold">{k.misspokeCount}✗</span>
                         )}
-                        {(k.misspokeCount ?? 0) === 0 && (
+                        {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) === 0 && (
                           <span className="text-xs text-green-600">✓</span>
                         )}
                       </div>
@@ -148,7 +176,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   {hunkQuestions.map((q, i) => {
                     const color = QUESTION_COLORS[q.questionType] ?? '#666'
                     return (
-                      <div key={i} className="flex items-start gap-3 text-sm print-question">
+                      <div key={i} className="flex items-start gap-3 text-sm print-question mb-2">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white shrink-0 mt-0.5" style={{ backgroundColor: color }}>
                           {q.questionType}
                         </span>
@@ -166,7 +194,14 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             </p>
                           )}
                           {q.capturedAnswer === 'SKIP' && <p className="text-xs text-gray-400 mt-0.5">Skipped</p>}
+                          {q.capturedAnswer === 'NOT_ASKED' && <p className="text-xs text-gray-400 mt-0.5 italic">Not asked this session</p>}
                           {q.capturedAnswer === 'COMPLETED' && <p className="text-xs text-green-600 mt-0.5">✓ Activity completed</p>}
+                          {(q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE') && (
+                            <div className="mt-1.5 space-y-1 print:mt-2">
+                              <div className="border-b border-gray-300 w-full h-5" />
+                              <div className="border-b border-gray-300 w-full h-5" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
