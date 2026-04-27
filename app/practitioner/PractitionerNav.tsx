@@ -1,20 +1,26 @@
 'use client'
 import { usePathname } from 'next/navigation'
-import { UserButton, SignInButton, Show } from '@clerk/nextjs'
+import { UserButton, SignInButton, useUser } from '@clerk/nextjs'
 
 export default function PractitionerNav() {
   const pathname = usePathname()
+  const { isSignedIn } = useUser()
+
   if (pathname === '/practitioner/pricing') return null
+
   return (
     <div className="flex justify-end items-center gap-3 px-6 py-3 border-b border-gray-100">
-      <Show when="signed-out">
+      {!isSignedIn && (
         <SignInButton>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Log In</button>
+          <button className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">Log In</button>
         </SignInButton>
-      </Show>
-      <Show when="signed-in">
-        <UserButton />
-      </Show>
+      )}
+      {isSignedIn && (
+        <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border-2 border-gray-900">
+          <span className="text-sm font-medium">My Account</span>
+          <UserButton />
+        </div>
+      )}
     </div>
   )
 }
