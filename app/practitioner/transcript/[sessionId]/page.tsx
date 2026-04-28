@@ -92,10 +92,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               <h1 className="text-2xl font-bold text-gray-900">Session Transcript</h1>
               <p className="text-gray-600 mt-1">{session.lesson_title}</p>
             </div>
-            <div className="text-right text-sm text-gray-500">
-              <p><strong>Student:</strong> {studentData?.name}</p>
-              <p><strong>Age Group:</strong> {studentData?.age_group}</p>
-              <p><strong>Date:</strong> {new Date(session.session_date + 'T00:00:00').toLocaleDateString()}</p>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-gray-900">{studentData?.name}</p>
+              <p className="text-sm text-gray-500 mt-1">{studentData?.age_group}</p>
+              <p className="text-sm text-gray-500">{new Date(session.session_date + 'T00:00:00').toLocaleDateString()}</p>
             </div>
           </div>
 
@@ -124,18 +124,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           </div>
 
           {/* Summary stats */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">{totalLetters}</p>
-              <p className="text-xs text-gray-500">Letters to Poke</p>
+          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200">
+            <div className="text-center bg-blue-50 rounded-xl py-3">
+              <p className="text-3xl font-bold text-blue-600">{totalLetters}</p>
+              <p className="text-xs font-semibold text-blue-500 mt-1">Letters to Poke</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-red-500">{totalMisspokes}</p>
-              <p className="text-xs text-gray-500">Misspokes</p>
+            <div className="text-center bg-red-50 rounded-xl py-3">
+              <p className="text-3xl font-bold text-red-500">{totalMisspokes}</p>
+              <p className="text-xs font-semibold text-red-400 mt-1">Misspokes</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{correctPct}%</p>
-              <p className="text-xs text-gray-500">Accuracy</p>
+            <div className="text-center bg-green-50 rounded-xl py-3">
+              <p className="text-3xl font-bold text-green-600">{correctPct}%</p>
+              <p className="text-xs font-semibold text-green-500 mt-1">Accuracy</p>
               <p className="text-xs text-gray-400 mt-0.5">{totalPokes} total pokes</p>
             </div>
           </div>
