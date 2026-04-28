@@ -86,6 +86,16 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           <PrintTranscriptButton />
         </div>
 
+        {/* Debug panel — screen only */}
+        <div className="print:hidden mb-4 bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-xs text-gray-600 space-y-1">
+          <p className="font-bold text-yellow-800">Debug (temporary)</p>
+          <p>Total responses saved: {responses.length}</p>
+          <p>KEYWORD responses: {responses.filter(r => r.questionType === 'KEYWORD').length}</p>
+          <p>KEYWORD not skipped: {keywords.length}</p>
+          <p>Types found: {[...new Set(responses.map(r => r.questionType))].join(', ') || 'none'}</p>
+          <p>Keywords: {responses.filter(r => r.questionType === 'KEYWORD').map(k => `${k.keyword ?? 'NULL'}(ans:${JSON.stringify(k.capturedAnswer)},miss:${k.misspokeCount})`).join(' | ') || 'none'}</p>
+        </div>
+
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 print:shadow-none print:border-0 print:rounded-none print-card">
           <div className="flex items-start justify-between">
