@@ -203,7 +203,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             </p>
                           )}
                           {!hasTextAnswer && !notAsked && !skipped && !completed && q.expectedAnswer && (
-                            <p className="text-xs mt-0.5 text-gray-400">Expected: <span className="font-semibold text-gray-600">{q.expectedAnswer}</span></p>
+                            <p className="text-xs mt-0.5 text-gray-400"><span className="font-semibold text-gray-600">{q.expectedAnswer}</span></p>
                           )}
                           {misspokes > 0 && !notAsked && (
                             <p className="text-xs text-red-600 font-semibold mt-0.5">{'✗'.repeat(misspokes)}</p>

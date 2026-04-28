@@ -152,7 +152,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       else if (completed) answerText = '✓ Activity completed'
       else if (skipped) answerText = '(skipped)'
       else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
-      else if (q.expectedAnswer) answerText = `Expected: ${q.expectedAnswer}`
+      else if (q.expectedAnswer) answerText = q.expectedAnswer
 
       children.push(
         new Paragraph({
