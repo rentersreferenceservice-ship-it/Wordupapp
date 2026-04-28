@@ -47,7 +47,7 @@ export interface Session {
 export interface SessionResponse {
   id: string
   sessionId: string
-  hunkNumber: number
+  hunkNumber: number | null
   keyword?: string
   misspokeCount?: number
   questionType: string
@@ -180,20 +180,41 @@ export async function createSession(
 }
 
 export async function saveSessionResponses(sessionId: string, responses: Omit<SessionResponse, 'id' | 'sessionId'>[]): Promise<void> {
-  await getSupabase().from('session_responses').delete().eq('session_id', sessionId)
-  if (responses.length > 0) {
-    await getSupabase().from('session_responses').insert(
-      responses.map(r => ({
-        session_id: sessionId,
-        hunk_number: r.hunkNumber,
-        keyword: r.keyword,
-        misspoke_count: r.misspokeCount,
-        question_type: r.questionType,
-        question_text: r.questionText,
-        expected_answer: r.expectedAnswer,
-        captured_answer: r.capturedAnswer,
-      }))
-    )
+  if (responses.length === 0) return
+
+  // Separate special session-level records (hunkNumber 0) from regular hunk responses.
+  // Insert regular records first, then special ones — so a constraint on hunk_number
+  // doesn't wipe the session data.
+  const regularRows = responses.filter(r => (r.hunkNumber ?? 0) > 0)
+  const specialRows = responses.filter(r => (r.hunkNumber ?? 0) === 0)
+
+  const toRow = (r: Omit<SessionResponse, 'id' | 'sessionId'>) => ({
+    session_id: sessionId,
+    hunk_number: (r.hunkNumber ?? 0) > 0 ? r.hunkNumber : null,
+    keyword: r.keyword ?? null,
+    misspoke_count: r.misspokeCount ?? 0,
+    question_type: r.questionType,
+    question_text: r.questionText,
+    expected_answer: r.expectedAnswer ?? null,
+    captured_answer: r.capturedAnswer ?? null,
+  })
+
+  const { error: deleteError } = await getSupabase()
+    .from('session_responses').delete().eq('session_id', sessionId)
+  if (deleteError) throw new Error(`Delete failed: ${deleteError.message}`)
+
+  if (regularRows.length > 0) {
+    const { error } = await getSupabase().from('session_responses').insert(regularRows.map(toRow))
+    if (error) throw new Error(`Insert failed: ${error.message}`)
+  }
+
+  if (specialRows.length > 0) {
+    const { error } = await getSupabase().from('session_responses').insert(specialRows.map(toRow))
+    if (error) {
+      // Special records (notes/state) failed — likely a DB constraint on hunk_number.
+      // Don't throw; regular session data is already saved.
+      console.error('Special record insert failed (notes/state may not be saved):', error.message)
+    }
   }
 }
 

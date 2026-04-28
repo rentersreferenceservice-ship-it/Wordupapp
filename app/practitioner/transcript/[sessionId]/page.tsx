@@ -50,7 +50,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
-    if (r.hunkNumber === 0) continue
+    if (r.hunkNumber == null) continue
     if (!byHunk[r.hunkNumber]) byHunk[r.hunkNumber] = []
     byHunk[r.hunkNumber].push(r)
   }

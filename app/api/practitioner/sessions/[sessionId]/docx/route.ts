@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
-    if (r.hunkNumber === 0) continue
+    if (r.hunkNumber == null) continue
     if (!byHunk[r.hunkNumber]) byHunk[r.hunkNumber] = []
     byHunk[r.hunkNumber].push(r)
   }

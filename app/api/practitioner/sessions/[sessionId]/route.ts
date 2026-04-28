@@ -11,7 +11,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
   const { responses } = await req.json()
-  await saveSessionResponses(sessionId, responses)
+  try {
+    await saveSessionResponses(sessionId, responses)
+  } catch (e) {
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
+  }
   return Response.json({ ok: true })
 }
 

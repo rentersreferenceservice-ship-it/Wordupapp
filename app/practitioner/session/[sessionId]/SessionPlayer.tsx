@@ -57,7 +57,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const router = useRouter()
 
   const resumeHunk = (() => {
-    const hunkNums = initialResponses.filter(r => r.hunkNumber > 0 && r.questionType !== 'SESSION_COMPLETE').map(r => r.hunkNumber)
+    const hunkNums = initialResponses.filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.questionType !== 'SESSION_COMPLETE').map(r => r.hunkNumber as number)
     if (!hunkNums.length) return 0
     return Math.min(Math.max(...hunkNums) - 1, lesson.hunks.length - 1)
   })()
@@ -68,7 +68,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [captures, setCaptures] = useState<HunkCapture[]>(() =>
     lesson.hunks.map((hunk, hunkIdx) => {
       const hunkNum = hunkIdx + 1
-      const existing = initialResponses.filter(r => r.hunkNumber === hunkNum)
+      const existing = initialResponses.filter(r => r.hunkNumber != null && r.hunkNumber === hunkNum)
       return {
         keywords: extractKeywords(hunk.text).map(k => {
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
