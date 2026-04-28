@@ -211,7 +211,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     )
   )
 
-  const buffer = await renderToBuffer(doc)
+  const buffer = await renderToBuffer(doc) as unknown as ArrayBuffer
   const filename = `transcript-${studentData?.name ?? 'student'}-${session.session_date}.pdf`
     .replace(/[^a-zA-Z0-9\-_.]/g, '-')
 
