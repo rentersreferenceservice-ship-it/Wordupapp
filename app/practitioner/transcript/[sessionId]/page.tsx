@@ -194,7 +194,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                           {q.questionType}
                         </span>
                         <div className="flex-1">
-                          <p className={`text-gray-700 ${notAsked ? 'opacity-40 italic' : ''}`}>{q.questionText}</p>
+                          <p className={`font-medium ${notAsked ? 'opacity-40 italic' : ''}`} style={{ color: notAsked ? '#9ca3af' : color }}>{q.questionText}</p>
                           {notAsked && <p className="text-xs text-gray-400 mt-0.5 italic">Not asked this session</p>}
                           {skipped && <p className="text-xs text-gray-400 mt-0.5">Skipped</p>}
                           {completed && <p className="text-xs text-green-600 mt-0.5">✓ Activity completed</p>}
