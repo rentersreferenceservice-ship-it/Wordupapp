@@ -143,8 +143,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
         {/* Per-hunk detail */}
         {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
-          const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD')
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD')
+          const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
           return (
             <div key={hunkNum} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunkNum}</h2>

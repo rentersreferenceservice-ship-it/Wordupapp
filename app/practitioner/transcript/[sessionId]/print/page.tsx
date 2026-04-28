@@ -130,8 +130,9 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
         )}
 
         {Object.entries(byHunk).sort(([a],[b]) => Number(a)-Number(b)).map(([hunkNum, items]) => {
-          const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD')
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD')
+          const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
           return (
             <div key={hunkNum} style={{marginBottom:10,border:'1px solid #ccc',borderRadius:4,padding:'8px 10px'}}>
               <div style={{fontSize:'9pt',fontWeight:'bold',color:'#888',textTransform:'uppercase',marginBottom:6}}>Hunk {hunkNum}</div>

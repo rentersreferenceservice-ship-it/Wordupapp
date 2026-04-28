@@ -112,8 +112,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
   // Per-hunk detail
   for (const [hunkNum, items] of Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b))) {
-    const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD')
-    const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD')
+    const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
+    const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+    if (hunkKeywords.length === 0 && hunkQuestions.length === 0) continue
 
     children.push(
       new Paragraph({

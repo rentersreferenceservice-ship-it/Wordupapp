@@ -151,8 +151,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
       // Per-hunk
       ...Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
-        const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD')
-        const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD')
+        const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
+        const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+        if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
 
         return React.createElement(View, { key: hunkNum, style: s.hunkBox },
           React.createElement(Text, { style: s.hunkTitle }, `Hunk ${hunkNum}`),
