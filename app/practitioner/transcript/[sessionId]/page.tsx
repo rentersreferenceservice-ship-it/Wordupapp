@@ -101,6 +101,30 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             </div>
           </div>
 
+          {/* Student state & notes — always shown at top */}
+          <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Student State</p>
+              {sessionStateRecord?.capturedAnswer
+                ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {sessionStateRecord.capturedAnswer.split(', ').filter(Boolean).map((s, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs text-indigo-700 font-medium">{s}</span>
+                    ))}
+                  </div>
+                )
+                : <p className="text-xs text-gray-300 italic">Not recorded</p>
+              }
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Session Notes</p>
+              {sessionNotesRecord?.capturedAnswer
+                ? <p className="text-sm text-gray-700 whitespace-pre-wrap">{sessionNotesRecord.capturedAnswer}</p>
+                : <p className="text-xs text-gray-300 italic">None</p>
+              }
+            </div>
+          </div>
+
           {/* Summary stats */}
           <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-100">
             <div className="text-center">
@@ -117,28 +141,6 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               <p className="text-xs text-red-400 mt-0.5">{misspokePct}% misspoke</p>
             </div>
           </div>
-
-          {/* Student state & notes */}
-          {(sessionStateRecord?.capturedAnswer || sessionNotesRecord?.capturedAnswer) && (
-            <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
-              {sessionStateRecord?.capturedAnswer && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Student State</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {sessionStateRecord.capturedAnswer.split(', ').filter(Boolean).map((s, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs text-indigo-700 font-medium">{s}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {sessionNotesRecord?.capturedAnswer && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Session Notes</p>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{sessionNotesRecord.capturedAnswer}</p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Per-hunk detail */}
