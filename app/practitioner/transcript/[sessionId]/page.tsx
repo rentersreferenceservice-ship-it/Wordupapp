@@ -50,13 +50,13 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
-    if (r.hunkNumber == null) continue
+    if (r.hunkNumber == null || r.hunkNumber <= 0) continue
     if (!byHunk[r.hunkNumber]) byHunk[r.hunkNumber] = []
     byHunk[r.hunkNumber].push(r)
   }
 
-  const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null)
-  const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null)
+  const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
   const totalLetters =
     spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
     spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0)
