@@ -159,7 +159,7 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
                 const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                 return (
                   <div key={i} style={{display:'flex',alignItems:'flex-start',gap:6,marginBottom:5}}>
-                    <span style={{fontSize:'8pt',fontWeight:'bold',color:'white',background:color,padding:'1px 5px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0}}>{q.questionType}</span>
+                    <span style={{fontSize:'8pt',fontWeight:'bold',color:color,border:`1.5px solid ${color}`,padding:'1px 5px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0}}>{q.questionType}</span>
                     <div style={{flex:1}}>
                       <span style={{fontSize:'10pt',fontWeight:500,color:notAsked?'#aaa':color,opacity:notAsked?0.6:1,fontStyle:notAsked?'italic':'normal'}}>{q.questionText}</span>
                       {notAsked && <span style={{fontSize:'9pt',color:'#aaa',fontStyle:'italic'}}> (not asked)</span>}

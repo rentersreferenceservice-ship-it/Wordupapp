@@ -107,7 +107,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 ? (
                   <div className="flex flex-wrap gap-1.5">
                     {sessionStateRecord.capturedAnswer.split(', ').filter(Boolean).map((s, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs text-indigo-700 font-medium">{s}</span>
+                      <span key={i} className="px-2.5 py-1 rounded-full border-2 border-indigo-500 text-xs text-indigo-700 font-medium">{s}</span>
                     ))}
                   </div>
                 )
@@ -183,7 +183,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                     const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                     return (
                       <div key={i} className="flex items-start gap-3 text-sm print-question mb-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white shrink-0 mt-0.5" style={{ backgroundColor: color }}>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0 mt-0.5" style={{ color, border: `1.5px solid ${color}` }}>
                           {q.questionType}
                         </span>
                         <div className="flex-1">
