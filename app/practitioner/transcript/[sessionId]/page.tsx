@@ -70,16 +70,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     <div className="min-h-screen bg-gray-50">
       <style>{`
         @media print {
-          @page { margin: 0.5in; size: letter; }
-          body { font-size: 9pt !important; line-height: 1.2 !important; }
-          * { line-height: 1.2 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          h1 { font-size: 13pt !important; }
-          h2 { font-size: 9pt !important; margin-bottom: 4px !important; }
-          p { margin: 1px 0 !important; font-size: 8pt !important; }
-          .print-card { padding: 6px 8px !important; margin-bottom: 4px !important; border-radius: 4px !important; border: 1px solid #e5e7eb !important; }
-          .print-stat { padding: 4px !important; }
-          .print-keyword { padding: 2px 6px !important; font-size: 7.5pt !important; }
-          .print-question { padding: 3px 6px !important; gap: 4px !important; }
+          @page { margin: 0.6in; size: letter; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          body { background: white !important; }
         }
       `}</style>
       <div className="max-w-3xl mx-auto px-6 py-8 print:px-0 print:py-0">
