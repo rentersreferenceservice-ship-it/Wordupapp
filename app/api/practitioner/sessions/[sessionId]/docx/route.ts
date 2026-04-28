@@ -61,8 +61,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
   const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
   const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
-  const misspokePct = totalLetters > 0 ? Math.round((totalMisspokes / totalLetters) * 100) : 0
-  const correctPct = 100 - misspokePct
+  const totalPokes = totalLetters + totalMisspokes
+  const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
+  const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
   const dateStr = new Date(session.session_date + 'T00:00:00').toLocaleDateString()
 
   const children: Paragraph[] = [
@@ -93,7 +94,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
     // Stats
     para('Session Summary', { bold: true, size: 24, spacing: 60 }),
-    para(`Total Letters Poked: ${totalLetters}   |   Total Misspokes: ${totalMisspokes}   |   Correct: ${correctPct}%  (${misspokePct}% misspoke)`, { size: 22, spacing: 200 }),
+    para(`Letters to poke: ${totalLetters}   |   Misspokes: ${totalMisspokes}   |   Total pokes: ${totalPokes}   |   Accuracy: ${correctPct}%  (${misspokePct}% error rate)`, { size: 22, spacing: 200 }),
   ]
 
   // Per-hunk detail

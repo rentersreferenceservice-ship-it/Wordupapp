@@ -44,8 +44,9 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
   const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
   const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
-  const misspokePct = totalLetters > 0 ? Math.round((totalMisspokes / totalLetters) * 100) : 0
-  const correctPct = 100 - misspokePct
+  const totalPokes = totalLetters + totalMisspokes
+  const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
+  const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
 
   return (
     <html>
@@ -95,8 +96,8 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
         <div style={{display:'flex',gap:32,marginBottom:14,paddingBottom:10,borderBottom:'1px solid #ddd'}}>
           {[
             { val: totalLetters, label: 'Total Letters Poked', color: '#2563eb' },
-            { val: totalMisspokes, label: 'Total Misspokes', color: '#dc2626' },
-            { val: `${correctPct}%`, label: `Correct / ${misspokePct}% misspoke`, color: '#15803d' },
+            { val: totalMisspokes, label: 'Misspokes', color: '#dc2626' },
+            { val: `${correctPct}%`, label: `Accuracy (${misspokePct}% error rate)`, color: '#15803d' },
           ].map((s, i) => (
             <div key={i} style={{textAlign:'center'}}>
               <div style={{fontSize:'18pt',fontWeight:'bold',color:s.color}}>{s.val}</div>
