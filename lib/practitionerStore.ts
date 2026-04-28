@@ -190,7 +190,7 @@ export async function saveSessionResponses(sessionId: string, responses: Omit<Se
 
   const toRow = (r: Omit<SessionResponse, 'id' | 'sessionId'>) => ({
     session_id: sessionId,
-    hunk_number: (r.hunkNumber ?? 0) > 0 ? r.hunkNumber : null,
+    hunk_number: (r.hunkNumber ?? 0) > 0 ? r.hunkNumber : -1,
     keyword: r.keyword ?? null,
     misspoke_count: r.misspokeCount ?? 0,
     question_type: r.questionType,
@@ -210,11 +210,7 @@ export async function saveSessionResponses(sessionId: string, responses: Omit<Se
 
   if (specialRows.length > 0) {
     const { error } = await getSupabase().from('session_responses').insert(specialRows.map(toRow))
-    if (error) {
-      // Special records (notes/state) failed — likely a DB constraint on hunk_number.
-      // Don't throw; regular session data is already saved.
-      console.error('Special record insert failed (notes/state may not be saved):', error.message)
-    }
+    if (error) throw new Error(`Notes/state save failed: ${error.message}`)
   }
 }
 
@@ -237,7 +233,7 @@ export async function getSessionResponses(sessionId: string): Promise<SessionRes
   return (data ?? []).map(d => ({
     id: d.id,
     sessionId: d.session_id,
-    hunkNumber: d.hunk_number,
+    hunkNumber: d.hunk_number < 0 ? null : d.hunk_number,
     keyword: d.keyword,
     misspokeCount: d.misspoke_count,
     questionType: d.question_type,

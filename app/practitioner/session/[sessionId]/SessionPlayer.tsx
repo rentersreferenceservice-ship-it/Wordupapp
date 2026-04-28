@@ -115,7 +115,10 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     setCaptures(prev => {
       const next = [...prev]
       const kws = [...next[currentHunk].keywords]
-      kws[idx] = { ...kws[idx], misspokeCount: Math.max(0, kws[idx].misspokeCount + delta) }
+      const newCount = Math.max(0, kws[idx].misspokeCount + delta)
+      // Tapping + means the word was asked — auto-mark it
+      const asked = delta > 0 ? true : kws[idx].asked
+      kws[idx] = { ...kws[idx], misspokeCount: newCount, asked }
       next[currentHunk] = { ...next[currentHunk], keywords: kws }
       return next
     })
@@ -125,7 +128,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     setCaptures(prev => {
       const next = [...prev]
       const qs = [...next[currentHunk].questions]
-      qs[idx] = { ...qs[idx], misspokeCount: Math.max(0, qs[idx].misspokeCount + delta) }
+      const newCount = Math.max(0, qs[idx].misspokeCount + delta)
+      const asked = delta > 0 ? true : qs[idx].asked
+      qs[idx] = { ...qs[idx], misspokeCount: newCount, asked }
       next[currentHunk] = { ...next[currentHunk], questions: qs }
       return next
     })
@@ -347,7 +352,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       <span className={`font-bold ${kw.asked ? 'text-gray-900' : 'text-gray-500'}`}>{kw.keyword}</span>
                       <span className="text-xs text-gray-400">{kw.keyword.replace(/\s/g, '').length} letters</span>
                     </div>
-                    <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} disabled={!kw.asked} />
+                    <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} />
                   </div>
                 ))}
               </div>
