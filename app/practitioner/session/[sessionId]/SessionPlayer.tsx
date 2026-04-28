@@ -72,7 +72,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       return {
         keywords: extractKeywords(hunk.text).map(k => {
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
-          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: saved?.capturedAnswer !== 'SKIPPED' }
+          // Default: unchecked. Only mark asked if previously saved as asked (not SKIPPED).
+          const prevAsked = saved ? saved.capturedAnswer !== 'SKIPPED' : false
+          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: prevAsked }
         }),
         questions: hunk.questions.map(q => {
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
@@ -85,7 +87,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             completedAnswers: saved && q.type === 'SEMI-OPEN'
               ? (saved.capturedAnswer ?? '').split(', ').filter(Boolean)
               : [],
-            asked: saved?.capturedAnswer !== 'NOT_ASKED',
+            asked: saved ? saved.capturedAnswer !== 'NOT_ASKED' : false,
           }
         }),
       }
@@ -316,19 +318,33 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           {/* Spelling words */}
           {capture.keywords.length > 0 && (
             <div className="mb-5 p-3 bg-gray-50 rounded-xl">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Spelling Words</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Spelling Words — tap word when asked</p>
+                <button
+                  onClick={() => {
+                    const allAsked = capture.keywords.every(k => k.asked)
+                    setCaptures(prev => {
+                      const next = [...prev]
+                      next[currentHunk] = { ...next[currentHunk], keywords: next[currentHunk].keywords.map(k => ({ ...k, asked: !allAsked })) }
+                      return next
+                    })
+                  }}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  {capture.keywords.every(k => k.asked) ? 'Unmark all' : 'Mark all asked'}
+                </button>
+              </div>
               <div className="space-y-2">
                 {capture.keywords.map((kw, i) => (
-                  <div key={i} className={`flex items-center justify-between rounded-lg px-2 py-1 transition-colors ${kw.asked ? '' : 'opacity-40'}`}>
+                  <div key={i} className={`flex items-center justify-between rounded-lg px-2 py-1 transition-colors ${kw.asked ? '' : 'opacity-50'}`}>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => toggleKeywordAsked(i)}
                         className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${kw.asked ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white'}`}
-                        title={kw.asked ? 'Mark as not asked' : 'Mark as asked'}
                       >
                         {kw.asked && <span className="text-xs font-bold">✓</span>}
                       </button>
-                      <span className={`font-bold ${kw.asked ? 'text-gray-900' : 'text-gray-400 line-through'}`}>{kw.keyword}</span>
+                      <span className={`font-bold ${kw.asked ? 'text-gray-900' : 'text-gray-500'}`}>{kw.keyword}</span>
                       <span className="text-xs text-gray-400">{kw.keyword.replace(/\s/g, '').length} letters</span>
                     </div>
                     <MisspokeCounter value={kw.misspokeCount} onChange={d => updateKeywordMisspoke(i, d)} disabled={!kw.asked} />
@@ -355,11 +371,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       onClick={() => toggleQuestionAsked(i)}
                       className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${q.asked ? 'border-transparent text-white' : 'border-gray-300 bg-white'}`}
                       style={q.asked ? { backgroundColor: color, borderColor: color } : {}}
-                      title={q.asked ? 'Mark as not asked' : 'Mark as asked'}
+                      title="Tap when question is asked"
                     >
                       {q.asked && <span className="text-xs font-bold">✓</span>}
                     </button>
-                    <p className={`text-sm font-semibold ${q.asked ? '' : 'line-through text-gray-400'}`} style={q.asked ? { color } : {}}>{q.questionText}</p>
+                    <p className={`text-sm font-semibold ${q.asked ? '' : 'text-gray-400'}`} style={q.asked ? { color } : {}}>{q.questionText}</p>
                   </div>
 
                   {/* KNOWN — answer + misspoke counter */}
