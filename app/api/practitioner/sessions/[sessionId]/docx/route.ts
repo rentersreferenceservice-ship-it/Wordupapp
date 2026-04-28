@@ -16,6 +16,15 @@ const QUESTION_LABELS: Record<string, string> = {
   KEYWORD: 'Spelling',
 }
 
+const QUESTION_COLORS_HEX: Record<string, string> = {
+  KNOWN: '15803d',
+  'SEMI-OPEN': 'f97316',
+  'PRIOR KNOWLEDGE': '2563eb',
+  MATH: '7e22ce',
+  VAKT: 'dc2626',
+  OPEN: 'db2777',
+}
+
 function para(text: string, opts?: { bold?: boolean; size?: number; color?: string; italic?: boolean; spacing?: number }) {
   return new Paragraph({
     spacing: { after: opts?.spacing ?? 80 },
@@ -131,35 +140,42 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
     for (const q of hunkQuestions) {
       const label = QUESTION_LABELS[q.questionType] ?? q.questionType
+      const qColor = QUESTION_COLORS_HEX[q.questionType] ?? '555555'
       const notAsked = q.capturedAnswer === 'NOT_ASKED'
+      const skipped = q.capturedAnswer === 'SKIP'
       const completed = q.capturedAnswer === 'COMPLETED'
-      const hasTextAnswer = q.capturedAnswer && !notAsked && q.capturedAnswer !== 'SKIP' && !completed
+      const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+      const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
+
       let answerText = ''
       if (notAsked) answerText = '(not asked this session)'
       else if (completed) answerText = '✓ Activity completed'
+      else if (skipped) answerText = '(skipped)'
       else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
       else if (q.expectedAnswer) answerText = `Expected: ${q.expectedAnswer}`
 
-      const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
-
       children.push(
         new Paragraph({
-          spacing: { after: isOpen ? 40 : 80 },
+          spacing: { after: 40 },
           children: [
-            new TextRun({ text: `[${label}]  `, bold: true, size: 20, color: '555555' }),
-            new TextRun({ text: q.questionText, size: 22, italics: notAsked, color: notAsked ? 'aaaaaa' : '111111' }),
+            new TextRun({ text: `[${label}]  `, bold: true, size: 20, color: qColor }),
+            new TextRun({ text: q.questionText, size: 22, bold: true, italics: notAsked, color: notAsked ? 'aaaaaa' : qColor }),
             ...(answerText ? [new TextRun({ text: `  — ${answerText}`, size: 20, color: '666666' })] : []),
             ...(q.misspokeCount && q.misspokeCount > 0 && !notAsked ? [new TextRun({ text: `  ${'✗'.repeat(q.misspokeCount)}`, size: 20, color: 'dc2626' })] : []),
           ],
         })
       )
 
-      // Blank lines for open questions
-      if (isOpen && !notAsked) {
+      // Blank write-in line under every asked question (2 lines for open)
+      if (!notAsked && !skipped) {
         children.push(
-          new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
-          new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
+          new Paragraph({ spacing: { after: isOpen ? 0 : 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
         )
+        if (isOpen) {
+          children.push(
+            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
+          )
+        }
       }
     }
   }
