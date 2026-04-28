@@ -58,9 +58,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     byHunk[r.hunkNumber].push(r)
   }
 
-  const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-  const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
-  const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
+  const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null)
+  const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null)
+  const totalLetters =
+    spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
+    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0)
+  const totalMisspokes =
+    [...spellKeywords, ...spellKnown].reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
@@ -129,10 +133,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       const label = QUESTION_LABELS[q.questionType] ?? q.questionType
       const notAsked = q.capturedAnswer === 'NOT_ASKED'
       const completed = q.capturedAnswer === 'COMPLETED'
+      const hasTextAnswer = q.capturedAnswer && !notAsked && q.capturedAnswer !== 'SKIP' && !completed
       let answerText = ''
       if (notAsked) answerText = '(not asked this session)'
       else if (completed) answerText = '✓ Activity completed'
-      else if (q.capturedAnswer && q.capturedAnswer !== 'SKIP') answerText = `Response: ${q.capturedAnswer}`
+      else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
+      else if (q.expectedAnswer) answerText = `Expected: ${q.expectedAnswer}`
 
       const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
 
@@ -143,7 +149,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
             new TextRun({ text: `[${label}]  `, bold: true, size: 20, color: '555555' }),
             new TextRun({ text: q.questionText, size: 22, italics: notAsked, color: notAsked ? 'aaaaaa' : '111111' }),
             ...(answerText ? [new TextRun({ text: `  — ${answerText}`, size: 20, color: '666666' })] : []),
-            ...(q.misspokeCount && q.misspokeCount > 0 && !notAsked ? [new TextRun({ text: `  ${q.misspokeCount}✗`, size: 20, color: 'dc2626' })] : []),
+            ...(q.misspokeCount && q.misspokeCount > 0 && !notAsked ? [new TextRun({ text: `  ${'✗'.repeat(q.misspokeCount)}`, size: 20, color: 'dc2626' })] : []),
           ],
         })
       )

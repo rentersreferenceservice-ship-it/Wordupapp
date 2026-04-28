@@ -41,9 +41,13 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
     byHunk[r.hunkNumber].push(r)
   }
 
-  const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-  const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
-  const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
+  const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null)
+  const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null)
+  const totalLetters =
+    spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
+    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0)
+  const totalMisspokes =
+    [...spellKeywords, ...spellKnown].reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
@@ -147,18 +151,26 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
 
               {hunkQuestions.map((q, i) => {
                 const color = QUESTION_COLORS[q.questionType] ?? '#666'
+                const notAsked = q.capturedAnswer === 'NOT_ASKED'
+                const skipped = q.capturedAnswer === 'SKIP'
+                const completed = q.capturedAnswer === 'COMPLETED'
+                const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+                const misspokes = q.misspokeCount ?? 0
+                const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                 return (
                   <div key={i} style={{display:'flex',alignItems:'flex-start',gap:6,marginBottom:5}}>
                     <span style={{fontSize:'8pt',fontWeight:'bold',color:'white',background:color,padding:'1px 5px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0}}>{q.questionType}</span>
                     <div style={{flex:1}}>
-                      <span style={{fontSize:'10pt'}}>{q.questionText}</span>
-                      {q.capturedAnswer && q.capturedAnswer !== 'SKIP' && q.capturedAnswer !== 'COMPLETED' && (
-                        <span style={{fontSize:'9pt',color:'#555'}}> → {q.capturedAnswer}</span>
+                      <span style={{fontSize:'10pt',opacity:notAsked?0.4:1,fontStyle:notAsked?'italic':'normal'}}>{q.questionText}</span>
+                      {notAsked && <span style={{fontSize:'9pt',color:'#aaa',fontStyle:'italic'}}> (not asked)</span>}
+                      {skipped && <span style={{fontSize:'9pt',color:'#aaa'}}> skipped</span>}
+                      {completed && <span style={{fontSize:'9pt',color:'#15803d'}}> ✓</span>}
+                      {hasTextAnswer && <span style={{fontSize:'9pt',color:'#555'}}> → {q.capturedAnswer}</span>}
+                      {!hasTextAnswer && !notAsked && !skipped && !completed && q.expectedAnswer && (
+                        <span style={{fontSize:'9pt',color:'#999'}}> [expected: {q.expectedAnswer}]</span>
                       )}
-                      {q.capturedAnswer === 'SKIP' && <span style={{fontSize:'9pt',color:'#aaa'}}> skipped</span>}
-                      {q.capturedAnswer === 'COMPLETED' && <span style={{fontSize:'9pt',color:'#15803d'}}> ✓</span>}
-                      {(q.misspokeCount ?? 0) > 0 && <span style={{fontSize:'9pt',color:'#dc2626'}}> {q.misspokeCount}✗</span>}
-                      {(q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE') && (
+                      {misspokes > 0 && !notAsked && <span style={{fontSize:'9pt',color:'#dc2626',fontWeight:'bold'}}> {'✗'.repeat(misspokes)}</span>}
+                      {isOpenType && !notAsked && (
                         <div style={{marginTop:6}}>
                           <div style={{borderBottom:'1px solid #bbb',marginBottom:8,height:16}} />
                           <div style={{borderBottom:'1px solid #bbb',height:16}} />

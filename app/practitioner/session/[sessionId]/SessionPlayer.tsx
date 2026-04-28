@@ -72,8 +72,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       return {
         keywords: extractKeywords(hunk.text).map(k => {
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
-          const prevAsked = saved ? saved.capturedAnswer !== 'SKIPPED' : true
-          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: prevAsked }
+          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: true }
         }),
         questions: hunk.questions.map(q => {
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
@@ -86,7 +85,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             completedAnswers: saved && q.type === 'SEMI-OPEN'
               ? (saved.capturedAnswer ?? '').split(', ').filter(Boolean)
               : [],
-            asked: saved ? saved.capturedAnswer !== 'NOT_ASKED' : true,
+            asked: true,
           }
         }),
       }

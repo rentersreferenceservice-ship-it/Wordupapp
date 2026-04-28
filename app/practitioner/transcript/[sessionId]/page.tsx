@@ -55,9 +55,13 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     byHunk[r.hunkNumber].push(r)
   }
 
-  const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-  const totalLetters = keywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0)
-  const totalMisspokes = keywords.reduce((sum, k) => sum + (k.misspokeCount ?? 0), 0)
+  const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null)
+  const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null)
+  const totalLetters =
+    spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
+    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0)
+  const totalMisspokes =
+    [...spellKeywords, ...spellKnown].reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
@@ -91,10 +95,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
         <div className="print:hidden mb-4 bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-xs text-gray-600 space-y-1">
           <p className="font-bold text-yellow-800">Debug (temporary)</p>
           <p>Total responses saved: {responses.length}</p>
-          <p>KEYWORD responses: {responses.filter(r => r.questionType === 'KEYWORD').length}</p>
-          <p>KEYWORD not skipped: {keywords.length}</p>
           <p>Types found: {[...new Set(responses.map(r => r.questionType))].join(', ') || 'none'}</p>
-          <p>Keywords: {responses.filter(r => r.questionType === 'KEYWORD').map(k => `${k.keyword ?? 'NULL'}(ans:${JSON.stringify(k.capturedAnswer)},miss:${k.misspokeCount})`).join(' | ') || 'none'}</p>
+          <p>KEYWORD counted: {spellKeywords.length} | Letters: {spellKeywords.reduce((s,k)=>s+(k.keyword??'').replace(/\s/g,'').length,0)} | Misspokes: {spellKeywords.reduce((s,k)=>s+(k.misspokeCount??0),0)}</p>
+          <p>KNOWN counted: {spellKnown.length} | Letters: {spellKnown.reduce((s,q)=>s+(q.expectedAnswer??'').split('/').reduce((ss,a)=>ss+a.trim().replace(/\s/g,'').length,0),0)} | Misspokes: {spellKnown.reduce((s,q)=>s+(q.misspokeCount??0),0)}</p>
+          <p>Keywords: {responses.filter(r=>r.questionType==='KEYWORD').map(k=>`${k.keyword??'NULL'}(h${k.hunkNumber},ans:${JSON.stringify(k.capturedAnswer)},miss:${k.misspokeCount})`).join(' | ')||'none'}</p>
         </div>
 
         {/* Header */}
@@ -188,28 +192,40 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   <p className="text-xs font-semibold text-gray-500 mb-2">Questions</p>
                   {hunkQuestions.map((q, i) => {
                     const color = QUESTION_COLORS[q.questionType] ?? '#666'
+                    const notAsked = q.capturedAnswer === 'NOT_ASKED'
+                    const skipped = q.capturedAnswer === 'SKIP'
+                    const completed = q.capturedAnswer === 'COMPLETED'
+                    const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+                    const misspokes = q.misspokeCount ?? 0
+                    const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                     return (
                       <div key={i} className="flex items-start gap-3 text-sm print-question mb-2">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white shrink-0 mt-0.5" style={{ backgroundColor: color }}>
                           {q.questionType}
                         </span>
                         <div className="flex-1">
-                          <p className="text-gray-700">{q.questionText}</p>
-                          {q.capturedAnswer && q.capturedAnswer !== 'SKIP' && q.capturedAnswer !== 'COMPLETED' && (
+                          <p className={`text-gray-700 ${notAsked ? 'opacity-40 italic' : ''}`}>{q.questionText}</p>
+                          {notAsked && <p className="text-xs text-gray-400 mt-0.5 italic">Not asked this session</p>}
+                          {skipped && <p className="text-xs text-gray-400 mt-0.5">Skipped</p>}
+                          {completed && <p className="text-xs text-green-600 mt-0.5">✓ Activity completed</p>}
+                          {hasTextAnswer && (
                             <p className="text-xs mt-0.5">
                               <span className="text-gray-400">Response: </span>
                               <span className="font-semibold text-gray-800">{q.capturedAnswer}</span>
-                              {q.questionType !== 'OPEN' && q.questionType !== 'PRIOR KNOWLEDGE' && (
+                              {!isOpenType && (
                                 <span className={`ml-2 font-semibold ${q.capturedAnswer === 'correct' || q.capturedAnswer === q.expectedAnswer ? 'text-green-600' : 'text-orange-500'}`}>
                                   {q.capturedAnswer === 'correct' || q.capturedAnswer === q.expectedAnswer ? '✓' : '✗'}
                                 </span>
                               )}
                             </p>
                           )}
-                          {q.capturedAnswer === 'SKIP' && <p className="text-xs text-gray-400 mt-0.5">Skipped</p>}
-                          {q.capturedAnswer === 'NOT_ASKED' && <p className="text-xs text-gray-400 mt-0.5 italic">Not asked this session</p>}
-                          {q.capturedAnswer === 'COMPLETED' && <p className="text-xs text-green-600 mt-0.5">✓ Activity completed</p>}
-                          {(q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE') && (
+                          {!hasTextAnswer && !notAsked && !skipped && !completed && q.expectedAnswer && (
+                            <p className="text-xs mt-0.5 text-gray-400">Expected: <span className="font-semibold text-gray-600">{q.expectedAnswer}</span></p>
+                          )}
+                          {misspokes > 0 && !notAsked && (
+                            <p className="text-xs text-red-600 font-semibold mt-0.5">{'✗'.repeat(misspokes)}</p>
+                          )}
+                          {isOpenType && !notAsked && (
                             <div className="mt-1.5 space-y-1 print:mt-2">
                               <div className="border-b border-gray-300 w-full h-5" />
                               <div className="border-b border-gray-300 w-full h-5" />
