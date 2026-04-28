@@ -56,7 +56,7 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
     <html>
       <head>
         <style>{`
-          * { margin: 0; padding: 0; box-sizing: border-box; }
+          * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.4; color: #111; background: white; }
           @page { margin: 0.75in; size: letter; }
           .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #111; }
