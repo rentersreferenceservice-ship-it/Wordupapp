@@ -23,4 +23,5 @@ export interface Lesson {
   hunks: Hunk[]
   citations: string[]
   hashtags: string[]
+  practitionerId?: string
 }

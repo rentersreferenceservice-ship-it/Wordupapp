@@ -64,9 +64,12 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
       <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm">
         <div>
           <Link href="/practitioner/dashboard" className="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors mb-3">← Dashboard</Link>
-          <h1 className="text-2xl font-bold text-gray-900">Lesson Library</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-2xl font-bold text-gray-900">My Lesson Library</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} — private to your portal</p>
         </div>
+        <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shrink-0">
+          + Generate Lesson
+        </Link>
       </div>
 
       {/* Search */}
@@ -97,8 +100,20 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
 
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <p>No lessons match these filters.</p>
-          <button onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }} className="text-blue-600 text-sm hover:underline mt-2">Clear filters</button>
+          {lessons.length === 0 ? (
+            <>
+              <p className="text-gray-500 font-medium mb-2">No lessons yet.</p>
+              <p className="text-sm mb-4">Generate your first private lesson to get started.</p>
+              <Link href="/practitioner/generate" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                + Generate a Lesson
+              </Link>
+            </>
+          ) : (
+            <>
+              <p>No lessons match these filters.</p>
+              <button onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }} className="text-blue-600 text-sm hover:underline mt-2">Clear filters</button>
+            </>
+          )}
         </div>
       ) : (
         <ul className="space-y-3">

@@ -11,6 +11,7 @@ export async function saveLesson(lesson: Lesson): Promise<void> {
     hunks: lesson.hunks,
     citations: lesson.citations,
     hashtags: lesson.hashtags ?? [],
+    practitioner_id: lesson.practitionerId ?? null,
   })
 }
 
@@ -21,7 +22,13 @@ export async function getLesson(id: string): Promise<Lesson | null> {
 }
 
 export async function listLessons(): Promise<Lesson[]> {
-  const { data } = await getSupabase().from('lessons').select('*').order('created_at', { ascending: false })
+  const { data } = await getSupabase().from('lessons').select('*').is('practitioner_id', null).order('created_at', { ascending: false })
+  if (!data) return []
+  return data.map(dbRowToLesson)
+}
+
+export async function listPractitionerLessons(practitionerId: string): Promise<Lesson[]> {
+  const { data } = await getSupabase().from('lessons').select('*').eq('practitioner_id', practitionerId).order('created_at', { ascending: false })
   if (!data) return []
   return data.map(dbRowToLesson)
 }
@@ -41,5 +48,6 @@ function dbRowToLesson(row: Record<string, unknown>): Lesson {
     hunks: row.hunks as Lesson['hunks'],
     citations: row.citations as string[],
     hashtags: row.hashtags as string[],
+    practitionerId: row.practitioner_id as string | undefined,
   }
 }
