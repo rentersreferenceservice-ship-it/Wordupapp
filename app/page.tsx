@@ -201,17 +201,6 @@ export default function HomePage() {
           </a>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mt-5">
-          <p className="text-sm font-semibold text-blue-800">Are you an S2C practitioner or CRP?</p>
-          <p className="text-xs text-blue-600 mt-0.5 mb-3">Session tracking, caseload management, and family transcripts — built for how S2C actually works.</p>
-          <a
-            href="/practitioner/pricing"
-            className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
-          >
-            View Practitioner Plans →
-          </a>
-          <p className="text-xs text-blue-500 mt-2">Already subscribed? <a href="/practitioner/dashboard" className="underline hover:text-blue-700">Go to your dashboard</a></p>
-        </div>
       </div>
     </main>
   )
