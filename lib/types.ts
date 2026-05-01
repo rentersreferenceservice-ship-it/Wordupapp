@@ -4,6 +4,7 @@ export interface Question {
   type: QuestionType
   question: string
   answer: string
+  youtubeQuery?: string
 }
 
 export interface Hunk {

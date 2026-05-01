@@ -156,6 +156,7 @@ VAKT (Visual/Auditory/Kinesthetic/Tactile):
   - Adults (18+): sophisticated sensory and reflective connections.
 - CRITICAL: VAKT questions must NOT copy or paraphrase words directly from the hunk text. They should use the topic as inspiration to create an original sensory experience. If the hunk says "Mozart played piano," the VAKT should not say "Imagine Mozart playing piano" — instead say "Close your eyes and imagine you are sitting at a grand piano. What do your fingers feel on the keys?" The sensory experience is original, not a restatement of the hunk.
 - Kinesthetic movement break answers are always blank — no answer listed.
+- Every VAKT question MUST include a "youtubeQuery" field: a 2-4 word search term that would find a short, relevant YouTube video to play during the sensory break. Keep it simple and searchable (e.g. "Mozart piano concerto", "monarch butterfly migration", "ocean waves sounds").
 - Visual, Auditory, Tactile VAKT answers are sensory responses separated by slashes.
 - Never use STUDENT CHOICE as a VAKT answer.
 
@@ -188,6 +189,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
       "imageQuery": "2-3 word Unsplash search term that best illustrates this hunk's content (e.g. 'Mozart violin', 'classical orchestra', 'music notes')",
       "questions": [
         { "type": "KNOWN", "question": "question text", "answer": "ANSWER IN ALL CAPS" },
+        { "type": "VAKT", "question": "sensory break prompt", "answer": "SENSORY RESPONSE / OPTIONS", "youtubeQuery": "2-4 word YouTube search for a short relevant video clip (e.g. 'Mozart symphony orchestra', 'frog jumping pond', 'ballet dance performance')" },
         ...
       ]
     },

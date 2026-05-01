@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
+import { generateQRDataUrl } from '@/lib/qrcode'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -34,13 +35,33 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     ? `data:image/jpeg;base64,${fs.readFileSync(logoPath).toString('base64')}`
     : null
 
+  // Pre-generate QR codes for VAKT questions
+  const qrMap: Record<string, string> = {}
+  await Promise.all(
+    lesson.hunks.flatMap(h =>
+      h.questions.map(async (q, qi) => {
+        if (q.type === 'VAKT' && q.youtubeQuery) {
+          qrMap[`${h.number}-${qi}`] = await generateQRDataUrl(q.youtubeQuery)
+        }
+      })
+    )
+  )
+
   const hunksHtml = lesson.hunks.map(hunk => {
-    const questionsHtml = hunk.questions.map(q => `
-      <div class="question">
-        <div style="color:${QUESTION_COLORS[q.type]};font-weight:bold;">${q.question}</div>
-        ${q.answer ? `<div class="answer">${q.answer}</div>` : ''}
-      </div>
-    `).join('')
+    const questionsHtml = hunk.questions.map((q, qi) => {
+      const qr = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined
+      return `
+        <div class="question">
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <div style="flex:1;">
+              <div style="color:${QUESTION_COLORS[q.type]};font-weight:bold;">${q.question}</div>
+              ${q.answer ? `<div class="answer">${q.answer}</div>` : ''}
+            </div>
+            ${qr ? `<div style="text-align:center;flex-shrink:0;"><img src="${qr}" width="72" height="72" alt="YouTube QR"/><div style="font-size:7pt;color:#aaa;margin-top:2px;">YouTube</div></div>` : ''}
+          </div>
+        </div>
+      `
+    }).join('')
 
     return `
       <div class="hunk">

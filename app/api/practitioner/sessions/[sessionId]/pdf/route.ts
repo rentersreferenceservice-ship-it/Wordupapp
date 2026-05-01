@@ -2,10 +2,12 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getPractitionerSubscription, getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
-import { Document, Page, View, Text, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine } from '@react-pdf/renderer'
+import { Document, Page, View, Text, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine, Image as PdfImage } from '@react-pdf/renderer'
 import React from 'react'
 import { getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import type { SessionAccuracy } from '@/lib/practitionerStore'
+import { getLesson } from '@/lib/lessonStore'
+import { generateQRDataUrl } from '@/lib/qrcode'
 
 export const dynamic = 'force-dynamic'
 
@@ -119,10 +121,25 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const { data: studentData } = await getSupabase()
     .from('students').select('name, age_group').eq('id', session.student_id).single()
 
-  const [responses, accuracyHistory] = await Promise.all([
+  const [responses, accuracyHistory, lesson] = await Promise.all([
     getSessionResponses(sessionId),
     getStudentAccuracyHistory(session.student_id, userId),
+    session.lesson_id ? getLesson(session.lesson_id) : Promise.resolve(null),
   ])
+
+  // Build QR code data URLs for VAKT questions
+  const qrMap: Record<string, string> = {}
+  if (lesson) {
+    await Promise.all(
+      lesson.hunks.flatMap(h =>
+        h.questions.map(async (q, qi) => {
+          if (q.type === 'VAKT' && q.youtubeQuery) {
+            qrMap[`${h.number}-${qi}`] = await generateQRDataUrl(q.youtubeQuery)
+          }
+        })
+      )
+    )
+  }
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -264,6 +281,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
             const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed && !isMath
             const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
             const miss = q.misspokeCount ?? 0
+            const isVakt = q.questionType === 'VAKT'
+            const qrDataUrl = isVakt ? qrMap[`${q.hunkNumber}-${i}`] : undefined
 
             let answerText = ''
             if (notAsked) answerText = 'Not asked this session'
@@ -284,6 +303,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
                   answerText ? React.createElement(Text, { style: s.qAnswer }, answerText) : null,
                   miss > 0 && !notAsked ? React.createElement(Text, { style: s.qMiss }, '✗'.repeat(miss)) : null,
                 ),
+                qrDataUrl ? React.createElement(View, { style: { alignItems: 'center', width: 56 } },
+                  React.createElement(PdfImage, { src: qrDataUrl, style: { width: 52, height: 52 } }),
+                  React.createElement(Text, { style: { fontSize: 6, color: '#aaa', marginTop: 1 } }, 'YouTube'),
+                ) : null,
               ),
               !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
               isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,

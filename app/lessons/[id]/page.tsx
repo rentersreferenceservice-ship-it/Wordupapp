@@ -5,6 +5,7 @@ import PrintButton from './PrintButton'
 import DeleteButton from './DeleteButton'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
+import { generateQRDataUrl } from '@/lib/qrcode'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
@@ -26,6 +27,17 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
 
   const { userId } = await auth()
   const isAdmin = userId === ADMIN_USER_ID
+
+  const qrMap: Record<string, string> = {}
+  await Promise.all(
+    lesson.hunks.flatMap(h =>
+      h.questions.map(async (q, qi) => {
+        if (q.type === 'VAKT' && q.youtubeQuery) {
+          qrMap[`${h.number}-${qi}`] = await generateQRDataUrl(q.youtubeQuery)
+        }
+      })
+    )
+  )
 
   return (
     <div className="min-h-screen">
@@ -71,14 +83,27 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             )}
             <p className="mb-3 text-gray-900 leading-relaxed">{hunk.text}</p>
             <div className="space-y-2 pl-2">
-              {hunk.questions.map((q, qi) => (
-                <div key={qi}>
-                  <span className={`font-medium ${QUESTION_COLORS[q.type]}`}>{q.question}</span>
-                  {q.answer && (
-                    <div className="ml-4 text-black font-normal">{q.answer}</div>
-                  )}
-                </div>
-              ))}
+              {hunk.questions.map((q, qi) => {
+                const qrDataUrl = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined
+                return (
+                  <div key={qi}>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <span className={`font-medium ${QUESTION_COLORS[q.type]}`}>{q.question}</span>
+                        {q.answer && (
+                          <div className="ml-4 text-black font-normal">{q.answer}</div>
+                        )}
+                      </div>
+                      {qrDataUrl && (
+                        <div className="shrink-0 text-center">
+                          <img src={qrDataUrl} alt="YouTube search QR" width={80} height={80} />
+                          <p className="text-[8pt] text-gray-400 mt-0.5">YouTube</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </section>
         ))}
