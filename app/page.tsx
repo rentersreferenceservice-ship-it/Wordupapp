@@ -201,6 +201,18 @@ export default function HomePage() {
           </a>
         </div>
       </div>
+
+      <div className="w-full max-w-lg mt-4 bg-indigo-50 border border-indigo-200 rounded-2xl px-6 py-5 text-center">
+        <p className="text-sm font-semibold text-indigo-900 mb-1">Are you an S2C practitioner or CRP?</p>
+        <p className="text-xs text-indigo-700 mb-3">Track sessions, manage your caseload, and generate family transcripts with the Practitioner Portal.</p>
+        <a
+          href="/practitioner/pricing"
+          className="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+        >
+          View Practitioner Plans →
+        </a>
+        <p className="text-xs text-indigo-500 mt-2">Already subscribed? <a href="/practitioner/dashboard" className="underline hover:text-indigo-700">Go to your dashboard</a></p>
+      </div>
     </main>
   )
 }
