@@ -193,9 +193,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
           new Paragraph({ spacing: { after: isOpen ? 0 : 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
         )
         if (isOpen) {
-          children.push(
-            new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }),
-          )
+          children.push(new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }))
+          children.push(new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }))
+          children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: '_'.repeat(80), size: 20, color: 'cccccc' })] }))
         }
       }
     }

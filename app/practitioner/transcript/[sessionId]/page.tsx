@@ -255,7 +255,11 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                           {!notAsked && !skipped && (
                             <div className="mt-1.5 space-y-1 print:mt-2">
                               <div className="border-b border-gray-300 w-full h-5" />
-                              {isOpenType && <div className="border-b border-gray-300 w-full h-5" />}
+                              {isOpenType && <>
+                                <div className="border-b border-gray-300 w-full h-5" />
+                                <div className="border-b border-gray-300 w-full h-5" />
+                                <div className="border-b border-gray-300 w-full h-5" />
+                              </>}
                             </div>
                           )}
                         </div>

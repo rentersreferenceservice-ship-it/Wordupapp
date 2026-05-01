@@ -262,7 +262,11 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
                       {!notAsked && !skipped && (
                         <div style={{marginTop:6}}>
                           <div style={{borderBottom:'1px solid #bbb',marginBottom:8,height:16}} />
-                          {isOpenType && <div style={{borderBottom:'1px solid #bbb',height:16}} />}
+                          {isOpenType && <>
+                            <div style={{borderBottom:'1px solid #bbb',marginBottom:8,height:16}} />
+                            <div style={{borderBottom:'1px solid #bbb',marginBottom:8,height:16}} />
+                            <div style={{borderBottom:'1px solid #bbb',height:16}} />
+                          </>}
                         </div>
                       )}
                     </div>

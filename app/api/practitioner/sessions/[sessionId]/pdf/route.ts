@@ -286,7 +286,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
                 ),
               ),
               !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
-              isOpen && !notAsked ? React.createElement(View, { style: s.writeLine }) : null,
+              isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
+              isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
+              isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
             )
           }),
         )
