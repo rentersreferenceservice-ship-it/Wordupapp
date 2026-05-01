@@ -352,6 +352,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               const isSemiOpen = q.questionType === 'SEMI-OPEN'
               const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
               const isVakt = q.questionType === 'VAKT'
+              const isMath = q.questionType === 'MATH'
               const answers = q.expectedAnswer.split('/').map(a => a.trim()).filter(Boolean)
 
               return (
@@ -423,6 +424,29 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       placeholder="Type student's response…"
                       className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                  )}
+
+                  {/* MATH — correct / incorrect */}
+                  {isMath && (
+                    <div className="space-y-2">
+                      {q.expectedAnswer && (
+                        <p className="text-xs text-gray-500">Answer: <span className="font-semibold text-purple-700">{q.expectedAnswer}</span></p>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setCapturedAnswer(i, q.capturedAnswer === 'correct' ? '' : 'correct')}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${q.capturedAnswer === 'correct' ? 'bg-purple-600 text-white' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'}`}
+                        >
+                          ✓ Correct
+                        </button>
+                        <button
+                          onClick={() => setCapturedAnswer(i, q.capturedAnswer === 'incorrect' ? '' : 'incorrect')}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${q.capturedAnswer === 'incorrect' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
+                        >
+                          ✗ Incorrect
+                        </button>
+                      </div>
+                    </div>
                   )}
 
                   {/* VAKT — completion toggle */}

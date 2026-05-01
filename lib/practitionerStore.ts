@@ -224,6 +224,67 @@ export async function getCompletedSessionIds(sessionIds: string[]): Promise<Set<
   return new Set((data ?? []).map((d: { session_id: string }) => d.session_id))
 }
 
+export interface SessionAccuracy {
+  sessionId: string
+  date: string
+  accuracy: number
+  lessonTitle: string
+}
+
+export async function getStudentAccuracyHistory(studentId: string, practitionerId: string): Promise<SessionAccuracy[]> {
+  const cutoff = new Date()
+  cutoff.setFullYear(cutoff.getFullYear() - 1)
+
+  const { data: sessions } = await getSupabase()
+    .from('sessions')
+    .select('id, session_date, lesson_title')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .gte('session_date', cutoff.toISOString().split('T')[0])
+    .order('session_date')
+
+  if (!sessions?.length) return []
+
+  const sessionIds = sessions.map(s => s.id)
+
+  const { data: completedRecords } = await getSupabase()
+    .from('session_responses')
+    .select('session_id')
+    .in('session_id', sessionIds)
+    .eq('question_type', 'SESSION_COMPLETE')
+
+  const completedIds = new Set((completedRecords ?? []).map(r => r.session_id))
+  const completedSessions = sessions.filter(s => completedIds.has(s.id))
+  if (!completedSessions.length) return []
+
+  const { data: responses } = await getSupabase()
+    .from('session_responses')
+    .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer')
+    .in('session_id', completedSessions.map(s => s.id))
+    .in('question_type', ['KEYWORD', 'KNOWN'])
+    .gt('hunk_number', 0)
+
+  type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null }
+  const bySession: Record<string, RawResponse[]> = {}
+  for (const r of responses ?? []) {
+    if (!bySession[r.session_id]) bySession[r.session_id] = []
+    bySession[r.session_id].push(r as RawResponse)
+  }
+
+  return completedSessions.flatMap(s => {
+    const rs = bySession[s.id] ?? []
+    const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
+    const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
+    const letters =
+      kw.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
+      kn.reduce((sum, q) => sum + (q.expected_answer ?? '').split('/').reduce((acc: number, a: string) => acc + a.trim().replace(/\s/g, '').length, 0), 0)
+    const misspokes = [...kw, ...kn].reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
+    const pokes = letters + misspokes
+    if (pokes === 0) return []
+    return [{ sessionId: s.id, date: s.session_date, accuracy: Math.round((letters / pokes) * 100), lessonTitle: s.lesson_title }]
+  })
+}
+
 export async function getSessionResponses(sessionId: string): Promise<SessionResponse[]> {
   const { data } = await getSupabase()
     .from('session_responses')

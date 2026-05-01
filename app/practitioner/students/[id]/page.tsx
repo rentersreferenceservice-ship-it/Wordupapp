@@ -1,11 +1,12 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getStudent, getSessions, getCompletedSessionIds } from '@/lib/practitionerStore'
+import { getPractitionerSubscription, getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import { listLessons } from '@/lib/lessonStore'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
 import DeleteStudentButton from './DeleteStudentButton'
 import DeleteSessionButton from './DeleteSessionButton'
+import AccuracyChart from '@/app/AccuracyChart'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +24,10 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     listLessons(),
   ])
 
-  const completedIds = await getCompletedSessionIds(sessions.map(s => s.id))
+  const [completedIds, accuracyHistory] = await Promise.all([
+    getCompletedSessionIds(sessions.map(s => s.id)),
+    getStudentAccuracyHistory(id, userId),
+  ])
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
 
@@ -49,6 +53,13 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         <h2 className="text-base font-semibold text-blue-900 mb-3">Start New Session</h2>
         <p className="text-sm text-blue-700 mb-4">Select a lesson from the library to run a live session with {student.name}.</p>
         <StartSessionButton studentId={id} studentName={student.name} lessons={lessons} />
+      </div>
+
+      {/* Accuracy trend */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h2 className="text-base font-semibold text-gray-900 mb-1">Accuracy — Past 12 Months</h2>
+        <p className="text-xs text-gray-400 mb-4">Spelling accuracy across completed sessions</p>
+        <AccuracyChart data={accuracyHistory} />
       </div>
 
       {/* Session History */}

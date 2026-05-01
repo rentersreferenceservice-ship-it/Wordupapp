@@ -2,8 +2,10 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getPractitionerSubscription, getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
-import { Document, Page, View, Text, StyleSheet, renderToBuffer } from '@react-pdf/renderer'
+import { Document, Page, View, Text, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine } from '@react-pdf/renderer'
 import React from 'react'
+import { getStudentAccuracyHistory } from '@/lib/practitionerStore'
+import type { SessionAccuracy } from '@/lib/practitionerStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +57,53 @@ const s = StyleSheet.create({
   footer: { position: 'absolute', bottom: '0.4in', left: '0.65in', right: '0.65in', textAlign: 'center', fontSize: 7, color: '#aaa' },
 })
 
+function renderPdfAccuracyChart(data: SessionAccuracy[], currentSessionId: string) {
+  if (data.length < 2) return []
+  const W = 460, H = 80
+  const padL = 28, padR = 8, padT = 6, padB = 18
+  const plotW = W - padL - padR
+  const plotH = H - padT - padB
+  const pts = data.map((d, i) => ({
+    x: padL + (i / (data.length - 1)) * plotW,
+    y: padT + (1 - d.accuracy / 100) * plotH,
+    isCurrent: d.sessionId === currentSessionId,
+  }))
+  const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const step = Math.max(1, Math.floor(data.length / 5))
+  const xIdxs = [...new Set([0, ...[1,2,3,4].map(n => n * step), data.length - 1])].filter(i => i < data.length)
+
+  return [
+    React.createElement(View, { style: { marginBottom: 8, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#ddd' } },
+      React.createElement(Text, { style: { fontSize: 7, fontFamily: 'Helvetica-Bold', color: '#888', textTransform: 'uppercase', marginBottom: 4 } }, 'Accuracy — Past 12 Months'),
+      React.createElement(Svg, { viewBox: `0 0 ${W} ${H}`, style: { width: '100%', height: H } },
+        // Grid lines
+        ...[0, 50, 100].map(pct => {
+          const y = (padT + (1 - pct / 100) * plotH).toFixed(1)
+          return React.createElement(SvgLine, { key: `g${pct}`, x1: String(padL), y1: y, x2: String(W - padR), y2: y, stroke: '#eeeeee', strokeWidth: '1' })
+        }),
+        // Line
+        React.createElement(Path, { d: pathD, fill: 'none', stroke: '#2563eb', strokeWidth: '1.5' }),
+        // Dots
+        ...pts.map((p, i) => React.createElement(Circle, { key: `d${i}`, cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: p.isCurrent ? '4' : '2.5', fill: p.isCurrent ? '#1d4ed8' : '#2563eb' })),
+        // X-axis date labels
+        ...xIdxs.map(i => {
+          const d = data[i]
+          const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          return React.createElement(SvgLine, { key: `l${i}`, x1: pts[i].x.toFixed(1), y1: String(H - padB + 2), x2: pts[i].x.toFixed(1), y2: String(H - padB + 2), stroke: 'none', strokeWidth: '0' })
+        }),
+      ),
+      // X-axis labels as a flex row below SVG (react-pdf SVG text is limited)
+      React.createElement(View, { style: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: padL, marginTop: 2 } },
+        ...xIdxs.map(i => {
+          const d = data[i]
+          const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          return React.createElement(Text, { key: `xl${i}`, style: { fontSize: 6, color: '#aaaaaa' } }, label)
+        }),
+      ),
+    ),
+  ]
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = await params
   const { userId } = await auth()
@@ -70,7 +119,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const { data: studentData } = await getSupabase()
     .from('students').select('name, age_group').eq('id', session.student_id).single()
 
-  const responses = await getSessionResponses(sessionId)
+  const [responses, accuracyHistory] = await Promise.all([
+    getSessionResponses(sessionId),
+    getStudentAccuracyHistory(session.student_id, userId),
+  ])
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -92,6 +144,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
   const dateStr = new Date(session.session_date + 'T00:00:00').toLocaleDateString()
+
+  const mathAsked = responses.filter(r => r.questionType === 'MATH' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
+  const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
+  const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
 
   const doc = React.createElement(Document, {},
     React.createElement(Page, { size: 'LETTER', style: s.page },
@@ -149,6 +207,23 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
         ),
       ),
 
+      // Math + Open secondary stats
+      ...(mathAnswered.length > 0 || openAsked.length > 0 ? [
+        React.createElement(View, { style: { flexDirection: 'row', gap: 8, marginBottom: 10, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#ddd' } },
+          ...(mathAnswered.length > 0 ? [React.createElement(View, { style: { ...s.statBox, backgroundColor: '#faf5ff', borderRadius: 6, padding: 6, flex: 1 } },
+            React.createElement(Text, { style: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: '#7e22ce' } }, `${mathCorrect}/${mathAnswered.length}`),
+            React.createElement(Text, { style: { ...s.statLabel, color: '#7e22ce', fontFamily: 'Helvetica-Bold' } }, 'Math Correct'),
+          )] : []),
+          ...(openAsked.length > 0 ? [React.createElement(View, { style: { ...s.statBox, backgroundColor: '#fdf2f8', borderRadius: 6, padding: 6, flex: 1 } },
+            React.createElement(Text, { style: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: '#db2777' } }, `${openAnswered}/${openAsked.length}`),
+            React.createElement(Text, { style: { ...s.statLabel, color: '#db2777', fontFamily: 'Helvetica-Bold' } }, 'Open Responses'),
+          )] : []),
+        ),
+      ] : []),
+
+      // Accuracy chart
+      ...renderPdfAccuracyChart(accuracyHistory, sessionId),
+
       // Per-hunk
       ...Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
         const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
@@ -180,7 +255,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
             const notAsked = q.capturedAnswer === 'NOT_ASKED'
             const skipped = q.capturedAnswer === 'SKIP'
             const completed = q.capturedAnswer === 'COMPLETED'
-            const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+            const isMath = q.questionType === 'MATH'
+            const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed && !isMath
             const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
             const miss = q.misspokeCount ?? 0
 
@@ -188,7 +264,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
             if (notAsked) answerText = 'Not asked this session'
             else if (completed) answerText = '✓ Activity completed'
             else if (skipped) answerText = 'Skipped'
-            else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
+            else if (isMath) {
+              if (q.capturedAnswer === 'correct') answerText = '✓ Correct'
+              else if (q.capturedAnswer === 'incorrect') answerText = '✗ Incorrect'
+              else answerText = q.expectedAnswer || ''
+            } else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
             else if (q.expectedAnswer) answerText = q.expectedAnswer
 
             return React.createElement(View, { key: i },

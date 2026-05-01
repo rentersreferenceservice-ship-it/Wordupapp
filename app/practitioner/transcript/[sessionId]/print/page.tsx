@@ -1,7 +1,51 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getSessionResponses } from '@/lib/practitionerStore'
+import { getPractitionerSubscription, getSessionResponses, getStudentAccuracyHistory } from '@/lib/practitionerStore'
+import type { SessionAccuracy } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
+
+function AccuracyChartSVG({ data }: { data: SessionAccuracy[] }) {
+  if (data.length < 2) {
+    if (data.length === 1) return (
+      <div style={{textAlign:'center',padding:'6px 0'}}>
+        <span style={{fontSize:'13pt',fontWeight:'bold',color:'#2563eb'}}>{data[0].accuracy}%</span>
+        <span style={{fontSize:'8pt',color:'#888',marginLeft:8}}>First session — more sessions will show a trend</span>
+      </div>
+    )
+    return null
+  }
+  const W = 480, H = 90
+  const padL = 32, padR = 10, padT = 8, padB = 22
+  const plotW = W - padL - padR
+  const plotH = H - padT - padB
+  const pts = data.map((d, i) => ({
+    x: padL + (i / (data.length - 1)) * plotW,
+    y: padT + (1 - d.accuracy / 100) * plotH,
+    accuracy: d.accuracy,
+    label: new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+  }))
+  const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const step = Math.max(1, Math.floor(data.length / 5))
+  const xIdxs = [...new Set([0, ...[1,2,3,4].map(n => n * step), data.length - 1])].filter(i => i < data.length)
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',display:'block'}}>
+      {[0,50,100].map(pct => {
+        const y = (padT + (1 - pct / 100) * plotH).toFixed(1)
+        return (
+          <g key={pct}>
+            <line x1={padL} y1={y} x2={W - padR} y2={y} stroke="#eeeeee" strokeWidth="1"/>
+            <text x={padL - 3} y={Number(y) + 3} fontSize="7" fill="#aaaaaa" textAnchor="end">{pct}%</text>
+          </g>
+        )
+      })}
+      <path d={pathD} fill="none" stroke="#2563eb" strokeWidth="1.5"/>
+      {pts.map((p, i) => <circle key={i} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r="2.5" fill="#2563eb"/>)}
+      {xIdxs.map(i => (
+        <text key={i} x={pts[i].x.toFixed(1)} y={H - 4} fontSize="7" fill="#aaaaaa" textAnchor="middle">{pts[i].label}</text>
+      ))}
+    </svg>
+  )
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +73,10 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const { data: studentData } = await getSupabase()
     .from('students').select('name, age_group').eq('id', session.student_id).single()
 
-  const responses = await getSessionResponses(sessionId)
+  const [responses, accuracyHistory] = await Promise.all([
+    getSessionResponses(sessionId),
+    getStudentAccuracyHistory(session.student_id, userId),
+  ])
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -51,6 +98,12 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
+
+  const mathAsked = responses.filter(r => r.questionType === 'MATH' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
+  const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
+  const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
 
   return (
     <html>
@@ -97,11 +150,11 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
           </div>
         </div>
 
-        <div style={{display:'flex',gap:32,marginBottom:14,paddingBottom:10,borderBottom:'1px solid #ddd'}}>
+        <div style={{display:'flex',gap:32,marginBottom:10,paddingBottom:10,borderBottom: mathAnswered.length === 0 && openAsked.length === 0 ? '1px solid #ddd' : 'none'}}>
           {[
-            { val: totalLetters, label: 'Total Letters Poked', color: '#2563eb' },
+            { val: totalLetters, label: 'Letters to Poke', color: '#2563eb' },
             { val: totalMisspokes, label: 'Misspokes', color: '#dc2626' },
-            { val: `${correctPct}%`, label: `Accuracy (${misspokePct}% error rate)`, color: '#15803d' },
+            { val: `${correctPct}%`, label: `Accuracy (${misspokePct}% error)`, color: '#15803d' },
           ].map((s, i) => (
             <div key={i} style={{textAlign:'center'}}>
               <div style={{fontSize:'18pt',fontWeight:'bold',color:s.color}}>{s.val}</div>
@@ -109,6 +162,29 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
             </div>
           ))}
         </div>
+        {(mathAnswered.length > 0 || openAsked.length > 0) && (
+          <div style={{display:'flex',gap:24,marginBottom:14,paddingBottom:10,borderBottom:'1px solid #ddd'}}>
+            {mathAnswered.length > 0 && (
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:'16pt',fontWeight:'bold',color:'#7e22ce'}}>{mathCorrect}/{mathAnswered.length}</div>
+                <div style={{fontSize:'9pt',color:'#7e22ce'}}>Math Correct</div>
+              </div>
+            )}
+            {openAsked.length > 0 && (
+              <div style={{textAlign:'center'}}>
+                <div style={{fontSize:'16pt',fontWeight:'bold',color:'#db2777'}}>{openAnswered}/{openAsked.length}</div>
+                <div style={{fontSize:'9pt',color:'#db2777'}}>Open Responses</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {accuracyHistory.length > 0 && (
+          <div style={{marginBottom:12,paddingBottom:10,borderBottom:'1px solid #ddd'}}>
+            <div style={{fontSize:'8pt',fontWeight:'bold',color:'#888',textTransform:'uppercase',marginBottom:4}}>Accuracy — Past 12 Months</div>
+            <AccuracyChartSVG data={accuracyHistory} />
+          </div>
+        )}
 
         {(sessionStateRecord?.capturedAnswer || sessionNotesRecord?.capturedAnswer) && (
           <div style={{marginBottom:12,paddingBottom:10,borderBottom:'1px solid #ddd'}}>
@@ -155,7 +231,8 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
                 const notAsked = q.capturedAnswer === 'NOT_ASKED'
                 const skipped = q.capturedAnswer === 'SKIP'
                 const completed = q.capturedAnswer === 'COMPLETED'
-                const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+                const isMathType = q.questionType === 'MATH'
+                const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed && !isMathType
                 const misspokes = q.misspokeCount ?? 0
                 const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                 return (
@@ -166,9 +243,15 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
                       {notAsked && <span style={{fontSize:'9pt',color:'#aaa',fontStyle:'italic'}}> (not asked)</span>}
                       {skipped && <span style={{fontSize:'9pt',color:'#aaa'}}> skipped</span>}
                       {completed && <span style={{fontSize:'9pt',color:'#15803d'}}> ✓</span>}
+                      {isMathType && !notAsked && !skipped && q.capturedAnswer && (
+                        <span style={{fontSize:'9pt',fontWeight:'bold',color:q.capturedAnswer==='correct'?'#15803d':'#dc2626'}}> {q.capturedAnswer==='correct'?'✓ Correct':'✗ Incorrect'}</span>
+                      )}
+                      {isMathType && !notAsked && !skipped && !q.capturedAnswer && q.expectedAnswer && (
+                        <span style={{fontSize:'9pt',color:'#999'}}> {q.expectedAnswer}</span>
+                      )}
                       {hasTextAnswer && <span style={{fontSize:'9pt',color:'#555'}}> → {q.capturedAnswer}</span>}
-                      {!hasTextAnswer && !notAsked && !skipped && !completed && q.expectedAnswer && (
-                        <span style={{fontSize:'9pt',color:'#999'}}> [expected: {q.expectedAnswer}]</span>
+                      {!hasTextAnswer && !isMathType && !notAsked && !skipped && !completed && q.expectedAnswer && (
+                        <span style={{fontSize:'9pt',color:'#999'}}> {q.expectedAnswer}</span>
                       )}
                       {misspokes > 0 && !notAsked && <span style={{fontSize:'9pt',color:'#dc2626',fontWeight:'bold'}}> {'✗'.repeat(misspokes)}</span>}
                       {!notAsked && !skipped && (

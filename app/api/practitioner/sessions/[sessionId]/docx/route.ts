@@ -79,6 +79,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
   const dateStr = new Date(session.session_date + 'T00:00:00').toLocaleDateString()
 
+  const mathAsked = responses.filter(r => r.questionType === 'MATH' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
+  const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
+  const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
+
   const children: Paragraph[] = [
     // Title
     new Paragraph({
@@ -107,7 +113,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
     // Stats
     para('Session Summary', { bold: true, size: 24, spacing: 60 }),
-    para(`Letters to poke: ${totalLetters}   |   Misspokes: ${totalMisspokes}   |   Total pokes: ${totalPokes}   |   Accuracy: ${correctPct}%  (${misspokePct}% error rate)`, { size: 22, spacing: 200 }),
+    para(`Letters to poke: ${totalLetters}   |   Misspokes: ${totalMisspokes}   |   Total pokes: ${totalPokes}   |   Accuracy: ${correctPct}%  (${misspokePct}% error rate)`, { size: 22, spacing: mathAnswered.length > 0 || openAsked.length > 0 ? 40 : 200 }),
+    ...(mathAnswered.length > 0 ? [para(`Math: ${mathCorrect}/${mathAnswered.length} correct`, { size: 22, color: '7e22ce', spacing: openAsked.length > 0 ? 40 : 200 })] : []),
+    ...(openAsked.length > 0 ? [para(`Open responses: ${openAnswered}/${openAsked.length} answered`, { size: 22, color: 'db2777', spacing: 200 })] : []),
   ]
 
   // Per-hunk detail
@@ -145,14 +153,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       const notAsked = q.capturedAnswer === 'NOT_ASKED'
       const skipped = q.capturedAnswer === 'SKIP'
       const completed = q.capturedAnswer === 'COMPLETED'
-      const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed
+      const isMath = q.questionType === 'MATH'
+      const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed && !isMath
       const isOpen = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
 
       let answerText = ''
       if (notAsked) answerText = '(not asked this session)'
       else if (completed) answerText = '✓ Activity completed'
       else if (skipped) answerText = '(skipped)'
-      else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
+      else if (isMath) {
+        if (q.capturedAnswer === 'correct') answerText = '✓ Correct'
+        else if (q.capturedAnswer === 'incorrect') answerText = '✗ Incorrect'
+        else answerText = q.expectedAnswer || ''
+      } else if (hasTextAnswer) answerText = `Response: ${q.capturedAnswer}`
       else if (q.expectedAnswer) answerText = q.expectedAnswer
 
       children.push(
