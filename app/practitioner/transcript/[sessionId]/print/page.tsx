@@ -103,7 +103,11 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
   const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
   const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
-  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
+  const openAnsweredItems = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '')
+  const openAnswered = openAnsweredItems.length
+  const openLetters = openAnsweredItems.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
+  const openMisspokes = openAnsweredItems.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+  const openPokes = openLetters + openMisspokes
 
   return (
     <html>
@@ -174,6 +178,7 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
               <div style={{textAlign:'center'}}>
                 <div style={{fontSize:'16pt',fontWeight:'bold',color:'#db2777'}}>{openAnswered}/{openAsked.length}</div>
                 <div style={{fontSize:'9pt',color:'#db2777'}}>Open Responses</div>
+                {openPokes > 0 && <div style={{fontSize:'8pt',color:'#db2777'}}>{openLetters}L · {openMisspokes}✗ · {openPokes} pokes</div>}
               </div>
             )}
           </div>

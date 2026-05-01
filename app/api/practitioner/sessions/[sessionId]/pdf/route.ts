@@ -149,7 +149,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
   const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
   const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
-  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
+  const openAnsweredItems = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '')
+  const openAnswered = openAnsweredItems.length
+  const openLetters = openAnsweredItems.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
+  const openMisspokes = openAnsweredItems.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+  const openPokes = openLetters + openMisspokes
 
   const doc = React.createElement(Document, {},
     React.createElement(Page, { size: 'LETTER', style: s.page },
@@ -217,6 +221,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
           ...(openAsked.length > 0 ? [React.createElement(View, { style: { ...s.statBox, backgroundColor: '#fdf2f8', borderRadius: 6, padding: 6, flex: 1 } },
             React.createElement(Text, { style: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: '#db2777' } }, `${openAnswered}/${openAsked.length}`),
             React.createElement(Text, { style: { ...s.statLabel, color: '#db2777', fontFamily: 'Helvetica-Bold' } }, 'Open Responses'),
+            ...(openPokes > 0 ? [React.createElement(Text, { style: { fontSize: 6, color: '#db2777', marginTop: 2 } }, `${openLetters}L · ${openMisspokes}✗ · ${openPokes} pokes`)] : []),
           )] : []),
         ),
       ] : []),

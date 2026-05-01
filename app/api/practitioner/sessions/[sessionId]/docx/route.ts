@@ -83,7 +83,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
   const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
   const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
-  const openAnswered = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
+  const openAnsweredItems = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '')
+  const openAnswered = openAnsweredItems.length
+  const openLetters = openAnsweredItems.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
+  const openMisspokes = openAnsweredItems.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+  const openPokes = openLetters + openMisspokes
 
   const children: Paragraph[] = [
     // Title
@@ -115,7 +119,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     para('Session Summary', { bold: true, size: 24, spacing: 60 }),
     para(`Letters to poke: ${totalLetters}   |   Misspokes: ${totalMisspokes}   |   Total pokes: ${totalPokes}   |   Accuracy: ${correctPct}%  (${misspokePct}% error rate)`, { size: 22, spacing: mathAnswered.length > 0 || openAsked.length > 0 ? 40 : 200 }),
     ...(mathAnswered.length > 0 ? [para(`Math: ${mathCorrect}/${mathAnswered.length} correct`, { size: 22, color: '7e22ce', spacing: openAsked.length > 0 ? 40 : 200 })] : []),
-    ...(openAsked.length > 0 ? [para(`Open responses: ${openAnswered}/${openAsked.length} answered`, { size: 22, color: 'db2777', spacing: 200 })] : []),
+    ...(openAsked.length > 0 ? [para(
+      `Open responses: ${openAnswered}/${openAsked.length} answered${openPokes > 0 ? `   |   ${openLetters} letters · ${openMisspokes} misspokes · ${openPokes} pokes` : ''}`,
+      { size: 22, color: 'db2777', spacing: 200 }
+    )] : []),
   ]
 
   // Per-hunk detail

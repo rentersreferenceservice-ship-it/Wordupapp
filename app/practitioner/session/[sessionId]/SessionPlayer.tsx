@@ -415,15 +415,24 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                     </div>
                   )}
 
-                  {/* OPEN / PRIOR KNOWLEDGE — text input */}
+                  {/* OPEN / PRIOR KNOWLEDGE — text input + misspoke counter */}
                   {isOpen && (
-                    <input
-                      type="text"
-                      value={q.capturedAnswer}
-                      onChange={e => setCapturedAnswer(i, e.target.value)}
-                      placeholder="Type student's response…"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={q.capturedAnswer}
+                        onChange={e => setCapturedAnswer(i, e.target.value)}
+                        placeholder="Type student's response…"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500">Misspoke:</span>
+                        <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
+                        {q.capturedAnswer && (
+                          <span className="text-xs text-gray-400">{q.capturedAnswer.replace(/\s/g, '').length} letters</span>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   {/* MATH — correct / incorrect */}
