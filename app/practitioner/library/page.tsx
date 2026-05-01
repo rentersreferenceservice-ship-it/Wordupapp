@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getPractitionerSubscription } from '@/lib/practitionerStore'
-import { listPractitionerLessons } from '@/lib/lessonStore'
+import { listPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import PractitionerLessonBrowser from './PractitionerLessonBrowser'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +13,12 @@ export default async function PractitionerLibraryPage() {
   const sub = await getPractitionerSubscription(userId)
   if (!sub) redirect('/practitioner/pricing')
 
-  const lessons = await listPractitionerLessons(userId)
+  const [privateLessons, publicLessons] = await Promise.all([
+    listPractitionerLessons(userId),
+    listLessons(),
+  ])
+
+  const lessons = [...privateLessons, ...publicLessons]
 
   return <PractitionerLessonBrowser lessons={lessons} />
 }

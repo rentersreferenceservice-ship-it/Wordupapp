@@ -64,8 +64,8 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
       <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm">
         <div>
           <Link href="/practitioner/dashboard" className="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors mb-3">← Dashboard</Link>
-          <h1 className="text-2xl font-bold text-gray-900">Practitioner Lesson Generator</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} — private to your portal</p>
+          <h1 className="text-2xl font-bold text-gray-900">Practitioner Library</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{lessons.filter(l => l.practitionerId).length} private · {lessons.filter(l => !l.practitionerId).length} public</p>
         </div>
         <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shrink-0">
           + Generate Lesson
@@ -103,7 +103,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           {lessons.length === 0 ? (
             <>
               <p className="text-gray-500 font-medium mb-2">No lessons yet.</p>
-              <p className="text-sm mb-4">Generate your first private lesson to get started.</p>
+              <p className="text-sm mb-4">Generate your first private lesson, or public lessons will appear here once created.</p>
               <Link href="/practitioner/generate" className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
                 + Generate a Lesson
               </Link>
@@ -119,8 +119,13 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
         <ul className="space-y-3">
           {filtered.map(lesson => (
             <li key={lesson.id}>
-              <Link href={`/lessons/${lesson.id}`} className="block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-blue-500 hover:shadow-md transition-all shadow-sm">
-                <div className="font-medium text-gray-900">{lesson.title}</div>
+              <Link href={`/practitioner/lessons/${lesson.id}`} className="block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-blue-500 hover:shadow-md transition-all shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-900">{lesson.title}</span>
+                  {!lesson.practitionerId && (
+                    <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Public</span>
+                  )}
+                </div>
                 <div className="text-sm text-gray-500 mt-0.5 flex gap-2 flex-wrap items-center">
                   <span className="font-semibold text-blue-600">#{lessonNumbers[lesson.id]}</span>
                   <span>·</span>

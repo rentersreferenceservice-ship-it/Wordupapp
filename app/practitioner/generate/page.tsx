@@ -33,7 +33,7 @@ export default function PractitionerGeneratePage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Generation failed')
-      router.push(`/lessons/${data.id}`)
+      router.push(`/practitioner/library`)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
       setLoading(false)

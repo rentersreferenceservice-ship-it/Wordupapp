@@ -30,7 +30,7 @@ export default async function PractitionerDashboard() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Link href="/" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/generate" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Lesson Generator
           </Link>
           <Link href="/practitioner/library" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
