@@ -134,7 +134,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       lesson.hunks.flatMap(h =>
         h.questions.map(async (q, qi) => {
           if (q.type === 'VAKT' && q.youtubeQuery) {
-            qrMap[`${h.number}-${qi}`] = await generateQRDataUrl(q.youtubeQuery)
+            qrMap[`${h.number}-${qi}`] = await generateQRDataUrl(q.youtubeVideoId, q.youtubeQuery)
           }
         })
       )

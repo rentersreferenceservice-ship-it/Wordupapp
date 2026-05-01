@@ -5,6 +5,10 @@ export interface Question {
   question: string
   answer: string
   youtubeQuery?: string
+  youtubeDescription?: string
+  youtubeVideoId?: string
+  youtubeVideoTitle?: string
+  youtubeDuration?: string
 }
 
 export interface Hunk {

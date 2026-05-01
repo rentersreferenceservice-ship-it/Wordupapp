@@ -36,7 +36,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
       h.questions.map(async (q, qi) => {
         if (q.type === 'VAKT' && q.youtubeQuery) {
           const key = `${h.number}-${qi}`
-          qrMap[key] = await generateQRDataUrl(q.youtubeQuery)
+          qrMap[key] = await generateQRDataUrl(q.youtubeVideoId, q.youtubeQuery)
         }
       })
     )
@@ -97,9 +97,12 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
                         )}
                       </div>
                       {qrDataUrl && (
-                        <div className="shrink-0 text-center">
-                          <img src={qrDataUrl} alt="YouTube search QR" width={80} height={80} />
-                          <p className="text-[8pt] text-gray-400 mt-0.5">YouTube</p>
+                        <div className="shrink-0 text-center" style={{maxWidth:96}}>
+                          <img src={qrDataUrl} alt="YouTube QR" width={80} height={80} />
+                          {q.youtubeDescription && <p className="text-[7pt] text-gray-600 mt-0.5 leading-tight">{q.youtubeDescription}</p>}
+                          {q.youtubeDuration && q.youtubeVideoTitle && (
+                            <p className="text-[7pt] text-gray-400 mt-0.5 leading-tight">{q.youtubeDuration} — {q.youtubeVideoTitle}</p>
+                          )}
                         </div>
                       )}
                     </div>

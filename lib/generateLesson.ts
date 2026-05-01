@@ -2,6 +2,14 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { Lesson, Hunk } from './types'
 import { v4 as uuidv4 } from 'uuid'
 
+function parseIsoDuration(iso: string): string {
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
+  if (!m) return ''
+  const h = parseInt(m[1] ?? '0'), min = parseInt(m[2] ?? '0'), s = parseInt(m[3] ?? '0')
+  if (h > 0) return `${h}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+  return `${min}:${String(s).padStart(2,'0')}`
+}
+
 const SYSTEM_PROMPT = `You are an expert Spelling to Communicate (S2C) lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
 You generate complete, clinically consistent S2C lessons with exactly 8 HUNKS.
@@ -157,6 +165,7 @@ VAKT (Visual/Auditory/Kinesthetic/Tactile):
 - CRITICAL: VAKT questions must NOT copy or paraphrase words directly from the hunk text. They should use the topic as inspiration to create an original sensory experience. If the hunk says "Mozart played piano," the VAKT should not say "Imagine Mozart playing piano" — instead say "Close your eyes and imagine you are sitting at a grand piano. What do your fingers feel on the keys?" The sensory experience is original, not a restatement of the hunk.
 - Kinesthetic movement break answers are always blank — no answer listed.
 - Every VAKT question MUST include a "youtubeQuery" field: a 2-4 word search term that would find a short, relevant YouTube video to play during the sensory break. Keep it simple and searchable (e.g. "Mozart piano concerto", "monarch butterfly migration", "ocean waves sounds").
+- Every VAKT question MUST also include a "youtubeDescription" field: one short sentence (under 10 words) describing what students will watch, written in active voice (e.g. "Watch a monarch butterfly migrate south", "Listen to Mozart's Piano Concerto No. 21", "See a volcano erupt in slow motion").
 - Visual, Auditory, Tactile VAKT answers are sensory responses separated by slashes.
 - Never use STUDENT CHOICE as a VAKT answer.
 
@@ -189,7 +198,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
       "imageQuery": "2-3 word Unsplash search term that best illustrates this hunk's content (e.g. 'Mozart violin', 'classical orchestra', 'music notes')",
       "questions": [
         { "type": "KNOWN", "question": "question text", "answer": "ANSWER IN ALL CAPS" },
-        { "type": "VAKT", "question": "sensory break prompt", "answer": "SENSORY RESPONSE / OPTIONS", "youtubeQuery": "2-4 word YouTube search for a short relevant video clip (e.g. 'Mozart symphony orchestra', 'frog jumping pond', 'ballet dance performance')" },
+        { "type": "VAKT", "question": "sensory break prompt", "answer": "SENSORY RESPONSE / OPTIONS", "youtubeQuery": "2-4 word YouTube search", "youtubeDescription": "Watch a monarch butterfly migrate south" },
         ...
       ]
     },
@@ -289,13 +298,48 @@ export async function generateLesson(topic: string, ageGroup: string): Promise<L
     }),
   }))
 
+  // Fetch YouTube short videos for VAKT questions
+  const youtubeKey = process.env.YOUTUBE_API_KEY
+  const hunksWithYoutube = youtubeKey
+    ? await Promise.all(correctedHunks.map(async hunk => ({
+        ...hunk,
+        questions: await Promise.all(hunk.questions.map(async q => {
+          const vaktQ = q as typeof q & { youtubeQuery?: string; youtubeDescription?: string }
+          if (q.type !== 'VAKT' || !vaktQ.youtubeQuery) return q
+          try {
+            const searchRes = await fetch(
+              `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(vaktQ.youtubeQuery)}&type=video&videoDuration=short&maxResults=1&safeSearch=strict&relevanceLanguage=en&key=${youtubeKey}`
+            )
+            if (!searchRes.ok) return q
+            const searchData = await searchRes.json()
+            const video = searchData.items?.[0]
+            if (!video) return q
+            const videoId: string = video.id.videoId
+            const videoTitle: string = video.snippet.title
+
+            const detailRes = await fetch(
+              `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${youtubeKey}`
+            )
+            if (!detailRes.ok) return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: videoTitle }
+            const detailData = await detailRes.json()
+            const iso = detailData.items?.[0]?.contentDetails?.duration ?? ''
+            const duration = parseIsoDuration(iso)
+
+            return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: videoTitle, youtubeDuration: duration }
+          } catch {
+            return q
+          }
+        })),
+      })))
+    : correctedHunks
+
   return {
     id: uuidv4(),
     topic,
     ageGroup,
     title: parsed.title,
     createdAt: new Date().toISOString(),
-    hunks: correctedHunks,
+    hunks: hunksWithYoutube as Lesson['hunks'],
     citations: parsed.citations,
     hashtags: parsed.hashtags ?? [],
   }
