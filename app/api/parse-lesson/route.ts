@@ -195,7 +195,12 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
     if (file.name.toLowerCase().endsWith('.pdf')) {
-      return NextResponse.json({ error: 'PDF files are not supported. Please save your lesson as a Word document (.docx) and upload that instead.' }, { status: 400 })
+      const base64 = buffer.toString('base64')
+      const result = await askClaude([
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,
+        { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
+      ])
+      return NextResponse.json(result)
     }
 
     // DOCX: parse XML directly for both text paragraphs and image embed positions
