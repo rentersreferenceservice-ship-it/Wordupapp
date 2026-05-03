@@ -194,15 +194,8 @@ export async function POST(request: Request) {
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const isPdf = file.name.toLowerCase().endsWith('.pdf')
-
-    if (isPdf) {
-      const base64 = buffer.toString('base64')
-      const result = await askClaude([
-        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,
-        { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
-      ])
-      return NextResponse.json(result)
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      return NextResponse.json({ error: 'PDF files are not supported. Please save your lesson as a Word document (.docx) and upload that instead.' }, { status: 400 })
     }
 
     // DOCX: parse XML directly for both text paragraphs and image embed positions
