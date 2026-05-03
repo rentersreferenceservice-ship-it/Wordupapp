@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     citations: citations || [],
     hashtags: [],
     practitionerId: scope === 'private' && userId ? userId : undefined,
+    isAiGenerated: false,
   }
 
   await saveLesson(lesson)

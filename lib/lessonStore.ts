@@ -12,6 +12,7 @@ export async function saveLesson(lesson: Lesson): Promise<void> {
     citations: lesson.citations,
     hashtags: lesson.hashtags ?? [],
     practitioner_id: lesson.practitionerId ?? null,
+    is_ai_generated: lesson.isAiGenerated ?? true,
   })
 }
 
@@ -49,5 +50,6 @@ function dbRowToLesson(row: Record<string, unknown>): Lesson {
     citations: row.citations as string[],
     hashtags: row.hashtags as string[],
     practitionerId: row.practitioner_id as string | undefined,
+    isAiGenerated: row.is_ai_generated !== false,
   }
 }

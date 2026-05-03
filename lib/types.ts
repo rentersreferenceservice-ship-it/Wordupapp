@@ -29,4 +29,5 @@ export interface Lesson {
   citations: string[]
   hashtags: string[]
   practitionerId?: string
+  isAiGenerated?: boolean
 }
