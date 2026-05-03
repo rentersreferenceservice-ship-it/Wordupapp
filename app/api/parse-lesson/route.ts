@@ -39,50 +39,48 @@ Uncolored text before the questions = hunk body text. Uncolored text right after
 
 For citations: Find every entry in any section headed References, Sources, Bibliography, Works Cited, or similar. Include ALL entries — do not omit any. Strip only the leading number or bullet (e.g. "1. Smith..." → "Smith..."). If no references section exists, return an empty array.`
 
-type RawElement =
-  | { type: 'text'; text: string; color: string | null }
-  | { type: 'image'; rId: string }
+interface RawParagraph {
+  pos: number
+  text: string
+  color: string | null
+}
 
-function extractDocxElements(xml: string): RawElement[] {
-  const result: RawElement[] = []
+// Extract text paragraphs with their XML character position
+function extractTextParagraphs(xml: string): RawParagraph[] {
+  const result: RawParagraph[] = []
   const paraRegex = /<w:p[ >][\s\S]*?<\/w:p>/g
-  let paraMatch
-
-  while ((paraMatch = paraRegex.exec(xml)) !== null) {
-    const para = paraMatch[0]
-
-    // Paragraph contains an embedded image — grab the relationship id
-    if (para.includes('<w:drawing')) {
-      // r:embed is the standard attribute; accept any rId value (not just rId\d+)
-      const rIdMatch = para.match(/r:embed="([^"]+)"/)
-      if (rIdMatch) {
-        result.push({ type: 'image', rId: rIdMatch[1] })
-        continue
-      }
-    }
-
+  let m
+  while ((m = paraRegex.exec(xml)) !== null) {
+    const para = m[0]
     const texts: string[] = []
     const tRegex = /<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>/g
     let tMatch
     while ((tMatch = tRegex.exec(para)) !== null) {
       texts.push(tMatch[1])
     }
-    const text = texts
-      .join('')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .trim()
-
+    const text = texts.join('')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').trim()
     if (!text) continue
-
     const colorMatch = para.match(/<w:color w:val="([0-9a-fA-F]{6})"/)
-    const color = colorMatch ? colorMatch[1].toLowerCase() : null
-
-    result.push({ type: 'text', text, color })
+    result.push({ pos: m.index, text, color: colorMatch ? colorMatch[1].toLowerCase() : null })
   }
+  return result
+}
 
+// Find all image embed references in the XML with their character positions
+function extractImageEmbeds(xml: string): Array<{ pos: number; rId: string }> {
+  const result: Array<{ pos: number; rId: string }> = []
+  const seen = new Set<string>()
+  // Match r:embed and r:id (VML format) - covers DrawingML and legacy picture elements
+  const pattern = /r:(?:embed|id)="([^"]+)"/g
+  let m
+  while ((m = pattern.exec(xml)) !== null) {
+    const rId = m[1]
+    if (!seen.has(rId)) {
+      seen.add(rId)
+      result.push({ pos: m.index, rId })
+    }
+  }
   return result
 }
 
@@ -135,27 +133,31 @@ async function uploadImage(buffer: Buffer, originalFilename: string): Promise<st
   return data.publicUrl
 }
 
-function formatElementsForClaude(elements: RawElement[]): string {
-  return elements.map(el => {
-    if (el.type === 'image') return null // images handled separately
-    if (el.color && el.color !== '000000' && el.color !== 'auto') {
-      return `[color:#${el.color}] ${el.text}`
+function formatParagraphsForClaude(paras: RawParagraph[]): string {
+  return paras.map(p => {
+    if (p.color && p.color !== '000000' && p.color !== 'auto') {
+      return `[color:#${p.color}] ${p.text}`
     }
-    return el.text
-  }).filter(Boolean).join('\n')
+    return p.text
+  }).join('\n')
 }
 
-// Build a map from the first 30 chars of a text paragraph → the image index that immediately precedes it
-function buildTextToImageMap(elements: RawElement[], rIdToIndex: Map<string, number>): Map<string, number> {
-  const map = new Map<string, number>()
-  let pendingIdx: number | null = null
-  for (const el of elements) {
-    if (el.type === 'image') {
-      pendingIdx = rIdToIndex.get(el.rId) ?? null
-    } else if (el.type === 'text' && pendingIdx !== null) {
-      const key = el.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
-      map.set(key, pendingIdx)
-      pendingIdx = null
+// Build map: first 30 chars of a text paragraph → the image URL that immediately precedes it in the XML
+function buildTextToImageUrlMap(
+  embeds: Array<{ pos: number; rId: string }>,
+  paras: RawParagraph[],
+  rIdToUrl: Map<string, string>
+): Map<string, string> {
+  const map = new Map<string, string>()
+  for (const embed of embeds) {
+    const url = rIdToUrl.get(embed.rId)
+    if (!url) continue
+    // Find the first text paragraph that appears AFTER this image in the XML
+    const nextPara = paras.find(p => p.pos > embed.pos)
+    if (nextPara) {
+      const key = nextPara.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
+      map.set(key, url)
+      console.log(`parse-lesson: image mapped to paragraph starting "${key.substring(0, 20)}…"`)
     }
   }
   return map
@@ -203,62 +205,46 @@ export async function POST(request: Request) {
       return NextResponse.json(result)
     }
 
-    // DOCX: extract paragraphs with color annotations + embedded image markers
+    // DOCX: parse XML directly for both text paragraphs and image embed positions
     const zip = await JSZip.loadAsync(buffer)
     const xmlFile = zip.file('word/document.xml')
     if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
 
     const xml = await xmlFile.async('string')
-    const elements = extractDocxElements(xml)
+    const paras = extractTextParagraphs(xml)
+    const embeds = extractImageEmbeds(xml)
 
-    // Build rId → imageIndex map and upload images to Supabase Storage
-    const rIdToIndex = new Map<string, number>()
-    const imageUrls: (string | null)[] = []
+    console.log(`parse-lesson: ${paras.length} text paragraphs, ${embeds.length} unique image embed(s):`, embeds.map(e => e.rId))
 
+    // Upload images and build rId → URL map
+    const rIdToUrl = new Map<string, string>()
     const relsFile = zip.file('word/_rels/document.xml.rels')
     if (relsFile) {
       const relsXml = await relsFile.async('string')
       const relMap = parseRelationships(relsXml)
+      console.log(`parse-lesson: image relationships:`, [...relMap.entries()])
 
-      const imageElements = elements.filter(el => el.type === 'image')
-      console.log(`parse-lesson: found ${imageElements.length} image element(s) in DOCX`)
-      console.log(`parse-lesson: relationship map has ${relMap.size} image relationship(s):`, [...relMap.entries()])
+      for (const { rId } of embeds) {
+        const target = relMap.get(rId)
+        if (!target) { console.log(`parse-lesson: rId "${rId}" not an image relationship`); continue }
 
-      for (const el of elements) {
-        if (el.type !== 'image') continue
-        if (rIdToIndex.has(el.rId)) continue // skip duplicate references to same image
-
-        const idx = rIdToIndex.size
-        rIdToIndex.set(el.rId, idx)
-
-        const target = relMap.get(el.rId) // e.g. "media/image1.png"
-        if (!target) {
-          console.warn(`parse-lesson: no relationship found for rId "${el.rId}"`)
-          imageUrls.push(null)
-          continue
-        }
-
-        const imagePath = `word/${target}`
-        const imageFile = zip.file(imagePath)
-        if (!imageFile) {
-          console.warn(`parse-lesson: image file not found in ZIP at "${imagePath}"`)
-          imageUrls.push(null)
-          continue
-        }
+        const imageFile = zip.file(`word/${target}`)
+        if (!imageFile) { console.warn(`parse-lesson: missing file word/${target}`); continue }
 
         const imgBuffer = Buffer.from(await imageFile.async('arraybuffer'))
         const filename = target.split('/').pop() || 'image.png'
-        console.log(`parse-lesson: uploading image "${filename}" (${imgBuffer.length} bytes)`)
+        console.log(`parse-lesson: uploading "${filename}" (${imgBuffer.length} bytes)`)
         const url = await uploadImage(imgBuffer, filename)
-        console.log(`parse-lesson: upload result for "${filename}":`, url ?? 'FAILED')
-        imageUrls.push(url)
+        console.log(`parse-lesson: upload → ${url ?? 'FAILED'}`)
+        if (url) rIdToUrl.set(rId, url)
       }
     }
 
-    // Map: first 30 chars of hunk body text → image index that precedes it in the document
-    const textToImageMap = buildTextToImageMap(elements, rIdToIndex)
+    // Map hunk body text (first 30 chars) → the image URL that precedes it in the XML
+    const textToImageUrl = buildTextToImageUrlMap(embeds, paras, rIdToUrl)
+    console.log(`parse-lesson: textToImageUrl has ${textToImageUrl.size} mapping(s)`)
 
-    const annotatedText = formatElementsForClaude(elements)
+    const annotatedText = formatParagraphsForClaude(paras)
 
     const result = await askClaude([
       {
@@ -267,17 +253,12 @@ export async function POST(request: Request) {
       },
     ])
 
-    // Assign images to hunks by matching hunk body text to the paragraph that follows each image in the document
+    // Match each hunk's body text to the image that preceded it in the document
     const hunks = result.hunks.map(hunk => {
       const key = hunk.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
-      const imgIdx = textToImageMap.get(key)
-      if (imgIdx !== undefined && imageUrls[imgIdx]) {
-        return { ...hunk, imageUrl: imageUrls[imgIdx] as string }
-      }
-      return hunk
+      const url = textToImageUrl.get(key)
+      return url ? { ...hunk, imageUrl: url } : hunk
     })
-
-    console.log(`parse-lesson: ${imageUrls.length} image(s) uploaded, textToImageMap keys:`, [...textToImageMap.keys()])
 
     return NextResponse.json({ title: result.title, hunks, citations: result.citations })
   } catch (e: unknown) {
