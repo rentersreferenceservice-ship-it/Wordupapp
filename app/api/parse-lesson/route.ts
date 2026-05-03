@@ -15,7 +15,6 @@ JSON format:
     {
       "number": 1,
       "text": "passage body text",
-      "imageIndex": 0,
       "questions": [
         { "type": "KNOWN", "question": "question text", "answer": "answer text or empty string" }
       ]
@@ -23,8 +22,6 @@ JSON format:
   ],
   "citations": ["citation 1", "citation 2"]
 }
-
-imageIndex: If an [IMAGE:N] marker appears immediately before or within a hunk's text block, set "imageIndex": N for that hunk. If a hunk has no adjacent image marker, omit "imageIndex" entirely.
 
 TYPE DEFINITIONS — classify each question using these rules in order:
 
@@ -138,12 +135,9 @@ async function uploadImage(buffer: Buffer, originalFilename: string): Promise<st
   return data.publicUrl
 }
 
-function formatElementsForClaude(elements: RawElement[], rIdToIndex: Map<string, number>): string {
+function formatElementsForClaude(elements: RawElement[]): string {
   return elements.map(el => {
-    if (el.type === 'image') {
-      const idx = rIdToIndex.get(el.rId)
-      return idx !== undefined ? `[IMAGE:${idx}]` : null
-    }
+    if (el.type === 'image') return null // images handled separately
     if (el.color && el.color !== '000000' && el.color !== 'auto') {
       return `[color:#${el.color}] ${el.text}`
     }
@@ -151,11 +145,25 @@ function formatElementsForClaude(elements: RawElement[], rIdToIndex: Map<string,
   }).filter(Boolean).join('\n')
 }
 
-type HunkWithIndex = Hunk & { imageIndex?: number }
+// Build a map from the first 30 chars of a text paragraph → the image index that immediately precedes it
+function buildTextToImageMap(elements: RawElement[], rIdToIndex: Map<string, number>): Map<string, number> {
+  const map = new Map<string, number>()
+  let pendingIdx: number | null = null
+  for (const el of elements) {
+    if (el.type === 'image') {
+      pendingIdx = rIdToIndex.get(el.rId) ?? null
+    } else if (el.type === 'text' && pendingIdx !== null) {
+      const key = el.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
+      map.set(key, pendingIdx)
+      pendingIdx = null
+    }
+  }
+  return map
+}
 
 async function askClaude(
   userContent: Parameters<Anthropic['messages']['create']>[0]['messages'][0]['content']
-): Promise<{ title: string; hunks: HunkWithIndex[]; citations: string[] }> {
+): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
   const client = new Anthropic()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const message = await (client.messages.create as any)({
@@ -172,7 +180,7 @@ async function askClaude(
   const json = JSON.parse(raw)
   return {
     title: json.title ?? '',
-    hunks: (json.hunks ?? []).map((h: HunkWithIndex, i: number) => ({ ...h, number: i + 1 })),
+    hunks: (json.hunks ?? []).map((h: Hunk, i: number) => ({ ...h, number: i + 1 })),
     citations: json.citations ?? [],
   }
 }
@@ -247,23 +255,29 @@ export async function POST(request: Request) {
       }
     }
 
-    const annotatedText = formatElementsForClaude(elements, rIdToIndex)
+    // Map: first 30 chars of hunk body text → image index that precedes it in the document
+    const textToImageMap = buildTextToImageMap(elements, rIdToIndex)
+
+    const annotatedText = formatElementsForClaude(elements)
 
     const result = await askClaude([
       {
         type: 'text',
-        text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored questions. [IMAGE:N] markers show where images appear — assign each to the nearest hunk.\n\n${annotatedText}`,
+        text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored questions. All other lines are body text or answers.\n\n${annotatedText}`,
       },
     ])
 
-    // Substitute imageIndex → actual uploaded URL
+    // Assign images to hunks by matching hunk body text to the paragraph that follows each image in the document
     const hunks = result.hunks.map(hunk => {
-      const { imageIndex, ...rest } = hunk
-      if (typeof imageIndex === 'number' && imageUrls[imageIndex]) {
-        return { ...rest, imageUrl: imageUrls[imageIndex] as string }
+      const key = hunk.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
+      const imgIdx = textToImageMap.get(key)
+      if (imgIdx !== undefined && imageUrls[imgIdx]) {
+        return { ...hunk, imageUrl: imageUrls[imgIdx] as string }
       }
-      return rest
+      return hunk
     })
+
+    console.log(`parse-lesson: ${imageUrls.length} image(s) uploaded, textToImageMap keys:`, [...textToImageMap.keys()])
 
     return NextResponse.json({ title: result.title, hunks, citations: result.citations })
   } catch (e: unknown) {
