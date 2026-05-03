@@ -25,7 +25,11 @@ export async function getLesson(id: string): Promise<Lesson | null> {
 }
 
 export async function listLessons(): Promise<Lesson[]> {
-  const { data } = await getSupabase().from('lessons').select('*').is('practitioner_id', null).order('created_at', { ascending: false })
+  const { data } = await getSupabase()
+    .from('lessons')
+    .select('*')
+    .is('practitioner_id', null)
+    .order('created_at', { ascending: false })
   if (!data) return []
   return data.map(dbRowToLesson)
 }

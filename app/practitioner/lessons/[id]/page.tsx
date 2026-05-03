@@ -28,6 +28,8 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
   const sub = await getPractitionerSubscription(userId)
   if (!sub) redirect('/practitioner/pricing')
 
+  const isAdmin = userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
+
   const lesson = await getLesson(id)
   if (!lesson) notFound()
 
@@ -59,8 +61,8 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           >
             Contact
           </a>
-          {lesson.practitionerId === userId && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
-          {lesson.practitionerId === userId && <DeleteButton redirectTo="/practitioner/library" />}
+          <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />
+          {isAdmin && <DeleteButton redirectTo="/practitioner/library" />}
         </div>
       </nav>
 

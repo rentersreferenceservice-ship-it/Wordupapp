@@ -160,6 +160,7 @@ const SUBJECTS = ['All Subjects', ...Object.keys(SUBJECT_KEYWORDS), 'Other']
 export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
+  const [search, setSearch] = useState('')
 
   // Build a lesson number per subject+ageGroup combo (oldest first = #1)
   const lessonNumbers = useMemo(() => {
@@ -178,9 +179,10 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
-      return ageMatch && subjectMatch
+      const searchMatch = !search || lesson.title.toLowerCase().includes(search.toLowerCase()) || lesson.topic?.toLowerCase().includes(search.toLowerCase())
+      return ageMatch && subjectMatch && searchMatch
     })
-  }, [lessons, ageFilter, subjectFilter])
+  }, [lessons, ageFilter, subjectFilter, search])
 
   return (
     <main className="relative z-10 min-h-screen px-4 py-10 max-w-2xl mx-auto">
@@ -200,6 +202,17 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search lessons…"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       {/* Filters */}
       <div className="flex gap-3 mb-6 flex-wrap">
         <select
@@ -216,9 +229,9 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
         >
           {SUBJECTS.map(s => <option key={s}>{s}</option>)}
         </select>
-        {(ageFilter !== 'All Ages' || subjectFilter !== 'All Subjects') && (
+        {(ageFilter !== 'All Ages' || subjectFilter !== 'All Subjects' || search) && (
           <button
-            onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects') }}
+            onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }}
             className="text-sm text-gray-400 hover:text-gray-700 underline"
           >
             Clear filters
@@ -234,7 +247,7 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <p>No lessons match these filters.</p>
-          <button onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects') }} className="text-blue-600 text-sm hover:underline mt-2">Clear filters</button>
+          <button onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }} className="text-blue-600 text-sm hover:underline mt-2">Clear filters</button>
         </div>
       ) : (
         <ul className="space-y-3">

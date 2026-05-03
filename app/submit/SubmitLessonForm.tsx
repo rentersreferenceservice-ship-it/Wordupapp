@@ -101,6 +101,10 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
     setHunks(prev => prev.map((h, i) => i !== hi ? h : { ...h, text: value }))
   }
 
+  function updateHunkImage(hi: number, field: 'imageUrl' | 'imageAlt', value: string) {
+    setHunks(prev => prev.map((h, i) => i !== hi ? h : { ...h, [field]: value || undefined }))
+  }
+
   function addQuestion(hi: number, position: number) {
     setHunks(prev => prev.map((h, i) => {
       if (i !== hi) return h
@@ -219,9 +223,29 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
               value={hunk.text}
               onChange={e => updateHunkText(hi, e.target.value)}
               rows={3}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 resize-none"
               placeholder="Hunk body text…"
             />
+            <div className="mb-4 space-y-1.5">
+              <label className="block text-xs font-medium text-gray-500">Image URL (optional)</label>
+              <input
+                value={hunk.imageUrl || ''}
+                onChange={e => updateHunkImage(hi, 'imageUrl', e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="https://…"
+              />
+              {hunk.imageUrl && (
+                <>
+                  <input
+                    value={hunk.imageAlt || ''}
+                    onChange={e => updateHunkImage(hi, 'imageAlt', e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Image description (alt text)"
+                  />
+                  <img src={hunk.imageUrl} alt={hunk.imageAlt || ''} className="w-full h-32 object-cover rounded-lg mt-1" onError={e => (e.currentTarget.style.display = 'none')} />
+                </>
+              )}
+            </div>
             <div>
               <InsertButton onClick={() => addQuestion(hi, 0)} />
               {hunk.questions.map((q, qi) => (
