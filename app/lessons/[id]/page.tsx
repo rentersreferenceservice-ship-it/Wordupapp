@@ -3,6 +3,7 @@ import { getLesson } from '@/lib/lessonStore'
 import type { QuestionType } from '@/lib/types'
 import PrintButton from './PrintButton'
 import DeleteButton from './DeleteButton'
+import EditTypesButton from './EditTypesButton'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
@@ -54,6 +55,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           >
             Contact
           </a>
+          {isAdmin && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
           {isAdmin && <DeleteButton />}
         </div>
       </nav>

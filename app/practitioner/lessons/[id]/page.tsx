@@ -6,6 +6,7 @@ import type { QuestionType } from '@/lib/types'
 import Link from 'next/link'
 import PrintButton from '@/app/lessons/[id]/PrintButton'
 import DeleteButton from '@/app/lessons/[id]/DeleteButton'
+import EditTypesButton from '@/app/lessons/[id]/EditTypesButton'
 import { generateQRDataUrl } from '@/lib/qrcode'
 
 export const dynamic = 'force-dynamic'
@@ -58,6 +59,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           >
             Contact
           </a>
+          {lesson.practitionerId === userId && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
           {lesson.practitionerId === userId && <DeleteButton redirectTo="/practitioner/library" />}
         </div>
       </nav>
