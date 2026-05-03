@@ -3,7 +3,7 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export default function DeleteButton() {
+export default function DeleteButton({ redirectTo = '/lessons' }: { redirectTo?: string }) {
   const params = useParams()
   const router = useRouter()
   const id = params?.id as string
@@ -13,7 +13,7 @@ export default function DeleteButton() {
   async function handleDelete() {
     setLoading(true)
     await fetch(`/api/lessons/${id}/delete`, { method: 'DELETE' })
-    router.push('/lessons')
+    router.push(redirectTo)
   }
 
   if (confirming) {

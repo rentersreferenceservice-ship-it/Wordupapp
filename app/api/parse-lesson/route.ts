@@ -1,117 +1,9 @@
 import { NextResponse } from 'next/server'
 import JSZip from 'jszip'
 import Anthropic from '@anthropic-ai/sdk'
-import type { Hunk, Question, QuestionType } from '@/lib/types'
+import type { Hunk } from '@/lib/types'
 
-const COLOR_TO_TYPE: Record<string, QuestionType> = {
-  '15803d': 'KNOWN',
-  'f97316': 'SEMI-OPEN',
-  '2563eb': 'PRIOR KNOWLEDGE',
-  '7e22ce': 'MATH',
-  'dc2626': 'VAKT',
-  'db2777': 'OPEN',
-}
-
-interface ParsedParagraph {
-  text: string
-  questionType: QuestionType | null
-}
-
-function parseDocxXml(xml: string): ParsedParagraph[] {
-  const result: ParsedParagraph[] = []
-  const paraRegex = /<w:p[ >][\s\S]*?<\/w:p>/g
-  let paraMatch
-
-  while ((paraMatch = paraRegex.exec(xml)) !== null) {
-    const para = paraMatch[0]
-
-    const texts: string[] = []
-    const tRegex = /<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>/g
-    let tMatch
-    while ((tMatch = tRegex.exec(para)) !== null) {
-      texts.push(tMatch[1])
-    }
-    const text = texts
-      .join('')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .trim()
-
-    if (!text) continue
-
-    let questionType: QuestionType | null = null
-    const colorRegex = /<w:color w:val="([0-9a-fA-F]{6})"/g
-    let colorMatch
-    while ((colorMatch = colorRegex.exec(para)) !== null) {
-      const t = COLOR_TO_TYPE[colorMatch[1].toLowerCase()]
-      if (t) { questionType = t; break }
-    }
-
-    result.push({ text, questionType })
-  }
-
-  return result
-}
-
-function buildLesson(paras: ParsedParagraph[]): { title: string; hunks: Hunk[]; citations: string[] } {
-  let title = ''
-  const hunks: Hunk[] = []
-  const citations: string[] = []
-  let inRefs = false
-  let hunkText = ''
-  let questions: Question[] = []
-  let lastWasQuestion = false
-
-  function flushHunk() {
-    if (hunkText || questions.length > 0) {
-      hunks.push({
-        number: hunks.length + 1,
-        text: hunkText.trim(),
-        questions: [...questions],
-      })
-      hunkText = ''
-      questions = []
-      lastWasQuestion = false
-    }
-  }
-
-  for (const { text, questionType } of paras) {
-    if (!title && !questionType) {
-      title = text
-      continue
-    }
-
-    if (/^references?(\s*:)?$/i.test(text.trim())) {
-      flushHunk()
-      inRefs = true
-      continue
-    }
-
-    if (inRefs) {
-      citations.push(text.replace(/^\d+\.\s*/, ''))
-      continue
-    }
-
-    if (questionType) {
-      questions.push({ type: questionType, question: text, answer: '' })
-      lastWasQuestion = true
-    } else if (lastWasQuestion && questions.length > 0 && !questions[questions.length - 1].answer) {
-      questions[questions.length - 1].answer = text
-      lastWasQuestion = false
-    } else {
-      if (questions.length > 0) flushHunk()
-      hunkText = hunkText ? hunkText + ' ' + text : text
-      lastWasQuestion = false
-    }
-  }
-
-  flushHunk()
-  return { title, hunks, citations }
-}
-
-const PDF_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson document.
+const CLASSIFY_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson document.
 Extract the complete lesson structure and return ONLY valid JSON — no markdown, no explanation.
 
 JSON format:
@@ -137,40 +29,74 @@ Question type rules — classify each question as exactly one of:
 - VAKT: a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
 - OPEN: open-ended opinion or personal response question
 
-If answers are present in the document, include them. If not, use empty string.
-Strip any numbering from citations (e.g. "1. Smith..." → "Smith...").`
+For Word documents, colored text lines are questions. Use the color as a strong hint:
+green → KNOWN, orange → SEMI-OPEN, blue → PRIOR KNOWLEDGE, purple → MATH, red → VAKT, pink → OPEN.
+When color and question wording disagree, trust the wording.
+Uncolored text before questions = hunk body text. Uncolored text immediately after a question = its answer.
 
-async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
-  // Validate PDF magic bytes
-  if (buffer.length < 4 || buffer.slice(0, 4).toString('ascii') !== '%PDF') {
-    throw new Error('File does not appear to be a valid PDF.')
+If answers are present, include them. If not, use empty string.
+Strip numbering from citations (e.g. "1. Smith..." → "Smith...").`
+
+interface RawParagraph {
+  text: string
+  color: string | null
+}
+
+function extractDocxParagraphs(xml: string): RawParagraph[] {
+  const result: RawParagraph[] = []
+  const paraRegex = /<w:p[ >][\s\S]*?<\/w:p>/g
+  let paraMatch
+
+  while ((paraMatch = paraRegex.exec(xml)) !== null) {
+    const para = paraMatch[0]
+
+    const texts: string[] = []
+    const tRegex = /<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>/g
+    let tMatch
+    while ((tMatch = tRegex.exec(para)) !== null) {
+      texts.push(tMatch[1])
+    }
+    const text = texts
+      .join('')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .trim()
+
+    if (!text) continue
+
+    const colorMatch = para.match(/<w:color w:val="([0-9a-fA-F]{6})"/)
+    const color = colorMatch ? colorMatch[1].toLowerCase() : null
+
+    result.push({ text, color })
   }
 
-  const client = new Anthropic()
-  const base64 = buffer.toString('base64')
+  return result
+}
 
+function formatDocxForClaude(paras: RawParagraph[]): string {
+  return paras.map(p => {
+    if (p.color && p.color !== '000000' && p.color !== 'auto') {
+      return `[color:#${p.color}] ${p.text}`
+    }
+    return p.text
+  }).join('\n')
+}
+
+async function askClaude(userContent: Parameters<Anthropic['messages']['create']>[0]['messages'][0]['content']): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
+  const client = new Anthropic()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const message = await (client.messages.create as any)({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'document',
-            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-          },
-          { type: 'text', text: PDF_PROMPT },
-        ],
-      },
-    ],
+    system: CLASSIFY_PROMPT,
+    messages: [{ role: 'user', content: userContent }],
   })
 
   const content = message.content[0]
   if (content.type !== 'text') throw new Error('Unexpected response from Claude')
 
-  // Strip markdown code fences if Claude wraps the JSON
   const raw = content.text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
   const json = JSON.parse(raw)
   return {
@@ -190,19 +116,30 @@ export async function POST(request: Request) {
     const isPdf = file.name.toLowerCase().endsWith('.pdf')
 
     if (isPdf) {
-      const result = await parsePdf(buffer)
+      if (buffer.length < 4 || buffer.slice(0, 4).toString('ascii') !== '%PDF') {
+        return NextResponse.json({ error: 'File does not appear to be a valid PDF.' }, { status: 400 })
+      }
+      const base64 = buffer.toString('base64')
+      const result = await askClaude([
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,
+        { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
+      ])
       return NextResponse.json(result)
     }
 
+    // DOCX: extract paragraphs with color annotations, send text to Claude
     const zip = await JSZip.loadAsync(buffer)
     const xmlFile = zip.file('word/document.xml')
     if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
 
     const xml = await xmlFile.async('string')
-    const paras = parseDocxXml(xml)
-    const { title, hunks, citations } = buildLesson(paras)
+    const paras = extractDocxParagraphs(xml)
+    const annotatedText = formatDocxForClaude(paras)
 
-    return NextResponse.json({ title, hunks, citations })
+    const result = await askClaude([
+      { type: 'text', text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored text (questions). All other lines are body text or answers.\n\n${annotatedText}` },
+    ])
+    return NextResponse.json(result)
   } catch (e: unknown) {
     console.error('parse-lesson error:', e)
     const msg = e instanceof Error ? e.message : 'Failed to parse lesson'

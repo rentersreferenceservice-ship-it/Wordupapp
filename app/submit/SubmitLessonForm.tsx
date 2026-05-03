@@ -42,7 +42,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
   const [hunks, setHunks] = useState<Hunk[]>([])
   const [citations, setCitations] = useState<string[]>([])
-  const [scope, setScope] = useState<'public' | 'private'>('private')
+  const [scope, setScope] = useState<'public' | 'private'>(practitionerMode ? 'private' : 'public')
 
   async function handleUpload() {
     const file = fileRef.current?.files?.[0]
