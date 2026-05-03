@@ -7,7 +7,7 @@ import type { Lesson } from '@/lib/types'
 export async function POST(request: Request) {
   const { userId } = await auth()
   const body = await request.json()
-  const { title, topic, ageGroup, hunks, citations, scope } = body
+  const { title, topic, ageGroup, hunks, citations, scope, author } = body
 
   const lesson: Lesson = {
     id: uuidv4(),
@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     hashtags: [],
     practitionerId: scope === 'private' && userId ? userId : undefined,
     isAiGenerated: false,
+    author: author || undefined,
   }
 
   await saveLesson(lesson)

@@ -30,4 +30,5 @@ export interface Lesson {
   hashtags: string[]
   practitionerId?: string
   isAiGenerated?: boolean
+  author?: string
 }

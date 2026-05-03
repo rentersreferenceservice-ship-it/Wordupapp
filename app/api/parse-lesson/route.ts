@@ -116,9 +116,6 @@ export async function POST(request: Request) {
     const isPdf = file.name.toLowerCase().endsWith('.pdf')
 
     if (isPdf) {
-      if (buffer.length < 4 || buffer.slice(0, 4).toString('ascii') !== '%PDF') {
-        return NextResponse.json({ error: 'File does not appear to be a valid PDF.' }, { status: 400 })
-      }
       const base64 = buffer.toString('base64')
       const result = await askClaude([
         { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,

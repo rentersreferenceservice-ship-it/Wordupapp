@@ -190,12 +190,14 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
           <h1 className="text-2xl font-bold text-gray-900">Saved Lessons</h1>
           <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} saved</p>
         </div>
-        <Link
-          href="/"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          + New Lesson
-        </Link>
+        <div className="flex flex-col gap-2 shrink-0">
+          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center">
+            + New Lesson
+          </Link>
+          <Link href="/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
+            Submit a Lesson
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

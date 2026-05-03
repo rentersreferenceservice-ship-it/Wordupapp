@@ -195,9 +195,12 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex justify-center gap-6">
           <a href="/lessons" className="text-sm text-blue-600 hover:underline">
             View lesson library
+          </a>
+          <a href="/submit" className="text-sm text-blue-600 hover:underline">
+            Submit a lesson
           </a>
         </div>
 

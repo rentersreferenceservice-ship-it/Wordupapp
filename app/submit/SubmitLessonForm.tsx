@@ -43,6 +43,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
   const [hunks, setHunks] = useState<Hunk[]>([])
   const [citations, setCitations] = useState<string[]>([])
   const [scope, setScope] = useState<'public' | 'private'>(practitionerMode ? 'private' : 'public')
+  const [author, setAuthor] = useState('')
 
   async function handleUpload() {
     const file = fileRef.current?.files?.[0]
@@ -106,7 +107,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
       const res = await fetch('/api/save-submitted-lesson', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, topic, ageGroup, hunks, citations, scope }),
+        body: JSON.stringify({ title, topic, ageGroup, hunks, citations, scope, author }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Save failed')
@@ -158,6 +159,10 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
             <input value={title} onChange={e => setTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Lesson title" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Author Name</label>
+            <input value={author} onChange={e => setAuthor(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Jane Smith" />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
