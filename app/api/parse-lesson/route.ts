@@ -3,8 +3,8 @@ import JSZip from 'jszip'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Hunk } from '@/lib/types'
 
-const CLASSIFY_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson document.
-Extract the complete lesson structure and return ONLY valid JSON — no markdown, no explanation.
+const CLASSIFY_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson following the Word Up 2025 SOP.
+Return ONLY valid JSON — no markdown, no explanation.
 
 JSON format:
 {
@@ -21,24 +21,19 @@ JSON format:
   "citations": ["citation 1", "citation 2"]
 }
 
-Question type rules — classify each question as exactly one of:
-- KNOWN (green): the answer comes directly from the passage text and there is only ONE correct answer
-- SEMI-OPEN (orange): the answer relates to the passage but MULTIPLE answers are possible, or requires inference/prediction
-- PRIOR KNOWLEDGE (blue): asks the student to draw on background knowledge or personal experience outside the text
-- MATH (purple): involves numbers, counting, or calculation
-- VAKT (red): a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
-- OPEN (pink): a purely open-ended opinion or personal response with no single correct answer
+TYPE DEFINITIONS — classify each question using these rules in order:
 
-Key distinction:
-- KNOWN = exactly ONE correct answer from the text. The answer field never contains a slash (/). If you see a slash in the answer, it is NOT KNOWN.
-- SEMI-OPEN = the answer contains a slash (e.g. INTELLIGENCE / MOTIVATION / UNDERSTANDING) meaning multiple responses are valid, OR the student must infer/predict. Any answer with a slash is automatically SEMI-OPEN.
+1. VAKT: The line is a movement or sensory instruction, not a question (e.g. "Do 10 jumping jacks", "Take a deep breath", "Stand up and stretch"). Always an action directive.
+2. MATH: The answer is a number, count, or calculation.
+3. SEMI-OPEN: The answer contains a slash / separating multiple valid responses (e.g. INTELLIGENCE / MOTIVATION / UNDERSTANDING). A slash anywhere in the answer = SEMI-OPEN, no exceptions.
+4. KNOWN: Single word or phrase answer taken directly from the passage. No slash. Only one correct answer possible.
+5. PRIOR KNOWLEDGE: Requires world knowledge or personal experience not found in the passage.
+6. OPEN: Personal reflection, opinion, or creative response with no single correct answer.
 
-For Word documents, colored text lines are questions. Use the color as a supporting hint:
-green → KNOWN, orange → SEMI-OPEN, blue → PRIOR KNOWLEDGE, purple → MATH, red → VAKT, pink → OPEN.
-When color and question wording disagree, trust the wording.
-Uncolored text before questions = hunk body text. Uncolored text immediately after a question = its answer.
+Color hints from Word documents (supporting evidence only):
+green=KNOWN, orange=SEMI-OPEN, purple=MATH, blue=PRIOR KNOWLEDGE, pink=OPEN, red=VAKT
 
-If answers are present, include them. If not, use empty string.
+Uncolored text before the questions = hunk body text. Uncolored text right after a question = its answer.
 Strip numbering from citations (e.g. "1. Smith..." → "Smith...").`
 
 interface RawParagraph {
