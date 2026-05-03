@@ -141,6 +141,11 @@ If answers are present in the document, include them. If not, use empty string.
 Strip any numbering from citations (e.g. "1. Smith..." → "Smith...").`
 
 async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
+  // Validate PDF magic bytes
+  if (buffer.length < 4 || buffer.slice(0, 4).toString('ascii') !== '%PDF') {
+    throw new Error('File does not appear to be a valid PDF.')
+  }
+
   const client = new Anthropic()
   const base64 = buffer.toString('base64')
 
@@ -148,6 +153,7 @@ async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[];
   const message = await (client.messages.create as any)({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
+    betas: ['pdfs-2024-09-25'],
     messages: [
       {
         role: 'user',
