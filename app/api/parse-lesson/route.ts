@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import JSZip from 'jszip'
+import Anthropic from '@anthropic-ai/sdk'
 import type { Hunk, Question, QuestionType } from '@/lib/types'
 
 const COLOR_TO_TYPE: Record<string, QuestionType> = {
@@ -110,12 +111,81 @@ function buildLesson(paras: ParsedParagraph[]): { title: string; hunks: Hunk[]; 
   return { title, hunks, citations }
 }
 
+const PDF_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson document.
+Extract the complete lesson structure and return ONLY valid JSON — no markdown, no explanation.
+
+JSON format:
+{
+  "title": "string",
+  "hunks": [
+    {
+      "number": 1,
+      "text": "passage body text",
+      "questions": [
+        { "type": "KNOWN", "question": "question text", "answer": "answer text or empty string" }
+      ]
+    }
+  ],
+  "citations": ["citation 1", "citation 2"]
+}
+
+Question type rules — classify each question as exactly one of:
+- KNOWN: tests recall of a vocabulary word or fact the student already knows
+- SEMI-OPEN: requires prediction, inference, or filling in a blank
+- PRIOR KNOWLEDGE: asks about background knowledge or personal experience
+- MATH: involves numbers, counting, or calculation
+- VAKT: a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
+- OPEN: open-ended opinion or personal response question
+
+If answers are present in the document, include them. If not, use empty string.
+Strip any numbering from citations (e.g. "1. Smith..." → "Smith...").`
+
+async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
+  const client = new Anthropic()
+  const base64 = buffer.toString('base64')
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const message = await (client.messages.create as any)({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 4096,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+          },
+          { type: 'text', text: PDF_PROMPT },
+        ],
+      },
+    ],
+  })
+
+  const content = message.content[0]
+  if (content.type !== 'text') throw new Error('Unexpected response from Claude')
+
+  const json = JSON.parse(content.text.trim())
+  return {
+    title: json.title ?? '',
+    hunks: (json.hunks ?? []).map((h: Hunk, i: number) => ({ ...h, number: i + 1 })),
+    citations: json.citations ?? [],
+  }
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData()
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
   const buffer = Buffer.from(await file.arrayBuffer())
+  const isPdf = file.name.toLowerCase().endsWith('.pdf')
+
+  if (isPdf) {
+    const result = await parsePdf(buffer)
+    return NextResponse.json(result)
+  }
+
   const zip = await JSZip.loadAsync(buffer)
   const xmlFile = zip.file('word/document.xml')
   if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })

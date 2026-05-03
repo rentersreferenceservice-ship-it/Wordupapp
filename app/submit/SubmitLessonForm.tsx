@@ -46,8 +46,8 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
 
   async function handleUpload() {
     const file = fileRef.current?.files?.[0]
-    if (!file) { setError('Please select a DOCX file.'); return }
-    if (!file.name.endsWith('.docx')) { setError('Only .docx files are supported.'); return }
+    if (!file) { setError('Please select a file.'); return }
+    if (!file.name.endsWith('.docx') && !file.name.endsWith('.pdf')) { setError('Only .docx and .pdf files are supported.'); return }
 
     setError('')
     setParsing(true)
@@ -267,23 +267,24 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Upload a Lesson</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Upload a Word document (.docx) with your completed S2C lesson. Questions should be color-coded using the Gold Standard colors — the app will detect the question types automatically.
+          Upload your completed S2C lesson as a Word doc or PDF. We'll extract the content and take you to a review step before saving.
         </p>
 
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx or .pdf)</label>
             <input
               ref={fileRef}
               type="file"
-              accept=".docx"
+              accept=".docx,.pdf"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-3 file:border-0 file:bg-blue-50 file:text-blue-700 file:rounded file:px-3 file:py-1 file:text-xs file:font-medium"
             />
           </div>
 
-          <div className="text-xs text-gray-400 space-y-1">
-            <p className="font-medium text-gray-500">Question type colors:</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="text-xs text-gray-400 space-y-2">
+            <p><span className="font-medium text-gray-500">Word (.docx):</span> Question types are read from font colors automatically.</p>
+            <p><span className="font-medium text-gray-500">PDF:</span> AI reads the lesson and classifies question types from the text.</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
               <span className="text-green-700 font-medium">KNOWN</span>
               <span className="text-orange-500 font-medium">SEMI-OPEN</span>
               <span className="text-blue-600 font-medium">PRIOR KNOWLEDGE</span>
@@ -300,7 +301,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
             disabled={parsing}
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            {parsing ? 'Reading lesson…' : 'Upload & Review'}
+            {parsing ? (fileRef.current?.files?.[0]?.name.endsWith('.pdf') ? 'AI is reading the lesson…' : 'Reading lesson…') : 'Upload & Review'}
           </button>
         </div>
       </div>
