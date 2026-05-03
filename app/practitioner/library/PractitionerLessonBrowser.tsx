@@ -67,9 +67,14 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           <h1 className="text-2xl font-bold text-gray-900">Practitioner Library</h1>
           <p className="text-sm text-gray-500 mt-0.5">{lessons.filter(l => l.practitionerId).length} private · {lessons.filter(l => !l.practitionerId).length} public</p>
         </div>
-        <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shrink-0">
-          + Generate Lesson
-        </Link>
+        <div className="flex flex-col gap-2 shrink-0">
+          <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors text-center">
+            + Generate Lesson
+          </Link>
+          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
+            Upload Lesson
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
