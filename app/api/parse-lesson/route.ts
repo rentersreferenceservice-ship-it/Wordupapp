@@ -153,7 +153,6 @@ async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[];
   const message = await (client.messages.create as any)({
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
-    betas: ['pdfs-2024-09-25'],
     messages: [
       {
         role: 'user',
