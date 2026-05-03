@@ -29,7 +29,9 @@ Question type rules — classify each question as exactly one of:
 - VAKT (red): a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
 - OPEN (pink): a purely open-ended opinion or personal response with no single correct answer
 
-Key distinction: KNOWN = one right answer from the text. SEMI-OPEN = answer is in the text but phrased so multiple responses are valid, or the student must infer.
+Key distinction:
+- KNOWN = exactly ONE correct answer from the text. The answer field never contains a slash (/). If you see a slash in the answer, it is NOT KNOWN.
+- SEMI-OPEN = the answer contains a slash (e.g. INTELLIGENCE / MOTIVATION / UNDERSTANDING) meaning multiple responses are valid, OR the student must infer/predict. Any answer with a slash is automatically SEMI-OPEN.
 
 For Word documents, colored text lines are questions. Use the color as a supporting hint:
 green → KNOWN, orange → SEMI-OPEN, blue → PRIOR KNOWLEDGE, purple → MATH, red → VAKT, pink → OPEN.
