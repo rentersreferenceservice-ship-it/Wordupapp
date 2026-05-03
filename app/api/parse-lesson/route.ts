@@ -207,6 +207,14 @@ export async function POST(request: Request) {
 
     // DOCX: parse XML directly for both text paragraphs and image embed positions
     const zip = await JSZip.loadAsync(buffer)
+
+    // Log ZIP contents to diagnose path issues
+    const zipEntries = Object.keys(zip.files)
+    const mediaEntries = zipEntries.filter(f => f.toLowerCase().includes('media'))
+    const relsEntries = zipEntries.filter(f => f.toLowerCase().includes('_rels'))
+    console.log(`parse-lesson: ZIP media files:`, mediaEntries)
+    console.log(`parse-lesson: ZIP rels files:`, relsEntries)
+
     const xmlFile = zip.file('word/document.xml')
     if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
 
@@ -218,7 +226,12 @@ export async function POST(request: Request) {
 
     // Upload images and build rId → URL map
     const rIdToUrl = new Map<string, string>()
-    const relsFile = zip.file('word/_rels/document.xml.rels')
+
+    // Find the rels file by searching ZIP entries (path varies by Word version)
+    const relsPath = zipEntries.find(f => f.toLowerCase().endsWith('word/_rels/document.xml.rels') || f.toLowerCase() === 'word/_rels/document.xml.rels')
+    const relsFile = relsPath ? zip.file(relsPath) : zip.file('word/_rels/document.xml.rels')
+    console.log(`parse-lesson: rels file found at: ${relsPath ?? 'word/_rels/document.xml.rels (hardcoded)'}`, relsFile ? 'EXISTS' : 'NULL')
+
     if (relsFile) {
       const relsXml = await relsFile.async('string')
       const relMap = parseRelationships(relsXml)
@@ -226,13 +239,16 @@ export async function POST(request: Request) {
 
       for (const { rId } of embeds) {
         const target = relMap.get(rId)
-        if (!target) { console.log(`parse-lesson: rId "${rId}" not an image relationship`); continue }
+        if (!target) { console.log(`parse-lesson: rId "${rId}" not an image relationship — skipping`); continue }
 
-        const imageFile = zip.file(`word/${target}`)
-        if (!imageFile) { console.warn(`parse-lesson: missing file word/${target}`); continue }
+        // Find the media file in the ZIP (search by filename to handle path variations)
+        const filename = target.split('/').pop() || 'image.png'
+        const mediaPath = mediaEntries.find(f => f.endsWith(filename)) ?? `word/${target}`
+        const imageFile = zip.file(mediaPath)
+        console.log(`parse-lesson: looking for "${filename}" at "${mediaPath}":`, imageFile ? 'FOUND' : 'MISSING')
+        if (!imageFile) continue
 
         const imgBuffer = Buffer.from(await imageFile.async('arraybuffer'))
-        const filename = target.split('/').pop() || 'image.png'
         console.log(`parse-lesson: uploading "${filename}" (${imgBuffer.length} bytes)`)
         const url = await uploadImage(imgBuffer, filename)
         console.log(`parse-lesson: upload → ${url ?? 'FAILED'}`)
