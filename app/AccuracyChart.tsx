@@ -1,7 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import type { SessionAccuracy } from '@/lib/practitionerStore'
+
+const PERIODS = [
+  { label: '1M', months: 1 },
+  { label: '3M', months: 3 },
+  { label: '6M', months: 6 },
+  { label: '9M', months: 9 },
+  { label: '12M', months: 12 },
+]
 
 interface TooltipPayload {
   payload: { accuracy: number; date: string; lessonTitle: string }
@@ -20,20 +29,56 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
 }
 
 export default function AccuracyChart({ data, currentSessionId }: { data: SessionAccuracy[]; currentSessionId?: string }) {
+  const [months, setMonths] = useState(12)
+
+  const cutoff = new Date()
+  cutoff.setMonth(cutoff.getMonth() - months)
+  const filtered = data.filter(s => new Date(s.date + 'T00:00:00') >= cutoff)
+
+  const periodSelector = (
+    <div className="flex gap-1 mb-4">
+      {PERIODS.map(p => (
+        <button
+          key={p.months}
+          onClick={() => setMonths(p.months)}
+          className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+            months === p.months
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+          }`}
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  )
+
   if (data.length === 0) {
     return <p className="text-xs text-gray-400 text-center py-4">No completed sessions with spelling data yet.</p>
   }
 
-  if (data.length === 1) {
+  if (filtered.length === 0) {
     return (
-      <div className="text-center py-4">
-        <p className="text-2xl font-bold text-blue-600">{data[0].accuracy}%</p>
-        <p className="text-xs text-gray-400 mt-1">First session accuracy — more sessions will show a trend</p>
-      </div>
+      <>
+        {periodSelector}
+        <p className="text-xs text-gray-400 text-center py-4">No sessions in the selected period.</p>
+      </>
     )
   }
 
-  const chartData = data.map(s => ({
+  if (filtered.length === 1) {
+    return (
+      <>
+        {periodSelector}
+        <div className="text-center py-4">
+          <p className="text-2xl font-bold text-blue-600">{filtered[0].accuracy}%</p>
+          <p className="text-xs text-gray-400 mt-1">One session in this period — more sessions will show a trend</p>
+        </div>
+      </>
+    )
+  }
+
+  const chartData = filtered.map(s => ({
     date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     accuracy: s.accuracy,
     lessonTitle: s.lessonTitle,

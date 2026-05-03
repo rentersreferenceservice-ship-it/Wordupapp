@@ -59,7 +59,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
 
       {/* Accuracy trend */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <h2 className="text-base font-semibold text-gray-900 mb-1">Accuracy — Past 12 Months</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-1">Accuracy History</h2>
         <p className="text-xs text-gray-400 mb-4">Spelling accuracy across completed sessions</p>
         <AccuracyChart data={accuracyHistory} />
       </div>
