@@ -2,7 +2,7 @@ import { getSupabase } from './supabase'
 import type { Lesson } from './types'
 
 export async function saveLesson(lesson: Lesson): Promise<void> {
-  await getSupabase().from('lessons').upsert({
+  const { error } = await getSupabase().from('lessons').upsert({
     id: lesson.id,
     topic: lesson.topic,
     age_group: lesson.ageGroup,
@@ -15,6 +15,7 @@ export async function saveLesson(lesson: Lesson): Promise<void> {
     is_ai_generated: lesson.isAiGenerated ?? true,
     author: lesson.author ?? null,
   })
+  if (error) throw new Error(error.message)
 }
 
 export async function getLesson(id: string): Promise<Lesson | null> {
