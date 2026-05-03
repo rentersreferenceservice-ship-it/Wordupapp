@@ -3,6 +3,22 @@
 import { useState, useRef } from 'react'
 import type { Hunk, Question, QuestionType } from '@/lib/types'
 
+function InsertButton({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="flex items-center gap-2 my-1 group">
+      <div className="flex-1 h-px bg-gray-100 group-hover:bg-blue-200 transition-colors" />
+      <button
+        onClick={onClick}
+        className="text-gray-300 hover:text-blue-500 text-xs font-medium transition-colors px-1"
+        title="Insert question here"
+      >
+        + insert
+      </button>
+      <div className="flex-1 h-px bg-gray-100 group-hover:bg-blue-200 transition-colors" />
+    </div>
+  )
+}
+
 const AGE_GROUPS = [
   'Young Children (ages 6–8)',
   'Children (ages 9–11)',
@@ -85,10 +101,14 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
     setHunks(prev => prev.map((h, i) => i !== hi ? h : { ...h, text: value }))
   }
 
-  function addQuestion(hi: number) {
-    setHunks(prev => prev.map((h, i) =>
-      i !== hi ? h : { ...h, questions: [...h.questions, { type: 'KNOWN', question: '', answer: '' }] }
-    ))
+  function addQuestion(hi: number, position: number) {
+    setHunks(prev => prev.map((h, i) => {
+      if (i !== hi) return h
+      const newQ: Question = { type: 'KNOWN', question: '', answer: '' }
+      const qs = [...h.questions]
+      qs.splice(position, 0, newQ)
+      return { ...h, questions: qs }
+    }))
   }
 
   function removeQuestion(hi: number, qi: number) {
@@ -202,34 +222,37 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
               placeholder="Hunk body text…"
             />
-            <div className="space-y-3">
+            <div>
+              <InsertButton onClick={() => addQuestion(hi, 0)} />
               {hunk.questions.map((q, qi) => (
-                <div key={qi} className="flex gap-2 items-start">
-                  <select
-                    value={q.type}
-                    onChange={e => updateQuestion(hi, qi, 'type', e.target.value)}
-                    className={`border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shrink-0 ${TYPE_COLORS[q.type]}`}
-                  >
-                    {QUESTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                  <div className="flex-1 space-y-1.5">
-                    <input
-                      value={q.question}
-                      onChange={e => updateQuestion(hi, qi, 'question', e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Question text"
-                    />
-                    <input
-                      value={q.answer}
-                      onChange={e => updateQuestion(hi, qi, 'answer', e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Answer (optional)"
-                    />
+                <div key={qi}>
+                  <div className="flex gap-2 items-start">
+                    <select
+                      value={q.type}
+                      onChange={e => updateQuestion(hi, qi, 'type', e.target.value)}
+                      className={`border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shrink-0 ${TYPE_COLORS[q.type]}`}
+                    >
+                      {QUESTION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <div className="flex-1 space-y-1.5">
+                      <input
+                        value={q.question}
+                        onChange={e => updateQuestion(hi, qi, 'question', e.target.value)}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Question text"
+                      />
+                      <input
+                        value={q.answer}
+                        onChange={e => updateQuestion(hi, qi, 'answer', e.target.value)}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Answer (optional)"
+                      />
+                    </div>
+                    <button onClick={() => removeQuestion(hi, qi)} className="text-gray-300 hover:text-red-400 text-lg leading-none pt-1.5 shrink-0">×</button>
                   </div>
-                  <button onClick={() => removeQuestion(hi, qi)} className="text-gray-300 hover:text-red-400 text-lg leading-none pt-1.5 shrink-0">×</button>
+                  <InsertButton onClick={() => addQuestion(hi, qi + 1)} />
                 </div>
               ))}
-              <button onClick={() => addQuestion(hi)} className="text-xs text-blue-500 hover:text-blue-700">+ Add question</button>
             </div>
           </div>
         ))}
