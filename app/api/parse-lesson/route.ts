@@ -22,14 +22,16 @@ JSON format:
 }
 
 Question type rules — classify each question as exactly one of:
-- KNOWN: tests recall of a vocabulary word or fact the student already knows
-- SEMI-OPEN: requires prediction, inference, or filling in a blank
-- PRIOR KNOWLEDGE: asks about background knowledge or personal experience
-- MATH: involves numbers, counting, or calculation
-- VAKT: a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
-- OPEN: open-ended opinion or personal response question
+- KNOWN (green): the answer comes directly from the passage text and there is only ONE correct answer
+- SEMI-OPEN (orange): the answer relates to the passage but MULTIPLE answers are possible, or requires inference/prediction
+- PRIOR KNOWLEDGE (blue): asks the student to draw on background knowledge or personal experience outside the text
+- MATH (purple): involves numbers, counting, or calculation
+- VAKT (red): a sensory or movement break activity (e.g. "Take a movement break", "Do 10 jumping jacks")
+- OPEN (pink): a purely open-ended opinion or personal response with no single correct answer
 
-For Word documents, colored text lines are questions. Use the color as a strong hint:
+Key distinction: KNOWN = one right answer from the text. SEMI-OPEN = answer is in the text but phrased so multiple responses are valid, or the student must infer.
+
+For Word documents, colored text lines are questions. Use the color as a supporting hint:
 green → KNOWN, orange → SEMI-OPEN, blue → PRIOR KNOWLEDGE, purple → MATH, red → VAKT, pink → OPEN.
 When color and question wording disagree, trust the wording.
 Uncolored text before questions = hunk body text. Uncolored text immediately after a question = its answer.
