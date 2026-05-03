@@ -165,7 +165,9 @@ async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[];
   const content = message.content[0]
   if (content.type !== 'text') throw new Error('Unexpected response from Claude')
 
-  const json = JSON.parse(content.text.trim())
+  // Strip markdown code fences if Claude wraps the JSON
+  const raw = content.text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+  const json = JSON.parse(raw)
   return {
     title: json.title ?? '',
     hunks: (json.hunks ?? []).map((h: Hunk, i: number) => ({ ...h, number: i + 1 })),
@@ -174,25 +176,31 @@ async function parsePdf(buffer: Buffer): Promise<{ title: string; hunks: Hunk[];
 }
 
 export async function POST(request: Request) {
-  const formData = await request.formData()
-  const file = formData.get('file') as File | null
-  if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+  try {
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const isPdf = file.name.toLowerCase().endsWith('.pdf')
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const isPdf = file.name.toLowerCase().endsWith('.pdf')
 
-  if (isPdf) {
-    const result = await parsePdf(buffer)
-    return NextResponse.json(result)
+    if (isPdf) {
+      const result = await parsePdf(buffer)
+      return NextResponse.json(result)
+    }
+
+    const zip = await JSZip.loadAsync(buffer)
+    const xmlFile = zip.file('word/document.xml')
+    if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
+
+    const xml = await xmlFile.async('string')
+    const paras = parseDocxXml(xml)
+    const { title, hunks, citations } = buildLesson(paras)
+
+    return NextResponse.json({ title, hunks, citations })
+  } catch (e: unknown) {
+    console.error('parse-lesson error:', e)
+    const msg = e instanceof Error ? e.message : 'Failed to parse lesson'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
-
-  const zip = await JSZip.loadAsync(buffer)
-  const xmlFile = zip.file('word/document.xml')
-  if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
-
-  const xml = await xmlFile.async('string')
-  const paras = parseDocxXml(xml)
-  const { title, hunks, citations } = buildLesson(paras)
-
-  return NextResponse.json({ title, hunks, citations })
 }
