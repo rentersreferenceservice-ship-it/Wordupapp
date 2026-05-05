@@ -213,18 +213,33 @@ For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or ther
 
 function applyAnnotations(
   text: string,
-  annotations: Record<string, { pronunciation: string | null; synonyms: string[] | null } | null>
+  annotations: Record<string, { pronunciation: string | null; synonyms: string[] | null } | null>,
+  globallyAnnotated: Set<string>
 ): string {
-  let result = text
+  // Find insertion points in the ORIGINAL text only — never in content we're about to add
+  const insertions: Array<{ pos: number; suffix: string; keyword: string }> = []
+
   for (const [keyword, annotation] of Object.entries(annotations)) {
-    if (!annotation) continue
+    if (!annotation || globallyAnnotated.has(keyword)) continue
     const { pronunciation, synonyms } = annotation
     let suffix = ''
     if (pronunciation) suffix += ` (${pronunciation})`
     if (synonyms && synonyms.length > 0) suffix += ` (${synonyms.join(' / ')})`
     if (!suffix) continue
+
     const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    result = result.replace(new RegExp(`\\b${escaped}\\b(?!\\s*\\()`, 'g'), `${keyword}${suffix}`)
+    const match = new RegExp(`\\b${escaped}\\b`).exec(text)
+    if (match) {
+      insertions.push({ pos: match.index + keyword.length, suffix, keyword })
+      globallyAnnotated.add(keyword)
+    }
+  }
+
+  // Apply in reverse order so earlier positions stay valid
+  insertions.sort((a, b) => b.pos - a.pos)
+  let result = text
+  for (const { pos, suffix } of insertions) {
+    result = result.slice(0, pos) + suffix + result.slice(pos)
   }
   return result
 }
@@ -279,9 +294,10 @@ Respond with valid JSON only — no markdown, no explanation. Example format:
     return lesson
   }
 
+  const globallyAnnotated = new Set<string>()
   return {
     ...lesson,
-    hunks: lesson.hunks.map(hunk => ({ ...hunk, text: applyAnnotations(hunk.text, annotations) })),
+    hunks: lesson.hunks.map(hunk => ({ ...hunk, text: applyAnnotations(hunk.text, annotations, globallyAnnotated) })),
   }
 }
 
