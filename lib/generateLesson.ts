@@ -259,15 +259,12 @@ async function annotateKeywords(lesson: Lesson, client: Anthropic): Promise<Less
     max_tokens: 2048,
     messages: [{
       role: 'user',
-      content: `You are annotating keywords for an S2C lesson. For each keyword below, decide:
+      content: `You are annotating keywords for an S2C lesson. For each keyword, apply a HIGH bar — most words should return null. Only annotate when clearly necessary:
 
-1. PRONUNCIATION: If the word is hard to pronounce (foreign language, Latin/Greek, scientific, medical, Indigenous name, or anything a reader might stumble over), provide a phonetic guide in lowercase with hyphens between syllables and the stressed syllable in ALL CAPS. If pronunciation is not needed, use JSON null.
-2. SYNONYMS: If the word is uncommon and a reader might not know its meaning, provide 2-3 plain-language synonyms in ALL CAPS. If synonyms are not needed, use JSON null.
+1. PRONUNCIATION: Only if the word would genuinely trip up a fluent English reader — foreign language terms, Latin/Greek scientific names, Indigenous names, medical terminology, or unusual letter combinations. Do NOT add pronunciation for any word a typical English speaker reads naturally (SACRED, ANCIENT, SYMBOL, SPIRIT, BLEND, etc.).
+2. SYNONYMS: Only if the word is genuinely obscure or technical and a reader likely would not know its meaning. Do NOT add synonyms for words that are common in everyday English or easily understood in context (WISDOM, TABLET, TRADITION, ANCIENT, SACRED, BLEND, SPIRITUAL, KNOWLEDGE, etc.).
 
-Rules:
-- Return null (not an object) for genuinely common everyday words (RAIN, DOG, FAST, SUN, WARM, COLD, etc.)
-- A word can have pronunciation only, synonyms only, both, or be null
-- Common proper nouns like NASA, USA need no annotation
+Default to null. When in doubt, return null. Only annotate words that are truly unusual.
 
 Keywords: ${keywordList}
 
