@@ -211,6 +211,80 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
 Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson.
 For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #S2C.`
 
+function applyAnnotations(
+  text: string,
+  annotations: Record<string, { pronunciation: string | null; synonyms: string[] | null } | null>
+): string {
+  let result = text
+  for (const [keyword, annotation] of Object.entries(annotations)) {
+    if (!annotation) continue
+    const { pronunciation, synonyms } = annotation
+    let suffix = ''
+    if (pronunciation) suffix += ` (${pronunciation})`
+    if (synonyms && synonyms.length > 0) suffix += ` (${synonyms.join(' / ')})`
+    if (!suffix) continue
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    result = result.replace(new RegExp(`\\b${escaped}\\b(?!\\s*\\()`, 'g'), `${keyword}${suffix}`)
+  }
+  return result
+}
+
+async function annotateKeywords(lesson: Lesson, client: Anthropic): Promise<Lesson> {
+  const allKeywords = new Set<string>()
+  for (const hunk of lesson.hunks) {
+    const matches = hunk.text.match(/\b[A-Z][A-Z']+\b(?!\s*\()/g) ?? []
+    for (const kw of matches) allKeywords.add(kw)
+  }
+  console.log('annotateKeywords: found', allKeywords.size, 'keywords:', [...allKeywords].join(', '))
+  if (allKeywords.size === 0) return lesson
+
+  const keywordList = [...allKeywords].join(', ')
+  const response = await client.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2048,
+    messages: [{
+      role: 'user',
+      content: `You are annotating keywords for an S2C lesson. For each keyword below, decide:
+
+1. PRONUNCIATION: If the word is hard to pronounce (foreign language, Latin/Greek, scientific, medical, Indigenous name, or anything a reader might stumble over), provide a phonetic guide in lowercase with hyphens between syllables and the stressed syllable in ALL CAPS. If pronunciation is not needed, use JSON null.
+2. SYNONYMS: If the word is uncommon and a reader might not know its meaning, provide 2-3 plain-language synonyms in ALL CAPS. If synonyms are not needed, use JSON null.
+
+Rules:
+- Return null (not an object) for genuinely common everyday words (RAIN, DOG, FAST, SUN, WARM, COLD, etc.)
+- A word can have pronunciation only, synonyms only, both, or be null
+- Common proper nouns like NASA, USA need no annotation
+
+Keywords: ${keywordList}
+
+Respond with valid JSON only — no markdown, no explanation. Example format:
+{
+  "TRISMEGISTUS": { "pronunciation": "triz-muh-JIS-tus", "synonyms": ["THRICE GREAT", "HERMES TRISMEGISTUS"] },
+  "AGILITY": { "pronunciation": null, "synonyms": ["QUICKNESS", "NIMBLENESS", "GRACE"] },
+  "OSMOSIS": { "pronunciation": "oz-MOH-sis", "synonyms": ["DIFFUSION", "WATER MOVEMENT"] },
+  "RAIN": null
+}`
+    }],
+  })
+
+  const content = response.content[0]
+  if (content.type !== 'text') return lesson
+
+  let annotations: Record<string, { pronunciation: string | null; synonyms: string[] | null } | null>
+  try {
+    const raw = content.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+    console.log('annotateKeywords: raw response:', raw.slice(0, 300))
+    annotations = JSON.parse(raw)
+  } catch (e) {
+    console.error('annotateKeywords: JSON parse failed:', e)
+    return lesson
+  }
+
+  return {
+    ...lesson,
+    hunks: lesson.hunks.map(hunk => ({ ...hunk, text: applyAnnotations(hunk.text, annotations) })),
+  }
+}
+
 export async function generateLesson(topic: string, ageGroup: string): Promise<Lesson> {
   const client = new Anthropic()
   const message = await client.messages.create({
@@ -333,7 +407,7 @@ export async function generateLesson(topic: string, ageGroup: string): Promise<L
       })))
     : correctedHunks
 
-  return {
+  const lesson: Lesson = {
     id: uuidv4(),
     topic,
     ageGroup,
@@ -343,4 +417,6 @@ export async function generateLesson(topic: string, ageGroup: string): Promise<L
     citations: parsed.citations,
     hashtags: parsed.hashtags ?? [],
   }
+
+  return annotateKeywords(lesson, client)
 }

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import Stripe from 'stripe'
 import { getSupabase } from '@/lib/supabase'
-import { TIER_PRICES, PractitionerTier, BillingPeriod } from '@/lib/practitionerStore'
+import { TIER_PRICES, PractitionerTier } from '@/lib/practitionerStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       },
       quantity: 1,
     }],
+    subscription_data: { trial_period_days: 5 },
     metadata: { clerkUserId: userId, practitionerTier: tier, billingPeriod: billing },
     success_url: `${origin}/practitioner/dashboard`,
     cancel_url: `${origin}/practitioner/pricing`,
