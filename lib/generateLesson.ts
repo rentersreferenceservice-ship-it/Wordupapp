@@ -139,6 +139,7 @@ PRIOR KNOWLEDGE:
 MATH:
 - Use when you specifically want the student to recall a number, date, or year as the answer
 - This includes dates, years, counts, measurements, distances
+- CRITICAL: A MATH answer must ALWAYS contain an actual numeral (digit). A unit word alone — MONTHS, YEARS, DAYS, INCHES, MILES — is NEVER a valid MATH answer. Always include the number: "3 MONTHS" not "MONTHS", "27 DAYS" not "DAYS", "18 PIECES" not "PIECES". If your MATH answer contains no digit, it is wrong — rewrite the question or change the type.
 - Examples: "When did the telescope launch?" → DECEMBER 25, 2021
 - Examples: "How many pieces make up the mirror?" → 18 PIECES
 - Examples: "What year did the revolution begin?" → 1776
