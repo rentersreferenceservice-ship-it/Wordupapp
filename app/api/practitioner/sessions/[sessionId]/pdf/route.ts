@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getPractitionerSubscription, getSessionResponses } from '@/lib/practitionerStore'
+import { getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 import { Document, Page, View, Text, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine, Image as PdfImage } from '@react-pdf/renderer'
 import React from 'react'
@@ -111,8 +111,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
   const { userId } = await auth()
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
-  const sub = await getPractitionerSubscription(userId)
-  if (!sub) return new Response('Forbidden', { status: 403 })
 
   const { data: session } = await getSupabase()
     .from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).single()

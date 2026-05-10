@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getPractitionerSubscription } from '@/lib/practitionerStore'
 import { generateLesson } from '@/lib/generateLesson'
 import { saveLesson } from '@/lib/lessonStore'
 
@@ -9,8 +8,6 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const sub = await getPractitionerSubscription(userId)
-    if (!sub) return Response.json({ error: 'No practitioner subscription' }, { status: 403 })
 
     const { topic, ageGroup } = await request.json()
     if (!topic || !ageGroup) return Response.json({ error: 'Topic and age group are required' }, { status: 400 })

@@ -1,7 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
-import { getPractitionerSubscription } from '@/lib/practitionerStore'
 import type { QuestionType } from '@/lib/types'
 import Link from 'next/link'
 import PrintButton from '@/app/lessons/[id]/PrintButton'
@@ -25,8 +24,6 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/pricing')
 
-  const sub = await getPractitionerSubscription(userId)
-  if (!sub) redirect('/practitioner/pricing')
 
   const isAdmin = userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 

@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getSessionResponses } from '@/lib/practitionerStore'
+import { getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 import { getLesson } from '@/lib/lessonStore'
 import SessionPlayer from './SessionPlayer'
@@ -12,8 +12,6 @@ export default async function SessionPage({ params }: { params: Promise<{ sessio
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/pricing')
 
-  const sub = await getPractitionerSubscription(userId)
-  if (!sub) redirect('/practitioner/pricing')
 
   const { data: session } = await getSupabase()
     .from('sessions')

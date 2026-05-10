@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getStudents, getSessions } from '@/lib/practitionerStore'
+import { getStudents, getSessions } from '@/lib/practitionerStore'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -8,9 +8,6 @@ export const dynamic = 'force-dynamic'
 export default async function PractitionerDashboard() {
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/pricing')
-
-  const sub = await getPractitionerSubscription(userId)
-  if (!sub) redirect('/practitioner/pricing')
 
   const [students, sessions] = await Promise.all([
     getStudents(userId),
@@ -26,7 +23,6 @@ export default async function PractitionerDashboard() {
           <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100 }} />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Practitioner Dashboard</h1>
-            <p className="text-sm text-gray-500 capitalize">{sub.tier} Plan — up to {sub.studentLimit} students</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -43,7 +39,7 @@ export default async function PractitionerDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
           <p className="text-3xl font-bold text-blue-600">{students.length}</p>
           <p className="text-sm text-gray-500 mt-1">Students</p>
@@ -51,10 +47,6 @@ export default async function PractitionerDashboard() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
           <p className="text-3xl font-bold text-green-600">{sessions.length}</p>
           <p className="text-sm text-gray-500 mt-1">Total Sessions</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center">
-          <p className="text-3xl font-bold text-purple-600">{sub.studentLimit - students.length}</p>
-          <p className="text-sm text-gray-500 mt-1">Student Slots Available</p>
         </div>
       </div>
 
@@ -83,9 +75,6 @@ export default async function PractitionerDashboard() {
                 </li>
               ))}
             </ul>
-          )}
-          {students.length >= sub.studentLimit && (
-            <p className="text-xs text-orange-600 mt-3 text-center">Student limit reached. <a href="/practitioner/pricing" className="underline">Upgrade your plan</a> to add more.</p>
           )}
         </div>
 

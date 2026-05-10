@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getPractitionerSubscription, getSessionResponses, getStudentAccuracyHistory } from '@/lib/practitionerStore'
+import { getSessionResponses, getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import type { SessionAccuracy } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 
@@ -63,8 +63,6 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/pricing')
 
-  const sub = await getPractitionerSubscription(userId)
-  if (!sub) redirect('/practitioner/pricing')
 
   const { data: session } = await getSupabase()
     .from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).single()
