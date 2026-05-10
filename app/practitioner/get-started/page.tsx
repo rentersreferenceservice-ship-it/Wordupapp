@@ -44,7 +44,15 @@ export default function PractitionerAccessPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 120 }} className="mb-8" />
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Practitioner Portal</h1>
-      <p className="text-gray-500 mb-8 text-center max-w-sm">Tell us about yourself to get started.</p>
+      <p className="text-gray-500 mb-6 text-center max-w-sm">Tell us about yourself to get started.</p>
+
+      <SignInButton mode="modal" forceRedirectUrl="/practitioner/dashboard">
+        <button className="w-full max-w-sm bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors mb-6">
+          Already have an account? Sign in
+        </button>
+      </SignInButton>
+
+      <p className="text-sm text-gray-400 mb-4">— or fill out the form below to request access —</p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
         <input
