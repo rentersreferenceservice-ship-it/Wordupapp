@@ -22,7 +22,7 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
 export default async function PractitionerLessonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   const isAdmin = userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'

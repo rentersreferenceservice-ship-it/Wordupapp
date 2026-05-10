@@ -22,7 +22,7 @@ const QUESTION_COLORS: Record<string, string> = {
 export default async function TranscriptPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = await params
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   const { data: session } = await getSupabase()

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function PractitionerDashboard() {
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
   const [students, sessions] = await Promise.all([
     getStudents(userId),

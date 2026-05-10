@@ -4,7 +4,7 @@ import SubmitLessonForm from '@/app/submit/SubmitLessonForm'
 
 export default async function PractitionerSubmitPage() {
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   return <SubmitLessonForm practitionerMode backHref="/practitioner/library" />

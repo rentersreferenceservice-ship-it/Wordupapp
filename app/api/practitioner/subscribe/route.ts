@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     subscription_data: { trial_period_days: 5 },
     metadata: { clerkUserId: userId, practitionerTier: tier, billingPeriod: billing },
     success_url: `${origin}/practitioner/dashboard`,
-    cancel_url: `${origin}/practitioner/pricing`,
+    cancel_url: `${origin}/practitioner/get-started`,
   })
 
   return Response.json({ url: session.url })

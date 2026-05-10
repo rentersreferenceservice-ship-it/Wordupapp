@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function PractitionerLibraryPage() {
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   const [privateLessons, publicLessons] = await Promise.all([

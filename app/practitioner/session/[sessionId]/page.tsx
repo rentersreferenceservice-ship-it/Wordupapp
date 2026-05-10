@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function SessionPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = await params
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   const { data: session } = await getSupabase()

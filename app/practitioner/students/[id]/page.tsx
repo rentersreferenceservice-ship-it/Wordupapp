@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 export default async function StudentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const { userId } = await auth()
-  if (!userId) redirect('/practitioner/pricing')
+  if (!userId) redirect('/practitioner/get-started')
 
 
   const [student, sessions, privateLessons, publicLessons] = await Promise.all([

@@ -6,7 +6,7 @@ export default function PractitionerNav() {
   const pathname = usePathname()
   const { isSignedIn } = useUser()
 
-  if (pathname === '/practitioner/pricing') return null
+  if (pathname === '/practitioner/get-started') return null
 
   return (
     <div className="flex justify-end items-center gap-3 px-6 py-3 border-b border-gray-100">
