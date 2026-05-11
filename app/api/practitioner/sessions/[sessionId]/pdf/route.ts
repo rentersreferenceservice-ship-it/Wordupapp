@@ -320,7 +320,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
                 React.createElement(Text, { style: { ...s.qBadge, color, borderColor: color } }, label),
                 React.createElement(View, { style: { flex: 1 } },
                   React.createElement(Text, { style: { ...s.qText, color: notAsked ? '#aaa' : color } }, q.questionText),
-                  answerText ? React.createElement(Text, { style: { fontSize: 9, color: '#1f2937', fontFamily: 'Helvetica-Bold', marginTop: 2, backgroundColor: '#f3f4f6', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1 } }, answerText) : null,
+                  answerText ? React.createElement(Text, { style: { fontSize: 9, color: '#1f2937', fontFamily: 'Helvetica-Bold', marginTop: 3 } }, `→ ${answerText}`) : null,
                   miss > 0 && !notAsked ? React.createElement(Text, { style: { fontSize: 8, color: '#dc2626', fontFamily: 'Helvetica-Bold', marginTop: 1 } }, `${miss} ✗`) : null,
                 ),
                 qrDataUrl ? React.createElement(View, { style: { alignItems: 'center', width: 56 } },
