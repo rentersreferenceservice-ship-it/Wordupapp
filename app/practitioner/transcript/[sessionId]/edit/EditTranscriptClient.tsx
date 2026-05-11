@@ -59,11 +59,15 @@ export default function EditTranscriptClient({
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
   const sessionCompleteRecord = responses.find(r => r.questionType === 'SESSION_COMPLETE')
+  const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
+  const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
 
   const [studentStates, setStudentStates] = useState<string[]>(
     sessionStateRecord?.capturedAnswer ? sessionStateRecord.capturedAnswer.split(', ').filter(Boolean) : []
   )
   const [sessionNotes, setSessionNotes] = useState(sessionNotesRecord?.capturedAnswer ?? '')
+  const [sessionVideo, setSessionVideo] = useState(sessionVideoRecord?.capturedAnswer ?? '')
+  const [sessionInvoice, setSessionInvoice] = useState(sessionInvoiceRecord?.capturedAnswer ?? '')
 
   const [edits, setEdits] = useState<Record<string, EditState>>(() => {
     const map: Record<string, EditState> = {}
@@ -86,6 +90,8 @@ export default function EditTranscriptClient({
     const out: object[] = [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
+      { hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 },
+      { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: sessionInvoice.trim(), expectedAnswer: '', misspokeCount: 0 },
     ]
     if (sessionCompleteRecord) {
       out.push({ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 })
@@ -190,6 +196,30 @@ export default function EditTranscriptClient({
           placeholder="Add notes..."
           className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
+      </div>
+
+      {/* Video Link & Invoice */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-4">
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Session Video Link</p>
+          <input
+            type="url"
+            value={sessionVideo}
+            onChange={e => setSessionVideo(e.target.value)}
+            placeholder="https://..."
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Invoice #</p>
+          <input
+            type="text"
+            value={sessionInvoice}
+            onChange={e => setSessionInvoice(e.target.value)}
+            placeholder="Invoice number or reference..."
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       {/* Per-hunk */}

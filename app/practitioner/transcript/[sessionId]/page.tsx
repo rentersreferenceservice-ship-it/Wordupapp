@@ -48,6 +48,8 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   // Extract session-level records
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
+  const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
+  const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
 
   // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
@@ -136,6 +138,24 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 : <p className="text-xs text-gray-300 italic">None</p>
               }
             </div>
+            {(sessionVideoRecord?.capturedAnswer || sessionInvoiceRecord?.capturedAnswer) && (
+              <div className="flex flex-wrap gap-x-8 gap-y-2 pt-1">
+                {sessionVideoRecord?.capturedAnswer && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Session Video</p>
+                    <a href={sessionVideoRecord.capturedAnswer} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline break-all">
+                      {sessionVideoRecord.capturedAnswer}
+                    </a>
+                  </div>
+                )}
+                {sessionInvoiceRecord?.capturedAnswer && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Invoice #</p>
+                    <p className="text-sm text-gray-700">{sessionInvoiceRecord.capturedAnswer}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Summary stats */}
