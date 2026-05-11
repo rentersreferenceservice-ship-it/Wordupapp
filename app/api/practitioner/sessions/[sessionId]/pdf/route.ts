@@ -141,6 +141,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
+  const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
+  const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
 
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
@@ -203,6 +205,24 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
         React.createElement(View, { style: { marginBottom: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' } },
           React.createElement(Text, { style: s.label }, 'Session Notes'),
           React.createElement(Text, { style: { fontSize: 9, color: '#333' } }, sessionNotesRecord.capturedAnswer),
+        ),
+      ] : []),
+
+      // Video & Invoice
+      ...((sessionVideoRecord?.capturedAnswer || sessionInvoiceRecord?.capturedAnswer) ? [
+        React.createElement(View, { style: { flexDirection: 'row', gap: 24, marginBottom: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' } },
+          ...(sessionVideoRecord?.capturedAnswer ? [
+            React.createElement(View, {},
+              React.createElement(Text, { style: s.label }, 'Session Video'),
+              React.createElement(Text, { style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
+            ),
+          ] : []),
+          ...(sessionInvoiceRecord?.capturedAnswer ? [
+            React.createElement(View, {},
+              React.createElement(Text, { style: s.label }, 'Invoice'),
+              React.createElement(Text, { style: { fontSize: 9, color: '#2563eb' } }, sessionInvoiceRecord.capturedAnswer),
+            ),
+          ] : []),
         ),
       ] : []),
 

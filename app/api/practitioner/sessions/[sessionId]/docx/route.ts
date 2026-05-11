@@ -57,6 +57,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
+  const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
+  const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
 
   const byHunk: Record<number, typeof responses> = {}
   for (const r of responses) {
@@ -110,8 +112,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     para('Session Notes', { bold: true, size: 22, spacing: 40 }),
     para(
       sessionNotesRecord?.capturedAnswer || 'None',
-      { size: 22, italic: !sessionNotesRecord?.capturedAnswer, color: sessionNotesRecord?.capturedAnswer ? '111111' : 'aaaaaa', spacing: 160 }
+      { size: 22, italic: !sessionNotesRecord?.capturedAnswer, color: sessionNotesRecord?.capturedAnswer ? '111111' : 'aaaaaa', spacing: sessionVideoRecord?.capturedAnswer || sessionInvoiceRecord?.capturedAnswer ? 80 : 160 }
     ),
+    ...(sessionVideoRecord?.capturedAnswer ? [
+      para('Session Video', { bold: true, size: 22, spacing: 40 }),
+      para(sessionVideoRecord.capturedAnswer, { size: 22, color: '2563eb', spacing: 80 }),
+    ] : []),
+    ...(sessionInvoiceRecord?.capturedAnswer ? [
+      para('Invoice', { bold: true, size: 22, spacing: 40 }),
+      para(sessionInvoiceRecord.capturedAnswer, { size: 22, color: '2563eb', spacing: 160 }),
+    ] : []),
 
     // Stats
     para('Session Summary', { bold: true, size: 24, spacing: 60 }),
