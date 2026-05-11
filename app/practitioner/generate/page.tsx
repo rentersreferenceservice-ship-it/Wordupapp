@@ -11,10 +11,19 @@ const AGE_GROUPS = [
   'Adults (18+)',
 ]
 
+const STYLES = [
+  { value: 'conversational', label: 'Conversational Facts (default)' },
+  { value: 'humor', label: 'Humor & Playful' },
+  { value: 'story', label: 'Narrative Story' },
+  { value: 'science', label: 'Science & Discovery' },
+  { value: 'realworld', label: 'Real-World Connections' },
+]
+
 export default function PractitionerGeneratePage() {
   const router = useRouter()
   const [topic, setTopic] = useState('')
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
+  const [style, setStyle] = useState(STYLES[0].value)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -29,7 +38,7 @@ export default function PractitionerGeneratePage() {
       const res = await fetch('/api/practitioner/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, ageGroup }),
+        body: JSON.stringify({ topic, ageGroup, style }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Generation failed')
@@ -73,6 +82,18 @@ export default function PractitionerGeneratePage() {
               disabled={loading}
             >
               {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Tone</label>
+            <select
+              value={style}
+              onChange={e => setStyle(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              disabled={loading}
+            >
+              {STYLES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
 

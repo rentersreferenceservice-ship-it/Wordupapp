@@ -299,7 +299,15 @@ Respond with valid JSON only — no markdown, no explanation. Example format:
   }
 }
 
-export async function generateLesson(topic: string, ageGroup: string): Promise<Lesson> {
+const STYLE_INSTRUCTIONS: Record<string, string> = {
+  humor: 'Use a playful, humorous tone throughout — include funny analogies, light jokes, and witty observations while keeping all facts accurate.',
+  story: 'Write the lesson as a continuous narrative story — introduce a character, creature, or scenario, and let the facts unfold naturally through their journey.',
+  science: 'Use a curious, exploratory tone focused on discovery — frame content as exciting experiments, questions to investigate, and scientific revelations.',
+  realworld: 'Emphasize real-world applications — show how this topic connects to careers, everyday decisions, current events, and practical life skills.',
+}
+
+export async function generateLesson(topic: string, ageGroup: string, style?: string): Promise<Lesson> {
+  const styleInstruction = style && STYLE_INSTRUCTIONS[style] ? `\n\nTONE INSTRUCTION: ${STYLE_INSTRUCTIONS[style]}` : ''
   const client = new Anthropic()
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
@@ -308,7 +316,7 @@ export async function generateLesson(topic: string, ageGroup: string): Promise<L
     messages: [
       {
         role: 'user',
-        content: `Generate a complete S2C lesson about "${topic}" written for ${ageGroup}.`,
+        content: `Generate a complete S2C lesson about "${topic}" written for ${ageGroup}.${styleInstruction}`,
       },
     ],
   })

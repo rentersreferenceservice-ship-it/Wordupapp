@@ -9,10 +9,10 @@ export async function POST(request: NextRequest) {
     if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
 
-    const { topic, ageGroup } = await request.json()
+    const { topic, ageGroup, style } = await request.json()
     if (!topic || !ageGroup) return Response.json({ error: 'Topic and age group are required' }, { status: 400 })
 
-    const lesson = await generateLesson(topic, ageGroup)
+    const lesson = await generateLesson(topic, ageGroup, style)
     lesson.practitionerId = userId
     await saveLesson(lesson)
 
