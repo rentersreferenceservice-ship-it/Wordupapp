@@ -282,7 +282,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
               return React.createElement(View, { key: i, style: { ...s.kwChip, borderColor: skipped ? '#ccc' : miss > 0 ? '#fecaca' : '#bbf7d0', backgroundColor: skipped ? '#f9fafb' : miss > 0 ? '#fef2f2' : '#f0fdf4', opacity: skipped ? 0.6 : 1 } },
                 React.createElement(Text, { style: { ...s.kwWord, color: skipped ? '#999' : miss > 0 ? '#dc2626' : '#15803d', textDecoration: skipped ? 'line-through' : 'none' } }, k.keyword ?? ''),
                 React.createElement(Text, { style: s.kwMeta }, ` ${letters}L`),
-                miss > 0 ? React.createElement(Text, { style: s.kwMiss }, ` ${'✗'.repeat(miss)}`) : null,
+                miss > 0 ? React.createElement(View, { style: { backgroundColor: '#ef4444', borderRadius: 999, paddingHorizontal: 5, paddingVertical: 1, marginLeft: 2 } },
+                  React.createElement(Text, { style: { fontSize: 7, color: '#fff', fontFamily: 'Helvetica-Bold' } }, `${miss} ✗`)
+                ) : null,
                 miss === 0 && !skipped ? React.createElement(Text, { style: { fontSize: 7, color: '#15803d' } }, ' ✓') : null,
               )
             })
@@ -318,8 +320,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
                 React.createElement(Text, { style: { ...s.qBadge, color, borderColor: color } }, label),
                 React.createElement(View, { style: { flex: 1 } },
                   React.createElement(Text, { style: { ...s.qText, color: notAsked ? '#aaa' : color } }, q.questionText),
-                  answerText ? React.createElement(Text, { style: s.qAnswer }, answerText) : null,
-                  miss > 0 && !notAsked ? React.createElement(Text, { style: s.qMiss }, '✗'.repeat(miss)) : null,
+                  answerText ? React.createElement(Text, { style: { fontSize: 9, color: '#1f2937', fontFamily: 'Helvetica-Bold', marginTop: 2, backgroundColor: '#f3f4f6', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1 } }, answerText) : null,
+                  miss > 0 && !notAsked ? React.createElement(Text, { style: { fontSize: 8, color: '#dc2626', fontFamily: 'Helvetica-Bold', marginTop: 1 } }, `${miss} ✗`) : null,
                 ),
                 qrDataUrl ? React.createElement(View, { style: { alignItems: 'center', width: 56 } },
                   React.createElement(PdfImage, { src: qrDataUrl, style: { width: 52, height: 52 } }),

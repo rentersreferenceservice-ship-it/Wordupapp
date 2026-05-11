@@ -189,8 +189,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
           children: [
             new TextRun({ text: `[${label}]  `, bold: true, size: 20, color: qColor }),
             new TextRun({ text: q.questionText, size: 22, bold: true, italics: notAsked, color: notAsked ? 'aaaaaa' : qColor }),
-            ...(answerText ? [new TextRun({ text: `  — ${answerText}`, size: 20, color: '666666' })] : []),
-            ...(q.misspokeCount && q.misspokeCount > 0 && !notAsked ? [new TextRun({ text: `  ${'✗'.repeat(q.misspokeCount)}`, size: 20, color: 'dc2626' })] : []),
+            ...(answerText ? [new TextRun({ text: `  → ${answerText}`, size: 22, bold: true, color: '1f2937' })] : []),
+            ...(q.misspokeCount && q.misspokeCount > 0 && !notAsked ? [new TextRun({ text: `  ${q.misspokeCount} ✗`, size: 20, bold: true, color: 'dc2626' })] : []),
           ],
         })
       )
