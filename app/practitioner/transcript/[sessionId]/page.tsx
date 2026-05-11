@@ -224,10 +224,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                         <span className="text-xs text-gray-400">{(k.keyword ?? '').replace(/\s/g, '').length}L</span>
                         {k.capturedAnswer === 'SKIPPED' && <span className="text-xs text-gray-400">not asked</span>}
                         {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) > 0 && (
-                          <span className="text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">{k.misspokeCount} ✗</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', background: '#ef4444', borderRadius: 999, padding: '1px 7px' }}>{k.misspokeCount} ✗</span>
                         )}
                         {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) === 0 && (
-                          <span className="text-xs font-bold text-green-700">✓</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#15803d' }}>✓</span>
                         )}
                       </div>
                     ))}
@@ -272,7 +272,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             </p>
                           )}
                           {!hasTextAnswer && !isMathType && !notAsked && !skipped && !completed && q.expectedAnswer && (
-                            <p className="text-xs mt-1 font-semibold text-gray-800 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 inline-block">{q.expectedAnswer}</p>
+                            <p style={{ fontSize: 12, fontWeight: 600, color: '#1f2937', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 4, display: 'inline-block', padding: '1px 8px', marginTop: 4 }}>{q.expectedAnswer}</p>
                           )}
                           {misspokes > 0 && !notAsked && (
                             <p className="text-xs text-red-600 font-semibold mt-0.5">{'✗'.repeat(misspokes)}</p>
