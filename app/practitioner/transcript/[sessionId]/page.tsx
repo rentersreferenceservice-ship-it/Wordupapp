@@ -150,8 +150,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 )}
                 {sessionInvoiceRecord?.capturedAnswer && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Invoice #</p>
-                    <p className="text-sm text-gray-700">{sessionInvoiceRecord.capturedAnswer}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Invoice</p>
+                    <a href={sessionInvoiceRecord.capturedAnswer} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline break-all">
+                      {sessionInvoiceRecord.capturedAnswer}
+                    </a>
                   </div>
                 )}
               </div>

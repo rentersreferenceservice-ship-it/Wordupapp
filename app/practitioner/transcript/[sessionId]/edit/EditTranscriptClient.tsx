@@ -211,12 +211,12 @@ export default function EditTranscriptClient({
           />
         </div>
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Invoice #</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Invoice Link</p>
           <input
-            type="text"
+            type="url"
             value={sessionInvoice}
             onChange={e => setSessionInvoice(e.target.value)}
-            placeholder="Invoice number or reference..."
+            placeholder="https://..."
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
