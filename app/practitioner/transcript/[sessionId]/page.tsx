@@ -93,6 +93,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             ← Dashboard
           </Link>
+          <Link href={`/practitioner/transcript/${sessionId}/edit`} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            Edit
+          </Link>
           <PrintTranscriptButton />
         </div>
 
