@@ -136,7 +136,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     const { error: resendError } = await resend.emails.send({
-      from: 'Word Up <onboarding@resend.dev>',
+      from: 'Word Up <noreply@worduplessongenerator.com>',
       replyTo: practitionerEmail || undefined,
       to,
       subject: `Session Transcript — ${student?.name ?? 'Student'} — ${sessionDate}`,
