@@ -228,7 +228,29 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       replyTo: practitionerEmail || undefined,
       to,
       subject: `Session Transcript — ${student?.name ?? 'Student'} — ${sessionDate}`,
-      html: `<p style="font-family:system-ui,sans-serif;color:#374151">Please find attached the session transcript for <strong>${student?.name ?? 'your student'}</strong> from ${sessionDate}.</p><p style="font-family:system-ui,sans-serif;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com</p>`,
+      html: `
+<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#374151">
+  <h2 style="margin:0 0 4px 0;font-size:20px">Session Transcript</h2>
+  <p style="margin:0 0 2px 0;font-size:15px;font-weight:600">${student?.name ?? 'Student'}</p>
+  <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280">${sessionDate}</p>
+  ${accuracy !== null ? `
+  <div style="display:flex;gap:10px;margin-bottom:18px">
+    <div style="flex:1;background:#eff6ff;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:#2563eb">${totalLetters}</div>
+      <div style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase">Letters to Poke</div>
+    </div>
+    <div style="flex:1;background:#fef2f2;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:#dc2626">${totalMisspokes}</div>
+      <div style="font-size:11px;font-weight:600;color:#ef4444;text-transform:uppercase">Misspokes</div>
+    </div>
+    <div style="flex:1;background:#f0fdf4;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:700;color:#15803d">${accuracy}%</div>
+      <div style="font-size:11px;font-weight:600;color:#16a34a;text-transform:uppercase">Accuracy</div>
+    </div>
+  </div>` : ''}
+  <p style="margin:0 0 6px 0;color:#374151">Please find the full session transcript attached as a PDF.</p>
+  <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com</p>
+</div>`,
       attachments: [
         {
           filename,
