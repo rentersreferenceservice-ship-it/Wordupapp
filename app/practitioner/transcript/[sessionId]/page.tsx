@@ -221,13 +221,13 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                     {hunkKeywords.map((k, i) => (
                       <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm print-keyword ${k.capturedAnswer === 'SKIPPED' ? 'bg-gray-50 border border-gray-200 opacity-50' : (k.misspokeCount ?? 0) > 0 ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
                         <span className={`font-bold ${k.capturedAnswer === 'SKIPPED' ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{k.keyword}</span>
-                        <span className="text-xs text-gray-400">{(k.keyword ?? '').replace(/\s/g, '').length} letters</span>
+                        <span className="text-xs text-gray-400">{(k.keyword ?? '').replace(/\s/g, '').length}L</span>
                         {k.capturedAnswer === 'SKIPPED' && <span className="text-xs text-gray-400">not asked</span>}
                         {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) > 0 && (
-                          <span className="text-xs text-red-600 font-semibold">{k.misspokeCount}✗</span>
+                          <span className="text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">{k.misspokeCount} ✗</span>
                         )}
                         {k.capturedAnswer !== 'SKIPPED' && (k.misspokeCount ?? 0) === 0 && (
-                          <span className="text-xs text-green-600">✓</span>
+                          <span className="text-xs font-bold text-green-700">✓</span>
                         )}
                       </div>
                     ))}
@@ -272,7 +272,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             </p>
                           )}
                           {!hasTextAnswer && !isMathType && !notAsked && !skipped && !completed && q.expectedAnswer && (
-                            <p className="text-xs mt-0.5 text-gray-400"><span className="font-semibold text-gray-600">{q.expectedAnswer}</span></p>
+                            <p className="text-xs mt-1 font-semibold text-gray-800 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 inline-block">{q.expectedAnswer}</p>
                           )}
                           {misspokes > 0 && !notAsked && (
                             <p className="text-xs text-red-600 font-semibold mt-0.5">{'✗'.repeat(misspokes)}</p>
