@@ -5,6 +5,7 @@ import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import type { QuestionType } from '@/lib/types'
 import PrintTranscriptButton from './PrintTranscriptButton'
+import SendTranscriptButton from './SendTranscriptButton'
 import AccuracyChart from '@/app/AccuracyChart'
 
 export const dynamic = 'force-dynamic'
@@ -36,7 +37,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   const { data: studentData } = await getSupabase()
     .from('students')
-    .select('name, age_group')
+    .select('name, age_group, guardian_email')
     .eq('id', session.student_id)
     .single()
 
@@ -98,6 +99,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           <Link href={`/practitioner/transcript/${sessionId}/edit`} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Edit
           </Link>
+          <SendTranscriptButton sessionId={sessionId} defaultTo={studentData?.guardian_email ?? ''} />
           <PrintTranscriptButton />
         </div>
 

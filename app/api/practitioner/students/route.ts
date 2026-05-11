@@ -9,9 +9,9 @@ export async function POST(req: NextRequest) {
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
 
-  const { name, ageGroup, notes } = await req.json()
+  const { name, ageGroup, notes, guardianEmail } = await req.json()
   if (!name?.trim()) return Response.json({ error: 'Name required' }, { status: 400 })
 
-  const student = await createStudent(userId, name.trim(), ageGroup, notes ?? '')
+  const student = await createStudent(userId, name.trim(), ageGroup, notes ?? '', guardianEmail ?? '')
   return Response.json(student)
 }

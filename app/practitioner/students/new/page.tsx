@@ -16,6 +16,7 @@ export default function NewStudentPage() {
   const [name, setName] = useState('')
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
   const [notes, setNotes] = useState('')
+  const [guardianEmail, setGuardianEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -28,7 +29,7 @@ export default function NewStudentPage() {
       const res = await fetch('/api/practitioner/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, ageGroup, notes }),
+        body: JSON.stringify({ name, ageGroup, notes, guardianEmail }),
       })
       const data = await res.json()
       if (data.id) {
@@ -67,6 +68,16 @@ export default function NewStudentPage() {
             >
               {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Guardian Email (optional)</label>
+            <input
+              type="email"
+              value={guardianEmail}
+              onChange={e => setGuardianEmail(e.target.value)}
+              placeholder="guardian@email.com"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>

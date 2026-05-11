@@ -31,6 +31,7 @@ export interface Student {
   name: string
   ageGroup: string
   notes: string
+  guardianEmail: string
   createdAt: string
 }
 
@@ -105,6 +106,7 @@ export async function getStudents(practitionerId: string): Promise<Student[]> {
     name: d.name,
     ageGroup: d.age_group,
     notes: d.notes ?? '',
+    guardianEmail: d.guardian_email ?? '',
     createdAt: d.created_at,
   }))
 }
@@ -118,16 +120,18 @@ export async function getStudent(id: string): Promise<Student | null> {
     name: data.name,
     ageGroup: data.age_group,
     notes: data.notes ?? '',
+    guardianEmail: data.guardian_email ?? '',
     createdAt: data.created_at,
   }
 }
 
-export async function createStudent(practitionerId: string, name: string, ageGroup: string, notes: string): Promise<Student> {
+export async function createStudent(practitionerId: string, name: string, ageGroup: string, notes: string, guardianEmail = ''): Promise<Student> {
   const { data } = await getSupabase().from('students').insert({
     practitioner_id: practitionerId,
     name,
     age_group: ageGroup,
     notes,
+    guardian_email: guardianEmail,
   }).select().single()
   return {
     id: data.id,
@@ -135,12 +139,13 @@ export async function createStudent(practitionerId: string, name: string, ageGro
     name: data.name,
     ageGroup: data.age_group,
     notes: data.notes ?? '',
+    guardianEmail: data.guardian_email ?? '',
     createdAt: data.created_at,
   }
 }
 
-export async function updateStudent(id: string, name: string, ageGroup: string, notes: string): Promise<void> {
-  await getSupabase().from('students').update({ name, age_group: ageGroup, notes }).eq('id', id)
+export async function updateStudent(id: string, name: string, ageGroup: string, notes: string, guardianEmail = ''): Promise<void> {
+  await getSupabase().from('students').update({ name, age_group: ageGroup, notes, guardian_email: guardianEmail }).eq('id', id)
 }
 
 export async function deleteStudent(id: string): Promise<void> {

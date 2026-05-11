@@ -11,6 +11,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
   const [name, setName] = useState('')
   const [ageGroup, setAgeGroup] = useState('')
   const [notes, setNotes] = useState('')
+  const [guardianEmail, setGuardianEmail] = useState('')
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -23,6 +24,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           setName(data.student.name)
           setAgeGroup(data.student.ageGroup)
           setNotes(data.student.notes ?? '')
+          setGuardianEmail(data.student.guardianEmail ?? '')
           setLoaded(true)
         }
       })
@@ -36,7 +38,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
     const res = await fetch(`/api/practitioner/students/${params.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, ageGroup, notes }),
+      body: JSON.stringify({ name, ageGroup, notes, guardianEmail }),
     })
     const data = await res.json()
     if (!res.ok) {
@@ -77,6 +79,16 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           </select>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Guardian Email</label>
+          <input
+            type="email"
+            value={guardianEmail}
+            onChange={e => setGuardianEmail(e.target.value)}
+            placeholder="guardian@email.com"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
           <textarea
