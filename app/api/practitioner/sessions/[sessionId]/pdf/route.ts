@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
-import { Document, Page, View, Text, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine, Image as PdfImage } from '@react-pdf/renderer'
+import { Document, Page, View, Text, Link, StyleSheet, renderToBuffer, Svg, Path, Circle, Line as SvgLine, Image as PdfImage } from '@react-pdf/renderer'
 import React from 'react'
 import { getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import type { SessionAccuracy } from '@/lib/practitionerStore'
@@ -214,13 +214,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
           ...(sessionVideoRecord?.capturedAnswer ? [
             React.createElement(View, {},
               React.createElement(Text, { style: s.label }, 'Session Video'),
-              React.createElement(Text, { style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
+              React.createElement(Link, { src: sessionVideoRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
             ),
           ] : []),
           ...(sessionInvoiceRecord?.capturedAnswer ? [
             React.createElement(View, {},
               React.createElement(Text, { style: s.label }, 'Invoice'),
-              React.createElement(Text, { style: { fontSize: 9, color: '#2563eb' } }, sessionInvoiceRecord.capturedAnswer),
+              React.createElement(Link, { src: sessionInvoiceRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionInvoiceRecord.capturedAnswer),
             ),
           ] : []),
         ),
