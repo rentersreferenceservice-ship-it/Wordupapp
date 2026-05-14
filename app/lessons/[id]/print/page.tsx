@@ -89,7 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} #footer-key{position:fixed;bottom:-0.72in;left:0;right:0;background:white;padding:2px 0.75in;font-size:7.5pt;text-align:center;} #print-wrap{padding-bottom:0.2in;}}';
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} }';
           document.head.appendChild(s);
         })();
         window.onload = function(){
@@ -118,7 +118,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           <h3 style={{ fontSize: '10pt', marginBottom: 6 }}>References</h3>
           <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
         </div>
-        <div id="footer-key" style={{ fontSize: '8pt', textAlign: 'center', marginTop: 24, paddingTop: 8, borderTop: '1px solid #ccc' }} dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
+        <div id="footer-key" style={{ fontSize: '8pt', textAlign: 'center', marginTop: 24, paddingTop: 8, borderTop: '1px solid #999' }} dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
       </div>
     </>
   )
