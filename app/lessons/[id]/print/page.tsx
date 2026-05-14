@@ -99,11 +99,8 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           .refs h3 { font-size: 10pt; margin-bottom: 6px; }
           .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
           .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
-          [aria-hidden="true"] { display: none !important; }
-          nav, header { display: none !important; }
           @media print {
             .no-print { display: none; }
-            #mobileprint { display: none !important; }
             body { padding: 0; }
             @page { margin: 1in 0.75in 0.75in; }
           }
@@ -112,17 +109,11 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <body>
         <script dangerouslySetInnerHTML={{ __html: `
           window.onload = function(){
-            var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) {
+            setTimeout(function(){
               document.getElementById('preparing').style.display = 'none';
-              document.getElementById('mobileprint').style.display = 'flex';
-            } else {
-              setTimeout(function(){
-                document.getElementById('preparing').style.display = 'none';
-                window.print();
-                window.close();
-              }, 800);
-            }
+              window.print();
+              window.close();
+            }, 800);
           }
         ` }} />
         <div id="preparing" style={{
@@ -132,12 +123,6 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         }}>
           Preparing your lesson for printing…
         </div>
-        <div dangerouslySetInnerHTML={{ __html: `
-          <div id="mobileprint" style="display:none;position:fixed;top:0;left:0;width:100%;background:white;padding:16px;z-index:9999;flex-direction:column;align-items:center;gap:8px;border-bottom:2px solid #e5e7eb;">
-            <button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 32px;font-size:14pt;font-weight:bold;cursor:pointer;">Print / Save as PDF</button>
-            <div style="font-size:9pt;color:#888;">On iPhone: tap Share &rarr; Print to save as PDF</div>
-          </div>
-        ` }} />
         <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
