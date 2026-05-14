@@ -109,7 +109,6 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <body>
         <script dangerouslySetInnerHTML={{ __html: `
           window.onload = function(){
-            window.onafterprint = function(){ window.close(); };
             setTimeout(function(){
               document.getElementById('preparing').style.display = 'none';
               window.print();
