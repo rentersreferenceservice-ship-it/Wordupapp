@@ -99,6 +99,8 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           .refs h3 { font-size: 10pt; margin-bottom: 6px; }
           .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
           .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
+          [aria-hidden="true"] { display: none !important; }
+          nav, header { display: none !important; }
           @media print {
             .no-print { display: none; }
             body { padding: 0; }
