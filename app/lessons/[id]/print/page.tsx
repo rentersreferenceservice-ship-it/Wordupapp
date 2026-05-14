@@ -103,6 +103,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           nav, header { display: none !important; }
           @media print {
             .no-print { display: none; }
+            #mobileprint { display: none !important; }
             body { padding: 0; }
             @page { margin: 1in 0.75in 0.75in; }
           }
