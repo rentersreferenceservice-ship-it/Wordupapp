@@ -57,11 +57,11 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     const questionsHtml = hunk.questions.map((q, qi) => {
       const qr = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined
       return `
-        <div class="question">
+        <div style="margin-bottom:4px;">
           <div style="display:flex;align-items:flex-start;gap:8px;">
             <div style="flex:1;">
               <div style="color:${QUESTION_COLORS[q.type]};font-weight:bold;">${q.question}</div>
-              ${q.answer ? `<div class="answer">${q.answer}</div>` : ''}
+              ${q.answer ? `<div style="margin-left:16px;font-weight:bold;color:#000;">${q.answer}</div>` : ''}
             </div>
             ${qr ? `<div style="text-align:center;flex-shrink:0;max-width:90px;"><img src="${qr}" width="72" height="72" alt="YouTube QR"/>${q.youtubeDescription ? `<div style="font-size:6.5pt;color:#444;margin-top:2px;line-height:1.3;">${q.youtubeDescription}</div>` : ''}${q.youtubeDuration && q.youtubeVideoTitle ? `<div style="font-size:6pt;color:#aaa;margin-top:1px;line-height:1.3;">${q.youtubeDuration} — ${q.youtubeVideoTitle}</div>` : ''}</div>` : ''}
           </div>
@@ -70,15 +70,15 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     }).join('')
 
     return `
-      <div class="hunk">
+      <div style="margin-bottom:16px;">
         ${hunk.imageUrl ? `<img src="${hunk.imageUrl}" style="width:100%;height:150px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />` : ''}
-        <p class="hunk-text">${hunk.text}</p>
+        <p style="margin-bottom:8px;line-height:1.5;">${hunk.text}</p>
         ${questionsHtml}
       </div>
     `
   }).join('')
 
-  const citationsHtml = lesson.citations.map((c, i) => `<p class="citation">${i + 1}. ${c}</p>`).join('')
+  const citationsHtml = lesson.citations.map((c, i) => `<p style="font-size:8pt;color:#555;margin-bottom:3px;">${i + 1}. ${c}</p>`).join('')
 
   const footerKey = Object.entries(QUESTION_COLORS)
     .map(([type, color]) => `<span style="color:${color};font-weight:bold;">${type}</span>`)
@@ -89,24 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = [
-            '* { margin: 0; padding: 0; box-sizing: border-box; }',
-            '[aria-hidden="true"], nav, header { display: none !important; }',
-            '#print-wrap { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; background: white; min-height: 100vh; }',
-            '#print-wrap .hunk { margin-bottom: 16px; }',
-            '#print-wrap .hunk-text { margin-bottom: 8px; line-height: 1.5; }',
-            '#print-wrap .question { margin-bottom: 4px; }',
-            '#print-wrap .answer { margin-left: 16px; font-weight: bold; color: #000; }',
-            '#print-wrap .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }',
-            '#print-wrap .refs h3 { font-size: 10pt; margin-bottom: 6px; }',
-            '#print-wrap .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }',
-            '#print-wrap .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #ccc; }',
-            '@media print {',
-            '  [aria-hidden="true"], nav, header { display: none !important; }',
-            '  #print-wrap { padding: 0; }',
-            '  @page { margin: 1in 0.75in 0.75in; }',
-            '}'
-          ].join(' ');
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;}}';
           document.head.appendChild(s);
         })();
         window.onload = function(){
@@ -123,7 +106,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       }}>
         Preparing your lesson for printing…
       </div>
-      <div id="print-wrap">
+      <div id="print-wrap" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11pt', color: '#1e1e1e', padding: '1in 0.75in 0.75in', background: 'white', minHeight: '100vh' }}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
@@ -131,11 +114,11 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           {lesson.hashtags?.length ? <div style={{ fontSize: '8pt', color: '#3b82f6', marginBottom: 16 }}>{lesson.hashtags.join(' ')}</div> : null}
         </div>
         <div dangerouslySetInnerHTML={{ __html: hunksHtml }} />
-        <div className="refs" style={{ marginTop: 16, borderTop: '1px solid #ccc', paddingTop: 8 }}>
+        <div style={{ marginTop: 16, borderTop: '1px solid #ccc', paddingTop: 8 }}>
           <h3 style={{ fontSize: '10pt', marginBottom: 6 }}>References</h3>
           <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
         </div>
-        <div className="footer-key" dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
+        <div style={{ fontSize: '8pt', textAlign: 'center', marginTop: 24, paddingTop: 8, borderTop: '1px solid #ccc' }} dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
       </div>
     </>
   )
