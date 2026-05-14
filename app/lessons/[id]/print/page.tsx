@@ -89,7 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} #print-wrap{padding-bottom:28px!important;} #footer-key{position:fixed!important;bottom:0!important;left:0!important;right:0!important;margin:0!important;padding:4px 0.75in!important;background:white!important;border-top:1px solid #999!important;font-size:8pt!important;text-align:center!important;} }';
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} }';
           document.head.appendChild(s);
         })();
         window.onload = function(){
@@ -106,19 +106,31 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       }}>
         Preparing your lesson for printing…
       </div>
-      <div id="print-wrap" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11pt', color: '#1e1e1e', padding: '1in 0.75in 0.75in', background: 'white', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
-          <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
-          <div style={{ fontSize: '16pt', fontWeight: 'bold', marginBottom: 4 }}>{lesson.title}</div>
-          {lesson.hashtags?.length ? <div style={{ fontSize: '8pt', color: '#3b82f6', marginBottom: 16 }}>{lesson.hashtags.join(' ')}</div> : null}
-        </div>
-        <div dangerouslySetInnerHTML={{ __html: hunksHtml }} />
-        <div style={{ marginTop: 16, borderTop: '1px solid #ccc', paddingTop: 8 }}>
-          <h3 style={{ fontSize: '10pt', marginBottom: 6 }}>References</h3>
-          <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
-        </div>
-        <div id="footer-key" style={{ fontSize: '8pt', textAlign: 'center', marginTop: 24, paddingTop: 8, borderTop: '1px solid #999' }} dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
+      <div id="print-wrap" style={{ fontFamily: 'Arial, sans-serif', fontSize: '11pt', color: '#1e1e1e', padding: '1in 0.75in 0', background: 'white' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tfoot>
+            <tr>
+              <td style={{ fontSize: '8pt', textAlign: 'center', borderTop: '1px solid #999', padding: '5px 0 6px' }} dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
+            </tr>
+          </tfoot>
+          <tbody>
+            <tr>
+              <td style={{ verticalAlign: 'top' }}>
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
+                  <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
+                  <div style={{ fontSize: '16pt', fontWeight: 'bold', marginBottom: 4 }}>{lesson.title}</div>
+                  {lesson.hashtags?.length ? <div style={{ fontSize: '8pt', color: '#3b82f6', marginBottom: 16 }}>{lesson.hashtags.join(' ')}</div> : null}
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: hunksHtml }} />
+                <div style={{ marginTop: 16, borderTop: '1px solid #ccc', paddingTop: 8 }}>
+                  <h3 style={{ fontSize: '10pt', marginBottom: 6 }}>References</h3>
+                  <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </>
   )
