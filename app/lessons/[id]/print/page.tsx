@@ -2,6 +2,7 @@ import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
 import { getUserUsage, incrementPrints, MONTHLY_LIMIT } from '@/lib/usageStore'
 import { redirect } from 'next/navigation'
+import { type Metadata } from 'next'
 import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
@@ -14,6 +15,12 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   MATH: '#7e22ce',
   VAKT: '#dc2626',
   OPEN: '#db2777',
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const lesson = await getLesson(id)
+  return { title: lesson?.title ?? 'Print Lesson' }
 }
 
 export default async function PrintPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,7 +42,6 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     ? `data:image/jpeg;base64,${fs.readFileSync(logoPath).toString('base64')}`
     : null
 
-  // Pre-generate QR codes for VAKT questions
   const qrMap: Record<string, string> = {}
   await Promise.all(
     lesson.hunks.flatMap(h =>
@@ -79,50 +85,43 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     .join(' &nbsp;|&nbsp; ')
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <title>{lesson.title}</title>
-        <style dangerouslySetInnerHTML={{ __html: `
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; }
-          .header { text-align: center; margin-bottom: 16px; }
-          .logo { width: 140px; margin-bottom: 8px; }
-          .credit { font-size: 9pt; color: #666; margin-bottom: 4px; }
-          .title { font-size: 16pt; font-weight: bold; margin-bottom: 4px; }
-          .hashtags { font-size: 8pt; color: #3b82f6; margin-bottom: 16px; }
-          .hunk { margin-bottom: 16px; }
-          .hunk-text { margin-bottom: 8px; line-height: 1.5; }
-          .question { margin-bottom: 4px; }
-          .answer { margin-left: 16px; font-weight: bold; color: #000; }
-          .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }
-          .refs h3 { font-size: 10pt; margin-bottom: 6px; }
-          .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
-          .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
-          @media print {
-            .no-print { display: none; }
-            body { padding: 0; }
-            @page { margin: 1in 0.75in 0.75in; }
-          }
-        ` }} />
-      </head>
-      <body>
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.onload = function(){
-            setTimeout(function(){
-              document.getElementById('preparing').style.display = 'none';
-              window.print();
-            }, 800);
-          }
-        ` }} />
-        <div id="preparing" style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 9999, fontSize: '16pt', color: '#1e40af', fontFamily: 'Arial, sans-serif'
-        }}>
-          Preparing your lesson for printing…
-        </div>
-        <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* Hide root layout elements on this page */
+        [aria-hidden="true"], nav, header { display: none !important; }
+        /* Print page styles */
+        #print-wrap { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; background: white; min-height: 100vh; }
+        #print-wrap .hunk { margin-bottom: 16px; }
+        #print-wrap .hunk-text { margin-bottom: 8px; line-height: 1.5; }
+        #print-wrap .question { margin-bottom: 4px; }
+        #print-wrap .answer { margin-left: 16px; font-weight: bold; color: #000; }
+        #print-wrap .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }
+        #print-wrap .refs h3 { font-size: 10pt; margin-bottom: 6px; }
+        #print-wrap .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
+        #print-wrap .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
+        @media print {
+          [aria-hidden="true"], nav, header { display: none !important; }
+          #print-wrap { padding: 0; }
+          @page { margin: 1in 0.75in 0.75in; }
+        }
+      ` }} />
+      <script dangerouslySetInnerHTML={{ __html: `
+        window.onload = function(){
+          setTimeout(function(){
+            document.getElementById('preparing').style.display = 'none';
+            window.print();
+          }, 800);
+        }
+      ` }} />
+      <div id="preparing" style={{
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 9999, fontSize: '16pt', color: '#1e40af', fontFamily: 'Arial, sans-serif'
+      }}>
+        Preparing your lesson for printing…
+      </div>
+      <div id="print-wrap">
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
           <div style={{ fontSize: '16pt', fontWeight: 'bold', marginBottom: 4 }}>{lesson.title}</div>
@@ -134,7 +133,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           <div dangerouslySetInnerHTML={{ __html: citationsHtml }} />
         </div>
         <div className="footer-key" dangerouslySetInnerHTML={{ __html: `Key: ${footerKey}` }} />
-      </body>
-    </html>
+      </div>
+    </>
   )
 }
