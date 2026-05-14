@@ -89,7 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} }';
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} #print-wrap{padding-bottom:28px!important;} #footer-key{position:fixed!important;bottom:0!important;left:0!important;right:0!important;margin:0!important;padding:4px 0.75in!important;background:white!important;border-top:1px solid #999!important;font-size:8pt!important;text-align:center!important;} }';
           document.head.appendChild(s);
         })();
         window.onload = function(){
