@@ -89,7 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} #footer-key{position:fixed;bottom:-0.6in;left:0;right:0;background:white;padding:2px 0.75in;font-size:7.5pt;text-align:center;} #print-wrap{padding-bottom:0.2in;}}';
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} #footer-key{position:fixed;bottom:-0.72in;left:0;right:0;background:white;padding:2px 0.75in;font-size:7.5pt;text-align:center;} #print-wrap{padding-bottom:0.2in;}}';
           document.head.appendChild(s);
         })();
         window.onload = function(){
