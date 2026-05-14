@@ -86,29 +86,27 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        /* Hide root layout elements on this page */
-        [aria-hidden="true"], nav, header { display: none !important; }
-        /* Print page styles */
-        #print-wrap { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; background: white; min-height: 100vh; }
-        #print-wrap .hunk { margin-bottom: 16px; }
-        #print-wrap .hunk-text { margin-bottom: 8px; line-height: 1.5; }
-        #print-wrap .question { margin-bottom: 4px; }
-        #print-wrap .answer { margin-left: 16px; font-weight: bold; color: #000; }
-        #print-wrap .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }
-        #print-wrap .refs h3 { font-size: 10pt; margin-bottom: 6px; }
-        #print-wrap .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }
-        #print-wrap .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #eee; }
-        @media print {
-          [aria-hidden="true"], nav, header { display: none !important; }
-          #print-wrap { padding: 0; }
-          @page { margin: 1in 0.75in 0.75in; }
-        }
-      ` }} />
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '@page { margin: 1in 0.75in 0.75in; } @media print { #print-wrap { padding: 0; } [aria-hidden="true"], nav, header { display: none !important; } }';
+          s.textContent = [
+            '* { margin: 0; padding: 0; box-sizing: border-box; }',
+            '[aria-hidden="true"], nav, header { display: none !important; }',
+            '#print-wrap { font-family: Arial, sans-serif; font-size: 11pt; color: #1e1e1e; padding: 1in 0.75in 0.75in; background: white; min-height: 100vh; }',
+            '#print-wrap .hunk { margin-bottom: 16px; }',
+            '#print-wrap .hunk-text { margin-bottom: 8px; line-height: 1.5; }',
+            '#print-wrap .question { margin-bottom: 4px; }',
+            '#print-wrap .answer { margin-left: 16px; font-weight: bold; color: #000; }',
+            '#print-wrap .refs { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; }',
+            '#print-wrap .refs h3 { font-size: 10pt; margin-bottom: 6px; }',
+            '#print-wrap .citation { font-size: 8pt; color: #555; margin-bottom: 3px; }',
+            '#print-wrap .footer-key { font-size: 8pt; text-align: center; margin-top: 24px; padding-top: 8px; border-top: 1px solid #ccc; }',
+            '@media print {',
+            '  [aria-hidden="true"], nav, header { display: none !important; }',
+            '  #print-wrap { padding: 0; }',
+            '  @page { margin: 1in 0.75in 0.75in; }',
+            '}'
+          ].join(' ');
           document.head.appendChild(s);
         })();
         window.onload = function(){
