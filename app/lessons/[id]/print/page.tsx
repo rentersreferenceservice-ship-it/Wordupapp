@@ -2,6 +2,7 @@ import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
 import { getUserUsage, incrementPrints, MONTHLY_LIMIT } from '@/lib/usageStore'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
@@ -20,6 +21,10 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
   const { id } = await params
   const lesson = await getLesson(id)
   if (!lesson) redirect('/')
+
+  const headersList = await headers()
+  const ua = headersList.get('user-agent') ?? ''
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua)
 
   const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
   const { userId } = await auth()
@@ -107,22 +112,37 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         ` }} />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.onload = function(){
-            setTimeout(function(){
-              document.getElementById('preparing').style.display = 'none';
-              window.print();
-              window.close();
-            }, 800);
-          }
-        ` }} />
-        <div id="preparing" style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 9999, fontSize: '16pt', color: '#1e40af', fontFamily: 'Arial, sans-serif'
-        }}>
-          Preparing your lesson for printing…
-        </div>
+        {isMobile ? (
+          <div dangerouslySetInnerHTML={{ __html: `
+            <div style="text-align:center;padding:16px 0 24px;border-bottom:1px solid #eee;margin-bottom:16px;">
+              <button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:13pt;font-weight:bold;cursor:pointer;">
+                Print / Save as PDF
+              </button>
+              <div style="font-size:9pt;color:#888;margin-top:8px;">
+                On iPhone: tap <strong>Share</strong> &rarr; <strong>Print</strong>
+              </div>
+            </div>
+          ` }} />
+        ) : (
+          <>
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.onload = function(){
+                setTimeout(function(){
+                  document.getElementById('preparing').style.display = 'none';
+                  window.print();
+                  window.close();
+                }, 800);
+              }
+            ` }} />
+            <div id="preparing" style={{
+              position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+              background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 9999, fontSize: '16pt', color: '#1e40af', fontFamily: 'Arial, sans-serif'
+            }}>
+              Preparing your lesson for printing…
+            </div>
+          </>
+        )}
         <div className="header" style={{ textAlign: 'center', marginBottom: 16 }}>
           {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
           <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
