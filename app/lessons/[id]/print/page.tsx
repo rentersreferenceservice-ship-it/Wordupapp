@@ -106,6 +106,11 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
         }
       ` }} />
       <script dangerouslySetInnerHTML={{ __html: `
+        (function(){
+          var s = document.createElement('style');
+          s.textContent = '@page { margin: 1in 0.75in 0.75in; } @media print { #print-wrap { padding: 0; } [aria-hidden="true"], nav, header { display: none !important; } }';
+          document.head.appendChild(s);
+        })();
         window.onload = function(){
           setTimeout(function(){
             document.getElementById('preparing').style.display = 'none';
