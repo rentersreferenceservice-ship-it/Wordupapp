@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, SignUpButton } from '@clerk/nextjs'
 import SubscribeButton from './SubscribeButton'
@@ -29,6 +29,11 @@ function incrementFreeLessons(): void {
 export default function HomePage() {
   const router = useRouter()
   const { isSignedIn } = useUser()
+
+  useEffect(() => {
+    if (isSignedIn) router.replace('/practitioner/dashboard')
+  }, [isSignedIn, router])
+
   const [topic, setTopic] = useState('')
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
   const [loading, setLoading] = useState(false)
