@@ -57,7 +57,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
     const questionsHtml = hunk.questions.map((q, qi) => {
       const qr = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined
       return `
-        <div style="margin-bottom:4px;">
+        <div style="margin-bottom:10px;">
           <div style="display:flex;align-items:flex-start;gap:8px;">
             <div style="flex:1;">
               <div style="color:${QUESTION_COLORS[q.type]};font-weight:bold;">${q.question}</div>
@@ -65,6 +65,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
             </div>
             ${qr ? `<div style="text-align:center;flex-shrink:0;max-width:90px;"><img src="${qr}" width="72" height="72" alt="YouTube QR"/>${q.youtubeDescription ? `<div style="font-size:6.5pt;color:#444;margin-top:2px;line-height:1.3;">${q.youtubeDescription}</div>` : ''}${q.youtubeDuration && q.youtubeVideoTitle ? `<div style="font-size:6pt;color:#aaa;margin-top:1px;line-height:1.3;">${q.youtubeDuration} — ${q.youtubeVideoTitle}</div>` : ''}</div>` : ''}
           </div>
+          <div style="border-bottom:1px solid #bbb;margin-top:5px;"></div>
         </div>
       `
     }).join('')
