@@ -7,6 +7,7 @@ import type { QuestionType } from '@/lib/types'
 import PrintTranscriptButton from './PrintTranscriptButton'
 import SendTranscriptButton from './SendTranscriptButton'
 import AccuracyChart from '@/app/AccuracyChart'
+import SpellerSentenceInput from './SpellerSentenceInput'
 
 export const dynamic = 'force-dynamic'
 
@@ -246,7 +247,6 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                     const isMathType = q.questionType === 'MATH'
                     const hasTextAnswer = q.capturedAnswer && !notAsked && !skipped && !completed && !isMathType
                     const misspokes = q.misspokeCount ?? 0
-                    const isOpenType = q.questionType === 'OPEN' || q.questionType === 'PRIOR KNOWLEDGE'
                     return (
                       <div key={i} className="flex items-start gap-3 text-sm print-question mb-2">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0 mt-0.5" style={{ color, border: `1.5px solid ${color}` }}>
@@ -278,14 +278,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                             <p className="text-xs text-red-600 font-semibold mt-0.5">{'✗'.repeat(misspokes)}</p>
                           )}
                           {!notAsked && !skipped && (
-                            <div className="mt-1.5 space-y-1 print:mt-2">
-                              <div className="border-b border-gray-300 w-full h-5" />
-                              {isOpenType && <>
+                            <>
+                              <SpellerSentenceInput
+                                sessionId={sessionId}
+                                responseId={q.id}
+                                initialValue={q.spellerSentence ?? ''}
+                              />
+                              <div className="space-y-1 print:mt-1 print:block hidden">
                                 <div className="border-b border-gray-300 w-full h-5" />
                                 <div className="border-b border-gray-300 w-full h-5" />
                                 <div className="border-b border-gray-300 w-full h-5" />
-                              </>}
-                            </div>
+                              </div>
+                            </>
                           )}
                         </div>
                       </div>

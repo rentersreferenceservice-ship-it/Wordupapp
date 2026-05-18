@@ -21,6 +21,7 @@ interface EditState {
   misspokeCount: number
   skipped: boolean
   notAsked: boolean
+  spellerSentence: string
 }
 
 function initialEditState(r: SessionResponse): EditState {
@@ -30,6 +31,7 @@ function initialEditState(r: SessionResponse): EditState {
     misspokeCount: r.misspokeCount ?? 0,
     skipped: ca === 'SKIPPED' || ca === 'SKIP',
     notAsked: ca === 'NOT_ASKED',
+    spellerSentence: r.spellerSentence ?? '',
   }
 }
 
@@ -124,6 +126,7 @@ export default function EditTranscriptClient({
         expectedAnswer: r.expectedAnswer,
         capturedAnswer,
         misspokeCount,
+        spellerSentence: edit.spellerSentence || undefined,
       })
     }
     return out
@@ -274,28 +277,39 @@ export default function EditTranscriptClient({
                 </div>
 
                 {r.questionType === 'MATH' && (
-                  <div className="flex flex-wrap gap-2 ml-1">
-                    {[
-                      { val: 'NOT_ASKED', label: 'Not Asked' },
-                      { val: 'correct', label: 'Correct' },
-                      { val: 'incorrect', label: 'Incorrect' },
-                      { val: 'SKIP', label: 'Skipped' },
-                    ].map(({ val, label }) => {
-                      const active = val === 'NOT_ASKED' ? edit.notAsked : val === 'SKIP' ? edit.skipped : (edit.capturedAnswer === val && !edit.notAsked && !edit.skipped)
-                      return (
-                        <button
-                          key={val}
-                          onClick={() => update(r.id, { capturedAnswer: val, notAsked: val === 'NOT_ASKED', skipped: val === 'SKIP' })}
-                          className={`px-3 py-1 rounded-full text-xs font-medium border-2 transition-colors ${active
-                            ? val === 'correct' ? 'border-green-500 bg-green-50 text-green-700'
-                              : val === 'incorrect' ? 'border-red-500 bg-red-50 text-red-700'
-                              : 'border-gray-400 bg-gray-100 text-gray-700'
-                            : 'border-gray-200 text-gray-400 hover:border-gray-300'}`}
-                        >
-                          {label}
-                        </button>
-                      )
-                    })}
+                  <div className="space-y-2 ml-1">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { val: 'NOT_ASKED', label: 'Not Asked' },
+                        { val: 'correct', label: 'Correct' },
+                        { val: 'incorrect', label: 'Incorrect' },
+                        { val: 'SKIP', label: 'Skipped' },
+                      ].map(({ val, label }) => {
+                        const active = val === 'NOT_ASKED' ? edit.notAsked : val === 'SKIP' ? edit.skipped : (edit.capturedAnswer === val && !edit.notAsked && !edit.skipped)
+                        return (
+                          <button
+                            key={val}
+                            onClick={() => update(r.id, { capturedAnswer: val, notAsked: val === 'NOT_ASKED', skipped: val === 'SKIP' })}
+                            className={`px-3 py-1 rounded-full text-xs font-medium border-2 transition-colors ${active
+                              ? val === 'correct' ? 'border-green-500 bg-green-50 text-green-700'
+                                : val === 'incorrect' ? 'border-red-500 bg-red-50 text-red-700'
+                                : 'border-gray-400 bg-gray-100 text-gray-700'
+                              : 'border-gray-200 text-gray-400 hover:border-gray-300'}`}
+                          >
+                            {label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {!edit.notAsked && !edit.skipped && (
+                      <input
+                        type="text"
+                        value={edit.spellerSentence}
+                        onChange={e => update(r.id, { spellerSentence: e.target.value })}
+                        placeholder="Speller's full sentence…"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
                   </div>
                 )}
 
@@ -321,21 +335,32 @@ export default function EditTranscriptClient({
                 )}
 
                 {r.questionType === 'KNOWN' && (
-                  <div className="flex items-center gap-4 ml-1">
-                    <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={edit.notAsked}
-                        onChange={e => update(r.id, { notAsked: e.target.checked, misspokeCount: 0 })}
-                        className="rounded"
-                      />
-                      Not Asked
-                    </label>
+                  <div className="space-y-2 ml-1">
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={edit.notAsked}
+                          onChange={e => update(r.id, { notAsked: e.target.checked, misspokeCount: 0 })}
+                          className="rounded"
+                        />
+                        Not Asked
+                      </label>
+                      {!edit.notAsked && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs text-gray-400">Misspokes:</span>
+                          <Stepper value={edit.misspokeCount} onChange={n => update(r.id, { misspokeCount: n })} />
+                        </div>
+                      )}
+                    </div>
                     {!edit.notAsked && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-400">Misspokes:</span>
-                        <Stepper value={edit.misspokeCount} onChange={n => update(r.id, { misspokeCount: n })} />
-                      </div>
+                      <input
+                        type="text"
+                        value={edit.spellerSentence}
+                        onChange={e => update(r.id, { spellerSentence: e.target.value })}
+                        placeholder="Speller's full sentence…"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     )}
                   </div>
                 )}
@@ -368,7 +393,14 @@ export default function EditTranscriptClient({
                           type="text"
                           value={edit.capturedAnswer === 'NOT_ASKED' || edit.capturedAnswer === 'SKIP' ? '' : edit.capturedAnswer}
                           onChange={e => update(r.id, { capturedAnswer: e.target.value })}
-                          placeholder="Student's response..."
+                          placeholder="Short answer (word/phrase)…"
+                          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <input
+                          type="text"
+                          value={edit.spellerSentence}
+                          onChange={e => update(r.id, { spellerSentence: e.target.value })}
+                          placeholder="Speller's full sentence…"
                           className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <div className="flex items-center gap-1">

@@ -55,6 +55,7 @@ export interface SessionResponse {
   questionText: string
   expectedAnswer?: string
   capturedAnswer?: string
+  spellerSentence?: string
 }
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
@@ -202,6 +203,7 @@ export async function saveSessionResponses(sessionId: string, responses: Omit<Se
     question_text: r.questionText,
     expected_answer: r.expectedAnswer ?? null,
     captured_answer: r.capturedAnswer ?? null,
+    speller_sentence: r.spellerSentence ?? null,
   })
 
   const { error: deleteError } = await getSupabase()
@@ -306,5 +308,15 @@ export async function getSessionResponses(sessionId: string): Promise<SessionRes
     questionText: d.question_text,
     expectedAnswer: d.expected_answer,
     capturedAnswer: d.captured_answer,
+    spellerSentence: d.speller_sentence ?? undefined,
   }))
+}
+
+export async function updateSpellerSentence(sessionId: string, responseId: string, sentence: string): Promise<void> {
+  const { error } = await getSupabase()
+    .from('session_responses')
+    .update({ speller_sentence: sentence || null })
+    .eq('id', responseId)
+    .eq('session_id', sessionId)
+  if (error) throw new Error(`Update failed: ${error.message}`)
 }
