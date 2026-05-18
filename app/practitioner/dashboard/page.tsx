@@ -18,14 +18,12 @@ export default async function PractitionerDashboard() {
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100 }} />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Practitioner Dashboard</h1>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Practitioner Dashboard</h1>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <Link href="/practitioner/generate" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Lesson Generator
           </Link>
