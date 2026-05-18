@@ -32,6 +32,7 @@ interface QuestionCapture {
   misspokeCount: number
   completedAnswers: string[]
   asked: boolean
+  spellerSentence: string
 }
 
 interface KeywordCapture {
@@ -86,6 +87,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               ? (saved.capturedAnswer ?? '').split(', ').filter(Boolean)
               : [],
             asked: true,
+            spellerSentence: saved?.spellerSentence ?? '',
           }
         }),
       }
@@ -178,6 +180,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  function setSpellerSentence(questionIdx: number, sentence: string) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[currentHunk].questions]
+      qs[questionIdx] = { ...qs[questionIdx], spellerSentence: sentence }
+      next[currentHunk] = { ...next[currentHunk], questions: qs }
+      return next
+    })
+  }
+
   function buildResponses(complete: boolean) {
     return [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
@@ -202,6 +214,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             ? q.completedAnswers.join(', ')
             : q.capturedAnswer,
           misspokeCount: q.asked ? q.misspokeCount : 0,
+          spellerSentence: q.spellerSentence || undefined,
         })),
       ]),
     ]
@@ -367,7 +380,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                     </button>
                   </div>
 
-                  {/* KNOWN — answer + misspoke counter */}
+                  {/* KNOWN — answer + misspoke counter + sentence */}
                   {isKnown && (
                     <div className="space-y-2">
                       {q.expectedAnswer && (
@@ -384,10 +397,17 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                         <span className="text-xs text-gray-500">Misspoke:</span>
                         <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestionMisspoke(i, d)} />
                       </div>
+                      <textarea
+                        value={q.spellerSentence}
+                        onChange={e => setSpellerSentence(i, e.target.value)}
+                        placeholder="Speller's full sentence…"
+                        rows={2}
+                        className="w-full border-2 border-green-200 bg-green-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none placeholder-gray-400"
+                      />
                     </div>
                   )}
 
-                  {/* SEMI-OPEN — misspoke counter + each answer toggleable */}
+                  {/* SEMI-OPEN — misspoke counter + each answer toggleable + sentence */}
                   {isSemiOpen && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
@@ -412,6 +432,13 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                           </span>
                         ))}
                       </div>
+                      <textarea
+                        value={q.spellerSentence}
+                        onChange={e => setSpellerSentence(i, e.target.value)}
+                        placeholder="Speller's full sentence…"
+                        rows={2}
+                        className="w-full border-2 border-orange-200 bg-orange-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none placeholder-gray-400"
+                      />
                     </div>
                   )}
 
@@ -435,7 +462,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                     </div>
                   )}
 
-                  {/* MATH — correct / incorrect */}
+                  {/* MATH — correct / incorrect + sentence */}
                   {isMath && (
                     <div className="space-y-2">
                       {q.expectedAnswer && (
@@ -455,6 +482,13 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                           ✗ Incorrect
                         </button>
                       </div>
+                      <textarea
+                        value={q.spellerSentence}
+                        onChange={e => setSpellerSentence(i, e.target.value)}
+                        placeholder="Speller's full sentence…"
+                        rows={2}
+                        className="w-full border-2 border-purple-200 bg-purple-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none placeholder-gray-400"
+                      />
                     </div>
                   )}
 
