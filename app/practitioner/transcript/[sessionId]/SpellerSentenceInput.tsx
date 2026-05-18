@@ -33,17 +33,23 @@ export default function SpellerSentenceInput({
   }
 
   return (
-    <div className="mt-1.5">
-      <textarea
-        value={value}
-        onChange={e => setValue(e.target.value)}
-        onBlur={handleBlur}
-        placeholder="Speller's full sentence…"
-        rows={2}
-        className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 outline-none focus:ring-1 focus:ring-blue-400 resize-none text-gray-700 placeholder-gray-300 print:border-none print:shadow-none print:bg-transparent print:p-0 print:resize-none"
-      />
-      {status === 'saving' && <span className="text-xs text-gray-400 print:hidden">Saving…</span>}
-      {status === 'saved' && <span className="text-xs text-green-500 print:hidden">Saved</span>}
-    </div>
+    <>
+      <div className="mt-2 print:hidden">
+        <p className="text-xs font-semibold text-gray-500 mb-1">Speller&apos;s sentence</p>
+        <textarea
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onBlur={handleBlur}
+          placeholder="Type the full sentence the speller gave…"
+          rows={2}
+          className="w-full text-sm border-2 border-blue-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none text-gray-800 placeholder-gray-400 bg-blue-50"
+        />
+        {status === 'saving' && <span className="text-xs text-gray-400">Saving…</span>}
+        {status === 'saved' && <span className="text-xs text-green-500">Saved ✓</span>}
+      </div>
+      {value && (
+        <p className="hidden print:block text-xs text-gray-800 mt-1 italic">{value}</p>
+      )}
+    </>
   )
 }
