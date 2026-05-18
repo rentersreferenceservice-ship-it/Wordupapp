@@ -42,8 +42,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     const { userId } = await auth()
     if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-    const { to } = await req.json()
-    if (!to || !to.includes('@')) return Response.json({ error: 'Invalid recipient email' }, { status: 400 })
+    const body = await req.json()
+    const toRaw: unknown = body.to
+    const to: string[] = Array.isArray(toRaw) ? toRaw : (typeof toRaw === 'string' ? [toRaw] : [])
+    if (to.length === 0 || to.some(e => !e.includes('@'))) return Response.json({ error: 'Invalid recipient email' }, { status: 400 })
 
     const { data: session } = await getSupabase()
       .from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).single()
