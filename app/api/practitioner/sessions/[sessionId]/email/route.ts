@@ -64,9 +64,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     // Stats
     const keywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
     const known = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+    const sentenceLetters = responses
+      .filter(r => r.spellerSentence && r.spellerSentence.trim())
+      .reduce((s, r) => s + (r.spellerSentence ?? '').replace(/\s/g, '').length, 0)
     const totalLetters =
       keywords.reduce((s, k) => s + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
-      known.reduce((s, q) => s + (q.expectedAnswer ?? '').split('/').reduce((a, x) => a + x.trim().replace(/\s/g, '').length, 0), 0)
+      known.reduce((s, q) => s + (q.expectedAnswer ?? '').split('/').reduce((a, x) => a + x.trim().replace(/\s/g, '').length, 0), 0) +
+      sentenceLetters
     const totalMisspokes = [...keywords, ...known].reduce((s, r) => s + (r.misspokeCount ?? 0), 0)
     const totalPokes = totalLetters + totalMisspokes
     const accuracy = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : null

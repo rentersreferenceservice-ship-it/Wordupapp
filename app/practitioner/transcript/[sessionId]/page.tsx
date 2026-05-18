@@ -63,9 +63,13 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
   const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const sentenceLetters = responses
+    .filter(r => r.spellerSentence && r.spellerSentence.trim())
+    .reduce((sum, r) => sum + (r.spellerSentence ?? '').replace(/\s/g, '').length, 0)
   const totalLetters =
     spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
-    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0)
+    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
+    sentenceLetters
   const totalMisspokes =
     [...spellKeywords, ...spellKnown].reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
@@ -75,12 +79,14 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   const mathAsked = responses.filter(r => r.questionType === 'MATH' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
   const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
   const mathCorrect = mathAnswered.filter(r => r.capturedAnswer === 'correct').length
-  const openAsked = responses.filter(r => (r.questionType === 'OPEN' || r.questionType === 'PRIOR KNOWLEDGE') && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const openAsked = responses.filter(r => r.questionType === 'OPEN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
   const openAnsweredItems = openAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '')
   const openAnswered = openAnsweredItems.length
   const openLetters = openAnsweredItems.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
   const openMisspokes = openAnsweredItems.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const openPokes = openLetters + openMisspokes
+  const priorAsked = responses.filter(r => r.questionType === 'PRIOR KNOWLEDGE' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
+  const priorAnswered = priorAsked.filter(r => r.capturedAnswer && r.capturedAnswer.trim() !== '').length
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -179,12 +185,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               <p className="text-xs text-gray-400 mt-0.5">{totalPokes} total pokes</p>
             </div>
           </div>
-          {(mathAnswered.length > 0 || openAsked.length > 0) && (
+          {(mathAnswered.length > 0 || openAsked.length > 0 || priorAsked.length > 0) && (
             <div className="flex gap-3 mt-3">
               {mathAnswered.length > 0 && (
                 <div className="flex-1 text-center bg-purple-50 rounded-xl py-2">
                   <p className="text-2xl font-bold text-purple-700">{mathCorrect}/{mathAnswered.length}</p>
                   <p className="text-xs font-semibold text-purple-500 mt-0.5">Math Correct</p>
+                </div>
+              )}
+              {priorAsked.length > 0 && (
+                <div className="flex-1 text-center bg-blue-50 rounded-xl py-2">
+                  <p className="text-2xl font-bold text-blue-600">{priorAnswered}/{priorAsked.length}</p>
+                  <p className="text-xs font-semibold text-blue-500 mt-0.5">Prior Knowledge</p>
                 </div>
               )}
               {openAsked.length > 0 && (
