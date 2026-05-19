@@ -229,10 +229,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
 
     // Send email with PDF attached
     const resend = new Resend(process.env.RESEND_API_KEY)
-    const { error: resendError } = await resend.emails.send({
+    const { data: resendData, error: resendError } = await resend.emails.send({
       from: 'Word Up <noreply@worduplessongenerator.com>',
       replyTo: practitionerEmail || undefined,
       to,
+      bcc: 'Wordups2c@gmail.com',
       subject: `Session Transcript — ${student?.name ?? 'Student'} — ${sessionDate}`,
       html: `
 <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#374151">
@@ -270,7 +271,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       return Response.json({ error: resendError.message }, { status: 500 })
     }
 
-    return Response.json({ ok: true })
+    console.log('Resend accepted:', resendData?.id, '→ to:', to)
+    return Response.json({ ok: true, messageId: resendData?.id })
   } catch (e) {
     console.error('Email route error:', e)
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
