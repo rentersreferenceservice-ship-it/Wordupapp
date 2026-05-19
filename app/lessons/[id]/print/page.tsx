@@ -65,7 +65,6 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
             </div>
             ${qr ? `<div style="text-align:center;flex-shrink:0;max-width:90px;"><img src="${qr}" width="72" height="72" alt="YouTube QR"/>${q.youtubeDescription ? `<div style="font-size:6.5pt;color:#444;margin-top:2px;line-height:1.3;">${q.youtubeDescription}</div>` : ''}${q.youtubeDuration && q.youtubeVideoTitle ? `<div style="font-size:6pt;color:#aaa;margin-top:1px;line-height:1.3;">${q.youtubeDuration} — ${q.youtubeVideoTitle}</div>` : ''}</div>` : ''}
           </div>
-          <div style="border-bottom:1px solid #bbb;margin-top:5px;"></div>
         </div>
       `
     }).join('')
@@ -90,7 +89,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
           var s = document.createElement('style');
-          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in;} @media print{[aria-hidden="true"]{display:none!important;} }';
+          s.textContent = '[aria-hidden="true"]{display:none!important;} @page{margin:1in 0.75in 1in 0.75in; @bottom-center{content:counter(page) " of " counter(pages);font-size:9pt;color:#999;}} @media print{[aria-hidden="true"]{display:none!important;} }';
           document.head.appendChild(s);
         })();
         window.onload = function(){
