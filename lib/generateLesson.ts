@@ -10,6 +10,12 @@ function parseIsoDuration(iso: string): string {
   return `${min}:${String(s).padStart(2,'0')}`
 }
 
+function isoDurationSeconds(iso: string): number {
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
+  if (!m) return 0
+  return parseInt(m[1] ?? '0') * 3600 + parseInt(m[2] ?? '0') * 60 + parseInt(m[3] ?? '0')
+}
+
 const SYSTEM_PROMPT = `You are an expert Spelling to Communicate (S2C) lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
 You generate complete, clinically consistent S2C lessons with exactly 8 HUNKS.
@@ -166,6 +172,7 @@ VAKT (Visual/Auditory/Kinesthetic/Tactile):
 - CRITICAL: VAKT questions must NOT copy or paraphrase words directly from the hunk text. They should use the topic as inspiration to create an original sensory experience. If the hunk says "Mozart played piano," the VAKT should not say "Imagine Mozart playing piano" — instead say "Close your eyes and imagine you are sitting at a grand piano. What do your fingers feel on the keys?" The sensory experience is original, not a restatement of the hunk.
 - Kinesthetic movement break answers are always blank — no answer listed.
 - Every VAKT question MUST include a "youtubeQuery" field: a 2-4 word search term that would find a short, relevant YouTube video to play during the sensory break. Keep it simple and searchable (e.g. "Mozart piano concerto", "monarch butterfly migration", "ocean waves sounds").
+- CRITICAL: The youtubeQuery MUST be directly about the hunk's MAIN concept or central vocabulary — the key idea the whole paragraph is teaching. Do NOT search for a peripheral or incidental detail mentioned in passing. If the hunk is about Stoicism, search "stoicism philosophy" not "ancient Roman garden" even though Rome is mentioned. If the hunk is about neurodiversity, search "neurodiversity explained" not "chess game" even if chess appears as an example. The video must illustrate the core lesson.
 - Every VAKT question MUST also include a "youtubeDescription" field: one short sentence (under 10 words) describing what students will watch, written in active voice (e.g. "Watch a monarch butterfly migrate south", "Listen to Mozart's Piano Concerto No. 21", "See a volcano erupt in slow motion").
 - Visual, Auditory, Tactile VAKT answers are sensory responses separated by slashes.
 - Never use STUDENT CHOICE as a VAKT answer.
@@ -404,24 +411,31 @@ export async function generateLesson(topic: string, ageGroup: string, style?: st
           if (q.type !== 'VAKT' || !vaktQ.youtubeQuery) return q
           try {
             const searchRes = await fetch(
-              `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(vaktQ.youtubeQuery)}&type=video&videoDuration=short&maxResults=1&safeSearch=strict&relevanceLanguage=en&key=${youtubeKey}`
+              `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(vaktQ.youtubeQuery)}&type=video&videoDuration=short&maxResults=5&safeSearch=strict&relevanceLanguage=en&key=${youtubeKey}`
             )
             if (!searchRes.ok) return q
             const searchData = await searchRes.json()
-            const video = searchData.items?.[0]
-            if (!video) return q
-            const videoId: string = video.id.videoId
-            const videoTitle: string = video.snippet.title
+            const videos: { id: { videoId: string }; snippet: { title: string } }[] = searchData.items ?? []
+            if (videos.length === 0) return q
 
+            const ids = videos.map(v => v.id.videoId).join(',')
             const detailRes = await fetch(
-              `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${youtubeKey}`
+              `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${ids}&key=${youtubeKey}`
             )
-            if (!detailRes.ok) return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: videoTitle }
+            if (!detailRes.ok) return q
             const detailData = await detailRes.json()
-            const iso = detailData.items?.[0]?.contentDetails?.duration ?? ''
-            const duration = parseIsoDuration(iso)
+            const details: { id: string; contentDetails: { duration: string } }[] = detailData.items ?? []
 
-            return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: videoTitle, youtubeDuration: duration }
+            for (const video of videos) {
+              const videoId = video.id.videoId
+              const detail = details.find(d => d.id === videoId)
+              const iso = detail?.contentDetails?.duration ?? ''
+              const secs = isoDurationSeconds(iso)
+              if (secs > 0 && secs <= 180) {
+                return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: video.snippet.title, youtubeDuration: parseIsoDuration(iso) }
+              }
+            }
+            return q
           } catch {
             return q
           }
