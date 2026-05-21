@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, SignUpButton } from '@clerk/nextjs'
 import SubscribeButton from './SubscribeButton'
@@ -30,9 +30,6 @@ export default function HomePage() {
   const router = useRouter()
   const { isSignedIn } = useUser()
 
-  useEffect(() => {
-    if (isSignedIn) router.replace('/practitioner/dashboard')
-  }, [isSignedIn, router])
 
   const [topic, setTopic] = useState('')
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
@@ -93,6 +90,12 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      {isSignedIn && (
+        <div className="w-full max-w-lg mb-3 bg-blue-600 text-white text-sm rounded-xl px-4 py-2.5 flex items-center justify-between">
+          <span>You&apos;re signed in</span>
+          <a href="/practitioner/dashboard" className="font-semibold underline hover:no-underline">Go to Dashboard →</a>
+        </div>
+      )}
       <div className="w-full max-w-lg bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8">
         <div className="text-center mb-6">
           <img
