@@ -1,4 +1,5 @@
 import { getSupabase } from './supabase'
+import { hasActiveRedemption } from './accessCodeStore'
 
 interface UserUsage {
   lessonsThisMonth: number
@@ -14,15 +15,19 @@ function getMonthKey() {
 
 export async function getUserUsage(userId: string): Promise<UserUsage> {
   const monthKey = getMonthKey()
-  const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
+  const [{ data }, codeAccess] = await Promise.all([
+    getSupabase().from('user_usage').select('*').eq('user_id', userId).single(),
+    hasActiveRedemption(userId),
+  ])
+  const isSubscribed = (data?.is_subscribed ?? false) || codeAccess
   if (!data || data.month_key !== monthKey) {
-    return { lessonsThisMonth: 0, printsThisMonth: 0, monthKey, isSubscribed: data?.is_subscribed ?? false }
+    return { lessonsThisMonth: 0, printsThisMonth: 0, monthKey, isSubscribed }
   }
   return {
     lessonsThisMonth: data.lessons_this_month,
     printsThisMonth: data.prints_this_month,
     monthKey: data.month_key,
-    isSubscribed: data.is_subscribed,
+    isSubscribed,
   }
 }
 

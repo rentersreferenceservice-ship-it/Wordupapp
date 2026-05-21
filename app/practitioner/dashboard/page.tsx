@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudents, getSessions } from '@/lib/practitionerStore'
 import Link from 'next/link'
+import AccessCodeManager from './AccessCodeManager'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,6 +50,10 @@ export default async function PractitionerDashboard() {
           <p className="text-3xl font-bold text-green-600">{sessions.length}</p>
           <p className="text-sm text-gray-500 mt-1">Total Sessions</p>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <AccessCodeManager />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

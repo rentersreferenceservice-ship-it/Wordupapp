@@ -1,0 +1,108 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+interface CodeData {
+  id: string
+  code: string
+  is_active: boolean
+}
+
+export default function AccessCodeManager() {
+  const [codeData, setCodeData] = useState<CodeData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [working, setWorking] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/practitioner/codes')
+      .then(r => r.json())
+      .then(d => { setCodeData(d.code ?? null); setLoading(false) })
+  }, [])
+
+  async function generateCode() {
+    if (!confirm(codeData ? 'This will deactivate your current code. All clients will need to use the new link. Continue?' : 'Generate a client access code?')) return
+    setWorking(true)
+    const res = await fetch('/api/practitioner/codes', { method: 'POST' })
+    const data = await res.json()
+    const newCode = await fetch('/api/practitioner/codes').then(r => r.json())
+    setCodeData(newCode.code)
+    setWorking(false)
+  }
+
+  async function toggleActive() {
+    if (!codeData) return
+    setWorking(true)
+    await fetch('/api/practitioner/codes', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codeId: codeData.id, isActive: !codeData.is_active }),
+    })
+    setCodeData({ ...codeData, is_active: !codeData.is_active })
+    setWorking(false)
+  }
+
+  function copyLink() {
+    if (!codeData) return
+    navigator.clipboard.writeText(`${window.location.origin}/join/${codeData.code}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (loading) return null
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <h2 className="text-lg font-semibold text-gray-900 mb-1">Client Access Code</h2>
+      <p className="text-xs text-gray-400 mb-4">Share this link with families so they can create a free account with subscriber access.</p>
+
+      {!codeData ? (
+        <button
+          onClick={generateCode}
+          disabled={working}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+        >
+          Generate Access Code
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${codeData.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+              {codeData.is_active ? 'Active' : 'Inactive'}
+            </span>
+            <span className="font-mono font-bold text-gray-800 tracking-widest text-lg">{codeData.code}</span>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 flex items-center gap-2">
+            <span className="text-xs text-gray-500 truncate flex-1">
+              {window.location.origin}/join/{codeData.code}
+            </span>
+            <button
+              onClick={copyLink}
+              className="text-xs font-medium text-blue-600 hover:text-blue-800 shrink-0"
+            >
+              {copied ? '✓ Copied' : 'Copy link'}
+            </button>
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={toggleActive}
+              disabled={working}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${codeData.is_active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-700 hover:bg-green-100'}`}
+            >
+              {codeData.is_active ? 'Deactivate' : 'Reactivate'}
+            </button>
+            <button
+              onClick={generateCode}
+              disabled={working}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              Generate new code
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
