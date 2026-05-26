@@ -58,7 +58,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
     : null
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
+    <div className="min-h-screen bg-white px-4 py-8">
       {/* Nav — hidden on print */}
       <div className="print:hidden flex gap-3 max-w-2xl mx-auto mb-6">
         {session?.id && (
