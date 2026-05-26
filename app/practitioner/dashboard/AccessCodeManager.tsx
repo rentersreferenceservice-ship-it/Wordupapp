@@ -9,6 +9,7 @@ interface CodeData {
 }
 
 interface Redemption {
+  userId: string
   email: string
   joinedAt: string | null
   active: boolean
@@ -25,30 +26,31 @@ export default function AccessCodeManager() {
   const [debug, setDebug] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [working, setWorking] = useState(false)
+  const [toggling, setToggling] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    Promise.all([
+  async function loadData() {
+    const [codeRes, redemptionRes]: [{ code: CodeData | null }, RedemptionResponse] = await Promise.all([
       fetch('/api/practitioner/codes').then(r => r.json()),
       fetch('/api/practitioner/codes/redemptions').then(r => r.json()),
-    ]).then(([codeRes, redemptionRes]: [{ code: CodeData | null }, RedemptionResponse]) => {
-      setCodeData(codeRes.code ?? null)
-      setRedemptions(redemptionRes.redemptions ?? [])
-      setDebug(redemptionRes.debug ?? null)
-      setLoading(false)
-    })
-  }, [])
+    ])
+    setCodeData(codeRes.code ?? null)
+    setRedemptions(redemptionRes.redemptions ?? [])
+    setDebug(redemptionRes.debug ?? null)
+    setLoading(false)
+  }
+
+  useEffect(() => { loadData() }, [])
 
   async function generateCode() {
     if (!confirm(codeData ? 'This will deactivate your current code. All clients will need to use the new link. Continue?' : 'Generate a client access code?')) return
     setWorking(true)
     await fetch('/api/practitioner/codes', { method: 'POST' })
-    const newCode = await fetch('/api/practitioner/codes').then(r => r.json())
-    setCodeData(newCode.code)
+    await loadData()
     setWorking(false)
   }
 
-  async function toggleActive() {
+  async function toggleCode() {
     if (!codeData) return
     setWorking(true)
     await fetch('/api/practitioner/codes', {
@@ -58,6 +60,17 @@ export default function AccessCodeManager() {
     })
     setCodeData({ ...codeData, is_active: !codeData.is_active })
     setWorking(false)
+  }
+
+  async function toggleFamily(familyUserId: string, isActive: boolean) {
+    setToggling(familyUserId)
+    await fetch('/api/practitioner/codes/redemptions', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ familyUserId, isActive }),
+    })
+    setRedemptions(prev => prev.map(r => r.userId === familyUserId ? { ...r, active: isActive } : r))
+    setToggling(null)
   }
 
   function copyLink() {
@@ -95,17 +108,14 @@ export default function AccessCodeManager() {
             <span className="text-xs text-gray-500 truncate flex-1">
               {window.location.origin}/join/{codeData.code}
             </span>
-            <button
-              onClick={copyLink}
-              className="text-xs font-medium text-blue-600 hover:text-blue-800 shrink-0"
-            >
+            <button onClick={copyLink} className="text-xs font-medium text-blue-600 hover:text-blue-800 shrink-0">
               {copied ? '✓ Copied' : 'Copy link'}
             </button>
           </div>
 
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={toggleActive}
+              onClick={toggleCode}
               disabled={working}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${codeData.is_active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-700 hover:bg-green-100'}`}
             >
@@ -135,18 +145,22 @@ export default function AccessCodeManager() {
           <p className="text-xs text-gray-400">No families have joined yet.</p>
         ) : (
           <ul className="space-y-2">
-            {redemptions.map((r, i) => (
-              <li key={i} className="flex items-center justify-between text-sm">
-                <span className="text-gray-700 truncate text-xs">{r.email}</span>
-                <div className="flex items-center gap-2 ml-3 shrink-0">
-                  {r.joinedAt && (
-                    <span className="text-xs text-gray-400">
-                      {new Date(r.joinedAt).toLocaleDateString()}
-                    </span>
-                  )}
+            {redemptions.map(r => (
+              <li key={r.userId} className="flex items-center justify-between gap-2">
+                <span className={`text-xs truncate ${r.active ? 'text-gray-700' : 'text-gray-400 line-through'}`}>
+                  {r.email}
+                </span>
+                <div className="flex items-center gap-2 shrink-0">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                     {r.active ? 'Active' : 'Inactive'}
                   </span>
+                  <button
+                    onClick={() => toggleFamily(r.userId, !r.active)}
+                    disabled={toggling === r.userId}
+                    className={`text-xs px-2 py-0.5 rounded font-medium transition-colors disabled:opacity-50 ${r.active ? 'text-red-500 hover:text-red-700' : 'text-green-600 hover:text-green-800'}`}
+                  >
+                    {toggling === r.userId ? '…' : r.active ? 'Deactivate' : 'Reactivate'}
+                  </button>
                 </div>
               </li>
             ))}

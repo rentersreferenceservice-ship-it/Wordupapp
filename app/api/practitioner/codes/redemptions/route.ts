@@ -1,5 +1,7 @@
+import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
+import { toggleFamilyAccess } from '@/lib/accessCodeStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,7 +9,6 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  // Get ALL codes ever created by this practitioner (including old deactivated ones)
   const { data: allCodes, error: codesError } = await getSupabase()
     .from('access_codes')
     .select('code, is_active')
@@ -18,7 +19,6 @@ export async function GET() {
 
   const codeStrings = allCodes.map((c: { code: string }) => c.code)
 
-  // Get all redemptions across every code this practitioner ever had
   const { data: rows, error: rowsError } = await getSupabase()
     .from('code_redemptions')
     .select('*')
@@ -35,16 +35,26 @@ export async function GET() {
     const redemptions = rows.map((row: Record<string, unknown>) => {
       const user = users.find(u => u.id === row.user_id)
       const email = user?.emailAddresses?.[0]?.emailAddress ?? String(row.user_id)
-      return { email, joinedAt: row.created_at ?? null, active: true }
+      const active = row.is_active !== false
+      return { userId: String(row.user_id), email, joinedAt: row.created_at ?? null, active }
     })
 
     return Response.json({ redemptions })
   } catch (e) {
     const redemptions = rows.map((row: Record<string, unknown>) => ({
+      userId: String(row.user_id),
       email: String(row.user_id),
       joinedAt: row.created_at ?? null,
-      active: true,
+      active: row.is_active !== false,
     }))
     return Response.json({ redemptions, debug: `clerk_err: ${e}` })
   }
+}
+
+export async function PATCH(req: NextRequest) {
+  const { userId } = await auth()
+  if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
+  const { familyUserId, isActive } = await req.json()
+  await toggleFamilyAccess(familyUserId, isActive)
+  return Response.json({ ok: true })
 }

@@ -58,8 +58,15 @@ export async function redeemCode(code: string, userId: string): Promise<{ ok: bo
 export async function hasActiveRedemption(userId: string): Promise<boolean> {
   const { data } = await getSupabase()
     .from('code_redemptions')
-    .select('user_id')
+    .select('is_active')
     .eq('user_id', userId)
     .single()
-  return !!data
+  return data?.is_active !== false
+}
+
+export async function toggleFamilyAccess(userId: string, isActive: boolean): Promise<void> {
+  await getSupabase()
+    .from('code_redemptions')
+    .update({ is_active: isActive })
+    .eq('user_id', userId)
 }
