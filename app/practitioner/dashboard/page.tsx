@@ -35,7 +35,7 @@ export default async function PractitionerDashboard() {
           <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Public Library
           </Link>
-          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border-2 border-blue-600">
             Upload Lesson
           </Link>
           <AddToHomeScreen variant="button" />
