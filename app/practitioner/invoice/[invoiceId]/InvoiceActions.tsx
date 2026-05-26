@@ -163,31 +163,39 @@ export default function InvoiceActions({
           )}
         </div>
 
-        <p className="text-xs text-gray-400">Hit Save Changes after updating any field above.</p>
+      </div>
+
+      {/* Step 1 — Save */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Step 1</p>
+        <p className="text-xs text-gray-500 mb-3">Fill in the fields above, then save before emailing.</p>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
+          className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
         >
           {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Changes'}
         </button>
       </div>
 
-      {/* Email + Print */}
-      <div className="flex gap-3">
-        <button
-          onClick={() => window.print()}
-          className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
-        >
-          Print / Save PDF
-        </button>
-        <button
-          onClick={handleSendEmail}
-          disabled={sending}
-          className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
-        >
-          {sending ? 'Sending…' : sent ? '✓ Sent' : 'Email Invoice'}
-        </button>
+      {/* Step 2 — Send / Print */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Step 2</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => window.print()}
+            className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+          >
+            Print / Save PDF
+          </button>
+          <button
+            onClick={handleSendEmail}
+            disabled={sending}
+            className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+          >
+            {sending ? 'Sending…' : sent ? '✓ Sent' : 'Email Invoice'}
+          </button>
+        </div>
       </div>
 
       {sendError && <p className="text-sm text-red-600 text-center">{sendError}</p>}
