@@ -48,6 +48,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
   const balanceDue = Math.max(0, amount - amountPaid)
   const totalDue = balanceDue + outstandingBalance
 
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const isOverdue = !invoice.is_paid && invoice.due_date && new Date(invoice.due_date + 'T00:00:00') < today
+
   const invoiceDate = new Date(invoice.invoice_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   const sessionDate = session?.session_date
     ? new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -67,8 +71,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
             ← Dashboard
           </Link>
         )}
-        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${invoice.is_paid ? 'bg-green-100 text-green-700' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
-          {invoice.is_paid ? 'Paid' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
+        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${invoice.is_paid ? 'bg-green-100 text-green-700' : isOverdue ? 'bg-red-600 text-white' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
+          {invoice.is_paid ? 'Paid' : isOverdue ? 'Overdue' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
         </span>
       </div>
 

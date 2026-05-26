@@ -31,6 +31,12 @@ export async function POST(req: NextRequest) {
     ? parseFloat(String(amountOverride))
     : (student?.session_rate != null ? parseFloat(String(student.session_rate)) : parseFloat(String(settings?.session_rate ?? 0)))
 
+  const today = new Date()
+  const invoiceDate = today.toISOString().split('T')[0]
+  const dueDate = new Date(today)
+  dueDate.setDate(dueDate.getDate() + 30)
+  const dueDateStr = dueDate.toISOString().split('T')[0]
+
   const { data: invoice, error } = await supabase
     .from('invoices')
     .insert({
@@ -41,7 +47,8 @@ export async function POST(req: NextRequest) {
       amount,
       amount_paid: 0,
       is_paid: false,
-      invoice_date: new Date().toISOString().split('T')[0],
+      invoice_date: invoiceDate,
+      due_date: dueDateStr,
       funder_name: student?.funder_name ?? null,
       funder_email: student?.funder_email ?? null,
       guardian_email: student?.guardian_email ?? null,
