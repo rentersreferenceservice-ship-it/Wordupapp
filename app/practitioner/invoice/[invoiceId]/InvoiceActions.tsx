@@ -32,7 +32,6 @@ export default function InvoiceActions({
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
-  const [showEmailForm, setShowEmailForm] = useState(false)
 
   async function handleSave() {
     setSaving(true)
@@ -55,12 +54,16 @@ export default function InvoiceActions({
   }
 
   async function handleSendEmail() {
+    if (!funderEmail.trim()) {
+      setSendError('Add a Bill To email address first, then save.')
+      return
+    }
     setSending(true)
     setSendError('')
     const res = await fetch(`/api/practitioner/invoice/${invoiceId}/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ funderEmail, guardianEmail }),
+      body: JSON.stringify({ funderEmail: funderEmail.trim(), guardianEmail: guardianEmail.trim() }),
     })
     const data = await res.json()
     setSending(false)
@@ -68,7 +71,6 @@ export default function InvoiceActions({
       setSendError(data.error ?? 'Failed to send')
     } else {
       setSent(true)
-      setShowEmailForm(false)
       setTimeout(() => setSent(false), 4000)
     }
   }
@@ -179,27 +181,15 @@ export default function InvoiceActions({
           Print / Save PDF
         </button>
         <button
-          onClick={() => setShowEmailForm(!showEmailForm)}
-          className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+          onClick={handleSendEmail}
+          disabled={sending}
+          className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
         >
-          {sent ? '✓ Sent' : 'Email Invoice'}
+          {sending ? 'Sending…' : sent ? '✓ Sent' : 'Email Invoice'}
         </button>
       </div>
 
-      {showEmailForm && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700">Send Invoice</h3>
-          <p className="text-xs text-gray-400">Sends to the Bill To email above; CC goes to guardian.</p>
-          {sendError && <p className="text-xs text-red-600">{sendError}</p>}
-          <button
-            onClick={handleSendEmail}
-            disabled={sending || !funderEmail}
-            className="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
-          >
-            {sending ? 'Sending…' : !funderEmail ? 'Enter Bill To email above first' : 'Send Invoice'}
-          </button>
-        </div>
-      )}
+      {sendError && <p className="text-sm text-red-600 text-center">{sendError}</p>}
     </div>
   )
 }
