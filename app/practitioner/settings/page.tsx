@@ -51,7 +51,7 @@ export default function PractitionerSettingsPage() {
     })
     const data = await res.json()
     setSaving(false)
-    if (!res.ok) { setError(data.error ?? 'Failed to save'); return }
+    if (!res.ok) { setError(data.error ?? 'Failed to save. Check that your Supabase practitioner_settings table is set up correctly.'); return }
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
