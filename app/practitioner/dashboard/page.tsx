@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getStudents, getSessions } from '@/lib/practitionerStore'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
+import AddToHomeScreen from '../AddToHomeScreen'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,10 @@ export default async function PractitionerDashboard() {
           <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Upload Lesson
           </Link>
+          <Link href="/practitioner/settings" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            Settings
+          </Link>
+          <AddToHomeScreen variant="button" />
         </div>
       </div>
 

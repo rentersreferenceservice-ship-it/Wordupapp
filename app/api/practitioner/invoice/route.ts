@@ -1,0 +1,62 @@
+import { NextRequest } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { getSupabase } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
+
+export async function POST(req: NextRequest) {
+  const { userId } = await auth()
+  if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
+
+  const { sessionId, amount: amountOverride } = await req.json()
+  if (!sessionId) return Response.json({ error: 'sessionId required' }, { status: 400 })
+
+  const supabase = getSupabase()
+
+  const { data: session } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .eq('practitioner_id', userId)
+    .single()
+  if (!session) return Response.json({ error: 'Session not found' }, { status: 404 })
+
+  const [{ data: student }, { data: settings }] = await Promise.all([
+    supabase.from('students').select('name, guardian_email, funder_name, funder_email, session_rate').eq('id', session.student_id).single(),
+    supabase.from('practitioner_settings').select('*').eq('practitioner_id', userId).single(),
+  ])
+
+  const invoiceNumber = settings?.next_invoice_number ?? 101
+  const amount = amountOverride != null
+    ? parseFloat(String(amountOverride))
+    : (student?.session_rate != null ? parseFloat(String(student.session_rate)) : parseFloat(String(settings?.session_rate ?? 0)))
+
+  const { data: invoice, error } = await supabase
+    .from('invoices')
+    .insert({
+      practitioner_id: userId,
+      student_id: session.student_id,
+      session_id: sessionId,
+      invoice_number: invoiceNumber,
+      amount,
+      amount_paid: 0,
+      is_paid: false,
+      invoice_date: new Date().toISOString().split('T')[0],
+      funder_name: student?.funder_name ?? null,
+      funder_email: student?.funder_email ?? null,
+      guardian_email: student?.guardian_email ?? null,
+    })
+    .select()
+    .single()
+
+  if (error) return Response.json({ error: error.message }, { status: 500 })
+
+  // Increment invoice number
+  await supabase.from('practitioner_settings').upsert({
+    practitioner_id: userId,
+    next_invoice_number: invoiceNumber + 1,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'practitioner_id' })
+
+  return Response.json({ invoiceId: invoice.id })
+}
