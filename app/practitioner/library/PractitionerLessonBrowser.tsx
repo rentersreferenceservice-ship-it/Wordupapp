@@ -33,10 +33,123 @@ function detectSubject(lesson: Lesson): string {
 const AGE_GROUPS = ['All Ages','Young Children (ages 6–8)','Children (ages 9–11)','Tweens (ages 12–14)','Teens (ages 15–17)','Adults (18+)']
 const SUBJECTS = ['All Subjects', ...Object.keys(SUBJECT_KEYWORDS), 'Other']
 
+function SuggestEditModal({ lessons, onClose }: { lessons: Lesson[]; onClose: () => void }) {
+  const [lessonTitle, setLessonTitle] = useState('')
+  const [hunkNumber, setHunkNumber] = useState('')
+  const [whatToEdit, setWhatToEdit] = useState('')
+  const [citation, setCitation] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!lessonTitle.trim() || !whatToEdit.trim()) {
+      setError('Please fill in the lesson name and what needs to be edited.')
+      return
+    }
+    setSending(true)
+    setError('')
+    const res = await fetch('/api/suggest-edit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonTitle, hunkNumber, whatToEdit, citation }),
+    })
+    setSending(false)
+    if (res.ok) {
+      setSent(true)
+      setTimeout(onClose, 2000)
+    } else {
+      setError('Something went wrong. Please try again.')
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">Suggest an Edit</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+        </div>
+
+        {sent ? (
+          <div className="text-center py-6">
+            <p className="text-green-600 font-semibold text-lg">Sent!</p>
+            <p className="text-sm text-gray-500 mt-1">Thank you — we&apos;ll review your suggestion.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Name <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                value={lessonTitle}
+                onChange={e => setLessonTitle(e.target.value)}
+                placeholder="e.g. Photosynthesis"
+                list="lesson-titles"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <datalist id="lesson-titles">
+                {lessons.map(l => <option key={l.id} value={l.title} />)}
+              </datalist>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hunk Number</label>
+              <input
+                type="number"
+                min={1}
+                max={8}
+                value={hunkNumber}
+                onChange={e => setHunkNumber(e.target.value)}
+                placeholder="1–8"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">What needs to be edited <span className="text-red-500">*</span></label>
+              <textarea
+                value={whatToEdit}
+                onChange={e => setWhatToEdit(e.target.value)}
+                placeholder="Describe what is incorrect or needs improvement…"
+                rows={4}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Supporting link / citation <span className="text-gray-400 font-normal">(required for factual corrections)</span></label>
+              <input
+                type="url"
+                value={citation}
+                onChange={e => setCitation(e.target.value)}
+                placeholder="https://…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={sending}
+              className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
+            >
+              {sending ? 'Sending…' : 'Submit Suggestion'}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson[] }) {
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
   const [search, setSearch] = useState('')
+  const [showSuggest, setShowSuggest] = useState(false)
 
   const lessonNumbers = useMemo(() => {
     const sorted = [...lessons].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
@@ -61,6 +174,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
 
   return (
     <main className="min-h-screen px-4 py-8 max-w-2xl mx-auto">
+      {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
       <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm">
         <div>
           <Link href="/practitioner/dashboard" className="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors mb-3">← Dashboard</Link>
@@ -74,6 +188,12 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
             Upload Lesson
           </Link>
+          <button
+            onClick={() => setShowSuggest(true)}
+            className="bg-amber-50 border border-amber-300 text-amber-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-100 transition-colors text-center"
+          >
+            Suggest Edits
+          </button>
         </div>
       </div>
 
