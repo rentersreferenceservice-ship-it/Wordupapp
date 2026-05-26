@@ -78,7 +78,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
     const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
     const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
-    const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
 
     const sessionDate = new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -210,21 +209,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
           ),
         ] : []),
 
-        // Video & Invoice
-        ...((sessionVideoRecord?.capturedAnswer || sessionInvoiceRecord?.capturedAnswer) ? [
-          React.createElement(View, { style: { ...s.section, flexDirection: 'row', gap: 24 } },
-            ...(sessionVideoRecord?.capturedAnswer ? [
-              React.createElement(View, {},
-                React.createElement(Text, { style: s.label }, 'Session Video'),
-                React.createElement(Link, { src: sessionVideoRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
-              ),
-            ] : []),
-            ...(sessionInvoiceRecord?.capturedAnswer ? [
-              React.createElement(View, {},
-                React.createElement(Text, { style: s.label }, 'Invoice'),
-                React.createElement(Link, { src: sessionInvoiceRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionInvoiceRecord.capturedAnswer),
-              ),
-            ] : []),
+        // Video only — invoice is practitioner-only, never sent to families
+        ...(sessionVideoRecord?.capturedAnswer ? [
+          React.createElement(View, { style: s.section },
+            React.createElement(Text, { style: s.label }, 'Session Video'),
+            React.createElement(Link, { src: sessionVideoRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
           ),
         ] : []),
 
