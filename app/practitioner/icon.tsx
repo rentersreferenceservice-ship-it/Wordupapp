@@ -13,17 +13,11 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'white',
-          border: '14px solid #2563eb',
+          background: '#2563eb',
           borderRadius: '28px',
-          overflow: 'hidden',
-          boxSizing: 'border-box',
         }}
       >
-        <img
-          src="https://worduplessongenerator.com/word_up_clean.jpeg"
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-        />
+        <span style={{ color: 'white', fontSize: 72, fontWeight: 700, fontFamily: 'sans-serif' }}>W</span>
       </div>
     ),
     { ...size }
