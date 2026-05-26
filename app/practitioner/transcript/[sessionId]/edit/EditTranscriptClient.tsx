@@ -128,13 +128,30 @@ export default function EditTranscriptClient({
       const data = await res.json()
       if (!res.ok) {
         setInvoiceError(data.error ?? 'Failed to create invoice')
+        setGeneratingInvoice(false)
       } else {
-        setSessionInvoice(`/practitioner/invoice/${data.invoiceId}`)
+        const invoicePath = `/practitioner/invoice/${data.invoiceId}`
+        setSessionInvoice(invoicePath)
+        // Save the invoice link to the session before navigating
+        await fetch(`/api/practitioner/sessions/${sessionId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            responses: [
+              { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
+              { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
+              { hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 },
+              { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: invoicePath, expectedAnswer: '', misspokeCount: 0 },
+              ...(sessionCompleteRecord ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
+            ],
+          }),
+        })
+        router.push(invoicePath)
       }
     } catch (e) {
       setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
+      setGeneratingInvoice(false)
     }
-    setGeneratingInvoice(false)
   }
 
   function buildPayload() {
