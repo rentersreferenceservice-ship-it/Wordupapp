@@ -116,7 +116,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
       </div>
     </div>
 
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;text-align:center">
+    <div style="margin-top:24px;text-align:center">
+      <a href="https://worduplessongenerator.com/practitioner/invoice/${invoiceId}"
+         style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:13px;padding:10px 24px;border-radius:8px">
+        View &amp; Print Invoice
+      </a>
+    </div>
+
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;text-align:center">
       Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com
     </div>
   </div>
