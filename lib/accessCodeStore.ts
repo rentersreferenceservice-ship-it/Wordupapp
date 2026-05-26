@@ -58,9 +58,8 @@ export async function redeemCode(code: string, userId: string): Promise<{ ok: bo
 export async function hasActiveRedemption(userId: string): Promise<boolean> {
   const { data } = await getSupabase()
     .from('code_redemptions')
-    .select('code')
+    .select('user_id')
     .eq('user_id', userId)
     .single()
-  if (!data) return false
-  return validateCode(data.code)
+  return !!data
 }
