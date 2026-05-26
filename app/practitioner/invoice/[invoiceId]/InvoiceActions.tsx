@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   invoiceId: string
@@ -32,6 +33,7 @@ export default function InvoiceActions({
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
+  const router = useRouter()
 
   async function handleSave() {
     setSaving(true)
@@ -50,6 +52,7 @@ export default function InvoiceActions({
     })
     setSaving(false)
     setSaved(true)
+    router.refresh()
     setTimeout(() => setSaved(false), 3000)
   }
 
