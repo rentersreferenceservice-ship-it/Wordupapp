@@ -1,5 +1,6 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
+import { getPractitionerCode } from '@/lib/accessCodeStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,40 +8,40 @@ export async function GET() {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  // Get all codes created by this practitioner
-  const { data: codes } = await getSupabase()
-    .from('access_codes')
-    .select('code, is_active')
-    .eq('created_by', userId)
+  // Get this practitioner's current code using the proven function
+  const code = await getPractitionerCode(userId)
+  if (!code) return Response.json({ redemptions: [] })
 
-  if (!codes || codes.length === 0) return Response.json({ redemptions: [] })
-
-  const codeMap = new Map<string, boolean>(codes.map(c => [c.code, c.is_active]))
-  const codeStrings = codes.map(c => c.code)
-
-  // Get all redemptions for those codes
-  const { data: rows } = await getSupabase()
+  // Get all redemptions for this code directly
+  const { data: rows, error } = await getSupabase()
     .from('code_redemptions')
-    .select('user_id, code, created_at')
-    .in('code', codeStrings)
+    .select('user_id, created_at')
+    .eq('code', code.code)
 
-  if (!rows || rows.length === 0) return Response.json({ redemptions: [] })
+  if (error || !rows || rows.length === 0) {
+    return Response.json({ redemptions: [] })
+  }
 
-  // Look up Clerk user emails
-  const client = await clerkClient()
-  const userIds = rows.map(r => r.user_id)
-  const { data: users } = await client.users.getUserList({ userId: userIds, limit: 100 })
+  // Try to look up emails from Clerk — fall back to showing user IDs if it fails
+  try {
+    const client = await clerkClient()
+    const userIds = rows.map((r: { user_id: string }) => r.user_id)
+    const { data: users } = await client.users.getUserList({ userId: userIds, limit: 100 })
 
-  const redemptions = rows.map(row => {
-    const user = users.find(u => u.id === row.user_id)
-    const email = user?.emailAddresses?.[0]?.emailAddress ?? 'Unknown'
-    const codeActive = codeMap.get(row.code) ?? false
-    return {
-      email,
+    const redemptions = rows.map((row: { user_id: string; created_at: string | null }) => {
+      const user = users.find(u => u.id === row.user_id)
+      const email = user?.emailAddresses?.[0]?.emailAddress ?? row.user_id
+      return { email, joinedAt: row.created_at ?? null, active: code.is_active }
+    })
+
+    return Response.json({ redemptions })
+  } catch {
+    // Clerk lookup failed — still show families using their user IDs
+    const redemptions = rows.map((row: { user_id: string; created_at: string | null }) => ({
+      email: row.user_id,
       joinedAt: row.created_at ?? null,
-      active: codeActive,
-    }
-  })
-
-  return Response.json({ redemptions })
+      active: code.is_active,
+    }))
+    return Response.json({ redemptions })
+  }
 }
