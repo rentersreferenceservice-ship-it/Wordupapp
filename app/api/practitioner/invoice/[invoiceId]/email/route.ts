@@ -117,9 +117,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
     </div>
 
     <div style="margin-top:24px;text-align:center">
-      <a href="https://worduplessongenerator.com/practitioner/invoice/${invoiceId}"
+      <a href="https://worduplessongenerator.com/invoice/${invoiceId}"
          style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:13px;padding:10px 24px;border-radius:8px">
-        View &amp; Print Invoice
+        View &amp; Download Invoice
       </a>
     </div>
 
