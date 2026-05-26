@@ -163,12 +163,13 @@ export default function InvoiceActions({
           )}
         </div>
 
+        <p className="text-xs text-gray-400">Hit Save Changes after updating any field above.</p>
         <button
           onClick={handleSave}
           disabled={saving}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
         >
-          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Invoice'}
+          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Changes'}
         </button>
       </div>
 
