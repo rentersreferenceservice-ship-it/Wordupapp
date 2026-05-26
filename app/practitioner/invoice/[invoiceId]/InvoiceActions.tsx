@@ -83,7 +83,7 @@ export default function InvoiceActions({
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bill To</h3>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Funder / Agency Name</label>
+          <label className="block text-xs text-gray-500 mb-1">Bill To Name</label>
           <input
             type="text"
             value={funderName}
@@ -93,7 +93,7 @@ export default function InvoiceActions({
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Funder Email</label>
+          <label className="block text-xs text-gray-500 mb-1">Bill To Email</label>
           <input
             type="email"
             value={funderEmail}

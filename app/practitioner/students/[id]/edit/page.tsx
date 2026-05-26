@@ -114,7 +114,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
 
         {/* Billing / Funder */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Billing &amp; Funder</h2>
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Billing &amp; Bill To</h2>
           <p className="text-xs text-gray-400">Used when generating invoices for this student.</p>
 
           <div>
@@ -131,7 +131,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Funder / Agency Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Bill To Name</label>
             <input
               type="text"
               value={funderName}
@@ -142,7 +142,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Funder Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Bill To Email</label>
             <input
               type="email"
               value={funderEmail}
