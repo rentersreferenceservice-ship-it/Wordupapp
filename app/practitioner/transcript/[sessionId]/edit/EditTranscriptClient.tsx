@@ -59,6 +59,7 @@ export default function EditTranscriptClient({
   const [saveError, setSaveError] = useState('')
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
+  const [invoiceAmount, setInvoiceAmount] = useState('')
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -122,7 +123,7 @@ export default function EditTranscriptClient({
       const res = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -324,14 +325,28 @@ export default function EditTranscriptClient({
                   </button>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleGenerateInvoice}
-                  disabled={generatingInvoice}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
-                >
-                  {generatingInvoice ? 'Creating…' : 'Create Invoice'}
-                </button>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm text-gray-600 whitespace-nowrap">Session fee ($)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={invoiceAmount}
+                      onChange={e => setInvoiceAmount(e.target.value)}
+                      placeholder="Use default rate"
+                      className="w-36 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateInvoice}
+                    disabled={generatingInvoice}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+                  >
+                    {generatingInvoice ? 'Creating…' : 'Create Invoice'}
+                  </button>
+                </div>
               )}
               {invoiceError && <p className="text-xs text-red-600 mt-2">{invoiceError}</p>}
             </div>

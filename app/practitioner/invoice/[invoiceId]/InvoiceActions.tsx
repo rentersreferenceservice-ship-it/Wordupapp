@@ -11,7 +11,8 @@ interface Props {
   guardianEmail: string
 }
 
-export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIsPaid, amount, funderEmail, guardianEmail }: Props) {
+export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIsPaid, amount: initialAmount, funderEmail, guardianEmail }: Props) {
+  const [invoiceAmount, setInvoiceAmount] = useState(String(initialAmount))
   const [amountPaid, setAmountPaid] = useState(initialAmountPaid > 0 ? String(initialAmountPaid) : '')
   const [isPaid, setIsPaid] = useState(initialIsPaid)
   const [saving, setSaving] = useState(false)
@@ -30,6 +31,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined,
         amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
         isPaid,
       }),
@@ -58,6 +60,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
     }
   }
 
+  const amount = parseFloat(invoiceAmount) || 0
   const balance = Math.max(0, amount - (parseFloat(amountPaid) || 0))
 
   return (
@@ -65,6 +68,18 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
       {/* Paid tracking */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Payment Status</h3>
+
+        <div className="flex items-center gap-3 mb-4">
+          <label className="text-sm text-gray-600 whitespace-nowrap">Invoice amount ($)</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={invoiceAmount}
+            onChange={e => setInvoiceAmount(e.target.value)}
+            className="w-32 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
         <label className="flex items-center gap-3 mb-4 cursor-pointer">
           <input
@@ -118,7 +133,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
           onClick={() => setShowEmailForm(!showEmailForm)}
           className="flex-1 bg-green-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
         >
-          {sent ? '✓ Sent' : 'Email to Funder'}
+          {sent ? '✓ Sent' : 'Email Invoice'}
         </button>
       </div>
 

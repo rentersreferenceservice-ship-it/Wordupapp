@@ -83,6 +83,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ in
 
   const body = await req.json()
   const updates: Record<string, unknown> = {}
+  if (body.amount != null) updates.amount = parseFloat(String(body.amount))
   if (body.amountPaid != null) updates.amount_paid = parseFloat(String(body.amountPaid))
   if (body.isPaid != null) updates.is_paid = Boolean(body.isPaid)
   if (body.notes != null) updates.notes = body.notes
