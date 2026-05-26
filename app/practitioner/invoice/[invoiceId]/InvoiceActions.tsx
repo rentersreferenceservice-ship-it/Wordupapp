@@ -98,7 +98,7 @@ export default function InvoiceActions({
             type="email"
             value={funderEmail}
             onChange={e => setFunderEmail(e.target.value)}
-            placeholder="billing@funder.org"
+            placeholder="billing@organization.org"
             className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -189,14 +189,14 @@ export default function InvoiceActions({
       {showEmailForm && (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
           <h3 className="text-sm font-semibold text-gray-700">Send Invoice</h3>
-          <p className="text-xs text-gray-400">Sends to the funder email above; CC goes to guardian.</p>
+          <p className="text-xs text-gray-400">Sends to the Bill To email above; CC goes to guardian.</p>
           {sendError && <p className="text-xs text-red-600">{sendError}</p>}
           <button
             onClick={handleSendEmail}
             disabled={sending || !funderEmail}
             className="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
           >
-            {sending ? 'Sending…' : !funderEmail ? 'Enter funder email above first' : 'Send Invoice'}
+            {sending ? 'Sending…' : !funderEmail ? 'Enter Bill To email above first' : 'Send Invoice'}
           </button>
         </div>
       )}

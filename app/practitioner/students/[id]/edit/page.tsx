@@ -112,7 +112,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
-        {/* Billing / Funder */}
+        {/* Billing / Bill To */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Billing &amp; Bill To</h2>
           <p className="text-xs text-gray-400">Used when generating invoices for this student.</p>
@@ -147,7 +147,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
               type="email"
               value={funderEmail}
               onChange={e => setFunderEmail(e.target.value)}
-              placeholder="billing@funder.org"
+              placeholder="billing@organization.org"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

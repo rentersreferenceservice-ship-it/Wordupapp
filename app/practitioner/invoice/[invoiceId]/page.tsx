@@ -102,7 +102,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
             {invoice.funder_name && <p className="text-sm font-semibold text-gray-900">{invoice.funder_name}</p>}
             {invoice.funder_email && <p className="text-xs text-gray-500">{invoice.funder_email}</p>}
             {invoice.guardian_email && <p className="text-xs text-gray-400">CC: {invoice.guardian_email}</p>}
-            {!invoice.funder_name && !invoice.funder_email && <p className="text-xs text-gray-300 italic">No funder on file</p>}
+            {!invoice.funder_name && !invoice.funder_email && <p className="text-xs text-gray-300 italic">No billing info on file</p>}
           </div>
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Student</p>
