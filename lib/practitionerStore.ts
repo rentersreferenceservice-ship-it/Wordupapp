@@ -150,6 +150,9 @@ export async function createStudent(practitionerId: string, name: string, ageGro
     ageGroup: data.age_group,
     notes: data.notes ?? '',
     guardianEmail: data.guardian_email ?? '',
+    funderName: data.funder_name ?? '',
+    funderEmail: data.funder_email ?? '',
+    sessionRate: data.session_rate ?? null,
     createdAt: data.created_at,
   }
 }
