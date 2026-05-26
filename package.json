@@ -1,0 +1,48 @@
+{
+  "name": "wordupapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "@clerk/nextjs": "^7.0.12",
+    "@react-pdf/renderer": "^4.5.1",
+    "@supabase/supabase-js": "^2.103.0",
+    "@types/pdfkit": "^0.17.5",
+    "@types/qrcode": "^1.5.6",
+    "@types/uuid": "^11.0.0",
+    "@vercel/analytics": "^2.0.1",
+    "docx": "^9.6.1",
+    "jszip": "^3.10.1",
+    "next": "16.2.2",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.18.0",
+    "pdfmake": "^0.3.7",
+    "puppeteer": "^24.40.0",
+    "qrcode": "^1.5.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-to-print": "^3.3.0",
+    "recharts": "^3.8.1",
+    "resend": "^6.10.0",
+    "stripe": "^22.0.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/jszip": "^3.4.1",
+    "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
