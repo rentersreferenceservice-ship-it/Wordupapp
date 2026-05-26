@@ -7,12 +7,24 @@ interface Props {
   initialAmountPaid: number
   initialIsPaid: boolean
   amount: number
+  funderName: string
   funderEmail: string
   guardianEmail: string
 }
 
-export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIsPaid, amount: initialAmount, funderEmail, guardianEmail }: Props) {
+export default function InvoiceActions({
+  invoiceId,
+  initialAmountPaid,
+  initialIsPaid,
+  amount: initialAmount,
+  funderName: initialFunderName,
+  funderEmail: initialFunderEmail,
+  guardianEmail: initialGuardianEmail,
+}: Props) {
   const [invoiceAmount, setInvoiceAmount] = useState(String(initialAmount))
+  const [funderName, setFunderName] = useState(initialFunderName)
+  const [funderEmail, setFunderEmail] = useState(initialFunderEmail)
+  const [guardianEmail, setGuardianEmail] = useState(initialGuardianEmail)
   const [amountPaid, setAmountPaid] = useState(initialAmountPaid > 0 ? String(initialAmountPaid) : '')
   const [isPaid, setIsPaid] = useState(initialIsPaid)
   const [saving, setSaving] = useState(false)
@@ -20,11 +32,9 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
-  const [toEmail, setToEmail] = useState(funderEmail)
-  const [ccEmail, setCcEmail] = useState(guardianEmail)
   const [showEmailForm, setShowEmailForm] = useState(false)
 
-  async function handleSavePaid() {
+  async function handleSave() {
     setSaving(true)
     setSaved(false)
     await fetch(`/api/practitioner/invoice/${invoiceId}`, {
@@ -32,6 +42,9 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined,
+        funderName: funderName.trim(),
+        funderEmail: funderEmail.trim(),
+        guardianEmail: guardianEmail.trim(),
         amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
         isPaid,
       }),
@@ -47,7 +60,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
     const res = await fetch(`/api/practitioner/invoice/${invoiceId}/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ funderEmail: toEmail, guardianEmail: ccEmail }),
+      body: JSON.stringify({ funderEmail, guardianEmail }),
     })
     const data = await res.json()
     setSending(false)
@@ -65,11 +78,47 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
 
   return (
     <div className="print:hidden space-y-4 mt-6">
-      {/* Paid tracking */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Payment Status</h3>
 
-        <div className="flex items-center gap-3 mb-4">
+      {/* Bill To */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bill To</h3>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Funder / Agency Name</label>
+          <input
+            type="text"
+            value={funderName}
+            onChange={e => setFunderName(e.target.value)}
+            placeholder="e.g. Department of Education, Insurance Co."
+            className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Funder Email</label>
+          <input
+            type="email"
+            value={funderEmail}
+            onChange={e => setFunderEmail(e.target.value)}
+            placeholder="billing@funder.org"
+            className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Guardian Email <span className="text-gray-400">(CC on email)</span></label>
+          <input
+            type="email"
+            value={guardianEmail}
+            onChange={e => setGuardianEmail(e.target.value)}
+            placeholder="guardian@email.com"
+            className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Payment Status */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Payment Status</h3>
+
+        <div className="flex items-center gap-3">
           <label className="text-sm text-gray-600 whitespace-nowrap">Invoice amount ($)</label>
           <input
             type="number"
@@ -81,7 +130,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
           />
         </div>
 
-        <label className="flex items-center gap-3 mb-4 cursor-pointer">
+        <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={isPaid}
@@ -94,7 +143,7 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
           <span className="text-sm font-medium text-gray-700">Paid in full</span>
         </label>
 
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3">
           <label className="text-sm text-gray-600 whitespace-nowrap">Amount received ($)</label>
           <input
             type="number"
@@ -113,11 +162,11 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
         </div>
 
         <button
-          onClick={handleSavePaid}
+          onClick={handleSave}
           disabled={saving}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors"
         >
-          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save'}
+          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Invoice'}
         </button>
       </div>
 
@@ -140,31 +189,14 @@ export default function InvoiceActions({ invoiceId, initialAmountPaid, initialIs
       {showEmailForm && (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
           <h3 className="text-sm font-semibold text-gray-700">Send Invoice</h3>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">To (funder)</label>
-            <input
-              type="email"
-              value={toEmail}
-              onChange={e => setToEmail(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">CC (guardian, optional)</label>
-            <input
-              type="email"
-              value={ccEmail}
-              onChange={e => setCcEmail(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <p className="text-xs text-gray-400">Sends to the funder email above; CC goes to guardian.</p>
           {sendError && <p className="text-xs text-red-600">{sendError}</p>}
           <button
             onClick={handleSendEmail}
-            disabled={sending || !toEmail}
+            disabled={sending || !funderEmail}
             className="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
           >
-            {sending ? 'Sending…' : 'Send Invoice'}
+            {sending ? 'Sending…' : !funderEmail ? 'Enter funder email above first' : 'Send Invoice'}
           </button>
         </div>
       )}

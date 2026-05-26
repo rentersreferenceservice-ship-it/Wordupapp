@@ -87,6 +87,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ in
   if (body.amountPaid != null) updates.amount_paid = parseFloat(String(body.amountPaid))
   if (body.isPaid != null) updates.is_paid = Boolean(body.isPaid)
   if (body.notes != null) updates.notes = body.notes
+  if (body.funderName != null) updates.funder_name = body.funderName || null
+  if (body.funderEmail != null) updates.funder_email = body.funderEmail || null
+  if (body.guardianEmail != null) updates.guardian_email = body.guardianEmail || null
 
   const { error } = await supabase.from('invoices').update(updates).eq('id', invoiceId)
   if (error) return Response.json({ error: error.message }, { status: 500 })

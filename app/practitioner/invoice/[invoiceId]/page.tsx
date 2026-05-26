@@ -169,6 +169,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
           initialAmountPaid={amountPaid}
           initialIsPaid={invoice.is_paid}
           amount={amount}
+          funderName={invoice.funder_name ?? ''}
           funderEmail={invoice.funder_email ?? ''}
           guardianEmail={invoice.guardian_email ?? ''}
         />
