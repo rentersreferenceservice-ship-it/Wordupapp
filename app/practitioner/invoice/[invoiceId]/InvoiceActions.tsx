@@ -116,21 +116,26 @@ export default function InvoiceActions({
         </div>
       </div>
 
-      {/* Payment Status */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Payment Status</h3>
-
+      {/* Session Fee */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Session Fee</h3>
         <div className="flex items-center gap-3">
-          <label className="text-sm text-gray-600 whitespace-nowrap">Invoice amount ($)</label>
+          <span className="text-2xl font-bold text-gray-300">$</span>
           <input
             type="number"
             min="0"
             step="0.01"
             value={invoiceAmount}
             onChange={e => setInvoiceAmount(e.target.value)}
-            className="w-32 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="0.00"
+            className="w-40 border-2 border-gray-200 rounded-lg px-3 py-2 text-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-500"
           />
         </div>
+      </div>
+
+      {/* Payment Status */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Payment Status</h3>
 
         <label className="flex items-center gap-3 cursor-pointer">
           <input
