@@ -40,17 +40,27 @@ Respond with ONLY the writing prompt text, no quotes, no explanation.`,
   return content.type === 'text' ? content.text.trim() : ageInstruction
 }
 
+export const maxDuration = 300
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (userId !== ADMIN_USER_ID) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const body = await req.json().catch(() => ({}))
+  const offset = typeof body.offset === 'number' ? body.offset : 0
+  const batchSize = 15
+
   const supabase = getSupabase()
   const client = new Anthropic()
 
-  // Fetch all lessons
-  const { data: rows, error } = await supabase.from('lessons').select('*').order('created_at', { ascending: false })
+  // Count total lessons still needing prompts
+  const { data: rows, error } = await supabase
+    .from('lessons')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + batchSize - 1)
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
   let lessonsUpdated = 0
@@ -60,16 +70,18 @@ export async function POST(req: NextRequest) {
     const lesson = row as unknown as { id: string; hunks: Lesson['hunks']; age_group: string }
     const hunks = lesson.hunks
     let changed = false
+    const updatedHunks: Lesson['hunks'] = []
 
-    const updatedHunks = await Promise.all(
-      hunks.map(async hunk => {
-        if (hunk.writingPrompt) return hunk
-        const prompt = await generateWritingPrompt(hunk.text, lesson.age_group, client)
-        hunksUpdated++
-        changed = true
-        return { ...hunk, writingPrompt: prompt }
-      })
-    )
+    for (const hunk of hunks) {
+      if (hunk.writingPrompt) {
+        updatedHunks.push(hunk)
+        continue
+      }
+      const prompt = await generateWritingPrompt(hunk.text, lesson.age_group, client)
+      hunksUpdated++
+      changed = true
+      updatedHunks.push({ ...hunk, writingPrompt: prompt })
+    }
 
     if (changed) {
       await supabase.from('lessons').update({ hunks: updatedHunks }).eq('id', lesson.id)
@@ -77,5 +89,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return Response.json({ ok: true, lessonsUpdated, hunksUpdated })
+  const done = (rows ?? []).length < batchSize
+  return Response.json({ ok: true, lessonsUpdated, hunksUpdated, nextOffset: offset + batchSize, done })
 }

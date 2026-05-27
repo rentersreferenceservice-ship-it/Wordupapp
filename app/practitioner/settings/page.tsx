@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 export default function PractitionerSettingsPage() {
@@ -8,6 +8,9 @@ export default function PractitionerSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   const [businessName, setBusinessName] = useState('')
   const [businessAddress, setBusinessAddress] = useState('')
@@ -38,6 +41,23 @@ export default function PractitionerSettingsPage() {
         setLoaded(true)
       })
   }, [])
+
+  async function handleLogoUpload(file: File) {
+    setUploadingLogo(true)
+    setUploadError('')
+    const fd = new FormData()
+    fd.append('file', file)
+    try {
+      const res = await fetch('/api/practitioner/logo-upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setUploadError(data.error ?? 'Upload failed'); return }
+      setLogoUrl(data.url)
+    } catch {
+      setUploadError('Upload failed')
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -71,10 +91,36 @@ export default function PractitionerSettingsPage() {
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Branding</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL <span className="text-gray-400 font-normal">(paste a link to your logo image)</span></label>
-            <input type="url" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://yoursite.com/logo.png"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            {logoUrl && <img src={logoUrl} alt="Logo preview" className="mt-2 h-12 object-contain rounded border border-gray-100" />}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Practice Logo</label>
+            {logoUrl ? (
+              <div className="flex items-center gap-4">
+                <img src={logoUrl} alt="Logo" className="h-14 object-contain rounded border border-gray-200 p-1 bg-white" />
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => logoInputRef.current?.click()}
+                    className="text-xs text-blue-600 hover:underline">
+                    Replace
+                  </button>
+                  <button type="button" onClick={() => setLogoUrl('')}
+                    className="text-xs text-gray-400 hover:text-red-500">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" onClick={() => logoInputRef.current?.click()} disabled={uploadingLogo}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50">
+                {uploadingLogo ? 'Uploading…' : '+ Upload Logo'}
+              </button>
+            )}
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+              className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f) }}
+            />
+            {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+            <p className="text-xs text-gray-400 mt-1">JPG, PNG, SVG or WebP · Max 2 MB</p>
           </div>
 
           <div>

@@ -4,19 +4,33 @@ import { useState } from 'react'
 export default function BackfillButton() {
   const [status, setStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
   const [result, setResult] = useState('')
+  const [totalLessons, setTotalLessons] = useState(0)
+  const [totalHunks, setTotalHunks] = useState(0)
 
   async function run() {
     setStatus('running')
+    setTotalLessons(0)
+    setTotalHunks(0)
+    let offset = 0
     try {
-      const res = await fetch('/api/admin/backfill-writing-prompts', { method: 'POST' })
-      const data = await res.json()
-      if (data.ok) {
-        setResult(`Done! ${data.lessonsUpdated} lessons updated, ${data.hunksUpdated} writing prompts added.`)
-        setStatus('done')
-      } else {
-        setResult(data.error ?? 'Something went wrong.')
-        setStatus('error')
+      while (true) {
+        const res = await fetch('/api/admin/backfill-writing-prompts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ offset }),
+        })
+        const data = await res.json()
+        if (!res.ok || !data.ok) {
+          setResult(data.error ?? 'Something went wrong.')
+          setStatus('error')
+          return
+        }
+        setTotalLessons(prev => prev + data.lessonsUpdated)
+        setTotalHunks(prev => prev + data.hunksUpdated)
+        if (data.done) break
+        offset = data.nextOffset
       }
+      setStatus('done')
     } catch {
       setResult('Request failed.')
       setStatus('error')
@@ -37,8 +51,14 @@ export default function BackfillButton() {
         {status === 'done' && '✓ Complete'}
         {status === 'error' && 'Retry'}
       </button>
-      {result && (
-        <p className={`mt-2 text-xs ${status === 'done' ? 'text-green-600' : 'text-red-500'}`}>{result}</p>
+      {status === 'running' && (totalHunks > 0 || totalLessons > 0) && (
+        <p className="mt-2 text-xs text-gray-500">{totalLessons} lessons updated, {totalHunks} prompts added so far…</p>
+      )}
+      {status === 'done' && (
+        <p className="mt-2 text-xs text-green-600">Done! {totalLessons} lessons updated, {totalHunks} writing prompts added.</p>
+      )}
+      {status === 'error' && (
+        <p className="mt-2 text-xs text-red-500">{result}</p>
       )}
     </div>
   )

@@ -3,6 +3,49 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SessionResponse } from '@/lib/practitionerStore'
+import type { Hunk } from '@/lib/types'
+
+function extractKeywords(text: string): string[] {
+  const matches = text.match(/\b[A-Z][A-Z\s\-']{1,}[A-Z]\b/g) ?? []
+  const unique: string[] = []
+  for (const m of matches) {
+    const trimmed = m.trim()
+    if (!unique.includes(trimmed)) unique.push(trimmed)
+  }
+  return unique
+}
+
+function synthResponsesFromHunks(hunks: Hunk[]): SessionResponse[] {
+  const out: SessionResponse[] = []
+  for (const hunk of hunks) {
+    extractKeywords(hunk.text).forEach((kw, i) => {
+      out.push({
+        id: `synth-${hunk.number}-kw-${i}`,
+        sessionId: '',
+        hunkNumber: hunk.number,
+        keyword: kw,
+        questionType: 'KEYWORD',
+        questionText: `Spell: ${kw}`,
+        expectedAnswer: kw,
+        capturedAnswer: '',
+        misspokeCount: 0,
+      })
+    })
+    hunk.questions.forEach((q, i) => {
+      out.push({
+        id: `synth-${hunk.number}-q-${i}`,
+        sessionId: '',
+        hunkNumber: hunk.number,
+        questionType: q.type,
+        questionText: q.question,
+        expectedAnswer: q.answer,
+        capturedAnswer: '',
+        misspokeCount: 0,
+      })
+    })
+  }
+  return out
+}
 
 const STATE_OPTIONS = ['Regulated', 'Dysregulated', 'Overstimulated', 'Understimulated', 'Sick', 'Tired', 'Hungry', 'Stuck in loops']
 
@@ -49,11 +92,17 @@ export default function EditTranscriptClient({
   sessionId,
   studentId,
   responses,
+  lessonHunks,
 }: {
   sessionId: string
   studentId: string
   responses: SessionResponse[]
+  lessonHunks?: Hunk[]
 }) {
+  const hasHunkData = responses.some(r => r.hunkNumber != null && r.hunkNumber > 0)
+  const allResponses = hasHunkData || !lessonHunks
+    ? responses
+    : [...responses, ...synthResponsesFromHunks(lessonHunks)]
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
@@ -80,7 +129,7 @@ export default function EditTranscriptClient({
 
   const [edits, setEdits] = useState<Record<string, EditState>>(() => {
     const map: Record<string, EditState> = {}
-    for (const r of responses) {
+    for (const r of allResponses) {
       if (!r.hunkNumber || r.hunkNumber <= 0) continue
       map[r.id] = initialEditState(r)
     }
@@ -88,10 +137,10 @@ export default function EditTranscriptClient({
   })
 
   const [extraKeywords, setExtraKeywords] = useState<Record<number, { word: string; misspokeCount: number; skipped: boolean }[]>>(() => {
-    const allHunks = new Set(responses.filter(r => r.hunkNumber && r.hunkNumber > 0).map(r => r.hunkNumber!))
+    const allHunks = new Set(allResponses.filter(r => r.hunkNumber && r.hunkNumber > 0).map(r => r.hunkNumber!))
     const map: Record<number, { word: string; misspokeCount: number; skipped: boolean }[]> = {}
     for (const hunkNum of allHunks) {
-      const existing = responses
+      const existing = allResponses
         .filter(r => r.questionType === 'EXTRA_SPELLING' && r.hunkNumber === hunkNum)
         .map(r => ({ word: r.keyword ?? '', misspokeCount: r.misspokeCount ?? 0, skipped: r.capturedAnswer === 'SKIPPED' }))
       while (existing.length < 2) existing.push({ word: '', misspokeCount: 0, skipped: false })
@@ -132,19 +181,11 @@ export default function EditTranscriptClient({
       } else {
         const invoicePath = `/practitioner/invoice/${data.invoiceId}`
         setSessionInvoice(invoicePath)
-        // Save the invoice link to the session before navigating
+        // Save the invoice link alongside all existing session data
         await fetch(`/api/practitioner/sessions/${sessionId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            responses: [
-              { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
-              { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
-              { hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 },
-              { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: invoicePath, expectedAnswer: '', misspokeCount: 0 },
-              ...(sessionCompleteRecord ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
-            ],
-          }),
+          body: JSON.stringify({ responses: buildPayload(invoicePath) }),
         })
         router.push(invoicePath)
       }
@@ -154,17 +195,17 @@ export default function EditTranscriptClient({
     }
   }
 
-  function buildPayload() {
+  function buildPayload(invoiceOverride?: string) {
     const out: object[] = [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 },
-      { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: sessionInvoice.trim(), expectedAnswer: '', misspokeCount: 0 },
+      { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: (invoiceOverride ?? sessionInvoice).trim(), expectedAnswer: '', misspokeCount: 0 },
     ]
     if (sessionCompleteRecord) {
       out.push({ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 })
     }
-    for (const r of responses) {
+    for (const r of allResponses) {
       if (!r.hunkNumber || r.hunkNumber <= 0) continue
       const edit = edits[r.id]
       if (!edit) continue
@@ -236,7 +277,7 @@ export default function EditTranscriptClient({
   }
 
   const byHunk: Record<number, SessionResponse[]> = {}
-  for (const r of responses) {
+  for (const r of allResponses) {
     if (!r.hunkNumber || r.hunkNumber <= 0) continue
     if (!byHunk[r.hunkNumber]) byHunk[r.hunkNumber] = []
     byHunk[r.hunkNumber].push(r)

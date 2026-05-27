@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getSessionResponses } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 import EditTranscriptClient from './EditTranscriptClient'
+import type { Hunk } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,14 @@ export default async function EditTranscriptPage({ params }: { params: Promise<{
 
   if (!session) redirect('/practitioner/dashboard')
 
-  const responses = await getSessionResponses(sessionId)
+  const [responses, lessonRow] = await Promise.all([
+    getSessionResponses(sessionId),
+    session.lesson_id
+      ? getSupabase().from('lessons').select('hunks').eq('id', session.lesson_id).single().then(r => r.data)
+      : Promise.resolve(null),
+  ])
+
+  const lessonHunks: Hunk[] | undefined = lessonRow?.hunks ?? undefined
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -28,6 +36,7 @@ export default async function EditTranscriptPage({ params }: { params: Promise<{
         sessionId={sessionId}
         studentId={session.student_id}
         responses={responses}
+        lessonHunks={lessonHunks}
       />
     </div>
   )
