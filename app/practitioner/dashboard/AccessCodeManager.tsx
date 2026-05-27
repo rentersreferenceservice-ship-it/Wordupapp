@@ -17,13 +17,12 @@ interface Redemption {
 
 interface RedemptionResponse {
   redemptions: Redemption[]
-  debug?: string
 }
 
 export default function AccessCodeManager() {
   const [codeData, setCodeData] = useState<CodeData | null>(null)
   const [redemptions, setRedemptions] = useState<Redemption[]>([])
-  const [debug, setDebug] = useState<string | null>(null)
+
   const [loading, setLoading] = useState(true)
   const [working, setWorking] = useState(false)
   const [toggling, setToggling] = useState<string | null>(null)
@@ -36,7 +35,7 @@ export default function AccessCodeManager() {
     ])
     setCodeData(codeRes.code ?? null)
     setRedemptions(redemptionRes.redemptions ?? [])
-    setDebug(redemptionRes.debug ?? null)
+
     setLoading(false)
   }
 
@@ -140,7 +139,7 @@ export default function AccessCodeManager() {
             <span className="ml-1.5 text-xs font-normal text-gray-400">({redemptions.length})</span>
           )}
         </h3>
-        {debug && <p className="text-xs text-red-400 mb-2 font-mono">{debug}</p>}
+
         {redemptions.length === 0 ? (
           <p className="text-xs text-gray-400">No families have joined yet.</p>
         ) : (
