@@ -28,6 +28,14 @@ export default function LessonEditor({ lesson: original }: { lesson: Lesson }) {
     })
   }
 
+  function updateWritingPrompt(hunkIdx: number, text: string) {
+    setLesson(l => {
+      const hunks = [...l.hunks]
+      hunks[hunkIdx] = { ...hunks[hunkIdx], writingPrompt: text }
+      return { ...l, hunks }
+    })
+  }
+
   function updateQuestion(hunkIdx: number, qIdx: number, field: keyof Question, value: string) {
     setLesson(l => {
       const hunks = [...l.hunks]
@@ -200,6 +208,21 @@ export default function LessonEditor({ lesson: original }: { lesson: Lesson }) {
                 >
                   + Add question
                 </button>
+              )}
+            </div>
+
+            {/* Writing Prompt */}
+            <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50">
+              <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
+              {editing ? (
+                <textarea
+                  value={hunk.writingPrompt ?? ''}
+                  onChange={e => updateWritingPrompt(hunkIdx, e.target.value)}
+                  rows={2}
+                  className="w-full border border-pink-200 rounded px-2 py-1 text-sm text-pink-700 focus:outline-none focus:ring-1 focus:ring-pink-400 bg-white resize-none"
+                />
+              ) : (
+                <p className="text-sm text-pink-600">{hunk.writingPrompt ?? ''}</p>
               )}
             </div>
           </section>

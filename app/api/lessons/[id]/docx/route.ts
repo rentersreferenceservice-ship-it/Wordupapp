@@ -82,6 +82,18 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       )
     }
 
+    if (hunk.writingPrompt) {
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: 'Writing Prompt: ', color: 'DB2777', bold: true, size: 24 }),
+            new TextRun({ text: hunk.writingPrompt, color: 'DB2777', size: 24 }),
+          ],
+          spacing: { before: 80, after: 80 },
+        })
+      )
+    }
+
     children.push(new Paragraph({ text: '' }))
   }
 

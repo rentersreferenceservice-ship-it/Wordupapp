@@ -15,6 +15,7 @@ export interface Hunk {
   number: number
   text: string
   questions: Question[]
+  writingPrompt?: string
   imageUrl?: string
   imageAlt?: string
 }

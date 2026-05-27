@@ -69,6 +69,13 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
       `
     }).join('')
 
+    const writingPromptHtml = hunk.writingPrompt
+      ? `<div style="margin-top:10px;border:1px solid #fbcfe8;border-radius:6px;padding:8px 10px;background:#fdf2f8;break-inside:avoid;page-break-inside:avoid;">
+          <span style="color:#db2777;font-weight:bold;font-size:9pt;">Writing Prompt: </span>
+          <span style="color:#db2777;font-size:9pt;">${hunk.writingPrompt}</span>
+         </div>`
+      : ''
+
     return `
       <div style="margin-bottom:16px;">
         <div style="break-inside:avoid;page-break-inside:avoid;">
@@ -76,6 +83,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
           <p style="margin-bottom:8px;line-height:1.5;">${hunk.text}</p>
         </div>
         ${questionsHtml}
+        ${writingPromptHtml}
       </div>
     `
   }).join('')

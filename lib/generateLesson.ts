@@ -144,6 +144,7 @@ PRIOR KNOWLEDGE:
 - Bad PRIOR KNOWLEDGE: "Is Mozart famous?" (yes/no — never allowed)
 - Bad PRIOR KNOWLEDGE: "Do you like music?" (opinion — use OPEN)
 - Bad PRIOR KNOWLEDGE: "What is art?" / "What is music?" / "What is science?" — too abstract. There is no single correct answer. PRIOR KNOWLEDGE must be a specific, verifiable fact about something mentioned in the hunk, with one clear answer.
+- CRITICAL: The answer must NOT appear as a word or phrase inside your own question stem. If a student can find the answer simply by reading the question, it is invalid — rewrite it entirely. Example: "David Chalmers is a philosopher at New York University, located in the state of _____." → NEW YORK is invalid because "New York" is already in the question. Instead write: "David Chalmers is a philosopher at _____ University." → ARIZONA (his actual university, not stated in the lesson).
 
 MATH:
 - Use when you specifically want the student to recall a number, date, or year as the answer
@@ -187,6 +188,19 @@ OPEN:
 - Example: "If you could visit the Moon, what would you bring?" → STUDENT CHOICE
 - CRITICAL: STUDENT CHOICE is ONLY valid for OPEN questions. Never write STUDENT CHOICE as the answer for KNOWN, SEMI-OPEN, PRIOR KNOWLEDGE, MATH, or VAKT.
 
+WRITING PROMPT (required for every hunk):
+- After the questions, each hunk must include a WRITING PROMPT — a short prompt that invites the student to write a paragraph about the hunk's main concept in their own words.
+- Purpose: to help spellers develop fluency and openness as writers by connecting the lesson content to personal expression.
+- The prompt must be specific to this hunk's content — not a generic "write about what you learned."
+- Age-appropriate framing:
+  - Young Children (ages 6–8): "Draw a picture and write one sentence about ___."
+  - Children (ages 9–11): "Write 2–3 sentences about ___. Tell what you learned and what surprised you."
+  - Tweens (ages 12–14): "Write a short paragraph about ___. Include two facts and one personal connection."
+  - Teens (ages 15–17): "Write a paragraph about ___. Use details from the lesson and explain what this means to you personally."
+  - Adults (18+): "Write a paragraph about ___. Incorporate the key ideas from this section and reflect on why this topic matters to you."
+- Keep the prompt to 1–2 sentences maximum.
+- Never repeat the same prompt structure across all 8 hunks — vary the framing.
+
 ANSWER RULES:
 - ALL answers in ALL CAPS
 - Multiple answers separated with slashes
@@ -211,7 +225,8 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
         { "type": "KNOWN", "question": "question text", "answer": "ANSWER IN ALL CAPS" },
         { "type": "VAKT", "question": "sensory break prompt", "answer": "SENSORY RESPONSE / OPTIONS", "youtubeQuery": "2-4 word YouTube search", "youtubeDescription": "Watch a monarch butterfly migrate south" },
         ...
-      ]
+      ],
+      "writingPrompt": "A 1–2 sentence prompt inviting the student to write a paragraph about this hunk's main concept."
     },
     ...
   ],
@@ -219,7 +234,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
   "hashtags": ["#TopicTag", "#AnotherTag"]
 }
 
-Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson.
+Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson. Every hunk must include a "writingPrompt" field.
 For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #S2C.`
 
 function applyAnnotations(
