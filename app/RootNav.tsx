@@ -9,6 +9,7 @@ export default function RootNav() {
 
   if (pathname.startsWith('/practitioner')) return null
   if (pathname.startsWith('/join')) return null
+  if (pathname.startsWith('/invoice')) return null
 
   return (
     <div className="relative z-20 flex justify-end items-center gap-3 px-6 py-3 print:hidden">
