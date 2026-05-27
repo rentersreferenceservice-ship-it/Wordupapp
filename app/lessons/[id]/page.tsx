@@ -113,6 +113,12 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
                 )
               })}
             </div>
+            {hunk.writingPrompt && (
+              <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50">
+                <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
+                <p className="text-sm text-pink-600">{hunk.writingPrompt}</p>
+              </div>
+            )}
           </section>
         ))}
 
