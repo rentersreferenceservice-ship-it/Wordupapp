@@ -39,9 +39,6 @@ export default async function PractitionerDashboard() {
             Upload Lesson
           </Link>
           <AddToHomeScreen variant="button" />
-          <Link href="/practitioner/settings" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center gap-1.5">
-            ⚙ Business Settings
-          </Link>
         </div>
       </div>
 
