@@ -4,6 +4,7 @@ import { getStudents, getSessions } from '@/lib/practitionerStore'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
+import BackfillButton from './BackfillButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +61,12 @@ export default async function PractitionerDashboard() {
       <div className="mb-6">
         <AccessCodeManager />
       </div>
+
+      {userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p' && (
+        <div className="mb-6">
+          <BackfillButton />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Caseload */}
