@@ -71,8 +71,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
             ← Dashboard
           </Link>
         )}
-        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${invoice.is_paid ? 'bg-green-100 text-green-700' : isOverdue ? 'bg-red-600 text-white' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
-          {invoice.is_paid ? 'Paid' : isOverdue ? 'Overdue' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
+        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${amount === 0 ? 'bg-gray-100 text-gray-500' : invoice.is_paid ? 'bg-green-100 text-green-700' : isOverdue ? 'bg-red-600 text-white' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
+          {amount === 0 ? 'No Charge' : invoice.is_paid ? 'Paid' : isOverdue ? 'Overdue' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
         </span>
       </div>
 
