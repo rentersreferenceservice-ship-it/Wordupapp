@@ -39,7 +39,7 @@ export default function SubscribeButton({ referral }: { referral?: string }) {
         disabled={loading}
         className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors disabled:opacity-60"
       >
-        {loading ? 'Loading…' : 'Subscribe $9.99/mo'}
+        {loading ? 'Loading…' : 'Start My Free Month'}
       </button>
       {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>

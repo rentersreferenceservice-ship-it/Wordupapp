@@ -5,9 +5,9 @@ export default function SubscribeSuccessPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 text-center">
         <div className="text-5xl mb-4">🎉</div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">You&apos;re subscribed!</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Your free month has started!</h1>
         <p className="text-gray-600 mb-6">
-          Welcome to Word Up. You can now generate up to 10 lessons and print 10 per month.
+          Welcome to Word Up. Generate as many lessons as you need for the next 30 days — no charge until your trial ends. Cancel anytime before then and you won&apos;t be billed.
         </p>
         <Link
           href="/"

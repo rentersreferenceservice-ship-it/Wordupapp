@@ -165,14 +165,14 @@ export default function HomePage() {
         {!isSignedIn && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-5">
             <p className="text-sm font-semibold text-blue-800">2 free lessons — no account needed</p>
-            <p className="text-xs text-blue-600 mt-0.5">Subscribe for $9.99/mo for up to 20 lessons and prints per month.</p>
+            <p className="text-xs text-blue-600 mt-0.5">Want more? Try 1 month free — just enter your card. $9.99/mo after, cancel anytime.</p>
           </div>
         )}
 
         {showSubscribe && (
           <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5 mb-4">
-            <p className="font-semibold text-gray-800 mb-1 text-center">Subscription required</p>
-            <p className="text-sm text-gray-600 mb-4 text-center">Subscribe for $9.99/month for up to 20 lessons and prints per month.</p>
+            <p className="font-semibold text-gray-800 mb-1 text-center">Try 1 month free</p>
+            <p className="text-sm text-gray-600 mb-4 text-center">Enter your card today — cancel anytime before 30 days and you won&apos;t be charged. After your trial, just $9.99/month for up to 20 lessons per month.</p>
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-600 mb-1">How did you hear about us? <span className="text-gray-400">(optional)</span></label>
               <input

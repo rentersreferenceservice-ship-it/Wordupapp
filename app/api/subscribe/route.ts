@@ -50,6 +50,9 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       },
     ],
+    subscription_data: {
+      trial_period_days: 30,
+    },
     metadata: {
       clerkUserId: userId,
       ...(referral?.trim() ? { referralSource: referral.trim() } : {}),
