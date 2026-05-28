@@ -189,17 +189,17 @@ OPEN:
 - CRITICAL: STUDENT CHOICE is ONLY valid for OPEN questions. Never write STUDENT CHOICE as the answer for KNOWN, SEMI-OPEN, PRIOR KNOWLEDGE, MATH, or VAKT.
 
 WRITING PROMPT (required for every hunk):
-- After the questions, each hunk must include a WRITING PROMPT — a short prompt that invites the student to write a paragraph about the hunk's main concept in their own words.
-- Purpose: to help spellers develop fluency and openness as writers by connecting the lesson content to personal expression.
+- After the questions, each hunk must include a WRITING PROMPT — a short, open invitation for the student to respond to this hunk's main concept in their own words.
+- Purpose: to invite expression. The prompt should open a door, not prescribe what's behind it. Do not tell the student how long to write, how many sentences to use, or what structure to follow.
 - The prompt must be specific to this hunk's content — not a generic "write about what you learned."
-- Age-appropriate framing:
-  - Young Children (ages 6–8): "Draw a picture and write one sentence about ___."
-  - Children (ages 9–11): "Write 2–3 sentences about ___. Tell what you learned and what surprised you."
-  - Tweens (ages 12–14): "Write a short paragraph about ___. Include two facts and one personal connection."
-  - Teens (ages 15–17): "Write a paragraph about ___. Use details from the lesson and explain what this means to you personally."
-  - Adults (18+): "Write a paragraph about ___. Incorporate the key ideas from this section and reflect on why this topic matters to you."
-- Keep the prompt to 1–2 sentences maximum.
-- Never repeat the same prompt structure across all 8 hunks — vary the framing.
+- Tone by age group:
+  - Young Children (ages 6–8): Warm, simple. "What do you think about ___?" or "Tell me one thing about ___."
+  - Children (ages 9–11): Curious, friendly. "What was interesting to you about ___?" or "Write whatever comes to mind about ___."
+  - Tweens (ages 12–14): Casual, no pressure. "What's your take on ___?" or "Share whatever you want about ___."
+  - Teens (ages 15–17): Simple and open — no format requirements, no sentence counts. "What does ___ make you think about?" or "Write anything that came to mind."
+  - Adults (18+): Reflective but open. "What stands out to you about ___?" or "Write your thoughts on ___."
+- Keep the prompt to 1 sentence. Never stack multiple requirements.
+- Vary the framing across hunks — don't use the same opening phrase twice.
 
 ANSWER RULES:
 - ALL answers in ALL CAPS
