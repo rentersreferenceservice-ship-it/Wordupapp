@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import ManageSubscriptionButton from '@/app/ManageSubscriptionButton'
 
 export default function PractitionerSettingsPage() {
   const [loaded, setLoaded] = useState(false)
@@ -191,6 +192,12 @@ export default function PractitionerSettingsPage() {
           {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Settings'}
         </button>
       </form>
+
+      <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+        <p className="text-xs text-gray-400 mb-2">Subscription & Billing</p>
+        <ManageSubscriptionButton className="text-sm text-blue-600 hover:underline" />
+        <p className="text-xs text-gray-400 mt-1">Cancel, update payment method, or view billing history</p>
+      </div>
     </main>
   )
 }

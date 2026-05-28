@@ -61,8 +61,19 @@ export async function POST(req: NextRequest) {
           await setSubscribed(clerkUserId, true)
           console.log('Family subscribed:', clerkUserId)
         }
-        if (referralSource) {
-          console.log('Referral source for', clerkUserId, ':', referralSource)
+        // Save Stripe customer ID so billing portal can look it up
+        if (session.customer) {
+          try {
+            const supabase = getSupabase()
+            await supabase.from('user_usage').upsert({
+              user_id: clerkUserId,
+              stripe_customer_id: session.customer as string,
+              ...(referralSource?.trim() ? { referral_source: referralSource.trim() } : {}),
+            }, { onConflict: 'user_id', ignoreDuplicates: false })
+          } catch (err) {
+            console.error('Could not save customer ID:', err)
+          }
+        } else if (referralSource) {
           try {
             const supabase = getSupabase()
             await supabase.from('user_usage').upsert({

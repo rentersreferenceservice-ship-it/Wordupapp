@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser, SignUpButton } from '@clerk/nextjs'
 import SubscribeButton from './SubscribeButton'
+import ManageSubscriptionButton from './ManageSubscriptionButton'
 import type { Lesson } from '@/lib/types'
 
 const AGE_GROUPS = [
@@ -135,7 +136,7 @@ export default function HomePage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-4">
       {isSignedIn && (
         <div className="w-full max-w-lg mb-3 bg-blue-600 text-white text-sm rounded-xl px-4 py-2.5 flex items-center justify-between">
-          <span>You&apos;re signed in</span>
+          <ManageSubscriptionButton className="text-white/80 hover:text-white text-xs underline underline-offset-2" />
           <a href="/practitioner/dashboard" className="font-semibold underline hover:no-underline">Go to Dashboard →</a>
         </div>
       )}
