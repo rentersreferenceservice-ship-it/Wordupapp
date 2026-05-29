@@ -395,6 +395,8 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               const skipped = writingRecord?.capturedAnswer === 'SKIPPED'
               if (skipped) return null
               const response = writingRecord?.capturedAnswer ?? null
+              const misspokes = writingRecord?.misspokeCount ?? 0
+              const letters = response ? response.replace(/\s/g, '').length : 0
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
                   <p className="text-xs font-semibold text-gray-400 mb-1">Hunk {n}</p>
@@ -405,6 +407,12 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                     ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>
                     : <div className="space-y-1"><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /></div>
                   }
+                  {(letters > 0 || misspokes > 0) && (
+                    <div className="flex gap-3 mt-1.5">
+                      {letters > 0 && <span className="text-xs font-semibold text-blue-500">{letters} letters</span>}
+                      {misspokes > 0 && <span className="text-xs font-semibold text-red-500">{'✗'.repeat(misspokes)} ({misspokes} misspokes)</span>}
+                    </div>
+                  )}
                 </div>
               )
             })}
