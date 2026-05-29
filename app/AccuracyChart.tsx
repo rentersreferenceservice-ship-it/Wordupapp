@@ -101,23 +101,23 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
     lessonTitle: s.lessonTitle,
     regulationArrival: s.regulationArrival ?? null,
     regulationDeparture: s.regulationDeparture ?? null,
-    // Fixed positions in top/bottom lanes — color encodes the state
-    arrived: s.regulationArrival ? 112 : undefined,
-    departed: s.regulationDeparture ? -12 : undefined,
+    // Fixed positions in tight lanes just outside 0-100
+    arrived: s.regulationArrival ? 104 : undefined,
+    departed: s.regulationDeparture ? -4 : undefined,
     isCurrent: s.sessionId === currentSessionId,
   }))
 
   return (
     <>
       {periodSelector}
-      <ResponsiveContainer width="100%" height={hasRegulation ? 210 : 180}>
+      <ResponsiveContainer width="100%" height={hasRegulation ? 220 : 180}>
         <LineChart data={chartData} margin={{ top: 4, right: 20, bottom: 0, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
 
-          {/* Regulation lanes */}
+          {/* Regulation lanes — tight bands just outside 0-100 */}
           {hasRegulation && <>
-            <ReferenceArea y1={104} y2={121} fill="#f0fdf4" fillOpacity={0.9} />
-            <ReferenceArea y1={-21} y2={-4} fill="#fefce8" fillOpacity={0.9} />
+            <ReferenceArea y1={101} y2={108} fill="#f0fdf4" fillOpacity={0.9} />
+            <ReferenceArea y1={-8} y2={-1} fill="#fefce8" fillOpacity={0.9} />
           </>}
 
           <XAxis
@@ -128,7 +128,7 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
             interval="preserveStartEnd"
           />
           <YAxis
-            domain={hasRegulation ? [-20, 120] : [0, 100]}
+            domain={hasRegulation ? [-10, 110] : [0, 100]}
             ticks={hasRegulation ? [0, 25, 50, 75, 100] : undefined}
             tick={{ fontSize: 9, fill: '#9ca3af' }}
             tickLine={false}
