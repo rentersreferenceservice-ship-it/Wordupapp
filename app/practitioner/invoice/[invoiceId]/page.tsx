@@ -143,15 +143,21 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
                 <span className="text-green-600 font-semibold">−{fmt(amountPaid)}</span>
               </div>
             )}
+            {/* Prior balance and total — practitioner screen only */}
             {outstandingBalance > 0 && (
-              <div className="flex justify-between text-sm text-gray-500 py-1.5 border-b border-gray-100">
+              <div className="print:hidden flex justify-between text-sm text-gray-500 py-1.5 border-b border-gray-100">
                 <span>Prior Balance Due</span>
                 <span className="font-semibold text-orange-600">{fmt(outstandingBalance)}</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-white bg-blue-800 rounded-lg px-4 py-2.5 mt-1 text-sm">
+            <div className="print:hidden flex justify-between font-bold text-white bg-blue-800 rounded-lg px-4 py-2.5 mt-1 text-sm">
               <span>Total Due</span>
               <span>{fmt(totalDue)}</span>
+            </div>
+            {/* Print version — just this invoice's balance */}
+            <div className="hidden print:flex justify-between font-bold text-white bg-blue-800 rounded-lg px-4 py-2.5 mt-1 text-sm">
+              <span>Balance Due</span>
+              <span>{fmt(balanceDue)}</span>
             </div>
           </div>
         </div>
