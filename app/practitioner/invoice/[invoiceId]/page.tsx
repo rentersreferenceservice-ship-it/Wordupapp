@@ -182,6 +182,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
           funderName={invoice.funder_name ?? ''}
           funderEmail={invoice.funder_email ?? ''}
           guardianEmail={invoice.guardian_email ?? ''}
+          invoiceDate={invoice.invoice_date}
+          dueDate={invoice.due_date ?? null}
+          sessionId={invoice.session_id ?? null}
         />
       </div>
     </div>

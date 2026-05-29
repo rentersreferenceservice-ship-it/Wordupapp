@@ -90,9 +90,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ in
   if (body.funderName != null) updates.funder_name = body.funderName || null
   if (body.funderEmail != null) updates.funder_email = body.funderEmail || null
   if (body.guardianEmail != null) updates.guardian_email = body.guardianEmail || null
+  if (body.invoiceDate != null) updates.invoice_date = body.invoiceDate || null
+  if (body.dueDate != null) updates.due_date = body.dueDate || null
 
   const { error } = await supabase.from('invoices').update(updates).eq('id', invoiceId)
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
   return Response.json({ ok: true })
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ invoiceId: string }> }) {
+  const { invoiceId } = await params
+  const { userId } = await auth()
+  if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
+
+  const supabase = getSupabase()
+
+  const { data: invoice } = await supabase
+    .from('invoices')
+    .select('id, session_id')
+    .eq('id', invoiceId)
+    .eq('practitioner_id', userId)
+    .single()
+  if (!invoice) return Response.json({ error: 'Not found' }, { status: 404 })
+
+  const { error } = await supabase.from('invoices').delete().eq('id', invoiceId)
+  if (error) return Response.json({ error: error.message }, { status: 500 })
+
+  return Response.json({ ok: true, sessionId: invoice.session_id ?? null })
 }

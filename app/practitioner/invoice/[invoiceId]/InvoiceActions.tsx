@@ -11,6 +11,9 @@ interface Props {
   funderName: string
   funderEmail: string
   guardianEmail: string
+  invoiceDate: string
+  dueDate: string | null
+  sessionId: string | null
 }
 
 export default function InvoiceActions({
@@ -21,15 +24,22 @@ export default function InvoiceActions({
   funderName: initialFunderName,
   funderEmail: initialFunderEmail,
   guardianEmail: initialGuardianEmail,
+  invoiceDate: initialInvoiceDate,
+  dueDate: initialDueDate,
+  sessionId,
 }: Props) {
   const [invoiceAmount, setInvoiceAmount] = useState(String(initialAmount))
   const [funderName, setFunderName] = useState(initialFunderName)
   const [funderEmail, setFunderEmail] = useState(initialFunderEmail)
   const [guardianEmail, setGuardianEmail] = useState(initialGuardianEmail)
+  const [invoiceDate, setInvoiceDate] = useState(initialInvoiceDate)
+  const [dueDate, setDueDate] = useState(initialDueDate ?? '')
   const [amountPaid, setAmountPaid] = useState(initialAmountPaid > 0 ? String(initialAmountPaid) : '')
   const [isPaid, setIsPaid] = useState(initialIsPaid)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [sendError, setSendError] = useState('')
@@ -46,6 +56,8 @@ export default function InvoiceActions({
         funderName: funderName.trim(),
         funderEmail: funderEmail.trim(),
         guardianEmail: guardianEmail.trim(),
+        invoiceDate: invoiceDate || null,
+        dueDate: dueDate || null,
         amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
         isPaid,
       }),
@@ -54,6 +66,23 @@ export default function InvoiceActions({
     setSaved(true)
     router.refresh()
     setTimeout(() => setSaved(false), 3000)
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    const res = await fetch(`/api/practitioner/invoice/${invoiceId}`, { method: 'DELETE' })
+    const data = await res.json()
+    setDeleting(false)
+    if (res.ok) {
+      if (sessionId) {
+        router.push(`/practitioner/transcript/${sessionId}`)
+      } else {
+        router.push('/practitioner/dashboard')
+      }
+    } else {
+      alert(data.error ?? 'Failed to delete invoice')
+      setConfirmDelete(false)
+    }
   }
 
   async function handleSendEmail() {
@@ -116,6 +145,31 @@ export default function InvoiceActions({
             placeholder="guardian@email.com"
             className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+      </div>
+
+      {/* Invoice Dates */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Invoice Dates</h3>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="block text-xs text-gray-500 mb-1">Invoice Date</label>
+            <input
+              type="date"
+              value={invoiceDate}
+              onChange={e => setInvoiceDate(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs text-gray-500 mb-1">Due Date <span className="text-gray-400">(optional)</span></label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={e => setDueDate(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
       </div>
 
@@ -207,6 +261,38 @@ export default function InvoiceActions({
       </div>
 
       {sendError && <p className="text-sm text-red-600 text-center">{sendError}</p>}
+
+      {/* Delete */}
+      <div className="border-t border-gray-100 pt-4">
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+          >
+            Delete this invoice
+          </button>
+        ) : (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+            <p className="text-sm font-semibold text-red-700">Delete this invoice?</p>
+            <p className="text-xs text-red-500">This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-60 transition-colors"
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete'}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
