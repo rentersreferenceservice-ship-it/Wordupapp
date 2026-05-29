@@ -52,6 +52,7 @@ interface HunkCapture {
   extraKeywords: ExtraKeywordCapture[]
   questions: QuestionCapture[]
   writingResponse: string
+  writingMisspokes: number
 }
 
 export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null }: {
@@ -93,6 +94,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         }),
         extraKeywords: savedExtras,
         writingResponse: writingRecord?.capturedAnswer ?? '',
+        writingMisspokes: writingRecord?.misspokeCount ?? 0,
         questions: hunk.questions.map(q => {
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
           return {
@@ -245,6 +247,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  function updateWritingMisspokes(delta: number) {
+    setCaptures(prev => {
+      const next = [...prev]
+      next[currentHunk] = { ...next[currentHunk], writingMisspokes: Math.max(0, next[currentHunk].writingMisspokes + delta) }
+      return next
+    })
+  }
+
   function setSpellerSentence(questionIdx: number, sentence: string) {
     setCaptures(prev => {
       const next = [...prev]
@@ -298,7 +308,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           questionText: lesson.hunks[hunkIdx].writingPrompt ?? 'Writing Prompt',
           capturedAnswer: hunkCapture.writingResponse.trim(),
           expectedAnswer: '',
-          misspokeCount: 0,
+          misspokeCount: hunkCapture.writingMisspokes,
         }] : []),
       ]),
     ]
@@ -535,6 +545,17 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               rows={3}
               className="w-full text-sm border-2 border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none text-gray-800 placeholder-pink-300 bg-white"
             />
+            <div className="flex items-center gap-4 mt-2">
+              {capture.writingResponse && (
+                <span className="text-xs font-semibold text-blue-500">
+                  {capture.writingResponse.replace(/\s/g, '').length} letters
+                </span>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Misspoke:</span>
+                <MisspokeCounter value={capture.writingMisspokes} onChange={updateWritingMisspokes} />
+              </div>
+            </div>
           </div>
 
           {/* Questions */}
