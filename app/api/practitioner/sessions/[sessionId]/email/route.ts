@@ -67,12 +67,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     const sentenceLetters = responses
       .filter(r => r.spellerSentence && r.spellerSentence.trim())
       .reduce((s, r) => s + (r.spellerSentence ?? '').replace(/\s/g, '').length, 0)
+    const writingLetters = responses
+      .filter(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
+      .reduce((s, r) => s + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
     const totalLetters =
-      // Use keyword field first, fall back to expectedAnswer (both hold the same value)
       keywords.reduce((s, k) => s + ((k.keyword ?? k.expectedAnswer ?? '').replace(/\s/g, '').length), 0) +
       known.reduce((s, q) => s + (q.expectedAnswer ?? '').split('/').reduce((a, x) => a + x.trim().replace(/\s/g, '').length, 0), 0) +
-      sentenceLetters
-    const totalMisspokes = [...keywords, ...known].reduce((s, r) => s + (r.misspokeCount ?? 0), 0)
+      sentenceLetters +
+      writingLetters
+    const totalMisspokes = responses
+      .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
+      .reduce((s, r) => s + (r.misspokeCount ?? 0), 0)
     const totalPokes = totalLetters + totalMisspokes
     const accuracy = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : null
     const hasHunkResponses = responses.some(r => r.hunkNumber != null && r.hunkNumber > 0)
@@ -248,8 +253,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
         // Per-hunk
         ...Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
           const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
-          if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer !== 'SKIPPED')
+          if (hunkKeywords.length === 0 && hunkQuestions.length === 0 && !writingRecord) return null
 
           return React.createElement(View, { key: hunkNum, style: s.hunkBox },
             React.createElement(Text, { style: s.hunkTitle }, `Hunk ${hunkNum}`),
@@ -267,6 +273,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
                 )
               })
             ) : null,
+
+            // Writing response
+            ...(writingRecord ? [
+              React.createElement(View, { key: 'writing', style: { marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: '#fce7f3' } },
+                React.createElement(Text, { style: { fontSize: 7, fontFamily: 'Helvetica-Bold', color: '#ec4899', textTransform: 'uppercase', marginBottom: 3 } }, 'Writing Prompt'),
+                writingRecord.questionText && writingRecord.questionText !== 'Writing Prompt'
+                  ? React.createElement(Text, { style: { fontSize: 8, color: '#db2777', fontStyle: 'italic', marginBottom: 3 } }, writingRecord.questionText)
+                  : null,
+                writingRecord.capturedAnswer
+                  ? React.createElement(Text, { style: { fontSize: 9, color: '#1f2937' } }, writingRecord.capturedAnswer)
+                  : null,
+                (writingRecord.misspokeCount ?? 0) > 0
+                  ? React.createElement(Text, { style: { fontSize: 8, color: '#dc2626', marginTop: 2 } }, `${writingRecord.misspokeCount} ✗`)
+                  : null,
+              )
+            ] : []),
 
             ...hunkQuestions.map((q, i) => {
               const color = QUESTION_COLORS[q.questionType] ?? '#555'
