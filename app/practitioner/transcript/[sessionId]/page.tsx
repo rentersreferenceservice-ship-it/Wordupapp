@@ -8,6 +8,7 @@ import PrintTranscriptButton from './PrintTranscriptButton'
 import SendTranscriptButton from './SendTranscriptButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import SpellerSentenceInput from './SpellerSentenceInput'
+import WritingResponseInput from './WritingResponseInput'
 
 export const dynamic = 'force-dynamic'
 
@@ -375,19 +376,12 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 </div>
               )}
 
-              {/* Writing Prompt */}
-              {(hunkPrompts[Number(hunkNum)] || writingRecord) && (
-                <div className="mt-4 pt-3 border-t border-pink-100">
-                  <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-                  {hunkPrompts[Number(hunkNum)] && (
-                    <p className="text-xs text-pink-600 italic mb-1">{hunkPrompts[Number(hunkNum)]}</p>
-                  )}
-                  {writingRecord?.capturedAnswer
-                    ? <p className="text-sm text-gray-700 whitespace-pre-wrap">{writingRecord.capturedAnswer}</p>
-                    : <p className="text-xs text-gray-300 italic">No response recorded</p>
-                  }
-                </div>
-              )}
+              <WritingResponseInput
+                sessionId={sessionId}
+                hunkNumber={Number(hunkNum)}
+                promptText={hunkPrompts[Number(hunkNum)]}
+                initialValue={writingRecord?.capturedAnswer ?? ''}
+              />
             </div>
           )
         })}
