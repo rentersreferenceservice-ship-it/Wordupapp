@@ -48,7 +48,9 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
 
   const cutoff = new Date()
   cutoff.setMonth(cutoff.getMonth() - months)
-  const filtered = data.filter(s => new Date(s.date + 'T00:00:00') >= cutoff)
+  const filtered = data
+    .filter(s => new Date(s.date + 'T00:00:00') >= cutoff)
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.sessionId.localeCompare(b.sessionId))
 
   const periodSelector = (
     <div className="flex gap-1 mb-4">
@@ -107,7 +109,8 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
   const yMin = hasRegulation ? yFloor - 8 : yFloor
   const yMax = hasRegulation ? yCeil + 8 : yCeil
 
-  const chartData = filtered.map(s => ({
+  const chartData = filtered.map((s, i) => ({
+    idx: i,
     date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     accuracy: s.accuracy,
     regulationArrival: s.regulationArrival ?? null,
@@ -135,7 +138,11 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
           </>}
 
           <XAxis
-            dataKey="date"
+            dataKey="idx"
+            type="number"
+            domain={[0, chartData.length - 1]}
+            ticks={chartData.map(d => d.idx)}
+            tickFormatter={(i: number) => chartData[i]?.date ?? ''}
             tick={{ fontSize: 9, fill: '#9ca3af' }}
             tickLine={false}
             axisLine={false}
