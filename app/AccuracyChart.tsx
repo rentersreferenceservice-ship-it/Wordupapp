@@ -37,6 +37,7 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-3 py-2 text-xs">
       <p className="font-bold text-gray-900">{d.accuracy}%</p>
       <p className="text-gray-500">{d.date}</p>
+      {d.lessonTitle && <p className="text-gray-400 truncate max-w-[180px]">{d.lessonTitle}</p>}
       {arrived && <p className={`font-semibold mt-0.5 ${d.regulationArrival === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Arrived: {arrived}</p>}
       {departed && <p className={`font-semibold ${d.regulationDeparture === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Departed: {departed}</p>}
     </div>
@@ -113,6 +114,7 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
     idx: i,
     date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     accuracy: s.accuracy,
+    lessonTitle: s.lessonTitle ?? '',
     regulationArrival: s.regulationArrival ?? null,
     regulationDeparture: s.regulationDeparture ?? null,
     arrived: s.regulationArrival ? regTop : undefined,
