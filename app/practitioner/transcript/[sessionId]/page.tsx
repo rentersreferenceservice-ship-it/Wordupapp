@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { getSessionResponses, getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
-import type { QuestionType } from '@/lib/types'
+import type { QuestionType, Hunk } from '@/lib/types'
 import PrintTranscriptButton from './PrintTranscriptButton'
 import SendTranscriptButton from './SendTranscriptButton'
 import AccuracyChart from '@/app/AccuracyChart'
@@ -390,7 +390,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
         {/* Writing prompts for lesson hunks that have no scored data yet */}
         {(() => {
           const scoredHunks = new Set(Object.keys(byHunk).map(Number))
-          const unscoredHunks = (lessonRow?.hunks ?? []).filter(h => !scoredHunks.has(h.number))
+          const unscoredHunks = ((lessonRow?.hunks ?? []) as Hunk[]).filter(h => !scoredHunks.has(h.number))
           if (unscoredHunks.length === 0) return null
           return unscoredHunks.map(hunk => {
             const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === hunk.number)
