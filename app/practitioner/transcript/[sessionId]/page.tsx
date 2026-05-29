@@ -377,35 +377,38 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 </div>
               )}
 
-              <WritingResponseInput
-                sessionId={sessionId}
-                hunkNumber={Number(hunkNum)}
-                promptText={hunkPrompts[Number(hunkNum)]}
-                initialValue={writingRecord?.capturedAnswer ?? ''}
-              />
             </div>
           )
         })}
 
-        {/* Writing prompts for lesson hunks that have no scored data yet */}
+        {/* Writing Responses — one per hunk, always shown */}
         {(() => {
-          const scoredHunks = new Set(Object.keys(byHunk).map(Number))
-          const unscoredHunks = ((lessonRow?.hunks ?? []) as Hunk[]).filter(h => !scoredHunks.has(h.number))
-          if (unscoredHunks.length === 0) return null
-          return unscoredHunks.map(hunk => {
-            const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === hunk.number)
-            return (
-              <div key={hunk.number} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-2">Hunk {hunk.number}</h2>
-                <WritingResponseInput
-                  sessionId={sessionId}
-                  hunkNumber={hunk.number}
-                  promptText={hunk.writingPrompt}
-                  initialValue={writingRecord?.capturedAnswer ?? ''}
-                />
-              </div>
-            )
-          })
+          // Build hunk numbers from lesson data first, fall back to scored hunk keys
+          const lessonHunks = (lessonRow?.hunks ?? []) as Hunk[]
+          const hunkNumbers: number[] = lessonHunks.length > 0
+            ? lessonHunks.map(h => h.number)
+            : Object.keys(byHunk).map(Number).sort((a, b) => a - b)
+          if (hunkNumbers.length === 0) return null
+          return (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Writing Responses</h2>
+              {hunkNumbers.map(n => {
+                const lessonHunk = lessonHunks.find(h => h.number === n)
+                const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
+                return (
+                  <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
+                    <p className="text-xs font-semibold text-gray-400 mb-2">Hunk {n}</p>
+                    <WritingResponseInput
+                      sessionId={sessionId}
+                      hunkNumber={n}
+                      promptText={lessonHunk?.writingPrompt}
+                      initialValue={writingRecord?.capturedAnswer ?? ''}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          )
         })()}
 
         <p className="text-center text-xs text-gray-400 mt-6 print:mt-4">
