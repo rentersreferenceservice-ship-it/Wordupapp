@@ -582,44 +582,41 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           </div>
 
           {/* Writing Prompt */}
-          <div className={`mb-5 mt-1 p-4 rounded-xl border ${capture.writingSkipped ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-pink-50 border-pink-100'}`}>
-            <div className="flex items-center justify-between mb-1">
-              <p className={`text-xs font-semibold uppercase tracking-wide ${capture.writingSkipped ? 'text-gray-400' : 'text-pink-500'}`}>Writing Prompt</p>
+          <div className="mb-5 mt-1 p-4 bg-pink-50 rounded-xl border border-pink-100">
+            <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
+            {hunk.writingPrompt && !capture.writingSkipped && (
+              <p className="text-xs text-pink-600 italic mb-2">{hunk.writingPrompt}</p>
+            )}
+            {capture.writingSkipped ? (
+              <p className="text-xs text-gray-400 italic mb-2">Skipped — student did not engage in writing</p>
+            ) : (
+              <textarea
+                value={capture.writingResponse}
+                onChange={e => updateWritingResponse(e.target.value)}
+                placeholder="Type the student's written response…"
+                rows={3}
+                className="w-full text-sm border-2 border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none text-gray-800 placeholder-pink-300 bg-white"
+              />
+            )}
+            <div className="flex items-center gap-4 mt-2">
+              {!capture.writingSkipped && capture.writingResponse && (
+                <span className="text-xs font-semibold text-blue-500">
+                  {capture.writingResponse.replace(/\s/g, '').length} letters
+                </span>
+              )}
+              {!capture.writingSkipped && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Misspoke:</span>
+                  <MisspokeCounter value={capture.writingMisspokes} onChange={updateWritingMisspokes} />
+                </div>
+              )}
               <button
                 onClick={toggleWritingSkipped}
-                className={`text-xs font-semibold px-3 py-1 rounded-full border-2 transition-colors ${capture.writingSkipped ? 'bg-blue-100 text-blue-600 border-blue-300 hover:bg-blue-200' : 'bg-white text-red-500 border-red-300 hover:bg-red-50'}`}
+                className={`text-xs font-semibold px-3 py-1 rounded-full border-2 transition-colors ml-auto ${capture.writingSkipped ? 'bg-blue-100 text-blue-600 border-blue-300 hover:bg-blue-200' : 'bg-white text-red-500 border-red-300 hover:bg-red-50'}`}
               >
                 {capture.writingSkipped ? 'Undo Skip' : 'Skip'}
               </button>
             </div>
-            {hunk.writingPrompt && !capture.writingSkipped && (
-              <p className="text-xs text-pink-600 italic mb-2">{hunk.writingPrompt}</p>
-            )}
-            {capture.writingSkipped
-              ? <p className="text-xs text-gray-400 italic">Skipped — student did not engage in writing</p>
-              : (
-                <>
-                  <textarea
-                    value={capture.writingResponse}
-                    onChange={e => updateWritingResponse(e.target.value)}
-                    placeholder="Type the student's written response…"
-                    rows={3}
-                    className="w-full text-sm border-2 border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none text-gray-800 placeholder-pink-300 bg-white"
-                  />
-                  <div className="flex items-center gap-4 mt-2">
-                    {capture.writingResponse && (
-                      <span className="text-xs font-semibold text-blue-500">
-                        {capture.writingResponse.replace(/\s/g, '').length} letters
-                      </span>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">Misspoke:</span>
-                      <MisspokeCounter value={capture.writingMisspokes} onChange={updateWritingMisspokes} />
-                    </div>
-                  </div>
-                </>
-              )
-            }
           </div>
 
           {/* Questions */}
