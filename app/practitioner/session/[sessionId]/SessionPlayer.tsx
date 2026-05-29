@@ -116,10 +116,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
 
   const savedState = initialResponses.find(r => r.questionType === 'SESSION_STATE')
   const savedNotes = initialResponses.find(r => r.questionType === 'SESSION_NOTES')
+  const savedVideo = initialResponses.find(r => r.questionType === 'SESSION_VIDEO')
+  const savedInvoice = initialResponses.find(r => r.questionType === 'SESSION_INVOICE')
   const [studentStates, setStudentStates] = useState<string[]>(
     savedState?.capturedAnswer ? savedState.capturedAnswer.split(', ').filter(Boolean) : []
   )
   const [sessionNotes, setSessionNotes] = useState(savedNotes?.capturedAnswer ?? '')
+  const [sessionVideo, setSessionVideo] = useState(savedVideo?.capturedAnswer ?? '')
+  const [sessionInvoice, setSessionInvoice] = useState(savedInvoice?.capturedAnswer ?? '')
   const [regArrival, setRegArrival] = useState<string | null>(initialRegulationArrival)
   const [regDeparture, setRegDeparture] = useState<string | null>(initialRegulationDeparture)
 
@@ -269,6 +273,8 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     return [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
+      ...(sessionVideo.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...(sessionInvoice.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Session Invoice', capturedAnswer: sessionInvoice.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
       ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
       ...captures.flatMap((hunkCapture, hunkIdx) => [
         ...hunkCapture.keywords.map(k => ({
@@ -444,6 +450,30 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             rows={2}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none mb-3"
           />
+
+          {/* Video & Invoice */}
+          <div className="flex flex-col gap-2 mb-3">
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Session Video URL</p>
+              <input
+                type="text"
+                value={sessionVideo}
+                onChange={e => setSessionVideo(e.target.value)}
+                placeholder="https://youtube.com/…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Invoice Link</p>
+              <input
+                type="text"
+                value={sessionInvoice}
+                onChange={e => setSessionInvoice(e.target.value)}
+                placeholder="/practitioner/invoice/… or external URL"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+          </div>
 
           {/* Departure regulation */}
           <div>
