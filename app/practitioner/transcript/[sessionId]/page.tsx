@@ -8,7 +8,6 @@ import PrintTranscriptButton from './PrintTranscriptButton'
 import SendTranscriptButton from './SendTranscriptButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import SpellerSentenceInput from './SpellerSentenceInput'
-import WritingResponseInput from './WritingResponseInput'
 
 export const dynamic = 'force-dynamic'
 
@@ -381,22 +380,27 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           )
         })}
 
-        {/* Writing Responses — one per hunk, always shown */}
+        {/* Writing Responses — read-only display */}
         {writingHunkNumbers.length > 0 && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Writing Responses</h2>
             {writingHunkNumbers.map(n => {
               const lessonHunk = lessonHunks.find(h => h.number === n)
               const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
+              const response = writingRecord?.capturedAnswer && writingRecord.capturedAnswer !== 'SKIPPED' ? writingRecord.capturedAnswer : null
+              const skipped = writingRecord?.capturedAnswer === 'SKIPPED'
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
-                  <p className="text-xs font-semibold text-gray-400 mb-2">Hunk {n}</p>
-                  <WritingResponseInput
-                    sessionId={sessionId}
-                    hunkNumber={n}
-                    promptText={lessonHunk?.writingPrompt}
-                    initialValue={writingRecord?.capturedAnswer && writingRecord.capturedAnswer !== 'SKIPPED' ? writingRecord.capturedAnswer : ''}
-                  />
+                  <p className="text-xs font-semibold text-gray-400 mb-1">Hunk {n}</p>
+                  {lessonHunk?.writingPrompt && (
+                    <p className="text-xs text-pink-600 italic mb-2">{lessonHunk.writingPrompt}</p>
+                  )}
+                  {skipped
+                    ? <p className="text-xs text-gray-400 italic">Not completed</p>
+                    : response
+                      ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>
+                      : <div className="space-y-1 print:block"><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /></div>
+                  }
                 </div>
               )
             })}
