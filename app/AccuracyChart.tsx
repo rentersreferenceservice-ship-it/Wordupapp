@@ -37,7 +37,6 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-3 py-2 text-xs">
       <p className="font-bold text-gray-900">{d.accuracy}%</p>
       <p className="text-gray-500">{d.date}</p>
-      <p className="text-gray-400 max-w-48 truncate">{d.lessonTitle}</p>
       {arrived && <p className={`font-semibold mt-0.5 ${d.regulationArrival === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Arrived: {arrived}</p>}
       {departed && <p className={`font-semibold ${d.regulationDeparture === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Departed: {departed}</p>}
     </div>
