@@ -386,16 +386,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
         })}
 
         {/* Writing Responses — read-only display */}
-        {writingHunkNumbers.length > 0 && (
+        {writingHunkNumbers.some(n => {
+          const wr = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
+          return wr && wr.capturedAnswer !== 'SKIPPED'
+        }) && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Writing Responses</h2>
             {writingHunkNumbers.map(n => {
               const lessonHunk = lessonHunks.find(h => h.number === n)
               const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-              const skipped = writingRecord?.capturedAnswer === 'SKIPPED'
-              if (skipped) return null
-              const response = writingRecord?.capturedAnswer ?? null
-              const misspokes = writingRecord?.misspokeCount ?? 0
+              if (!writingRecord || writingRecord.capturedAnswer === 'SKIPPED') return null
+              const response = writingRecord.capturedAnswer ?? null
+              const misspokes = writingRecord.misspokeCount ?? 0
               const letters = response ? response.replace(/\s/g, '').length : 0
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">

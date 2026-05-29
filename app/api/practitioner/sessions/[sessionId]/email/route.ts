@@ -279,7 +279,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
         ...Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
           const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
           const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
-          const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer !== 'SKIPPED')
+          const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED')
           if (hunkKeywords.length === 0 && hunkQuestions.length === 0 && !writingRecord) return null
 
           return React.createElement(View, { key: hunkNum, style: s.hunkBox },
