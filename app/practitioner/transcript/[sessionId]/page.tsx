@@ -387,19 +387,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             {writingHunkNumbers.map(n => {
               const lessonHunk = lessonHunks.find(h => h.number === n)
               const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-              const response = writingRecord?.capturedAnswer && writingRecord.capturedAnswer !== 'SKIPPED' ? writingRecord.capturedAnswer : null
               const skipped = writingRecord?.capturedAnswer === 'SKIPPED'
+              if (skipped) return null
+              const response = writingRecord?.capturedAnswer ?? null
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
                   <p className="text-xs font-semibold text-gray-400 mb-1">Hunk {n}</p>
                   {lessonHunk?.writingPrompt && (
                     <p className="text-xs text-pink-600 italic mb-2">{lessonHunk.writingPrompt}</p>
                   )}
-                  {skipped
-                    ? <p className="text-xs text-gray-400 italic">Not completed</p>
-                    : response
-                      ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>
-                      : <div className="space-y-1 print:block"><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /></div>
+                  {response
+                    ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>
+                    : <div className="space-y-1"><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /><div className="border-b border-gray-200 h-5 w-full" /></div>
                   }
                 </div>
               )
