@@ -135,7 +135,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
     replyTo: practitionerEmail || undefined,
     to,
     cc: cc.length ? cc : undefined,
-    bcc: 'Wordups2c@gmail.com',
+    bcc: [practitionerEmail, 'Wordups2c@gmail.com'].filter(e => e && e.includes('@')),
     subject: `Invoice #${invoice.invoice_number} — ${student?.name ?? 'Student'} — ${invoiceDate}`,
     html,
   })
