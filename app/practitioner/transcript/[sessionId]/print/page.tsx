@@ -71,10 +71,20 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const { data: studentData } = await getSupabase()
     .from('students').select('name, age_group').eq('id', session.student_id).single()
 
-  const [responses, accuracyHistory] = await Promise.all([
+  const [responses, accuracyHistory, lessonRow] = await Promise.all([
     getSessionResponses(sessionId),
     getStudentAccuracyHistory(session.student_id, userId),
+    session.lesson_id
+      ? getSupabase().from('lessons').select('hunks').eq('id', session.lesson_id).single().then(r => r.data)
+      : Promise.resolve(null),
   ])
+
+  const hunkPrompts: Record<number, string> = {}
+  if (lessonRow?.hunks) {
+    for (const hunk of lessonRow.hunks) {
+      if (hunk.writingPrompt) hunkPrompts[hunk.number] = hunk.writingPrompt
+    }
+  }
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -210,7 +220,8 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
 
         {Object.entries(byHunk).sort(([a],[b]) => Number(a)-Number(b)).map(([hunkNum, items]) => {
           const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT')
           if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
           return (
             <div key={hunkNum} style={{marginBottom:10,border:'1px solid #ccc',borderRadius:4,padding:'8px 10px'}}>
@@ -271,6 +282,19 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
                   </div>
                 )
               })}
+              {/* Writing Prompt */}
+              {(hunkPrompts[Number(hunkNum)] || writingRecord?.capturedAnswer) && (
+                <div style={{marginTop:8,paddingTop:6,borderTop:'1px solid #fce7f3'}}>
+                  <div style={{fontSize:'8pt',fontWeight:'bold',color:'#ec4899',textTransform:'uppercase',marginBottom:3}}>Writing Prompt</div>
+                  {hunkPrompts[Number(hunkNum)] && (
+                    <div style={{fontSize:'9pt',color:'#ec4899',fontStyle:'italic',marginBottom:4}}>{hunkPrompts[Number(hunkNum)]}</div>
+                  )}
+                  {writingRecord?.capturedAnswer
+                    ? <div style={{fontSize:'10pt',color:'#333',whiteSpace:'pre-wrap'}}>{writingRecord.capturedAnswer}</div>
+                    : <div style={{borderBottom:'1px solid #bbb',marginBottom:8,height:16}} />
+                  }
+                </div>
+              )}
             </div>
           )
         })}

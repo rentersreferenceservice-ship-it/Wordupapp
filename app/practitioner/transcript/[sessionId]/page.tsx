@@ -42,10 +42,20 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     .eq('id', session.student_id)
     .single()
 
-  const [responses, accuracyHistory] = await Promise.all([
+  const [responses, accuracyHistory, lessonRow] = await Promise.all([
     getSessionResponses(sessionId),
     getStudentAccuracyHistory(session.student_id, userId),
+    session.lesson_id
+      ? getSupabase().from('lessons').select('hunks').eq('id', session.lesson_id).single().then(r => r.data)
+      : Promise.resolve(null),
   ])
+
+  const hunkPrompts: Record<number, string> = {}
+  if (lessonRow?.hunks) {
+    for (const hunk of lessonRow.hunks) {
+      if (hunk.writingPrompt) hunkPrompts[hunk.number] = hunk.writingPrompt
+    }
+  }
 
   // Extract session-level records
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
@@ -275,7 +285,8 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             seenKeywords.add(key)
             return true
           })
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'EXTRA_SPELLING' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'EXTRA_SPELLING' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT')
           if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
           return (
             <div key={hunkNum} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
@@ -361,6 +372,20 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                       </div>
                     )
                   })}
+                </div>
+              )}
+
+              {/* Writing Prompt */}
+              {(hunkPrompts[Number(hunkNum)] || writingRecord) && (
+                <div className="mt-4 pt-3 border-t border-pink-100">
+                  <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
+                  {hunkPrompts[Number(hunkNum)] && (
+                    <p className="text-xs text-pink-600 italic mb-1">{hunkPrompts[Number(hunkNum)]}</p>
+                  )}
+                  {writingRecord?.capturedAnswer
+                    ? <p className="text-sm text-gray-700 whitespace-pre-wrap">{writingRecord.capturedAnswer}</p>
+                    : <p className="text-xs text-gray-300 italic">No response recorded</p>
+                  }
                 </div>
               )}
             </div>

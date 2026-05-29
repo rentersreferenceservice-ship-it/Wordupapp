@@ -136,6 +136,16 @@ export default function EditTranscriptClient({
     return map
   })
 
+  const [writingResponses, setWritingResponses] = useState<Record<number, string>>(() => {
+    const map: Record<number, string> = {}
+    for (const r of responses) {
+      if (r.questionType === 'WRITING_PROMPT' && r.hunkNumber && r.hunkNumber > 0) {
+        map[r.hunkNumber] = r.capturedAnswer ?? ''
+      }
+    }
+    return map
+  })
+
   const [extraKeywords, setExtraKeywords] = useState<Record<number, { word: string; misspokeCount: number; skipped: boolean }[]>>(() => {
     const allHunks = new Set(allResponses.filter(r => r.hunkNumber && r.hunkNumber > 0).map(r => r.hunkNumber!))
     const map: Record<number, { word: string; misspokeCount: number; skipped: boolean }[]> = {}
@@ -195,6 +205,13 @@ export default function EditTranscriptClient({
     }
   }
 
+  const hunkPrompts: Record<number, string> = {}
+  if (lessonHunks) {
+    for (const hunk of lessonHunks) {
+      if (hunk.writingPrompt) hunkPrompts[hunk.number] = hunk.writingPrompt
+    }
+  }
+
   function buildPayload(invoiceOverride?: string) {
     const out: object[] = [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
@@ -207,6 +224,7 @@ export default function EditTranscriptClient({
     }
     for (const r of allResponses) {
       if (!r.hunkNumber || r.hunkNumber <= 0) continue
+      if (r.questionType === 'WRITING_PROMPT') continue
       const edit = edits[r.id]
       if (!edit) continue
 
@@ -250,6 +268,16 @@ export default function EditTranscriptClient({
           })
         }
       }
+    }
+    for (const [hunkNum, response] of Object.entries(writingResponses)) {
+      out.push({
+        hunkNumber: Number(hunkNum),
+        questionType: 'WRITING_PROMPT',
+        questionText: hunkPrompts[Number(hunkNum)] ?? 'Writing Prompt',
+        capturedAnswer: response,
+        expectedAnswer: '',
+        misspokeCount: 0,
+      })
     }
     return out
   }
@@ -482,7 +510,7 @@ export default function EditTranscriptClient({
           ))}
 
           {/* Questions */}
-          {items.filter(r => r.questionType !== 'KEYWORD').map(r => {
+          {items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT').map(r => {
             const edit = edits[r.id]
             if (!edit) return null
             const color = QUESTION_COLORS[r.questionType] ?? '#666'
@@ -634,6 +662,21 @@ export default function EditTranscriptClient({
               </div>
             )
           })}
+
+          {/* Writing Prompt */}
+          <div className="mt-4 pt-3 border-t border-pink-100">
+            <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
+            {hunkPrompts[Number(hunkNum)] && (
+              <p className="text-xs text-pink-600 italic mb-2">{hunkPrompts[Number(hunkNum)]}</p>
+            )}
+            <textarea
+              value={writingResponses[Number(hunkNum)] ?? ''}
+              onChange={e => setWritingResponses(prev => ({ ...prev, [Number(hunkNum)]: e.target.value }))}
+              rows={3}
+              placeholder="Student's written response…"
+              className="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-pink-50 placeholder:text-pink-300"
+            />
+          </div>
         </div>
       ))}
 
