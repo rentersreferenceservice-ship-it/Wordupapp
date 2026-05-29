@@ -95,17 +95,32 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
 
   const hasRegulation = filtered.some(s => s.regulationArrival || s.regulationDeparture)
 
+  // Auto-range Y-axis to where the data actually lives
+  const accuracies = filtered.map(s => s.accuracy)
+  const dataMin = Math.min(...accuracies)
+  const dataMax = Math.max(...accuracies)
+  const yFloor = Math.max(0, Math.floor(dataMin / 10) * 10 - 10)
+  const yCeil = Math.min(100, Math.ceil(dataMax / 10) * 10 + 5)
+  // Regulation lanes sit just outside the data range
+  const regTop = yCeil + 4
+  const regBottom = yFloor - 4
+  const yMin = hasRegulation ? yFloor - 8 : yFloor
+  const yMax = hasRegulation ? yCeil + 8 : yCeil
+
   const chartData = filtered.map(s => ({
     date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     accuracy: s.accuracy,
-    lessonTitle: s.lessonTitle,
     regulationArrival: s.regulationArrival ?? null,
     regulationDeparture: s.regulationDeparture ?? null,
-    // Fixed positions in tight lanes just outside 0-100
-    arrived: s.regulationArrival ? 104 : undefined,
-    departed: s.regulationDeparture ? -4 : undefined,
+    arrived: s.regulationArrival ? regTop : undefined,
+    departed: s.regulationDeparture ? regBottom : undefined,
     isCurrent: s.sessionId === currentSessionId,
   }))
+
+  // Generate evenly-spaced ticks within the visible range
+  const tickStep = (yCeil - yFloor) <= 20 ? 5 : (yCeil - yFloor) <= 40 ? 10 : 25
+  const yTicks: number[] = []
+  for (let t = Math.ceil(yFloor / tickStep) * tickStep; t <= yCeil; t += tickStep) yTicks.push(t)
 
   return (
     <>
@@ -114,10 +129,9 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
         <LineChart data={chartData} margin={{ top: 4, right: 20, bottom: 0, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
 
-          {/* Regulation lanes — tight bands just outside 0-100 */}
           {hasRegulation && <>
-            <ReferenceArea y1={101} y2={108} fill="#f0fdf4" fillOpacity={0.9} />
-            <ReferenceArea y1={-8} y2={-1} fill="#fefce8" fillOpacity={0.9} />
+            <ReferenceArea y1={yCeil} y2={yMax} fill="#f0fdf4" fillOpacity={0.9} />
+            <ReferenceArea y1={yMin} y2={yFloor} fill="#fefce8" fillOpacity={0.9} />
           </>}
 
           <XAxis
@@ -128,8 +142,8 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
             interval="preserveStartEnd"
           />
           <YAxis
-            domain={hasRegulation ? [-10, 110] : [0, 100]}
-            ticks={hasRegulation ? [0, 25, 50, 75, 100] : undefined}
+            domain={[yMin, yMax]}
+            ticks={yTicks}
             tick={{ fontSize: 9, fill: '#9ca3af' }}
             tickLine={false}
             axisLine={false}
