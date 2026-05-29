@@ -140,7 +140,7 @@ export default function EditTranscriptClient({
     const map: Record<number, string> = {}
     for (const r of responses) {
       if (r.questionType === 'WRITING_PROMPT' && r.hunkNumber && r.hunkNumber > 0) {
-        map[r.hunkNumber] = r.capturedAnswer ?? ''
+        map[r.hunkNumber] = r.capturedAnswer === 'SKIPPED' ? '' : (r.capturedAnswer ?? '')
       }
     }
     return map
