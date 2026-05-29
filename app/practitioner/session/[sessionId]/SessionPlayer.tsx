@@ -587,9 +587,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               <p className={`text-xs font-semibold uppercase tracking-wide ${capture.writingSkipped ? 'text-gray-400' : 'text-pink-500'}`}>Writing Prompt</p>
               <button
                 onClick={toggleWritingSkipped}
-                className={`text-xs px-2 py-0.5 rounded border transition-colors ${capture.writingSkipped ? 'text-blue-500 border-blue-200 hover:bg-blue-50' : 'text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200'}`}
+                className={`text-xs font-semibold px-3 py-1 rounded-full border-2 transition-colors ${capture.writingSkipped ? 'bg-blue-100 text-blue-600 border-blue-300 hover:bg-blue-200' : 'bg-white text-red-500 border-red-300 hover:bg-red-50'}`}
               >
-                {capture.writingSkipped ? 'Undo' : 'Skip'}
+                {capture.writingSkipped ? 'Undo Skip' : 'Skip'}
               </button>
             </div>
             {hunk.writingPrompt && !capture.writingSkipped && (
