@@ -146,6 +146,16 @@ export default function EditTranscriptClient({
     return map
   })
 
+  const [writingMisspokes, setWritingMisspokes] = useState<Record<number, number>>(() => {
+    const map: Record<number, number> = {}
+    for (const r of responses) {
+      if (r.questionType === 'WRITING_PROMPT' && r.hunkNumber && r.hunkNumber > 0) {
+        map[r.hunkNumber] = r.misspokeCount ?? 0
+      }
+    }
+    return map
+  })
+
   const [extraKeywords, setExtraKeywords] = useState<Record<number, { word: string; misspokeCount: number; skipped: boolean }[]>>(() => {
     const allHunks = new Set(allResponses.filter(r => r.hunkNumber && r.hunkNumber > 0).map(r => r.hunkNumber!))
     const map: Record<number, { word: string; misspokeCount: number; skipped: boolean }[]> = {}
@@ -276,7 +286,7 @@ export default function EditTranscriptClient({
         questionText: hunkPrompts[Number(hunkNum)] ?? 'Writing Prompt',
         capturedAnswer: response,
         expectedAnswer: '',
-        misspokeCount: 0,
+        misspokeCount: writingMisspokes[Number(hunkNum)] ?? 0,
       })
     }
     return out
@@ -676,6 +686,12 @@ export default function EditTranscriptClient({
               placeholder="Student's written response…"
               className="w-full border border-pink-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-300 resize-none bg-pink-50 placeholder:text-pink-300"
             />
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-gray-500">Misspoke:</span>
+              <button onClick={() => setWritingMisspokes(prev => ({ ...prev, [Number(hunkNum)]: Math.max(0, (prev[Number(hunkNum)] ?? 0) - 1) }))} className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-300">−</button>
+              <span className={`w-6 text-center font-bold text-sm ${(writingMisspokes[Number(hunkNum)] ?? 0) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{writingMisspokes[Number(hunkNum)] ?? 0}</span>
+              <button onClick={() => setWritingMisspokes(prev => ({ ...prev, [Number(hunkNum)]: (prev[Number(hunkNum)] ?? 0) + 1 }))} className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold text-sm hover:bg-red-200">+</button>
+            </div>
           </div>
         </div>
       ))}
