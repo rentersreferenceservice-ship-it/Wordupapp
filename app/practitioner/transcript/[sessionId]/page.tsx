@@ -69,7 +69,9 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   const writingHunkNumbers: number[] = lessonHunks.length > 0
     ? lessonHunks.map(h => h.number)
-    : Object.keys(byHunk).map(Number).sort((a, b) => a - b)
+    : Object.keys(byHunk).length > 0
+      ? Object.keys(byHunk).map(Number).sort((a, b) => a - b)
+      : [1, 2, 3, 4, 5, 6, 7, 8]
 
   const spellKeywords = responses.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
   const spellKnown = responses.filter(r => r.questionType === 'KNOWN' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
