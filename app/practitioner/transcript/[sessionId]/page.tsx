@@ -77,12 +77,17 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   const sentenceLetters = responses
     .filter(r => r.spellerSentence && r.spellerSentence.trim())
     .reduce((sum, r) => sum + (r.spellerSentence ?? '').replace(/\s/g, '').length, 0)
+  const writingLetters = responses
+    .filter(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
+    .reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
   const totalLetters =
     spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
     spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
-    sentenceLetters
-  const totalMisspokes =
-    [...spellKeywords, ...spellKnown].reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+    sentenceLetters +
+    writingLetters
+  const totalMisspokes = responses
+    .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
+    .reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
