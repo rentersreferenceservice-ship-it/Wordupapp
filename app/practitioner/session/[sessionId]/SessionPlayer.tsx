@@ -53,6 +53,7 @@ interface HunkCapture {
   questions: QuestionCapture[]
   writingResponse: string
   writingMisspokes: number
+  writingSkipped: boolean
 }
 
 export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null }: {
@@ -87,14 +88,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       while (savedExtras.length < 2) savedExtras.push({ word: '', misspokeCount: 0, skipped: false })
 
       const writingRecord = initialResponses.find(r => r.hunkNumber === hunkNum && r.questionType === 'WRITING_PROMPT')
+      const writingSkipped = writingRecord?.capturedAnswer === 'SKIPPED'
       return {
         keywords: extractKeywords(hunk.text).map(k => {
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
           return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: true }
         }),
         extraKeywords: savedExtras,
-        writingResponse: writingRecord?.capturedAnswer ?? '',
-        writingMisspokes: writingRecord?.misspokeCount ?? 0,
+        writingResponse: writingSkipped ? '' : (writingRecord?.capturedAnswer ?? ''),
+        writingMisspokes: writingSkipped ? 0 : (writingRecord?.misspokeCount ?? 0),
+        writingSkipped,
         questions: hunk.questions.map(q => {
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
           return {
@@ -259,6 +262,15 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  function toggleWritingSkipped() {
+    setCaptures(prev => {
+      const next = [...prev]
+      const skipping = !next[currentHunk].writingSkipped
+      next[currentHunk] = { ...next[currentHunk], writingSkipped: skipping, writingResponse: skipping ? '' : next[currentHunk].writingResponse, writingMisspokes: skipping ? 0 : next[currentHunk].writingMisspokes }
+      return next
+    })
+  }
+
   function setSpellerSentence(questionIdx: number, sentence: string) {
     setCaptures(prev => {
       const next = [...prev]
@@ -308,7 +320,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           misspokeCount: q.asked ? q.misspokeCount : 0,
           spellerSentence: q.spellerSentence || undefined,
         })),
-        ...(hunkCapture.writingResponse.trim() ? [{
+        ...(hunkCapture.writingSkipped ? [{
+          hunkNumber: hunkIdx + 1,
+          questionType: 'WRITING_PROMPT',
+          questionText: lesson.hunks[hunkIdx].writingPrompt ?? 'Writing Prompt',
+          capturedAnswer: 'SKIPPED',
+          expectedAnswer: '',
+          misspokeCount: 0,
+        }] : hunkCapture.writingResponse.trim() ? [{
           hunkNumber: hunkIdx + 1,
           questionType: 'WRITING_PROMPT',
           questionText: lesson.hunks[hunkIdx].writingPrompt ?? 'Writing Prompt',
@@ -563,29 +582,44 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           </div>
 
           {/* Writing Prompt */}
-          <div className="mb-5 mt-1 p-4 bg-pink-50 rounded-xl border border-pink-100">
-            <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-            {hunk.writingPrompt && (
+          <div className={`mb-5 mt-1 p-4 rounded-xl border ${capture.writingSkipped ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-pink-50 border-pink-100'}`}>
+            <div className="flex items-center justify-between mb-1">
+              <p className={`text-xs font-semibold uppercase tracking-wide ${capture.writingSkipped ? 'text-gray-400' : 'text-pink-500'}`}>Writing Prompt</p>
+              <button
+                onClick={toggleWritingSkipped}
+                className={`text-xs px-2 py-0.5 rounded border transition-colors ${capture.writingSkipped ? 'text-blue-500 border-blue-200 hover:bg-blue-50' : 'text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200'}`}
+              >
+                {capture.writingSkipped ? 'Undo' : 'Skip'}
+              </button>
+            </div>
+            {hunk.writingPrompt && !capture.writingSkipped && (
               <p className="text-xs text-pink-600 italic mb-2">{hunk.writingPrompt}</p>
             )}
-            <textarea
-              value={capture.writingResponse}
-              onChange={e => updateWritingResponse(e.target.value)}
-              placeholder="Type the student's written response…"
-              rows={3}
-              className="w-full text-sm border-2 border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none text-gray-800 placeholder-pink-300 bg-white"
-            />
-            <div className="flex items-center gap-4 mt-2">
-              {capture.writingResponse && (
-                <span className="text-xs font-semibold text-blue-500">
-                  {capture.writingResponse.replace(/\s/g, '').length} letters
-                </span>
-              )}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">Misspoke:</span>
-                <MisspokeCounter value={capture.writingMisspokes} onChange={updateWritingMisspokes} />
-              </div>
-            </div>
+            {capture.writingSkipped
+              ? <p className="text-xs text-gray-400 italic">Skipped — student did not engage in writing</p>
+              : (
+                <>
+                  <textarea
+                    value={capture.writingResponse}
+                    onChange={e => updateWritingResponse(e.target.value)}
+                    placeholder="Type the student's written response…"
+                    rows={3}
+                    className="w-full text-sm border-2 border-pink-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 resize-none text-gray-800 placeholder-pink-300 bg-white"
+                  />
+                  <div className="flex items-center gap-4 mt-2">
+                    {capture.writingResponse && (
+                      <span className="text-xs font-semibold text-blue-500">
+                        {capture.writingResponse.replace(/\s/g, '').length} letters
+                      </span>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">Misspoke:</span>
+                      <MisspokeCounter value={capture.writingMisspokes} onChange={updateWritingMisspokes} />
+                    </div>
+                  </div>
+                </>
+              )
+            }
           </div>
 
           {/* Questions */}

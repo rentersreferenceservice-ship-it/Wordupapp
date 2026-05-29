@@ -395,7 +395,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                     sessionId={sessionId}
                     hunkNumber={n}
                     promptText={lessonHunk?.writingPrompt}
-                    initialValue={writingRecord?.capturedAnswer ?? ''}
+                    initialValue={writingRecord?.capturedAnswer && writingRecord.capturedAnswer !== 'SKIPPED' ? writingRecord.capturedAnswer : ''}
                   />
                 </div>
               )
