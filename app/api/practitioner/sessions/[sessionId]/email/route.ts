@@ -85,6 +85,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
     const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
     const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
+    const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
+
+    const videoUrl = sessionVideoRecord?.capturedAnswer ?? null
+    const ytMatch = videoUrl?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+    const ytId = ytMatch?.[1] ?? null
+    const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null
+
+    const rawInvoice = sessionInvoiceRecord?.capturedAnswer ?? null
+    const invoiceUrl = rawInvoice
+      ? rawInvoice.startsWith('/practitioner/invoice/')
+        ? `https://worduplessongenerator.com/invoice/${rawInvoice.split('/').pop()}`
+        : rawInvoice
+      : null
 
     const sessionDate = new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -216,11 +229,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
           ),
         ] : []),
 
-        // Video only — invoice is practitioner-only, never sent to families
-        ...(sessionVideoRecord?.capturedAnswer ? [
+        // Video
+        ...(videoUrl ? [
           React.createElement(View, { style: s.section },
             React.createElement(Text, { style: s.label }, 'Session Video'),
-            React.createElement(Link, { src: sessionVideoRecord.capturedAnswer, style: { fontSize: 9, color: '#2563eb' } }, sessionVideoRecord.capturedAnswer),
+            ytThumb
+              ? React.createElement(Link, { src: videoUrl },
+                  React.createElement(Image, { src: ytThumb, style: { width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 4, marginTop: 4 } })
+                )
+              : React.createElement(Link, { src: videoUrl, style: { fontSize: 9, color: '#2563eb' } }, videoUrl),
+          ),
+        ] : []),
+
+        // Invoice
+        ...(invoiceUrl ? [
+          React.createElement(View, { style: s.section },
+            React.createElement(Text, { style: s.label }, 'Invoice'),
+            React.createElement(Link, { src: invoiceUrl, style: { fontSize: 9, color: '#2563eb' } }, 'View Invoice →'),
           ),
         ] : []),
 
@@ -367,6 +392,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
   <div style="margin-bottom:18px">
     <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Accuracy History</p>
     <img src="data:image/png;base64,${chartBase64}" alt="Accuracy chart" style="width:100%;max-width:500px;border-radius:8px;display:block" />
+  </div>` : ''}
+  ${videoUrl ? `
+  <div style="margin-bottom:18px">
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Session Video</p>
+    ${ytThumb
+      ? `<a href="${videoUrl}" target="_blank" style="display:block"><img src="${ytThumb}" alt="Session video" style="width:100%;max-width:480px;border-radius:8px;display:block" /></a>`
+      : `<a href="${videoUrl}" style="color:#2563eb;font-size:13px">${videoUrl}</a>`
+    }
+  </div>` : ''}
+  ${invoiceUrl ? `
+  <div style="margin-bottom:18px">
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Invoice</p>
+    <a href="${invoiceUrl}" target="_blank" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:13px;padding:10px 20px;border-radius:8px">View Invoice →</a>
   </div>` : ''}
   <p style="margin:0 0 6px 0;color:#374151">Please find the full session transcript attached as a PDF.</p>
   <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com</p>
