@@ -20,7 +20,7 @@ export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'li
       const res = await fetch('/api/suggest-edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lessonId, lessonTitle, suggestion }),
+        body: JSON.stringify({ lessonTitle, whatToEdit: suggestion }),
       })
       setStatus(res.ok ? 'sent' : 'error')
     } catch {

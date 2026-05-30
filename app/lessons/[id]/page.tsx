@@ -70,9 +70,12 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <div className="flex gap-3">
             <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
           </div>
-          <a href="/subscribe" className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
-            Subscribe $9.99/mo
-          </a>
+          <div className="flex gap-3">
+            <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
+            <a href="/subscribe" className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
+              Subscribe $9.99/mo
+            </a>
+          </div>
         </nav>
 
         <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
