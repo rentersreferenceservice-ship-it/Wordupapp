@@ -81,7 +81,7 @@ export default function EditLessonClient({ lesson }: { lesson: Lesson }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => router.push(`/lessons/${lesson.id}`)}
