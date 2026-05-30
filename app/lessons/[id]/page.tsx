@@ -154,7 +154,8 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">+ New Lesson</Link>
           <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap justify-end">
+          <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
           <PrintButton />
           <a
             href="mailto:wordups2c@gmail.com"

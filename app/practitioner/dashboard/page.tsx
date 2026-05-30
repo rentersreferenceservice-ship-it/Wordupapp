@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
 import BackfillButton from './BackfillButton'
+import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,7 @@ export default async function PractitionerDashboard() {
           <Link href="/practitioner/settings" className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors">
             Business Settings
           </Link>
+          <SuggestEditButton lessonId="" lessonTitle="(General Feedback)" variant="button" />
           <AddToHomeScreen variant="button" />
         </div>
       </div>
