@@ -210,10 +210,10 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
 
       {/* Filters */}
       <div className="flex gap-3 mb-6 flex-wrap">
-        <select value={ageFilter} onChange={e => setAgeFilter(e.target.value)} className="border-2 border-yellow-400 rounded-lg px-3 py-2 text-sm bg-yellow-300 font-semibold text-gray-800 focus:outline-none cursor-pointer">
+        <select value={ageFilter} onChange={e => setAgeFilter(e.target.value)} className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none cursor-pointer">
           {AGE_GROUPS.map(a => <option key={a}>{a}</option>)}
         </select>
-        <select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)} className="border-2 border-yellow-400 rounded-lg px-3 py-2 text-sm bg-yellow-300 font-semibold text-gray-800 focus:outline-none cursor-pointer">
+        <select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)} className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none cursor-pointer">
           {SUBJECTS.map(s => <option key={s}>{s}</option>)}
         </select>
         {(ageFilter !== 'All Ages' || subjectFilter !== 'All Subjects' || search) && (

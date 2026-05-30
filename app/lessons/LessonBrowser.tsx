@@ -315,14 +315,14 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
         <select
           value={ageFilter}
           onChange={e => setAgeFilter(e.target.value)}
-          className="border-2 border-yellow-400 rounded-lg px-3 py-2 text-sm bg-yellow-300 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 cursor-pointer"
+          className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300 cursor-pointer"
         >
           {AGE_GROUPS.map(a => <option key={a}>{a}</option>)}
         </select>
         <select
           value={subjectFilter}
           onChange={e => setSubjectFilter(e.target.value)}
-          className="border-2 border-yellow-400 rounded-lg px-3 py-2 text-sm bg-yellow-300 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 cursor-pointer"
+          className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300 cursor-pointer"
         >
           {SUBJECTS.map(s => <option key={s}>{s}</option>)}
         </select>
