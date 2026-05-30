@@ -79,7 +79,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
             </button>
           </SignUpButton>
           <SignInButton forceRedirectUrl={`/join/${upperCode}`}>
-            <button className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm">
+            <button className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm">
               Already have an account? Sign In
             </button>
           </SignInButton>

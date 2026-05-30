@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -85,7 +85,7 @@ export default function EditLessonClient({ lesson }: { lesson: Lesson }) {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => router.push(`/lessons/${lesson.id}`)}
-          className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
         >
           ← Cancel
         </button>

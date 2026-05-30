@@ -773,7 +773,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         {saveError && <p className="text-sm text-red-600 text-center pb-2">{saveError}</p>}
         <div className="flex gap-3">
           {currentHunk > 0 && (
-            <button onClick={() => setCurrentHunk(h => h - 1)} className="bg-gray-100 text-gray-700 px-4 py-3 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
+            <button onClick={() => setCurrentHunk(h => h - 1)} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-3 rounded-xl font-medium text-sm hover:bg-gray-200 transition-colors">
               ← Back
             </button>
           )}

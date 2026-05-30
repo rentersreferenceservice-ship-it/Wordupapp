@@ -246,7 +246,7 @@ export default function InvoiceActions({
         <div className="flex gap-3">
           <button
             onClick={() => window.print()}
-            className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+            className="flex-1 bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
           >
             Print / Save PDF
           </button>

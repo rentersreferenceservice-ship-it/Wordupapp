@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -91,7 +91,7 @@ export default function NewStudentPage() {
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <div className="flex gap-3">
-            <button type="button" onClick={() => router.back()} className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            <button type="button" onClick={() => router.back()} className="flex-1 bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={loading} className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors">

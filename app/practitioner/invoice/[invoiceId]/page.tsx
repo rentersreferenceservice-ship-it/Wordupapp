@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+﻿import { auth } from '@clerk/nextjs/server'
 import { redirect, notFound } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -62,12 +62,12 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
       {/* Nav — hidden on print */}
       <div className="print:hidden flex gap-3 max-w-2xl mx-auto mb-6">
         {session?.id && (
-          <Link href={`/practitioner/transcript/${session.id}`} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href={`/practitioner/transcript/${session.id}`} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             ← Transcript
           </Link>
         )}
         {!session?.id && (
-          <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             ← Dashboard
           </Link>
         )}

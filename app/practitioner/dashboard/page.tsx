@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudents, getSessions } from '@/lib/practitionerStore'
 import Link from 'next/link'
@@ -27,16 +27,16 @@ export default async function PractitionerDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Practitioner Dashboard</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/practitioner/generate" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/generate" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Lesson Generator
           </Link>
-          <Link href="/practitioner/library" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/library" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Lesson Library
           </Link>
-          <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Public Library
           </Link>
-          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border-2 border-blue-600">
+          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border-2 border-blue-600">
             Upload Lesson
           </Link>
           <Link href="/practitioner/settings" className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors">

@@ -15,7 +15,7 @@ export default function DeleteStudentButton({ studentId }: { studentId: string }
   if (confirming) {
     return (
       <div className="flex gap-2">
-        <button onClick={() => setConfirming(false)} className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">Cancel</button>
+        <button onClick={() => setConfirming(false)} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">Cancel</button>
         <button onClick={handleDelete} className="bg-red-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors">Confirm Delete</button>
       </div>
     )

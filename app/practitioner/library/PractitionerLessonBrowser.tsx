@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
@@ -177,7 +177,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
       <div className="flex items-center justify-between mb-6 bg-white border border-gray-200 rounded-xl px-5 py-4 shadow-sm">
         <div>
-          <Link href="/practitioner/dashboard" className="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors mb-3">← Dashboard</Link>
+          <Link href="/practitioner/dashboard" className="inline-block bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors mb-3">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-gray-900">Practitioner Library</h1>
           <p className="text-sm text-gray-500 mt-0.5">{lessons.filter(l => l.practitionerId).length} private · {lessons.filter(l => !l.practitionerId).length} public</p>
         </div>
@@ -185,7 +185,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors text-center">
             + Generate Lesson
           </Link>
-          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
+          <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
             Upload Lesson
           </Link>
           <button

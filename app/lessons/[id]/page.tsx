@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+﻿import { notFound } from 'next/navigation'
 import { getLesson } from '@/lib/lessonStore'
 import { getUserUsage } from '@/lib/usageStore'
 import type { QuestionType } from '@/lib/types'
@@ -68,7 +68,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       <div className="min-h-screen">
         <nav className="relative z-10 print:hidden flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
           <div className="flex gap-3">
-            <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
+            <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
           </div>
           <a href="/subscribe" className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
             Subscribe $9.99/mo
@@ -152,7 +152,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
       <nav className="relative z-10 print:hidden flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
         <div className="flex gap-3">
           <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">+ New Lesson</Link>
-          <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
+          <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
         </div>
         <div className="flex gap-3">
           <PrintButton />

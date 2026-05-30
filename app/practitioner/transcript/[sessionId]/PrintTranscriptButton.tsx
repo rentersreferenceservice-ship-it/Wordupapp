@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -54,7 +54,7 @@ export default function PrintTranscriptButton() {
     <div className="flex gap-2">
       <button
         onClick={() => window.print()}
-        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+        className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
       >
         🖨 Print
       </button>

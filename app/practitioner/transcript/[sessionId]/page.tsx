@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getSessionResponses, getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
@@ -116,10 +116,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
       <div className="max-w-3xl mx-auto px-6 py-8 print:px-0 print:py-0">
         {/* Nav - hidden on print */}
         <div className="flex gap-3 mb-6 print:hidden">
-          <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href="/practitioner/dashboard" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             ← Dashboard
           </Link>
-          <Link href={`/practitioner/transcript/${sessionId}/edit`} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href={`/practitioner/transcript/${sessionId}/edit`} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Edit
           </Link>
           <SendTranscriptButton sessionId={sessionId} defaultTo={studentData?.guardian_email ?? ''} />

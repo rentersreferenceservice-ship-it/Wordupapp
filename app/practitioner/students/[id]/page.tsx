@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory } from '@/lib/practitionerStore'
 import { listPractitionerLessons, listLessons } from '@/lib/lessonStore'
@@ -49,7 +49,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           {student.notes && <p className="text-sm text-gray-400 mt-1">{student.notes}</p>}
         </div>
         <div className="flex gap-2">
-          <Link href={`/practitioner/students/${id}/edit`} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+          <Link href={`/practitioner/students/${id}/edit`} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Edit
           </Link>
           <DeleteStudentButton studentId={id} />

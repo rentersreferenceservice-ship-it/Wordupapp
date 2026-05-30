@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef } from 'react'
 import type { Hunk, Question, QuestionType } from '@/lib/types'
@@ -155,7 +155,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
           <p className="text-gray-500 text-sm mb-6">Your lesson is ready to use.</p>
           <div className="flex flex-col gap-3">
             <a href={viewHref} className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">View Lesson</a>
-            <a href={libraryHref} className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors">Back to Library</a>
+            <a href={libraryHref} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-6 py-3 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors">Back to Library</a>
           </div>
         </div>
       </main>
