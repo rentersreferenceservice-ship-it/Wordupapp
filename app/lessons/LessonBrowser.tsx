@@ -231,7 +231,7 @@ function SuggestEditModal({ lessons, onClose }: { lessons: Lesson[]; onClose: ()
   )
 }
 
-export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
+export default function LessonBrowser({ lessons, isSubscribed = false }: { lessons: Lesson[]; isSubscribed?: boolean }) {
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
   const [search, setSearch] = useState('')
@@ -262,6 +262,20 @@ export default function LessonBrowser({ lessons }: { lessons: Lesson[] }) {
   return (
     <main className="relative z-10 min-h-screen px-4 py-10 max-w-2xl mx-auto">
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
+
+      {/* Preview banner for non-subscribers */}
+      {!isSubscribed && (
+        <div className="mb-4 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-yellow-800">You&apos;re browsing in preview mode</p>
+            <p className="text-xs text-yellow-700 mt-0.5">Open any lesson to see the first section. Subscribe to access all hunks, copy, print, and use lessons in sessions.</p>
+          </div>
+          <a href="/subscribe" className="shrink-0 bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors whitespace-nowrap">
+            Subscribe $9.99/mo
+          </a>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6 bg-white border-4 border-gray-300 rounded-xl px-5 py-4">
         <div>
           <Link href="/" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mb-3">← Generate Lesson</Link>
