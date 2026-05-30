@@ -70,7 +70,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <div className="flex gap-3">
             <Link href="/lessons" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
           </div>
-          <a href="/subscribe" className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
+          <a href="/subscribe" className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
             Subscribe $9.99/mo
           </a>
         </nav>
@@ -137,7 +137,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <div className="text-center py-6 border-t border-gray-100">
             <p className="text-base font-semibold text-gray-700 mb-1">Unlock all {lesson.hunks.length} sections</p>
             <p className="text-sm text-gray-500 mb-4">Subscribe for $9.99/month to access the full library, print lessons, and run live sessions.</p>
-            <a href="/subscribe" className="inline-block bg-yellow-400 text-gray-900 px-8 py-3 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors">
+            <a href="/subscribe" className="inline-block bg-yellow-200 text-gray-800 px-8 py-3 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors">
               Subscribe $9.99/mo
             </a>
           </div>
@@ -162,7 +162,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           >
             Contact
           </a>
-          {isAdmin && <Link href={`/lessons/${id}/edit`} className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition-colors">Edit Lesson</Link>}
+          {isAdmin && <Link href={`/lessons/${id}/edit`} className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition-colors">Edit Lesson</Link>}
           {isAdmin && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
           {isAdmin && <DeleteButton />}
         </div>

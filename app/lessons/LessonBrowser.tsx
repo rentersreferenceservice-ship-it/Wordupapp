@@ -270,7 +270,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
             <p className="text-sm font-semibold text-yellow-800">You&apos;re browsing in preview mode</p>
             <p className="text-xs text-yellow-700 mt-0.5">Open any lesson to see the first section. Subscribe to access all hunks, copy, print, and use lessons in sessions.</p>
           </div>
-          <a href="/subscribe" className="shrink-0 bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors whitespace-nowrap">
+          <a href="/subscribe" className="shrink-0 bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors whitespace-nowrap">
             Subscribe $9.99/mo
           </a>
         </div>
@@ -292,7 +292,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
           </Link>
           <button
             onClick={() => setShowSuggest(true)}
-            className="bg-yellow-300 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-400 transition-colors text-center"
+            className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors text-center"
           >
             Suggest Edits
           </button>

@@ -37,7 +37,7 @@ export default function SubscribeButton({ referral }: { referral?: string }) {
       <button
         onClick={handleSubscribe}
         disabled={loading}
-        className="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors disabled:opacity-60"
+        className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors disabled:opacity-60"
       >
         {loading ? 'Loading…' : 'Start My Free Month'}
       </button>

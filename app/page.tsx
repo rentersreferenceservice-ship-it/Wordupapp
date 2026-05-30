@@ -197,7 +197,7 @@ export default function HomePage() {
                 <SubscribeButton referral={referral} />
               ) : (
                 <SignUpButton>
-                  <button className="bg-yellow-400 text-gray-900 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
+                  <button className="bg-yellow-200 text-gray-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
                     Create Account to Subscribe
                   </button>
                 </SignUpButton>
