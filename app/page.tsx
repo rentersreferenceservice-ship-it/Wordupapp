@@ -164,11 +164,19 @@ export default function HomePage() {
         </div>
 
         {!isSignedIn && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-5">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-3">
             <p className="text-sm font-semibold text-blue-800">2 free lessons — no account needed</p>
             <p className="text-xs text-blue-600 mt-0.5">Try 1 month free — no risk. Your card won&apos;t be charged until after your 30-day trial. Just $9.99/month after that, cancel anytime.</p>
           </div>
         )}
+        <div className="text-center mb-5">
+          <a
+            href="/lessons"
+            className="inline-block bg-yellow-400 text-gray-900 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors shadow-sm"
+          >
+            📚 View Lesson Library
+          </a>
+        </div>
 
         {showSubscribe && (
           <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5 mb-4">
@@ -288,8 +296,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div className="text-center mt-6 flex justify-center gap-6">
-          <a href="/lessons" className="text-sm text-blue-600 hover:underline">View lesson library</a>
+        <div className="text-center mt-6">
           <a href="/submit" className="text-sm text-blue-600 hover:underline">Submit a lesson</a>
         </div>
       </div>
