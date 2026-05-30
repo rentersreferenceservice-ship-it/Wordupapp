@@ -172,7 +172,7 @@ export default function HomePage() {
         <div className="text-center mb-5">
           <a
             href="/lessons"
-            className="inline-block bg-yellow-400 text-gray-900 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors shadow-sm"
+            className="inline-block bg-yellow-200 text-gray-800 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors shadow-sm"
           >
             📚 View Lesson Library
           </a>
