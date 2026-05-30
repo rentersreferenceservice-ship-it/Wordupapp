@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface Props {
   lessonId: string
@@ -8,10 +9,16 @@ interface Props {
   variant?: 'link' | 'button'
 }
 
-export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'link' }: Props) {
+export default function SuggestEditButton({ lessonId: _lessonId, lessonTitle, variant = 'link' }: Props) {
   const [open, setOpen] = useState(false)
   const [suggestion, setSuggestion] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
+  function close() {
+    setOpen(false)
+    setSuggestion('')
+    setStatus('idle')
+  }
 
   async function handleSubmit() {
     if (!suggestion.trim()) return
@@ -28,12 +35,21 @@ export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'li
     }
   }
 
-  const modalContent = (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => { setOpen(false); setStatus('idle'); setSuggestion('') }}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-        <h2 className="text-base font-bold text-gray-900 mb-3">Suggest a correction or addition</h2>
+  const modal = (
+    <div
+      className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4"
+      onClick={close}
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl w-full max-w-md p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-900">Suggest a correction or addition</h2>
+          <button onClick={close} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+        </div>
         {status === 'sent' ? (
-          <p className="text-sm text-green-600">Thank you — your suggestion has been sent to the Word Up team.</p>
+          <p className="text-sm text-green-600 py-4 text-center">Thank you — your suggestion has been sent to the Word Up team.</p>
         ) : (
           <>
             <textarea
@@ -45,7 +61,7 @@ export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'li
             />
             {status === 'error' && <p className="text-xs text-red-500 mt-1">Something went wrong — please try again.</p>}
             <div className="flex gap-2 mt-3 justify-end">
-              <button onClick={() => { setOpen(false); setSuggestion(''); setStatus('idle') }} className="text-xs text-gray-400 hover:text-gray-600 px-3 py-1.5">Cancel</button>
+              <button onClick={close} className="text-xs text-gray-400 hover:text-gray-600 px-3 py-1.5">Cancel</button>
               <button
                 onClick={handleSubmit}
                 disabled={status === 'sending' || !suggestion.trim()}
@@ -69,12 +85,12 @@ export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'li
         >
           Suggest Edit
         </button>
-        {open && modalContent}
+        {open && typeof document !== 'undefined' && createPortal(modal, document.body)}
       </>
     )
   }
 
-  // default: link variant (bottom of lesson)
+  // link variant — shown at bottom of lesson article
   if (status === 'sent') {
     return (
       <p className="text-center text-sm text-green-600 mt-4 print:hidden">
@@ -104,7 +120,7 @@ export default function SuggestEditButton({ lessonId, lessonTitle, variant = 'li
           />
           {status === 'error' && <p className="text-xs text-red-500 mt-1">Something went wrong — please try again.</p>}
           <div className="flex gap-2 mt-2 justify-end">
-            <button onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600 px-3 py-1.5">Cancel</button>
+            <button onClick={close} className="text-xs text-gray-400 hover:text-gray-600 px-3 py-1.5">Cancel</button>
             <button
               onClick={handleSubmit}
               disabled={status === 'sending' || !suggestion.trim()}
