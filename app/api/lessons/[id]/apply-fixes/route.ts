@@ -83,7 +83,8 @@ Rules:
 - Only include hunks that actually need changes
 - Only correct the specific claims the issues list flags — do not rewrite the whole lesson
 - Keep the same warm, friendly, age-appropriate tone
-- Preserve paragraph length and structure as closely as possible
+- Do NOT add any new sentences — replace inaccurate words or phrases in place
+- The corrected paragraph must contain the same number of sentences as the original
 - omit correctedQuestions if no question answers need changing`
 
   const client = new Anthropic()
