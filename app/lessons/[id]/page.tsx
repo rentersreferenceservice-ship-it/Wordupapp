@@ -7,6 +7,7 @@ import DeleteButton from './DeleteButton'
 import EditTypesButton from './EditTypesButton'
 import SuggestEditButton from './SuggestEditButton'
 import VerifyToggle from './VerifyToggle'
+import FactCheckButton from './FactCheckButton'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
@@ -174,6 +175,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           >
             Contact
           </a>
+          {isAdmin && <FactCheckButton lessonId={id} />}
           {isAdmin && <VerifyToggle lessonId={id} initialVerified={lesson.verified ?? false} />}
           {isAdmin && <Link href={`/lessons/${id}/edit`} className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition-colors">Edit Lesson</Link>}
           {isAdmin && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
