@@ -78,15 +78,14 @@ export async function POST(
 
   const prompt = buildPrompt(lesson)
 
-  const perplexityResult = await checkWithPerplexity(prompt)
+  const [perplexityResult, claudeResult] = await Promise.all([
+    checkWithPerplexity(prompt),
+    checkWithClaudeOpus(prompt),
+  ])
+
   const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
-
-  // Only call Claude Opus when Perplexity is clean — no point if there are already issues to fix
-  const claudeResult = perplexityClean ? await checkWithClaudeOpus(prompt) : 'CLAUDE_SKIPPED'
-
   const claudeUnavailable = claudeResult === 'CLAUDE_UNAVAILABLE'
-  const claudeSkipped = claudeResult === 'CLAUDE_SKIPPED'
-  const claudeClean = !claudeUnavailable && !claudeSkipped && claudeResult.trimStart().toUpperCase().startsWith('VERIFIED')
+  const claudeClean = !claudeUnavailable && claudeResult.trimStart().toUpperCase().startsWith('VERIFIED')
   const bothClean = perplexityClean && claudeClean
 
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -124,8 +123,8 @@ export async function POST(
         <h3>Perplexity AI — ${perplexityClean ? '✓ Clean' : '⚠️ Issues Found'}:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
         <hr />
-        <h3>Claude Opus — ${claudeClean ? '✓ Clean' : claudeSkipped ? '— Skipped' : '⚠️ Issues Found'}:</h3>
-        <p>${claudeSkipped ? 'Skipped — Perplexity found issues first.' : claudeResult.replace(/\n/g, '<br />')}</p>
+        <h3>Claude Opus — ${claudeClean ? '✓ Clean' : claudeUnavailable ? '— Unavailable' : '⚠️ Issues Found'}:</h3>
+        <p>${claudeUnavailable ? 'Temporarily unavailable.' : claudeResult.replace(/\n/g, '<br />')}</p>
         <hr />
         <p><a href="https://worduplessongenerator.com/lessons/${id}/edit">Click here to edit this lesson →</a></p>
       `,
@@ -134,11 +133,7 @@ export async function POST(
 
   return Response.json({
     perplexity: perplexityResult,
-    gemini: claudeSkipped
-      ? 'Skipped — Perplexity found issues. Fix those first, then re-run.'
-      : claudeUnavailable
-      ? 'Claude Opus was temporarily unavailable.'
-      : claudeResult,
+    gemini: claudeUnavailable ? 'Claude Opus was temporarily unavailable.' : claudeResult,
     perplexityClean,
     geminiClean: claudeClean,
     geminiUnavailable: claudeUnavailable,
