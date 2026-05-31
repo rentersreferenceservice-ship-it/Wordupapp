@@ -106,7 +106,8 @@ Rules:
   const corrections = parsed.corrections
   if (!Array.isArray(corrections)) return Response.json({ error: 'AI response missing corrections array' }, { status: 500 })
 
-  const changes = corrections.map((c: { hunkNumber: number; correctedText: string; correctedQuestions?: { index: number; answer: string }[] }) => {
+  type Correction = { hunkNumber: number; correctedText: string; correctedQuestions?: { index: number; answer: string }[] }
+  const changes = (corrections as Correction[]).map((c) => {
     const original = lesson.hunks.find(h => h.number === c.hunkNumber)
     return {
       hunkNumber: c.hunkNumber,
