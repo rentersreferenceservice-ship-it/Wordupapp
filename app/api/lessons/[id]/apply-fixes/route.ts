@@ -97,7 +97,14 @@ Rules:
   const jsonMatch = responseText.match(/\{[\s\S]*\}/)
   if (!jsonMatch) return Response.json({ error: 'Could not parse AI response' }, { status: 500 })
 
-  const { corrections } = JSON.parse(jsonMatch[0])
+  let parsed: { corrections?: unknown[] }
+  try {
+    parsed = JSON.parse(jsonMatch[0])
+  } catch {
+    return Response.json({ error: 'AI returned invalid JSON' }, { status: 500 })
+  }
+  const corrections = parsed.corrections
+  if (!Array.isArray(corrections)) return Response.json({ error: 'AI response missing corrections array' }, { status: 500 })
 
   const changes = corrections.map((c: { hunkNumber: number; correctedText: string; correctedQuestions?: { index: number; answer: string }[] }) => {
     const original = lesson.hunks.find(h => h.number === c.hunkNumber)

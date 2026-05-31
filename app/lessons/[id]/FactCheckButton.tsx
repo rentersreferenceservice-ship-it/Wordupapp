@@ -58,12 +58,15 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ issues }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Unknown error')
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error ?? `HTTP ${res.status}`)
+        throw new Error(msg)
+      }
       setChanges(data.changes)
       setStage('preview')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong')
+      setError(e instanceof Error ? e.message : String(e))
       setStage('results')
     }
   }
