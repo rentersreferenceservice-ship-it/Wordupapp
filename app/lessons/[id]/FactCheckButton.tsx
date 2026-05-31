@@ -152,7 +152,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
               </div>
 
-              {!result.autoVerified && !result.geminiUnavailable && (
+              {(!result.perplexityClean || (!result.geminiClean && !result.geminiUnavailable)) && (
                 <button
                   onClick={applyFixes}
                   className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
