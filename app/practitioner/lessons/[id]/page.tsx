@@ -6,6 +6,8 @@ import Link from 'next/link'
 import PrintButton from '@/app/lessons/[id]/PrintButton'
 import DeleteButton from '@/app/lessons/[id]/DeleteButton'
 import EditTypesButton from '@/app/lessons/[id]/EditTypesButton'
+import FactCheckButton from '@/app/lessons/[id]/FactCheckButton'
+import VerifyToggle from '@/app/lessons/[id]/VerifyToggle'
 import { generateQRDataUrl } from '@/lib/qrcode'
 
 export const dynamic = 'force-dynamic'
@@ -58,6 +60,8 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           >
             Contact
           </a>
+          {isAdmin && <FactCheckButton lessonId={id} />}
+          {isAdmin && <VerifyToggle lessonId={id} initialVerified={lesson.verified ?? false} />}
           <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />
           {isAdmin && <DeleteButton redirectTo="/practitioner/library" />}
         </div>
