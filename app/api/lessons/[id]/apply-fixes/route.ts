@@ -79,13 +79,14 @@ Return ONLY valid JSON — no explanation, no markdown, no code block. Return ex
   ]
 }
 
-Rules:
-- Only include hunks that actually need changes
-- Only correct the specific claims the issues list flags — do not rewrite the whole lesson
-- Keep the same warm, friendly, age-appropriate tone
-- Do NOT add any new sentences — replace inaccurate words or phrases in place
-- The corrected paragraph must contain the same number of sentences as the original
-- omit correctedQuestions if no question answers need changing`
+Rules — READ CAREFULLY:
+- Fix ONLY the exact word(s) or number(s) identified as wrong. Every other word in the sentence stays identical.
+- Do NOT rephrase, reword, or substitute any correct words — even with synonyms. If "clinical trial" is correct, keep "clinical trial". Only change the specific inaccurate term.
+- Do NOT add, remove, or reorder any sentences. The corrected paragraph must have the exact same number of sentences as the original.
+- Do NOT change tone, vocabulary, or sentence structure anywhere in the paragraph.
+- Only include hunks that actually need changes.
+- Omit correctedQuestions unless the answer itself contains the specific inaccuracy being corrected.
+- Think of this as a find-and-replace for the wrong fact only — nothing else moves.`
 
   const client = new Anthropic()
   const message = await client.messages.create({
