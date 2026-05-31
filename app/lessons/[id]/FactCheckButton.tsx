@@ -111,7 +111,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
             {stage === 'saving' && '💾 Saving…'}
             {stage === 'done' && '✓ Changes Saved'}
             {stage === 'results' && result?.autoVerified && '✓ Auto-Verified!'}
-            {stage === 'results' && !result?.autoVerified && result?.perplexityClean && result?.geminiUnavailable && '✓ Perplexity Clean — Gemini Unavailable'}
+            {stage === 'results' && !result?.autoVerified && result?.perplexityClean && result?.geminiUnavailable && '✓ Perplexity Clean — Claude Opus Unavailable'}
             {stage === 'results' && !result?.autoVerified && (!result?.perplexityClean || (!result?.geminiClean && !result?.geminiUnavailable)) && '⚠️ Issues Found'}
           </h2>
           {(stage === 'results' || stage === 'preview') && (
@@ -150,11 +150,11 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                 </div>
               )}
 
-              {/* Perplexity clean, Gemini unreachable */}
+              {/* Perplexity clean, Claude Opus unreachable */}
               {result.perplexityClean && result.geminiUnavailable && (
                 <div className="bg-green-50 border border-green-300 rounded-xl p-4">
                   <p className="text-green-800 font-semibold mb-1">Perplexity found no issues.</p>
-                  <p className="text-sm text-green-700">Gemini was unreachable. You can verify this lesson now or try the fact-check again later to get Gemini&apos;s result too.</p>
+                  <p className="text-sm text-green-700">Claude Opus was temporarily unavailable. Try the fact-check again.</p>
                 </div>
               )}
 
@@ -171,7 +171,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
               </div>
 
               <div className={`rounded-xl border p-4 ${result.geminiUnavailable ? 'border-gray-200 bg-gray-50' : result.geminiClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
-                <p className="text-sm font-bold mb-2">Google Gemini — {result.geminiUnavailable ? '— Unavailable' : result.geminiClean ? '✓ Clean' : '⚠️ Issues Found'}</p>
+                <p className="text-sm font-bold mb-2">Claude Opus — {result.geminiUnavailable ? '— Unavailable' : result.geminiClean ? '✓ Clean' : '⚠️ Issues Found'}</p>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
               </div>
 
@@ -182,7 +182,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
               )}
 
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
-                {result.perplexityClean && result.geminiUnavailable ? 'Close — Use Mark Verified Button to Verify' : 'Close'}
+                {result.perplexityClean && result.geminiUnavailable ? 'Close — Try Again to Get Claude Opus Result' : 'Close'}
               </button>
             </>
           )}

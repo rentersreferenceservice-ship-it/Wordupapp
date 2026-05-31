@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { getLesson } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import { Resend } from 'resend'
+import Anthropic from '@anthropic-ai/sdk'
 import type { Lesson } from '@/lib/types'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
@@ -48,31 +49,18 @@ async function checkWithPerplexity(prompt: string): Promise<string> {
   return data.choices?.[0]?.message?.content ?? 'No response received.'
 }
 
-async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return 'GEMINI_UNAVAILABLE:no_key'
-  let res: Response
+async function checkWithClaudeOpus(prompt: string): Promise<string> {
   try {
-    res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      }
-    )
+    const client = new Anthropic()
+    const message = await client.messages.create({
+      model: 'claude-opus-4-7',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    return message.content[0].type === 'text' ? message.content[0].text : 'No response received.'
   } catch {
-    return 'GEMINI_UNAVAILABLE:network_error'
+    return 'CLAUDE_UNAVAILABLE'
   }
-  if (res.status === 429 && attempt < 2) {
-    await new Promise(r => setTimeout(r, 5000))
-    return checkWithGemini(prompt, attempt + 1)
-  }
-  if (!res.ok) return `GEMINI_UNAVAILABLE:${res.status}`
-  const data = await res.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response received.'
 }
 
 export async function POST(
@@ -93,12 +81,13 @@ export async function POST(
   const perplexityResult = await checkWithPerplexity(prompt)
   const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
 
-  // Only call Gemini when Perplexity is clean — no point if there are already issues to fix
-  const geminiResult = perplexityClean ? await checkWithGemini(prompt) : 'GEMINI_UNAVAILABLE:skipped'
+  // Only call Claude Opus when Perplexity is clean — no point if there are already issues to fix
+  const claudeResult = perplexityClean ? await checkWithClaudeOpus(prompt) : 'CLAUDE_SKIPPED'
 
-  const geminiUnavailable = geminiResult.startsWith('GEMINI_UNAVAILABLE')
-  const geminiClean = !geminiUnavailable && geminiResult.trimStart().toUpperCase().startsWith('VERIFIED')
-  const bothClean = perplexityClean && geminiClean
+  const claudeUnavailable = claudeResult === 'CLAUDE_UNAVAILABLE'
+  const claudeSkipped = claudeResult === 'CLAUDE_SKIPPED'
+  const claudeClean = !claudeUnavailable && !claudeSkipped && claudeResult.trimStart().toUpperCase().startsWith('VERIFIED')
+  const bothClean = perplexityClean && claudeClean
 
   const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -117,8 +106,8 @@ export async function POST(
         <h3>Perplexity AI:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
         <hr />
-        <h3>Google Gemini:</h3>
-        <p>${geminiResult.replace(/\n/g, '<br />')}</p>
+        <h3>Claude Opus (Anthropic):</h3>
+        <p>${claudeResult.replace(/\n/g, '<br />')}</p>
       `,
     })
   } else {
@@ -135,8 +124,8 @@ export async function POST(
         <h3>Perplexity AI — ${perplexityClean ? '✓ Clean' : '⚠️ Issues Found'}:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
         <hr />
-        <h3>Google Gemini — ${geminiClean ? '✓ Clean' : '⚠️ Issues Found'}:</h3>
-        <p>${geminiResult.replace(/\n/g, '<br />')}</p>
+        <h3>Claude Opus — ${claudeClean ? '✓ Clean' : claudeSkipped ? '— Skipped' : '⚠️ Issues Found'}:</h3>
+        <p>${claudeSkipped ? 'Skipped — Perplexity found issues first.' : claudeResult.replace(/\n/g, '<br />')}</p>
         <hr />
         <p><a href="https://worduplessongenerator.com/lessons/${id}/edit">Click here to edit this lesson →</a></p>
       `,
@@ -145,12 +134,14 @@ export async function POST(
 
   return Response.json({
     perplexity: perplexityResult,
-    gemini: geminiResult === 'GEMINI_UNAVAILABLE:skipped'
-      ? 'Skipped — Perplexity found issues. Fix those first, then re-run to get Gemini\'s check.'
-      : geminiUnavailable ? `Gemini error: ${geminiResult}` : geminiResult,
+    gemini: claudeSkipped
+      ? 'Skipped — Perplexity found issues. Fix those first, then re-run.'
+      : claudeUnavailable
+      ? 'Claude Opus was temporarily unavailable.'
+      : claudeResult,
     perplexityClean,
-    geminiClean,
-    geminiUnavailable,
+    geminiClean: claudeClean,
+    geminiUnavailable: claudeUnavailable,
     autoVerified: bothClean,
   })
 }
