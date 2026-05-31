@@ -76,7 +76,10 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirm: true, correctedHunks: changes }),
       })
-      if (!res.ok) throw new Error('Save failed')
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(`Save failed (${res.status}): ${errData.error ?? 'unknown'}`)
+      }
       setStage('done')
       // Re-run fact check after a short pause
       setTimeout(() => {
