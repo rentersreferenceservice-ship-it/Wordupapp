@@ -264,7 +264,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
 
       {/* Verified explanation note */}
-      <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-5 py-3">
+      <div className="mb-4 bg-green-50 border-2 border-green-500 rounded-xl px-5 py-3">
         <p className="text-xs text-green-800"><span className="font-semibold">✓ Verified for Accuracy</span> — Lessons marked Verified have completed a three-step accuracy review: AI generation, plus review by two additional AI sources. Reviewed for factual accuracy by the Word Up team.</p>
       </div>
 
