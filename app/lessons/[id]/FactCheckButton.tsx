@@ -84,13 +84,6 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         throw new Error(`Save failed (${res.status}): ${errData.error ?? 'unknown'}`)
       }
       setStage('done')
-      // Re-run fact check after a short pause
-      setTimeout(() => {
-        setStage('idle')
-        setResult(null)
-        setChanges([])
-        runCheck()
-      }, 1500)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
       setStage('preview')
@@ -116,7 +109,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
             {stage === 'applying' && '⏳ Generating Fixes…'}
             {stage === 'preview' && '📝 Review Changes'}
             {stage === 'saving' && '💾 Saving…'}
-            {stage === 'done' && '✓ Saved — Re-running Fact Check…'}
+            {stage === 'done' && '✓ Changes Saved'}
             {stage === 'results' && result?.autoVerified && '✓ Auto-Verified!'}
             {stage === 'results' && !result?.autoVerified && result?.perplexityClean && result?.geminiUnavailable && '✓ Perplexity Clean — Gemini Unavailable'}
             {stage === 'results' && !result?.autoVerified && (!result?.perplexityClean || (!result?.geminiClean && !result?.geminiUnavailable)) && '⚠️ Issues Found'}
@@ -129,11 +122,21 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         <div className="px-6 py-5 space-y-4">
 
           {/* Applying spinner */}
-          {(stage === 'applying' || stage === 'saving' || stage === 'done') && (
+          {(stage === 'applying' || stage === 'saving') && (
             <div className="text-center py-8 text-gray-500 text-sm">
               {stage === 'applying' && 'Claude is reading the issues and rewriting the affected sections. This takes about 15 seconds…'}
               {stage === 'saving' && 'Saving corrected lesson…'}
-              {stage === 'done' && 'Changes saved! Starting fact-check again…'}
+            </div>
+          )}
+
+          {/* Done state */}
+          {stage === 'done' && (
+            <div className="text-center py-8 space-y-4">
+              <p className="text-green-700 font-semibold">Lesson updated successfully.</p>
+              <p className="text-sm text-gray-500">Run the fact-check again when you&apos;re ready to verify.</p>
+              <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
+                Close
+              </button>
             </div>
           )}
 
