@@ -66,8 +66,8 @@ async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
   } catch {
     return 'GEMINI_UNAVAILABLE:network_error'
   }
-  if (res.status === 429 && attempt < 3) {
-    await new Promise(r => setTimeout(r, 3000 * attempt))
+  if (res.status === 429 && attempt < 4) {
+    await new Promise(r => setTimeout(r, 8000 * attempt))
     return checkWithGemini(prompt, attempt + 1)
   }
   if (!res.ok) return `GEMINI_UNAVAILABLE:${res.status}`
