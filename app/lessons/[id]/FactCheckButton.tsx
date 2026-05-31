@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 
-interface Result {
+interface FactCheckResult {
   perplexity: string
   gemini: string
   perplexityClean: boolean
@@ -11,13 +11,23 @@ interface Result {
   autoVerified: boolean
 }
 
+interface Change {
+  hunkNumber: number
+  originalText: string
+  correctedText: string
+  correctedQuestions: { index: number; answer: string }[]
+}
+
+type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'done'
+
 export default function FactCheckButton({ lessonId }: { lessonId: string }) {
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<Result | null>(null)
+  const [stage, setStage] = useState<Stage>('idle')
+  const [result, setResult] = useState<FactCheckResult | null>(null)
+  const [changes, setChanges] = useState<Change[]>([])
   const [error, setError] = useState('')
 
   async function runCheck() {
-    setLoading(true)
+    setStage('checking')
     setError('')
     setResult(null)
     try {
@@ -25,51 +35,182 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Unknown error')
       setResult(data)
+      setStage('results')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
-    } finally {
-      setLoading(false)
+      setStage('idle')
     }
   }
 
-  const modal = result && typeof document !== 'undefined' && createPortal(
-    <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={() => setResult(null)}>
+  async function applyFixes() {
+    if (!result) return
+    setStage('applying')
+    setError('')
+    try {
+      const issues = [
+        !result.perplexityClean ? result.perplexity : '',
+        !result.geminiClean ? result.gemini : '',
+      ].filter(Boolean).join('\n\n')
+
+      const res = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issues }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Unknown error')
+      setChanges(data.changes)
+      setStage('preview')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong')
+      setStage('results')
+    }
+  }
+
+  async function confirmFixes() {
+    setStage('saving')
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true, correctedHunks: changes }),
+      })
+      if (!res.ok) throw new Error('Save failed')
+      setStage('done')
+      // Re-run fact check after a short pause
+      setTimeout(() => {
+        setStage('idle')
+        setResult(null)
+        setChanges([])
+        runCheck()
+      }, 1500)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong')
+      setStage('preview')
+    }
+  }
+
+  function close() {
+    setStage('idle')
+    setResult(null)
+    setChanges([])
+    setError('')
+  }
+
+  const showModal = stage !== 'idle' && stage !== 'checking' && typeof document !== 'undefined'
+
+  const modal = showModal && createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={stage === 'results' || stage === 'preview' || stage === 'done' ? close : undefined}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-900">
-            {result.autoVerified ? '✓ Lesson Auto-Verified' : '⚠️ Fact-Check Issues Found'}
+            {stage === 'applying' && '⏳ Generating Fixes…'}
+            {stage === 'preview' && '📝 Review Changes'}
+            {stage === 'saving' && '💾 Saving…'}
+            {stage === 'done' && '✓ Saved — Re-running Fact Check…'}
+            {stage === 'results' && (result?.autoVerified ? '✓ Auto-Verified!' : '⚠️ Issues Found')}
           </h2>
-          <button onClick={() => setResult(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          {(stage === 'results' || stage === 'preview') && (
+            <button onClick={close} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          )}
         </div>
 
-        <div className="px-6 py-5 space-y-5">
-          {result.autoVerified ? (
-            <div className="bg-green-50 border border-green-300 rounded-xl p-4">
-              <p className="text-green-800 font-semibold">Both AIs confirmed accuracy. This lesson has been automatically marked as Verified and you&apos;ll receive a confirmation email.</p>
-            </div>
-          ) : (
-            <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
-              <p className="text-yellow-800 font-semibold">Issues were found. The lesson has not been verified. Check your email for the full report, edit the lesson, then run the fact-check again.</p>
+        <div className="px-6 py-5 space-y-4">
+
+          {/* Applying spinner */}
+          {(stage === 'applying' || stage === 'saving' || stage === 'done') && (
+            <div className="text-center py-8 text-gray-500 text-sm">
+              {stage === 'applying' && 'Claude is reading the issues and rewriting the affected sections. This takes about 15 seconds…'}
+              {stage === 'saving' && 'Saving corrected lesson…'}
+              {stage === 'done' && 'Changes saved! Starting fact-check again…'}
             </div>
           )}
 
-          <div className={`rounded-xl border p-4 ${result.perplexityClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
-            <p className="text-sm font-bold mb-2 {result.perplexityClean ? 'text-green-800' : 'text-red-800'}">
-              Perplexity AI — {result.perplexityClean ? '✓ Clean' : '⚠️ Issues Found'}
-            </p>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.perplexity}</p>
-          </div>
+          {/* Fact check results */}
+          {stage === 'results' && result && (
+            <>
+              {result.autoVerified ? (
+                <div className="bg-green-50 border border-green-300 rounded-xl p-4">
+                  <p className="text-green-800 font-semibold">Both AIs confirmed accuracy. Lesson auto-verified and you&apos;ll receive a confirmation email.</p>
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
+                  <p className="text-yellow-800 font-semibold">Issues were found. Click &quot;Apply Fixes&quot; and Claude will rewrite the flagged sentences for you to review.</p>
+                </div>
+              )}
 
-          <div className={`rounded-xl border p-4 ${result.geminiClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
-            <p className="text-sm font-bold mb-2">
-              Google Gemini — {result.geminiClean ? '✓ Clean' : '⚠️ Issues Found'}
-            </p>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
-          </div>
+              <div className={`rounded-xl border p-4 ${result.perplexityClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
+                <p className="text-sm font-bold mb-2">Perplexity AI — {result.perplexityClean ? '✓ Clean' : '⚠️ Issues Found'}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.perplexity}</p>
+              </div>
 
-          <button onClick={() => setResult(null)} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
-            Close
-          </button>
+              <div className={`rounded-xl border p-4 ${result.geminiClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
+                <p className="text-sm font-bold mb-2">Google Gemini — {result.geminiClean ? '✓ Clean' : '⚠️ Issues Found'}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
+              </div>
+
+              {!result.autoVerified && (
+                <button
+                  onClick={applyFixes}
+                  className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
+                >
+                  Apply Fixes — Claude Will Rewrite Flagged Sections
+                </button>
+              )}
+              <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
+                Close
+              </button>
+            </>
+          )}
+
+          {/* Changes preview */}
+          {stage === 'preview' && (
+            <>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p className="text-sm text-blue-800 font-semibold">Review each change below. Nothing is saved until you click Confirm.</p>
+              </div>
+
+              {changes.map(c => (
+                <div key={c.hunkNumber} className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wide">Section {c.hunkNumber}</p>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-red-600 mb-1">Original:</p>
+                      <p className="text-sm text-gray-600 bg-red-50 rounded-lg p-3 leading-relaxed">{c.originalText}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-green-600 mb-1">Corrected:</p>
+                      <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3 leading-relaxed">{c.correctedText}</p>
+                    </div>
+                    {c.correctedQuestions.length > 0 && c.correctedQuestions.map(q => (
+                      <div key={q.index}>
+                        <p className="text-xs font-semibold text-green-600 mb-1">Question {q.index + 1} answer corrected:</p>
+                        <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3">{q.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <button
+                onClick={confirmFixes}
+                className="w-full bg-green-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
+              >
+                ✓ Confirm & Save — Then Re-run Fact Check
+              </button>
+              <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
+                Cancel
+              </button>
+            </>
+          )}
+
+          {error && stage !== 'preview' && <p className="text-sm text-red-600">{error}</p>}
         </div>
       </div>
     </div>,
@@ -80,12 +221,11 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
     <>
       <button
         onClick={runCheck}
-        disabled={loading}
+        disabled={stage === 'checking'}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60"
       >
-        {loading ? 'Checking…' : '🔍 Fact Check'}
+        {stage === 'checking' ? '⏳ Checking…' : '🔍 Fact Check'}
       </button>
-      {error && <span className="text-xs text-red-500">{error}</span>}
       {modal}
     </>
   )
