@@ -145,7 +145,7 @@ export async function POST(
 
   return Response.json({
     perplexity: perplexityResult,
-    gemini: geminiUnavailable ? 'Gemini could not be reached. Perplexity result is shown above.' : geminiResult,
+    gemini: geminiUnavailable ? `Gemini error: ${geminiResult}` : geminiResult,
     perplexityClean,
     geminiClean,
     geminiUnavailable,
