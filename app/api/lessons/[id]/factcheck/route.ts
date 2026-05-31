@@ -48,7 +48,7 @@ async function checkWithPerplexity(prompt: string): Promise<string> {
   return data.choices?.[0]?.message?.content ?? 'No response received.'
 }
 
-async function checkWithGemini(prompt: string): Promise<string> {
+async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
@@ -59,7 +59,11 @@ async function checkWithGemini(prompt: string): Promise<string> {
       }),
     }
   )
-  if (!res.ok) return `ISSUES FOUND:\n- Gemini API error: ${res.status}`
+  if (res.status === 429 && attempt < 3) {
+    await new Promise(r => setTimeout(r, 3000 * attempt))
+    return checkWithGemini(prompt, attempt + 1)
+  }
+  if (!res.ok) return `ISSUES FOUND:\n- Gemini temporarily unavailable (${res.status}). Please run the fact-check again.`
   const data = await res.json()
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response received.'
 }
