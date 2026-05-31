@@ -111,8 +111,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
             {stage === 'saving' && '💾 Saving…'}
             {stage === 'done' && '✓ Changes Saved'}
             {stage === 'results' && result?.autoVerified && '✓ Auto-Verified!'}
-            {stage === 'results' && !result?.autoVerified && result?.perplexityClean && result?.geminiUnavailable && '✓ Perplexity Clean — Claude Opus Unavailable'}
-            {stage === 'results' && !result?.autoVerified && (!result?.perplexityClean || (!result?.geminiClean && !result?.geminiUnavailable)) && '⚠️ Issues Found'}
+            {stage === 'results' && !result?.autoVerified && '⚠️ Issues Found'}
           </h2>
           {(stage === 'results' || stage === 'preview') && (
             <button onClick={close} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -146,22 +145,14 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
               {/* Auto-verified */}
               {result.autoVerified && (
                 <div className="bg-green-50 border border-green-300 rounded-xl p-4">
-                  <p className="text-green-800 font-semibold">Both AIs confirmed accuracy. Lesson auto-verified — you&apos;ll receive a confirmation email.</p>
+                  <p className="text-green-800 font-semibold">Perplexity confirmed accuracy. Lesson auto-verified — you&apos;ll receive a confirmation email.</p>
                 </div>
               )}
 
-              {/* Perplexity clean, Claude Opus unreachable */}
-              {result.perplexityClean && result.geminiUnavailable && (
-                <div className="bg-green-50 border border-green-300 rounded-xl p-4">
-                  <p className="text-green-800 font-semibold mb-1">Perplexity found no issues.</p>
-                  <p className="text-sm text-green-700">Claude Opus was temporarily unavailable. Try the fact-check again.</p>
-                </div>
-              )}
-
-              {/* Issues found */}
-              {(!result.perplexityClean || (!result.geminiClean && !result.geminiUnavailable)) && (
+              {/* Perplexity issues found */}
+              {!result.perplexityClean && (
                 <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
-                  <p className="text-yellow-800 font-semibold">Issues were found. Click &quot;Apply Fixes&quot; and Claude will rewrite the flagged sentences for you to review before anything saves.</p>
+                  <p className="text-yellow-800 font-semibold">Perplexity found issues. Click &quot;Apply Fixes&quot; and Claude will rewrite only the flagged facts for you to review before anything saves.</p>
                 </div>
               )}
 
@@ -170,19 +161,19 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.perplexity}</p>
               </div>
 
-              <div className={`rounded-xl border p-4 ${result.geminiUnavailable ? 'border-gray-200 bg-gray-50' : result.geminiClean ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
-                <p className="text-sm font-bold mb-2">Claude Opus — {result.geminiUnavailable ? '— Unavailable' : result.geminiClean ? '✓ Clean' : '⚠️ Issues Found'}</p>
+              <div className={`rounded-xl border p-4 ${result.geminiUnavailable ? 'border-gray-200 bg-gray-50' : result.geminiClean ? 'border-green-300 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
+                <p className="text-sm font-bold mb-2">Claude Opus (Advisory) — {result.geminiUnavailable ? 'Unavailable' : result.geminiClean ? '✓ Clean' : 'Notes'}</p>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
               </div>
 
-              {(!result.perplexityClean || (!result.geminiClean && !result.geminiUnavailable)) && (
+              {!result.perplexityClean && (
                 <button onClick={applyFixes} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">
-                  Apply Fixes — Claude Will Rewrite Flagged Sections
+                  Apply Fixes — Claude Will Rewrite Flagged Facts Only
                 </button>
               )}
 
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
-                {result.perplexityClean && result.geminiUnavailable ? 'Close — Try Again to Get Claude Opus Result' : 'Close'}
+                Close
               </button>
             </>
           )}

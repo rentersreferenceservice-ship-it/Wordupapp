@@ -86,11 +86,10 @@ export async function POST(
   const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
   const claudeUnavailable = claudeResult === 'CLAUDE_UNAVAILABLE'
   const claudeClean = !claudeUnavailable && claudeResult.trimStart().toUpperCase().startsWith('VERIFIED')
-  const bothClean = perplexityClean && claudeClean
 
   const resend = new Resend(process.env.RESEND_API_KEY)
 
-  if (bothClean) {
+  if (perplexityClean) {
     await getSupabase().from('lessons').update({ verified: true }).eq('id', id)
 
     await resend.emails.send({
@@ -100,13 +99,13 @@ export async function POST(
       subject: `✓ Auto-Verified — ${lesson.title}`,
       html: `
         <h2>✓ Lesson Auto-Verified</h2>
-        <p><strong>${lesson.title}</strong> passed both AI fact-checks and has been automatically marked as Verified.</p>
+        <p><strong>${lesson.title}</strong> was confirmed accurate by Perplexity AI and has been automatically marked as Verified.</p>
         <hr />
-        <h3>Perplexity AI:</h3>
+        <h3>Perplexity AI (Authority):</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
         <hr />
-        <h3>Claude Opus (Anthropic):</h3>
-        <p>${claudeResult.replace(/\n/g, '<br />')}</p>
+        <h3>Claude Opus (Advisory):</h3>
+        <p>${claudeUnavailable ? 'Temporarily unavailable.' : claudeResult.replace(/\n/g, '<br />')}</p>
       `,
     })
   } else {
@@ -118,12 +117,12 @@ export async function POST(
       html: `
         <h2>⚠️ Fact-Check Issues Found</h2>
         <p><strong>Lesson:</strong> ${lesson.title}</p>
-        <p>One or both AI sources flagged issues. This lesson has <strong>not</strong> been verified. Please review, edit, and run the fact-check again.</p>
+        <p>Perplexity AI flagged issues. This lesson has <strong>not</strong> been verified. Please review, edit, and run the fact-check again.</p>
         <hr />
-        <h3>Perplexity AI — ${perplexityClean ? '✓ Clean' : '⚠️ Issues Found'}:</h3>
+        <h3>Perplexity AI — ⚠️ Issues Found:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
         <hr />
-        <h3>Claude Opus — ${claudeClean ? '✓ Clean' : claudeUnavailable ? '— Unavailable' : '⚠️ Issues Found'}:</h3>
+        <h3>Claude Opus (Advisory) — ${claudeClean ? '✓ Clean' : claudeUnavailable ? '— Unavailable' : '⚠️ Notes'}:</h3>
         <p>${claudeUnavailable ? 'Temporarily unavailable.' : claudeResult.replace(/\n/g, '<br />')}</p>
         <hr />
         <p><a href="https://worduplessongenerator.com/lessons/${id}/edit">Click here to edit this lesson →</a></p>
@@ -137,6 +136,6 @@ export async function POST(
     perplexityClean,
     geminiClean: claudeClean,
     geminiUnavailable: claudeUnavailable,
-    autoVerified: bothClean,
+    autoVerified: perplexityClean,
   })
 }
