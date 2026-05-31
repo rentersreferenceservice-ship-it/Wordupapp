@@ -66,8 +66,8 @@ async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
   } catch {
     return 'GEMINI_UNAVAILABLE:network_error'
   }
-  if (res.status === 429 && attempt < 4) {
-    await new Promise(r => setTimeout(r, 8000 * attempt))
+  if (res.status === 429 && attempt < 2) {
+    await new Promise(r => setTimeout(r, 5000))
     return checkWithGemini(prompt, attempt + 1)
   }
   if (!res.ok) return `GEMINI_UNAVAILABLE:${res.status}`
@@ -90,12 +90,12 @@ export async function POST(
 
   const prompt = buildPrompt(lesson)
 
-  const [perplexityResult, geminiResult] = await Promise.all([
-    checkWithPerplexity(prompt),
-    checkWithGemini(prompt),
-  ])
-
+  const perplexityResult = await checkWithPerplexity(prompt)
   const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
+
+  // Only call Gemini when Perplexity is clean — no point if there are already issues to fix
+  const geminiResult = perplexityClean ? await checkWithGemini(prompt) : 'GEMINI_UNAVAILABLE:skipped'
+
   const geminiUnavailable = geminiResult.startsWith('GEMINI_UNAVAILABLE')
   const geminiClean = !geminiUnavailable && geminiResult.trimStart().toUpperCase().startsWith('VERIFIED')
   const bothClean = perplexityClean && geminiClean
@@ -145,7 +145,9 @@ export async function POST(
 
   return Response.json({
     perplexity: perplexityResult,
-    gemini: geminiUnavailable ? `Gemini error: ${geminiResult}` : geminiResult,
+    gemini: geminiResult === 'GEMINI_UNAVAILABLE:skipped'
+      ? 'Skipped — Perplexity found issues. Fix those first, then re-run to get Gemini\'s check.'
+      : geminiUnavailable ? `Gemini error: ${geminiResult}` : geminiResult,
     perplexityClean,
     geminiClean,
     geminiUnavailable,
