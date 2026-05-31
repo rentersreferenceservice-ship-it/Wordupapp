@@ -265,7 +265,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
 
       {/* Verified explanation note */}
       <div className="mb-4 bg-green-50 border-2 border-black rounded-xl px-5 py-4">
-        <p className="text-sm text-green-900"><span className="font-bold">✓ Verified for Accuracy</span> — Lessons marked Verified have completed a three-step accuracy review: AI generation, plus review by two additional AI sources. Reviewed for factual accuracy by the Word Up team.</p>
+        <p className="text-sm text-green-900"><span className="font-bold">✓ Verified for Accuracy</span> — Lessons marked Verified have completed a three-step accuracy review: AI generation, plus independent review by Perplexity AI and Google Gemini. Reviewed for factual accuracy by the Word Up team.</p>
       </div>
 
       {/* Preview banner for non-subscribers */}
