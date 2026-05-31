@@ -49,27 +49,30 @@ async function checkWithPerplexity(prompt: string): Promise<string> {
 }
 
 async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
-  const res = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gemini-1.5-flash',
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    }
-  )
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return 'GEMINI_UNAVAILABLE:no_key'
+  let res: Response
+  try {
+    res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    )
+  } catch {
+    return 'GEMINI_UNAVAILABLE:network_error'
+  }
   if (res.status === 429 && attempt < 3) {
     await new Promise(r => setTimeout(r, 3000 * attempt))
     return checkWithGemini(prompt, attempt + 1)
   }
   if (!res.ok) return `GEMINI_UNAVAILABLE:${res.status}`
   const data = await res.json()
-  return data.choices?.[0]?.message?.content ?? 'No response received.'
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response received.'
 }
 
 export async function POST(
