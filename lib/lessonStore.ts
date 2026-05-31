@@ -58,5 +58,6 @@ function dbRowToLesson(row: Record<string, unknown>): Lesson {
     practitionerId: row.practitioner_id as string | undefined,
     isAiGenerated: row.is_ai_generated !== false,
     author: row.author as string | undefined,
+    verified: row.verified === true,
   }
 }

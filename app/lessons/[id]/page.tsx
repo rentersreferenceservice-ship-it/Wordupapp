@@ -6,6 +6,7 @@ import PrintButton from './PrintButton'
 import DeleteButton from './DeleteButton'
 import EditTypesButton from './EditTypesButton'
 import SuggestEditButton from './SuggestEditButton'
+import VerifyToggle from './VerifyToggle'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
@@ -86,7 +87,14 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <h1 className="text-2xl font-bold text-center mb-1">{lesson.title}</h1>
           {lesson.author && <p className="text-center text-[9pt] text-gray-500 mb-1">By {lesson.author}</p>}
           {lesson.hashtags?.length > 0 && (
-            <p className="text-center text-sm text-blue-500 mb-8">{lesson.hashtags.join(' ')}</p>
+            <p className="text-center text-sm text-blue-500 mb-4">{lesson.hashtags.join(' ')}</p>
+          )}
+          {lesson.verified && (
+            <div className="flex justify-center mb-6">
+              <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-300 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+                ✓ Verified for Accuracy
+              </span>
+            </div>
           )}
 
           {/* Preview banner */}
@@ -166,6 +174,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           >
             Contact
           </a>
+          {isAdmin && <VerifyToggle lessonId={id} initialVerified={lesson.verified ?? false} />}
           {isAdmin && <Link href={`/lessons/${id}/edit`} className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition-colors">Edit Lesson</Link>}
           {isAdmin && <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />}
           {isAdmin && <DeleteButton />}
@@ -182,9 +191,16 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         {lesson.author && <p className="text-center text-[9pt] text-gray-500 mb-1">By {lesson.author}</p>}
 
         {lesson.hashtags?.length > 0 && (
-          <p className="text-center text-sm text-blue-500 mb-8">
+          <p className="text-center text-sm text-blue-500 mb-4">
             {lesson.hashtags.join(' ')}
           </p>
+        )}
+        {lesson.verified && (
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-300 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+              ✓ Verified for Accuracy
+            </span>
+          </div>
         )}
 
         {lesson.hunks.map((hunk) => (

@@ -32,4 +32,5 @@ export interface Lesson {
   practitionerId?: string
   isAiGenerated?: boolean
   author?: string
+  verified?: boolean
 }

@@ -263,6 +263,11 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
     <main className="relative z-10 min-h-screen px-4 py-10 max-w-2xl mx-auto">
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
 
+      {/* Verified explanation note */}
+      <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-5 py-3">
+        <p className="text-xs text-green-800"><span className="font-semibold">✓ Verified for Accuracy</span> — Lessons marked Verified have completed a three-step accuracy review: AI generation, plus review by two additional AI sources. Reviewed for factual accuracy by the Word Up team.</p>
+      </div>
+
       {/* Preview banner for non-subscribers */}
       {!isSubscribed && (
         <div className="mb-4 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-5 py-3 flex items-center justify-between gap-4">
@@ -354,7 +359,14 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
                 href={`/lessons/${lesson.id}`}
                 className="block bg-white border-4 border-gray-300 rounded-xl px-5 py-4 hover:border-blue-500 hover:shadow-md transition-all"
               >
-                <div className="font-medium text-gray-900">{lesson.title}</div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-gray-900">{lesson.title}</span>
+                  {lesson.verified && (
+                    <span className="inline-flex items-center gap-1 bg-green-50 border border-green-300 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
                 <div className="text-sm text-gray-500 mt-0.5 flex gap-2 flex-wrap items-center">
                   <span className="font-semibold text-blue-600">#{lessonNumbers[lesson.id]}</span>
                   <span>·</span>
