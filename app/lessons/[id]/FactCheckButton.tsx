@@ -8,6 +8,7 @@ interface FactCheckResult {
   gemini: string
   perplexityClean: boolean
   geminiClean: boolean
+  geminiUnavailable?: boolean
   autoVerified: boolean
 }
 
@@ -151,13 +152,19 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{result.gemini}</p>
               </div>
 
-              {!result.autoVerified && (
+              {!result.autoVerified && !result.geminiUnavailable && (
                 <button
                   onClick={applyFixes}
                   className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
                 >
                   Apply Fixes — Claude Will Rewrite Flagged Sections
                 </button>
+              )}
+              {result.perplexityClean && result.geminiUnavailable && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p className="text-sm text-blue-800 font-semibold mb-2">Perplexity passed — Gemini was unreachable.</p>
+                  <p className="text-xs text-blue-700 mb-3">You can manually mark this lesson as Verified using the Mark Verified button, or try the fact-check again later when Gemini is available.</p>
+                </div>
               )}
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
                 Close

@@ -50,12 +50,16 @@ async function checkWithPerplexity(prompt: string): Promise<string> {
 
 async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        model: 'gemini-1.5-flash',
+        messages: [{ role: 'user', content: prompt }],
       }),
     }
   )
@@ -63,9 +67,9 @@ async function checkWithGemini(prompt: string, attempt = 1): Promise<string> {
     await new Promise(r => setTimeout(r, 3000 * attempt))
     return checkWithGemini(prompt, attempt + 1)
   }
-  if (!res.ok) return `ISSUES FOUND:\n- Gemini temporarily unavailable (${res.status}). Please run the fact-check again.`
+  if (!res.ok) return `GEMINI_UNAVAILABLE:${res.status}`
   const data = await res.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response received.'
+  return data.choices?.[0]?.message?.content ?? 'No response received.'
 }
 
 export async function POST(
@@ -89,7 +93,8 @@ export async function POST(
   ])
 
   const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
-  const geminiClean = geminiResult.trimStart().toUpperCase().startsWith('VERIFIED')
+  const geminiUnavailable = geminiResult.startsWith('GEMINI_UNAVAILABLE')
+  const geminiClean = !geminiUnavailable && geminiResult.trimStart().toUpperCase().startsWith('VERIFIED')
   const bothClean = perplexityClean && geminiClean
 
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -137,9 +142,10 @@ export async function POST(
 
   return Response.json({
     perplexity: perplexityResult,
-    gemini: geminiResult,
+    gemini: geminiUnavailable ? 'Gemini could not be reached. Perplexity result is shown above.' : geminiResult,
     perplexityClean,
     geminiClean,
+    geminiUnavailable,
     autoVerified: bothClean,
   })
 }
