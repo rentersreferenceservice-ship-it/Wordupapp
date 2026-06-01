@@ -103,6 +103,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
       const data = await res.json()
 
       setTitle(data.title || '')
+      setAuthor(data.author || '')
       setHunks(data.hunks || [])
       setCitations(data.citations || [])
       setStep('review')

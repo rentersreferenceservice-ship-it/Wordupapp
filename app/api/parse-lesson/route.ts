@@ -12,6 +12,7 @@ Return ONLY valid JSON — no markdown, no explanation.
 JSON format:
 {
   "title": "string",
+  "author": "string or empty string",
   "hunks": [
     {
       "number": 1,
@@ -23,6 +24,8 @@ JSON format:
   ],
   "citations": ["citation 1", "citation 2"]
 }
+
+For author: look for a line like "By [Name]", "Written by [Name]", or a standalone author name near the title. If not found, return an empty string.
 
 TYPE DEFINITIONS — classify each question using these rules in order:
 
@@ -166,7 +169,7 @@ function buildTextToImageUrlMap(
 
 async function askClaude(
   userContent: Parameters<Anthropic['messages']['create']>[0]['messages'][0]['content']
-): Promise<{ title: string; hunks: Hunk[]; citations: string[] }> {
+): Promise<{ title: string; author: string; hunks: Hunk[]; citations: string[] }> {
   const client = new Anthropic()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const message = await (client.messages.create as any)({
@@ -183,6 +186,7 @@ async function askClaude(
   const json = JSON.parse(raw)
   return {
     title: json.title ?? '',
+    author: json.author ?? '',
     hunks: (json.hunks ?? []).map((h: Hunk, i: number) => ({ ...h, number: i + 1 })),
     citations: json.citations ?? [],
   }
@@ -223,7 +227,7 @@ export async function POST(request: Request) {
       return hunk
     })
 
-    return NextResponse.json({ title: result.title, hunks, citations: result.citations })
+    return NextResponse.json({ title: result.title, author: result.author, hunks, citations: result.citations })
   } catch (e: unknown) {
     console.error('parse-lesson error:', e)
     const msg = e instanceof Error ? e.message : 'Failed to parse lesson'
