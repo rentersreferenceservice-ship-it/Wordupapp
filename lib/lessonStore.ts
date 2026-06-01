@@ -31,7 +31,14 @@ export async function listLessons(): Promise<Lesson[]> {
     .is('practitioner_id', null)
     .order('created_at', { ascending: false })
   if (!data) return []
-  return data.map(dbRowToLesson)
+  const lessons = data.map(dbRowToLesson)
+  // Unverified lessons float to the top; within each group keep created_at desc
+  lessons.sort((a, b) => {
+    const aVerified = a.verified ? 1 : 0
+    const bVerified = b.verified ? 1 : 0
+    return aVerified - bVerified
+  })
+  return lessons
 }
 
 export async function listPractitionerLessons(practitionerId: string): Promise<Lesson[]> {
