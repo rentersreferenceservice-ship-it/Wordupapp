@@ -19,15 +19,14 @@ interface Change {
   correctedQuestions: { index: number; answer: string }[]
 }
 
-type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'done'
-type AutoStage = 'checking' | 'fixing' | 'saving' | 'done' | 'error'
+type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'verifying'
 
 export default function FactCheckButton({ lessonId }: { lessonId: string }) {
   const [stage, setStage] = useState<Stage>('idle')
   const [result, setResult] = useState<FactCheckResult | null>(null)
   const [changes, setChanges] = useState<Change[]>([])
   const [error, setError] = useState('')
-  const [autoStage, setAutoStage] = useState<AutoStage | null>(null)
+  const [autoStage, setAutoStage] = useState<'checking' | 'done' | 'error' | null>(null)
   const [autoSummary, setAutoSummary] = useState('')
 
   useEffect(() => {
@@ -38,49 +37,22 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
     }
   }, [])
 
+  // Auto-check: runs fact check only — no auto-fix
   async function runAutoCheck() {
     setAutoStage('checking')
     try {
-      const checkRes = await fetch(`/api/lessons/${lessonId}/factcheck`, { method: 'POST' })
-      const checkData = await checkRes.json()
-      if (!checkRes.ok) throw new Error(checkData.error ?? 'Fact check failed')
+      const res = await fetch(`/api/lessons/${lessonId}/factcheck`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Fact check failed')
 
-      if (checkData.perplexityClean) {
-        setAutoSummary(checkData.autoVerified
-          ? '✓ Perplexity and Claude Opus found no issues — lesson auto-verified.'
-          : '✓ Perplexity found no issues. Claude Opus has advisory notes below — run Fact Check to view them.'
+      if (data.perplexityClean) {
+        setAutoSummary(data.autoVerified
+          ? '✓ Perplexity found no issues — lesson auto-verified.'
+          : '✓ Perplexity found no issues. Claude Opus has advisory notes — click Fact Check to view.'
         )
-        setAutoStage('done')
-        return
+      } else {
+        setAutoSummary('⚠️ Perplexity found issues with this lesson. Click Fact Check to review and apply corrections.')
       }
-
-      // Perplexity found issues — auto-fix
-      setAutoStage('fixing')
-      const issues = [
-        !checkData.perplexityClean ? checkData.perplexity : '',
-        !checkData.geminiClean && !checkData.geminiUnavailable ? checkData.gemini : '',
-      ].filter(Boolean).join('\n\n')
-
-      const fixRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ issues }),
-      })
-      const fixData = await fixRes.json()
-      if (!fixRes.ok) throw new Error(fixData.error ?? 'Could not generate fixes')
-
-      setAutoStage('saving')
-      const saveRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: true, correctedHunks: fixData.changes }),
-      })
-      if (!saveRes.ok) {
-        const saveData = await saveRes.json().catch(() => ({}))
-        throw new Error(saveData.error ?? 'Could not save fixes')
-      }
-
-      setAutoSummary(`⚠️ Perplexity found issues — corrections were applied automatically. Please review the lesson carefully before verifying.`)
       setAutoStage('done')
     } catch (e) {
       setAutoSummary(e instanceof Error ? e.message : 'Auto-check failed')
@@ -124,12 +96,10 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error ?? `HTTP ${res.status}`)
         throw new Error(msg)
       }
-      if (!data.changes || data.changes.length === 0) {
-        if (issuesOverride) {
-          setError("Opus has no specific corrections to apply — its notes are advisory only. Edit the lesson manually if needed.")
-          setStage('results')
-          return
-        }
+      if (issuesOverride && (!data.changes || data.changes.length === 0)) {
+        setError('Opus has no specific corrections to apply — its notes are advisory only. Edit the lesson manually if needed.')
+        setStage('results')
+        return
       }
       setChanges(data.changes ?? [])
       setStage('preview')
@@ -139,19 +109,29 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
     }
   }
 
+  // Save fixes then immediately re-run fact check in the same modal
   async function confirmFixes() {
     setStage('saving')
     try {
-      const res = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
+      const saveRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirm: true, correctedHunks: changes }),
       })
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}))
-        throw new Error(`Save failed (${res.status}): ${errData.error ?? 'unknown'}`)
+      if (!saveRes.ok) {
+        const errData = await saveRes.json().catch(() => ({}))
+        throw new Error(`Save failed (${saveRes.status}): ${errData.error ?? 'unknown'}`)
       }
-      setStage('done')
+
+      // Auto re-check so the user sees the result immediately
+      setStage('verifying')
+      const checkRes = await fetch(`/api/lessons/${lessonId}/factcheck`, { method: 'POST' })
+      const checkData = await checkRes.json()
+      if (!checkRes.ok) throw new Error(checkData.error ?? 'Fact check failed after save')
+      setResult(checkData)
+      setChanges([])
+      setError('')
+      setStage('results')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
       setStage('preview')
@@ -168,17 +148,20 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
   const showModal = stage !== 'idle' && stage !== 'checking' && typeof document !== 'undefined'
 
   const modal = showModal && createPortal(
-    <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={stage === 'results' || stage === 'preview' || stage === 'done' ? close : undefined}>
+    <div
+      className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4"
+      onClick={stage === 'results' || stage === 'preview' ? close : undefined}
+    >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-900">
             {stage === 'applying' && '⏳ Generating Fixes…'}
-            {stage === 'preview' && '📝 Review Changes'}
             {stage === 'saving' && '💾 Saving…'}
-            {stage === 'done' && '✓ Changes Saved'}
-            {stage === 'results' && result?.autoVerified && '✓ Auto-Verified!'}
+            {stage === 'verifying' && '🔍 Verifying Fix…'}
+            {stage === 'preview' && '📝 Review Changes'}
+            {stage === 'results' && result?.autoVerified && '✓ Verified!'}
             {stage === 'results' && !result?.autoVerified && '⚠️ Issues Found'}
           </h2>
           {(stage === 'results' || stage === 'preview') && (
@@ -188,36 +171,31 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
 
         <div className="px-6 py-5 space-y-4">
 
-          {/* Applying spinner */}
-          {(stage === 'applying' || stage === 'saving') && (
-            <div className="text-center py-8 text-gray-500 text-sm">
-              {stage === 'applying' && 'Claude is reading the issues and rewriting the affected sections. This takes about 15 seconds…'}
-              {stage === 'saving' && 'Saving corrected lesson…'}
-            </div>
-          )}
-
-          {/* Done state */}
-          {stage === 'done' && (
-            <div className="text-center py-8 space-y-4">
-              <p className="text-green-700 font-semibold">Lesson updated successfully.</p>
-              <p className="text-sm text-gray-500">Run the fact-check again when you&apos;re ready to verify.</p>
-              <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
-                Close
-              </button>
+          {/* Loading states */}
+          {(stage === 'applying' || stage === 'saving' || stage === 'verifying') && (
+            <div className="text-center py-8 text-gray-500 text-sm space-y-2">
+              <div className="text-2xl animate-pulse">
+                {stage === 'applying' && '✍️'}
+                {stage === 'saving' && '💾'}
+                {stage === 'verifying' && '🔍'}
+              </div>
+              <p>
+                {stage === 'applying' && 'Claude is rewriting the flagged sections. This takes about 15 seconds…'}
+                {stage === 'saving' && 'Saving corrected lesson…'}
+                {stage === 'verifying' && 'Saved. Now re-running Perplexity to verify the fix…'}
+              </p>
             </div>
           )}
 
           {/* Fact check results */}
           {stage === 'results' && result && (
             <>
-              {/* Auto-verified */}
               {result.autoVerified && (
                 <div className="bg-green-50 border border-green-300 rounded-xl p-4">
                   <p className="text-green-800 font-semibold">Perplexity confirmed accuracy. Lesson auto-verified — you&apos;ll receive a confirmation email.</p>
                 </div>
               )}
 
-              {/* Perplexity issues found */}
               {!result.perplexityClean && (
                 <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
                   <p className="text-yellow-800 font-semibold">Perplexity found issues. Click &quot;Apply Fixes&quot; and Claude will rewrite only the flagged facts for you to review before anything saves.</p>
@@ -249,6 +227,8 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                 </div>
               )}
 
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
                 Close
               </button>
@@ -261,6 +241,10 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-blue-800 font-semibold">Review each change below. Nothing is saved until you click Confirm.</p>
               </div>
+
+              {changes.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">No specific text changes were generated. You may close and edit the lesson manually.</p>
+              )}
 
               {changes.map(c => (
                 <div key={c.hunkNumber} className="border border-gray-200 rounded-xl overflow-hidden">
@@ -288,19 +272,16 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
 
               {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <button
-                onClick={confirmFixes}
-                className="w-full bg-green-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors"
-              >
-                ✓ Confirm & Save — Then Re-run Fact Check
-              </button>
+              {changes.length > 0 && (
+                <button onClick={confirmFixes} className="w-full bg-green-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors">
+                  ✓ Confirm & Save — Fact Check Will Re-run Automatically
+                </button>
+              )}
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
                 Cancel
               </button>
             </>
           )}
-
-          {error && stage !== 'preview' && <p className="text-sm text-red-600">{error}</p>}
         </div>
       </div>
     </div>,
@@ -315,9 +296,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         'bg-blue-700 text-white'
       }`}>
         <span className="flex-1">
-          {autoStage === 'checking' && '⏳ Checking with Perplexity and Claude Opus…'}
-          {autoStage === 'fixing' && '⚙️ Issues found — applying corrections automatically…'}
-          {autoStage === 'saving' && '💾 Saving corrections…'}
+          {autoStage === 'checking' && '⏳ Running fact check with Perplexity and Claude Opus…'}
           {(autoStage === 'done' || autoStage === 'error') && autoSummary}
         </span>
         {(autoStage === 'done' || autoStage === 'error') && (
@@ -332,7 +311,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
     <>
       <button
         onClick={runCheck}
-        disabled={stage === 'checking' || !!autoStage && autoStage !== 'done' && autoStage !== 'error'}
+        disabled={stage === 'checking' || (!!autoStage && autoStage !== 'done' && autoStage !== 'error')}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60"
       >
         {stage === 'checking' ? '⏳ Checking…' : '🔍 Fact Check'}
