@@ -195,14 +195,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { fileName, fileData } = body as { fileName: string; fileData: string; fileSize: number }
-    if (!fileName || !fileData) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-    const buffer = Buffer.from(fileData, 'base64')
-    if (fileName.toLowerCase().endsWith('.pdf')) {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      const base64 = buffer.toString('base64')
       const result = await askClaude([
-        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileData } } as never,
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,
         { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
       ])
       return NextResponse.json(result)

@@ -69,23 +69,17 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
     setError('')
     setParsing(true)
     try {
-      // Read file as base64 to avoid multipart/formData issues in serverless
-      const fileData = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve((reader.result as string).split(',')[1])
-        reader.onerror = () => reject(new Error('Could not read file'))
-        reader.readAsDataURL(file)
-      })
+      if (file.size > 4 * 1024 * 1024) {
+        throw new Error('File is too large (max 4 MB). Open the document in Word, reduce or remove images, then try again.')
+      }
 
+      const form = new FormData()
+      form.append('file', file)
       let res: Response
       try {
-        res = await fetch('/api/parse-lesson', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileName: file.name, fileData, fileSize: file.size }),
-        })
+        res = await fetch('/api/parse-lesson', { method: 'POST', body: form })
       } catch (networkErr) {
-        throw new Error(`Network error — could not reach server. (${Math.round(file.size / 1024)}KB). ${networkErr instanceof Error ? networkErr.message : ''}`)
+        throw new Error(`Network error — could not reach server. ${networkErr instanceof Error ? networkErr.message : ''}`)
       }
       if (!res.ok) {
         let errMsg = `Server error ${res.status}`
