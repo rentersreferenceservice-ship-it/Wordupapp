@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import type { Hunk } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
 
+export const maxDuration = 60
+
 const CLASSIFY_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson following the Word Up 2025 SOP.
 Return ONLY valid JSON — no markdown, no explanation.
 
