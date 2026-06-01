@@ -333,16 +333,19 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
 
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx or .pdf)</label>
-            <input
-              type="file"
-              accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx"
-              onChange={e => setSelectedFile(e.target.files?.[0] ?? null)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 file:mr-3 file:border-0 file:bg-blue-50 file:text-blue-700 file:rounded file:px-3 file:py-1 file:text-xs file:font-medium"
-            />
-            {selectedFile && (
-              <p className="text-xs text-green-700 font-medium mt-1">✓ {selectedFile.name}</p>
-            )}
+            <p className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx or .pdf)</p>
+            <label className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl py-6 px-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+              <div className="text-center">
+                <p className="text-sm font-semibold text-blue-600">{selectedFile ? '✓ ' + selectedFile.name : 'Tap to choose a file'}</p>
+                <p className="text-xs text-gray-400 mt-1">.docx or .pdf</p>
+              </div>
+              <input
+                type="file"
+                accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx"
+                onChange={e => setSelectedFile(e.target.files?.[0] ?? null)}
+                className="sr-only"
+              />
+            </label>
           </div>
 
           <div className="text-xs text-gray-400 space-y-2">
