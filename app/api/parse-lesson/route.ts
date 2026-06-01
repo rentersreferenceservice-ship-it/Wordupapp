@@ -194,76 +194,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData()
-    const file = formData.get('file') as File | null
-    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    const body = await request.json() as { fileName: string; isPdf: boolean; fileData?: string; xmlContent?: string }
+    const { fileName, isPdf, fileData, xmlContent } = body
+    if (!fileName) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    if (file.name.toLowerCase().endsWith('.pdf')) {
-      const base64 = buffer.toString('base64')
+    if (isPdf && fileData) {
       const result = await askClaude([
-        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } } as never,
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileData } } as never,
         { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
       ])
       return NextResponse.json(result)
     }
 
-    // DOCX: parse XML directly for both text paragraphs and image embed positions
-    const JSZip = (await import('jszip')).default
-    const zip = await JSZip.loadAsync(buffer)
+    if (!xmlContent) return NextResponse.json({ error: 'No document content received' }, { status: 400 })
 
-    // Log ZIP contents to diagnose path issues
-    const zipEntries = Object.keys(zip.files)
-    const mediaEntries = zipEntries.filter(f => f.toLowerCase().includes('media'))
-    const relsEntries = zipEntries.filter(f => f.toLowerCase().includes('_rels'))
-    console.log(`parse-lesson: ZIP media files:`, mediaEntries)
-    console.log(`parse-lesson: ZIP rels files:`, relsEntries)
-
-    const xmlFile = zip.file('word/document.xml')
-    if (!xmlFile) return NextResponse.json({ error: 'Invalid DOCX file' }, { status: 400 })
-
-    const xml = await xmlFile.async('string')
+    // DOCX: XML was already extracted in the browser — parse directly (images skipped for now)
     const paras = extractTextParagraphs(xml)
-    const embeds = extractImageEmbeds(xml)
-
-    console.log(`parse-lesson: ${paras.length} text paragraphs, ${embeds.length} unique image embed(s):`, embeds.map(e => e.rId))
-
-    // Upload images and build rId → URL map
-    const rIdToUrl = new Map<string, string>()
-
-    // Find the rels file by searching ZIP entries (path varies by Word version)
-    const relsPath = zipEntries.find(f => f.toLowerCase().endsWith('word/_rels/document.xml.rels') || f.toLowerCase() === 'word/_rels/document.xml.rels')
-    const relsFile = relsPath ? zip.file(relsPath) : zip.file('word/_rels/document.xml.rels')
-    console.log(`parse-lesson: rels file found at: ${relsPath ?? 'word/_rels/document.xml.rels (hardcoded)'}`, relsFile ? 'EXISTS' : 'NULL')
-
-    if (relsFile) {
-      const relsXml = await relsFile.async('string')
-      const relMap = parseRelationships(relsXml)
-      console.log(`parse-lesson: image relationships:`, [...relMap.entries()])
-
-      for (const { rId } of embeds) {
-        const target = relMap.get(rId)
-        if (!target) { console.log(`parse-lesson: rId "${rId}" not an image relationship — skipping`); continue }
-
-        // Find the media file in the ZIP (search by filename to handle path variations)
-        const filename = target.split('/').pop() || 'image.png'
-        const mediaPath = mediaEntries.find(f => f.endsWith(filename)) ?? `word/${target}`
-        const imageFile = zip.file(mediaPath)
-        console.log(`parse-lesson: looking for "${filename}" at "${mediaPath}":`, imageFile ? 'FOUND' : 'MISSING')
-        if (!imageFile) continue
-
-        const imgBuffer = Buffer.from(await imageFile.async('arraybuffer'))
-        console.log(`parse-lesson: uploading "${filename}" (${imgBuffer.length} bytes)`)
-        const url = await uploadImage(imgBuffer, filename)
-        console.log(`parse-lesson: upload → ${url ?? 'FAILED'}`)
-        if (url) rIdToUrl.set(rId, url)
-      }
-    }
-
-    // Map hunk body text (first 30 chars) → the image URL that precedes it in the XML
-    const textToImageUrl = buildTextToImageUrlMap(embeds, paras, rIdToUrl)
-    console.log(`parse-lesson: textToImageUrl has ${textToImageUrl.size} mapping(s)`)
-
     const annotatedText = formatParagraphsForClaude(paras)
 
     const result = await askClaude([
@@ -273,11 +219,8 @@ export async function POST(request: Request) {
       },
     ])
 
-    // Match each hunk's body text to the image that preceded it in the document
     const hunks = result.hunks.map(hunk => {
-      const key = hunk.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
-      const url = textToImageUrl.get(key)
-      return url ? { ...hunk, imageUrl: url } : hunk
+      return hunk
     })
 
     return NextResponse.json({ title: result.title, hunks, citations: result.citations })

@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState } from 'react'
+import JSZip from 'jszip'
 import type { Hunk, Question, QuestionType } from '@/lib/types'
 
 function InsertButton({ onClick }: { onClick: () => void }) {
@@ -69,15 +70,28 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
     setError('')
     setParsing(true)
     try {
-      if (file.size > 4 * 1024 * 1024) {
-        throw new Error('File is too large (max 4 MB). Open the document in Word, reduce or remove images, then try again.')
+      // For PDFs send raw base64; for DOCX unzip in browser and send only the XML text
+      let body: object
+      if (file.name.toLowerCase().endsWith('.pdf')) {
+        const ab = await file.arrayBuffer()
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)))
+        body = { fileName: file.name, fileData: b64, isPdf: true }
+      } else {
+        const ab = await file.arrayBuffer()
+        const zip = await JSZip.loadAsync(ab)
+        const xmlFile = zip.file('word/document.xml')
+        if (!xmlFile) throw new Error('Invalid DOCX — could not find document.xml inside the file.')
+        const xmlContent = await xmlFile.async('string')
+        body = { fileName: file.name, xmlContent, isPdf: false }
       }
 
-      const form = new FormData()
-      form.append('file', file)
       let res: Response
       try {
-        res = await fetch('/api/parse-lesson', { method: 'POST', body: form })
+        res = await fetch('/api/parse-lesson', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
       } catch (networkErr) {
         throw new Error(`Network error — could not reach server. ${networkErr instanceof Error ? networkErr.message : ''}`)
       }
@@ -337,19 +351,14 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
 
         <div className="space-y-5">
           <div>
-            <p className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx or .pdf)</p>
-            <label className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl py-6 px-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
-              <div className="text-center">
-                <p className="text-sm font-semibold text-blue-600">{selectedFile ? '✓ ' + selectedFile.name : 'Tap to choose a file'}</p>
-                <p className="text-xs text-gray-400 mt-1">.docx or .pdf</p>
-              </div>
-              <input
-                type="file"
-                accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx"
-                onChange={e => setSelectedFile(e.target.files?.[0] ?? null)}
-                className="sr-only"
-              />
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Lesson File (.docx or .pdf)</label>
+            <input
+              type="file"
+              accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={e => setSelectedFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg px-3 py-2 cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {selectedFile && <p className="text-xs text-green-700 font-medium mt-1">✓ {selectedFile.name}</p>}
           </div>
 
           <div className="text-xs text-gray-400 space-y-2">
