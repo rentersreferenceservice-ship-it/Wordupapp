@@ -80,8 +80,9 @@ Return ONLY valid JSON — no explanation, no markdown, no code block. Return ex
 }
 
 Rules — READ CAREFULLY:
+- You MUST produce at least one correction. If issues were identified, something in the lesson needs to change — find it and fix it.
 - Rewrite ONLY the sentence(s) that directly contain the identified inaccuracy. Leave every other sentence word-for-word identical.
-- When rewriting an affected sentence, make it fully factually accurate. Use the correct fact from the issues report. You may rephrase the sentence as needed to make the fact accurate — but match the same reading level, tone, and approximate length.
+- When rewriting an affected sentence, make it fully factually accurate using the correct fact from the issues report. You may rephrase the sentence as needed — match the same reading level, tone, and approximate length.
 - Do NOT add, remove, or reorder any sentences. The corrected paragraph must have the same sentence count as the original.
 - Do NOT touch any sentence that is not directly involved in the identified issue.
 - Only include hunks that actually need changes.

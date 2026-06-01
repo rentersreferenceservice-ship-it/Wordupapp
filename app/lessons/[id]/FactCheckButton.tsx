@@ -125,11 +125,13 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         throw new Error(msg)
       }
       if (!data.changes || data.changes.length === 0) {
-        setError("Opus has no specific corrections to apply — its notes are advisory only. Edit the lesson manually if needed.")
-        setStage('results')
-        return
+        if (issuesOverride) {
+          setError("Opus has no specific corrections to apply — its notes are advisory only. Edit the lesson manually if needed.")
+          setStage('results')
+          return
+        }
       }
-      setChanges(data.changes)
+      setChanges(data.changes ?? [])
       setStage('preview')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
