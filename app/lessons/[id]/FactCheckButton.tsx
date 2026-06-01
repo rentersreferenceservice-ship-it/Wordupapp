@@ -22,7 +22,7 @@ interface Change {
 type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'done'
 type AutoStage = 'checking' | 'fixing' | 'saving' | 'done' | 'error'
 
-export default function FactCheckButton({ lessonId, autoCheck }: { lessonId: string; autoCheck?: boolean }) {
+export default function FactCheckButton({ lessonId }: { lessonId: string }) {
   const [stage, setStage] = useState<Stage>('idle')
   const [result, setResult] = useState<FactCheckResult | null>(null)
   const [changes, setChanges] = useState<Change[]>([])
@@ -31,7 +31,11 @@ export default function FactCheckButton({ lessonId, autoCheck }: { lessonId: str
   const [autoSummary, setAutoSummary] = useState('')
 
   useEffect(() => {
-    if (autoCheck) runAutoCheck()
+    const key = `autocheck_${lessonId}`
+    if (sessionStorage.getItem(key) === '1') {
+      sessionStorage.removeItem(key)
+      runAutoCheck()
+    }
   }, [])
 
   async function runAutoCheck() {
@@ -100,12 +104,12 @@ export default function FactCheckButton({ lessonId, autoCheck }: { lessonId: str
     }
   }
 
-  async function applyFixes() {
+  async function applyFixes(issuesOverride?: string) {
     if (!result) return
     setStage('applying')
     setError('')
     try {
-      const issues = [
+      const issues = issuesOverride ?? [
         !result.perplexityClean ? result.perplexity : '',
         !result.geminiClean ? result.gemini : '',
       ].filter(Boolean).join('\n\n')
@@ -224,9 +228,18 @@ export default function FactCheckButton({ lessonId, autoCheck }: { lessonId: str
               </div>
 
               {!result.perplexityClean && (
-                <button onClick={applyFixes} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">
+                <button onClick={() => applyFixes()} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors">
                   Apply Fixes — Claude Will Rewrite Flagged Facts Only
                 </button>
+              )}
+
+              {result.perplexityClean && !result.geminiClean && !result.geminiUnavailable && (
+                <div className="border border-gray-200 rounded-xl p-4 space-y-2">
+                  <p className="text-xs text-gray-500 font-medium">Perplexity already verified this lesson. Applying Opus suggestions is optional — it will un-verify and require a re-check.</p>
+                  <button onClick={() => applyFixes(result.gemini)} className="w-full bg-gray-100 text-gray-700 border border-gray-300 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
+                    Optionally Apply Opus Suggestions
+                  </button>
+                </div>
               )}
 
               <button onClick={close} className="w-full bg-gray-100 text-gray-700 border-2 border-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
