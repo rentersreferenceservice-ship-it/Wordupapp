@@ -349,7 +349,12 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
             </div>
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-300 rounded-xl px-4 py-3">
+              <p className="text-red-700 text-sm font-semibold">Upload failed</p>
+              <p className="text-red-600 text-sm mt-0.5">{error}</p>
+            </div>
+          )}
 
           <button
             onClick={handleUpload}
