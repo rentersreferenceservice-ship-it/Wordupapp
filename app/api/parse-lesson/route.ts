@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
-import JSZip from 'jszip'
+import { randomUUID } from 'crypto'
 import Anthropic from '@anthropic-ai/sdk'
-import { v4 as uuidv4 } from 'uuid'
 import type { Hunk } from '@/lib/types'
 import { getSupabase } from '@/lib/supabase'
 
@@ -118,7 +117,7 @@ function getMimeType(filename: string): string {
 async function uploadImage(buffer: Buffer, originalFilename: string): Promise<string | null> {
   const supabase = getSupabase()
   const ext = originalFilename.split('.').pop() || 'png'
-  const path = `${uuidv4()}.${ext}`
+  const path = `${randomUUID()}.${ext}`
   const mimeType = getMimeType(originalFilename)
 
   const { error } = await supabase.storage.from('lesson-images').upload(path, buffer, {
@@ -210,6 +209,7 @@ export async function POST(request: Request) {
     }
 
     // DOCX: parse XML directly for both text paragraphs and image embed positions
+    const JSZip = (await import('jszip')).default
     const zip = await JSZip.loadAsync(buffer)
 
     // Log ZIP contents to diagnose path issues
