@@ -129,6 +129,12 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [sessionInvoice, setSessionInvoice] = useState(savedInvoice?.capturedAnswer ?? '')
   const [regArrival, setRegArrival] = useState<string | null>(initialRegulationArrival)
   const [regDeparture, setRegDeparture] = useState<string | null>(initialRegulationDeparture)
+  const [invoiceMode, setInvoiceMode] = useState<'link' | 'generate'>(
+    (savedInvoice?.capturedAnswer ?? '').startsWith('/practitioner/invoice/') ? 'generate' : 'link'
+  )
+  const [invoiceAmount, setInvoiceAmount] = useState('')
+  const [generatingInvoice, setGeneratingInvoice] = useState(false)
+  const [invoiceError, setInvoiceError] = useState('')
 
   const hunk = lesson.hunks[currentHunk]
   const capture = captures[currentHunk]
@@ -279,6 +285,30 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       next[currentHunk] = { ...next[currentHunk], questions: qs }
       return next
     })
+  }
+
+  async function handleGenerateInvoice() {
+    setGeneratingInvoice(true)
+    setInvoiceError('')
+    try {
+      const res = await fetch('/api/practitioner/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setInvoiceError(data.error ?? 'Failed to create invoice')
+        setGeneratingInvoice(false)
+      } else {
+        const invoicePath = `/practitioner/invoice/${data.invoiceId}`
+        setSessionInvoice(invoicePath)
+        router.push(invoicePath)
+      }
+    } catch (e) {
+      setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
+      setGeneratingInvoice(false)
+    }
   }
 
   function buildResponses(complete: boolean) {
@@ -483,14 +513,50 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               />
             </div>
             <div>
-              <p className="text-xs text-gray-400 mb-1">Invoice Link</p>
-              <input
-                type="text"
-                value={sessionInvoice}
-                onChange={e => setSessionInvoice(e.target.value)}
-                placeholder="/practitioner/invoice/… or external URL"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
+              <p className="text-xs text-gray-400 mb-1">Invoice</p>
+              <div className="flex gap-2 mb-2">
+                <button type="button" onClick={() => setInvoiceMode('link')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${invoiceMode === 'link' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>External Link</button>
+                <button type="button" onClick={() => setInvoiceMode('generate')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${invoiceMode === 'generate' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Generate Invoice</button>
+              </div>
+              {invoiceMode === 'link' ? (
+                <input
+                  type="url"
+                  value={sessionInvoice}
+                  onChange={e => setSessionInvoice(e.target.value)}
+                  placeholder="https://your-accounting-app.com/invoice/…"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              ) : (
+                <div>
+                  {sessionInvoice.startsWith('/practitioner/invoice/') ? (
+                    <div className="flex items-center gap-3">
+                      <a href={sessionInvoice} className="text-blue-600 text-sm font-medium hover:underline">View Invoice →</a>
+                      <button type="button" onClick={() => setSessionInvoice('')} className="text-xs text-gray-400 hover:text-gray-600">Remove</button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={invoiceAmount}
+                        onChange={e => setInvoiceAmount(e.target.value)}
+                        placeholder="Use default rate"
+                        className="w-32 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleGenerateInvoice}
+                        disabled={generatingInvoice}
+                        className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+                      >
+                        {generatingInvoice ? 'Creating…' : 'Create Invoice'}
+                      </button>
+                    </div>
+                  )}
+                  {invoiceError && <p className="text-xs text-red-600 mt-1">{invoiceError}</p>}
+                </div>
+              )}
             </div>
           </div>
 
