@@ -291,32 +291,38 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     setGeneratingInvoice(true)
     setInvoiceError('')
     try {
-      const res = await fetch('/api/practitioner/invoice', {
+      const invoiceRes = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setInvoiceError(data.error ?? 'Failed to create invoice')
+      const invoiceData = await invoiceRes.json()
+      if (!invoiceRes.ok) {
+        setInvoiceError(invoiceData.error ?? 'Failed to create invoice')
         setGeneratingInvoice(false)
-      } else {
-        const invoicePath = `/practitioner/invoice/${data.invoiceId}`
-        setSessionInvoice(invoicePath)
-        router.push(invoicePath)
+        return
       }
+      const invoicePath = `/practitioner/invoice/${invoiceData.invoiceId}`
+      // Save all session data (including invoice link) before navigating away
+      await fetch(`/api/practitioner/sessions/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ responses: buildResponses(false, invoicePath) }),
+      })
+      router.push(invoicePath)
     } catch (e) {
       setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
       setGeneratingInvoice(false)
     }
   }
 
-  function buildResponses(complete: boolean) {
+  function buildResponses(complete: boolean, invoiceOverride?: string) {
+    const invoiceValue = (invoiceOverride ?? sessionInvoice).trim()
     return [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
       ...(sessionVideo.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
-      ...(sessionInvoice.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Session Invoice', capturedAnswer: sessionInvoice.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...(invoiceValue ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Session Invoice', capturedAnswer: invoiceValue, expectedAnswer: '', misspokeCount: 0 }] : []),
       ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
       ...captures.flatMap((hunkCapture, hunkIdx) => [
         ...hunkCapture.keywords.map(k => ({
