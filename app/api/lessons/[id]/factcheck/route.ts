@@ -29,6 +29,7 @@ Do NOT flag:
 - Different phrasing that conveys the same meaning
 - Imprecise but not misleading statements
 - Reasonable educational simplifications appropriate for the age group
+- Partial dates — if the lesson gives a year only (e.g. "born in 1756"), do not flag the absence of a full birth date. The year is sufficient.
 
 This is an educational lesson for children — a reasonable level of simplification is expected and acceptable. Only raise an issue if a student would learn something genuinely incorrect.
 
