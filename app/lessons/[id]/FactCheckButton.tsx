@@ -16,7 +16,13 @@ interface Change {
   hunkNumber: number
   originalText: string
   correctedText: string
-  correctedQuestions: { index: number; answer: string }[]
+  correctedQuestions: { index: number; question?: string; answer?: string }[]
+}
+
+interface CitationChange {
+  index: number
+  originalCitation: string
+  citation: string
 }
 
 type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'verifying'
@@ -25,6 +31,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
   const [stage, setStage] = useState<Stage>('idle')
   const [result, setResult] = useState<FactCheckResult | null>(null)
   const [changes, setChanges] = useState<Change[]>([])
+  const [citationChanges, setCitationChanges] = useState<CitationChange[]>([])
   const [error, setError] = useState('')
   const [autoStage, setAutoStage] = useState<'checking' | 'done' | 'error' | null>(null)
   const [autoSummary, setAutoSummary] = useState('')
@@ -102,6 +109,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         return
       }
       setChanges(data.changes ?? [])
+      setCitationChanges(data.correctedCitations ?? [])
       setStage('preview')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -116,7 +124,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
       const saveRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: true, correctedHunks: changes }),
+        body: JSON.stringify({ confirm: true, correctedHunks: changes, correctedCitations: citationChanges }),
       })
       if (!saveRes.ok) {
         const errData = await saveRes.json().catch(() => ({}))
@@ -130,6 +138,7 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
       if (!checkRes.ok) throw new Error(checkData.error ?? 'Fact check failed after save')
       setResult(checkData)
       setChanges([])
+      setCitationChanges([])
       setError('')
       setStage('results')
     } catch (e) {
@@ -262,17 +271,45 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
                     </div>
                     {c.correctedQuestions.length > 0 && c.correctedQuestions.map(q => (
                       <div key={q.index}>
-                        <p className="text-xs font-semibold text-green-600 mb-1">Question {q.index + 1} answer corrected:</p>
-                        <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3">{q.answer}</p>
+                        {q.question && (
+                          <>
+                            <p className="text-xs font-semibold text-green-600 mb-1">Question {q.index + 1} text corrected:</p>
+                            <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3">{q.question}</p>
+                          </>
+                        )}
+                        {q.answer && (
+                          <>
+                            <p className="text-xs font-semibold text-green-600 mb-1">Question {q.index + 1} answer corrected:</p>
+                            <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3">{q.answer}</p>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
               ))}
 
+              {citationChanges.length > 0 && (
+                <div className="border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wide">Citations</p>
+                  </div>
+                  <div className="p-4 space-y-4">
+                    {citationChanges.map(cc => (
+                      <div key={cc.index}>
+                        <p className="text-xs font-semibold text-red-600 mb-1">Citation {cc.index + 1} — Original:</p>
+                        <p className="text-sm text-gray-600 bg-red-50 rounded-lg p-3 leading-relaxed">{cc.originalCitation}</p>
+                        <p className="text-xs font-semibold text-green-600 mt-2 mb-1">Corrected:</p>
+                        <p className="text-sm text-gray-800 bg-green-50 rounded-lg p-3 leading-relaxed">{cc.citation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {error && <p className="text-sm text-red-600">{error}</p>}
 
-              {changes.length > 0 && (
+              {(changes.length > 0 || citationChanges.length > 0) && (
                 <button onClick={confirmFixes} className="w-full bg-green-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-green-700 transition-colors">
                   ✓ Confirm & Save — Fact Check Will Re-run Automatically
                 </button>
