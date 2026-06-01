@@ -209,7 +209,7 @@ export async function POST(request: Request) {
     if (!xmlContent) return NextResponse.json({ error: 'No document content received' }, { status: 400 })
 
     // DOCX: XML was already extracted in the browser — parse directly (images skipped for now)
-    const paras = extractTextParagraphs(xml)
+    const paras = extractTextParagraphs(xmlContent)
     const annotatedText = formatParagraphsForClaude(paras)
 
     const result = await askClaude([
