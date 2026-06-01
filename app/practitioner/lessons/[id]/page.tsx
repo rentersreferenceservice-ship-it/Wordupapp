@@ -8,6 +8,7 @@ import DeleteButton from '@/app/lessons/[id]/DeleteButton'
 import EditTypesButton from '@/app/lessons/[id]/EditTypesButton'
 import FactCheckButton from '@/app/lessons/[id]/FactCheckButton'
 import VerifyToggle from '@/app/lessons/[id]/VerifyToggle'
+import TranslateButton from '@/app/lessons/[id]/TranslateButton'
 import { generateQRDataUrl } from '@/lib/qrcode'
 
 export const dynamic = 'force-dynamic'
@@ -54,6 +55,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
         </div>
         <div className="flex gap-3">
           <PrintButton />
+          <TranslateButton lessonId={id} />
           <a
             href="mailto:wordups2c@gmail.com"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"

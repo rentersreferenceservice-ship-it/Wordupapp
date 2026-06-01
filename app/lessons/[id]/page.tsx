@@ -8,6 +8,7 @@ import EditTypesButton from './EditTypesButton'
 import SuggestEditButton from './SuggestEditButton'
 import VerifyToggle from './VerifyToggle'
 import FactCheckButton from './FactCheckButton'
+import TranslateButton from './TranslateButton'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
@@ -169,6 +170,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         <div className="flex gap-3 flex-wrap justify-end">
           <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
           <PrintButton />
+          <TranslateButton lessonId={id} />
           <a
             href="mailto:wordups2c@gmail.com"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
