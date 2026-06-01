@@ -71,9 +71,18 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
     try {
       const form = new FormData()
       form.append('file', file)
-      const res = await fetch('/api/parse-lesson', { method: 'POST', body: form })
+      let res: Response
+      try {
+        res = await fetch('/api/parse-lesson', { method: 'POST', body: form })
+      } catch (networkErr) {
+        throw new Error(`Network error — could not reach server. File: ${file.name} (${Math.round(file.size / 1024)}KB). ${networkErr instanceof Error ? networkErr.message : ''}`)
+      }
+      if (!res.ok) {
+        let errMsg = `Server error ${res.status}`
+        try { const d = await res.json(); errMsg = d.error || errMsg } catch { /* ignore */ }
+        throw new Error(errMsg)
+      }
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Parse failed')
 
       setTitle(data.title || '')
       setHunks(data.hunks || [])
