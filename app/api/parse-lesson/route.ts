@@ -189,6 +189,10 @@ async function askClaude(
   }
 }
 
+export async function GET() {
+  return Response.json({ ok: true, message: 'parse-lesson route is reachable' })
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData()
