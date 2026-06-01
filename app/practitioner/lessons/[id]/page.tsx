@@ -21,8 +21,9 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   'OPEN': 'text-pink-500',
 }
 
-export default async function PractitionerLessonPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PractitionerLessonPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ autocheck?: string }> }) {
   const { id } = await params
+  const { autocheck } = await searchParams
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/get-started')
 
@@ -60,7 +61,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           >
             Contact
           </a>
-          {isAdmin && <FactCheckButton lessonId={id} />}
+          {isAdmin && <FactCheckButton lessonId={id} autoCheck={autocheck === '1'} />}
           {isAdmin && <VerifyToggle lessonId={id} initialVerified={lesson.verified ?? false} />}
           <EditTypesButton lessonId={id} initialHunks={lesson.hunks} />
           {isAdmin && <DeleteButton redirectTo="/practitioner/library" />}

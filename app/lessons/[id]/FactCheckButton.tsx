@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 interface FactCheckResult {
@@ -20,12 +20,69 @@ interface Change {
 }
 
 type Stage = 'idle' | 'checking' | 'results' | 'applying' | 'preview' | 'saving' | 'done'
+type AutoStage = 'checking' | 'fixing' | 'saving' | 'done' | 'error'
 
-export default function FactCheckButton({ lessonId }: { lessonId: string }) {
+export default function FactCheckButton({ lessonId, autoCheck }: { lessonId: string; autoCheck?: boolean }) {
   const [stage, setStage] = useState<Stage>('idle')
   const [result, setResult] = useState<FactCheckResult | null>(null)
   const [changes, setChanges] = useState<Change[]>([])
   const [error, setError] = useState('')
+  const [autoStage, setAutoStage] = useState<AutoStage | null>(null)
+  const [autoSummary, setAutoSummary] = useState('')
+
+  useEffect(() => {
+    if (autoCheck) runAutoCheck()
+  }, [])
+
+  async function runAutoCheck() {
+    setAutoStage('checking')
+    try {
+      const checkRes = await fetch(`/api/lessons/${lessonId}/factcheck`, { method: 'POST' })
+      const checkData = await checkRes.json()
+      if (!checkRes.ok) throw new Error(checkData.error ?? 'Fact check failed')
+
+      if (checkData.perplexityClean) {
+        setAutoSummary(checkData.autoVerified
+          ? '✓ Perplexity and Claude Opus found no issues — lesson auto-verified.'
+          : '✓ Perplexity found no issues. Claude Opus has advisory notes below — run Fact Check to view them.'
+        )
+        setAutoStage('done')
+        return
+      }
+
+      // Perplexity found issues — auto-fix
+      setAutoStage('fixing')
+      const issues = [
+        !checkData.perplexityClean ? checkData.perplexity : '',
+        !checkData.geminiClean && !checkData.geminiUnavailable ? checkData.gemini : '',
+      ].filter(Boolean).join('\n\n')
+
+      const fixRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issues }),
+      })
+      const fixData = await fixRes.json()
+      if (!fixRes.ok) throw new Error(fixData.error ?? 'Could not generate fixes')
+
+      setAutoStage('saving')
+      const saveRes = await fetch(`/api/lessons/${lessonId}/apply-fixes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true, correctedHunks: fixData.changes }),
+      })
+      if (!saveRes.ok) {
+        const saveData = await saveRes.json().catch(() => ({}))
+        throw new Error(saveData.error ?? 'Could not save fixes')
+      }
+
+      setAutoSummary(`⚠️ Perplexity found issues — corrections were applied automatically. Please review the lesson carefully before verifying.`)
+      setAutoStage('done')
+    } catch (e) {
+      setAutoSummary(e instanceof Error ? e.message : 'Auto-check failed')
+      setAutoStage('error')
+    }
+  }
 
   async function runCheck() {
     setStage('checking')
@@ -230,16 +287,38 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
     document.body
   )
 
+  const autoBanner = autoStage && typeof document !== 'undefined' && createPortal(
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4">
+      <div className={`rounded-xl shadow-xl px-5 py-4 text-sm font-medium flex items-center gap-3 ${
+        autoStage === 'error' ? 'bg-red-600 text-white' :
+        autoStage === 'done' ? 'bg-gray-900 text-white' :
+        'bg-blue-700 text-white'
+      }`}>
+        <span className="flex-1">
+          {autoStage === 'checking' && '⏳ Checking with Perplexity and Claude Opus…'}
+          {autoStage === 'fixing' && '⚙️ Issues found — applying corrections automatically…'}
+          {autoStage === 'saving' && '💾 Saving corrections…'}
+          {(autoStage === 'done' || autoStage === 'error') && autoSummary}
+        </span>
+        {(autoStage === 'done' || autoStage === 'error') && (
+          <button onClick={() => setAutoStage(null)} className="shrink-0 opacity-70 hover:opacity-100 text-lg leading-none">✕</button>
+        )}
+      </div>
+    </div>,
+    document.body
+  )
+
   return (
     <>
       <button
         onClick={runCheck}
-        disabled={stage === 'checking'}
+        disabled={stage === 'checking' || !!autoStage && autoStage !== 'done' && autoStage !== 'error'}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-60"
       >
         {stage === 'checking' ? '⏳ Checking…' : '🔍 Fact Check'}
       </button>
       {modal}
+      {autoBanner}
     </>
   )
 }
