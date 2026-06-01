@@ -16,15 +16,29 @@ function buildPrompt(lesson: Lesson): string {
 
   return `You are a fact-checker reviewing an educational lesson for children and teens with complex communication needs (Spelling to Communicate / AAC users).
 
-Review the lesson titled "${lesson.title}" for factual accuracy. Check all facts, dates, names, statistics, and scientific claims.
+Review the lesson titled "${lesson.title}" for factual accuracy.
 
-If ALL information is accurate, respond with exactly this on the first line:
+IMPORTANT — only flag issues that are clearly and materially wrong:
+- Incorrect numbers, dates, or statistics
+- Wrong names, locations, or attributions
+- Definitions or claims that are factually opposite to the truth
+- Fabricated or unverifiable citations
+
+Do NOT flag:
+- Minor simplifications or generalisations that are essentially correct
+- Different phrasing that conveys the same meaning
+- Imprecise but not misleading statements
+- Reasonable educational simplifications appropriate for the age group
+
+This is an educational lesson for children — a reasonable level of simplification is expected and acceptable. Only raise an issue if a student would learn something genuinely incorrect.
+
+If ALL information is accurate (or only contains acceptable simplifications), respond with exactly this on the first line:
 VERIFIED: No issues found.
 
-If there are ANY inaccuracies, outdated information, or unsupported claims, respond with exactly this on the first line, then list each issue:
+If there are clearly and materially wrong facts, respond with exactly this on the first line, then list each issue with the specific correction:
 ISSUES FOUND:
-- [specific issue and correction]
-- [specific issue and correction]
+- [specific issue and the correct fact to use instead]
+- [specific issue and the correct fact to use instead]
 
 LESSON CONTENT:
 ${hunkTexts}
