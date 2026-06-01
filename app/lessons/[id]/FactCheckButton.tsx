@@ -124,6 +124,11 @@ export default function FactCheckButton({ lessonId }: { lessonId: string }) {
         const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error ?? `HTTP ${res.status}`)
         throw new Error(msg)
       }
+      if (!data.changes || data.changes.length === 0) {
+        setError("Opus has no specific corrections to apply — its notes are advisory only. Edit the lesson manually if needed.")
+        setStage('results')
+        return
+      }
       setChanges(data.changes)
       setStage('preview')
     } catch (e) {
