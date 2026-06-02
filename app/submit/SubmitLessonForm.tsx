@@ -84,8 +84,14 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
         const xmlContent = await xmlFile.async('string')
 
         // Extract relationship map and images from the ZIP
-        const relsFile = zip.file('word/_rels/document.xml.rels')
+        const zipEntries = Object.keys(zip.files)
+        const relsPath = zipEntries.find(f =>
+          f.toLowerCase() === 'word/_rels/document.xml.rels' ||
+          f.toLowerCase().endsWith('/word/_rels/document.xml.rels')
+        ) ?? 'word/_rels/document.xml.rels'
+        const relsFile = zip.file(relsPath)
         const relsXml = relsFile ? await relsFile.async('string') : ''
+        const mediaEntries = zipEntries.filter(f => f.toLowerCase().includes('media'))
         const images: Array<{ rId: string; fileName: string; base64Data: string }> = []
         if (relsXml) {
           const relRegex = /<Relationship\s[^>]+>/g
@@ -99,8 +105,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
               const rId = idMatch[1]
               const target = targetMatch[1]
               const fileName = target.split('/').pop() || 'image.png'
-              const zipEntries = Object.keys(zip.files)
-              const mediaPath = zipEntries.find(f => f.endsWith(fileName)) ?? `word/${target}`
+              const mediaPath = mediaEntries.find(f => f.endsWith(fileName)) ?? `word/${target}`
               const imgFile = zip.file(mediaPath)
               if (imgFile) {
                 const base64Data = await imgFile.async('base64')
