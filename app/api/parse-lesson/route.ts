@@ -17,6 +17,7 @@ JSON format:
     {
       "number": 1,
       "text": "passage body text",
+      "imageIndex": 0,
       "questions": [
         { "type": "KNOWN", "question": "question text", "answer": "answer text or empty string" }
       ]
@@ -24,6 +25,8 @@ JSON format:
   ],
   "citations": ["citation 1", "citation 2"]
 }
+
+imageIndex: If a hunk's body text is immediately preceded by an [IMAGE:N] marker in the input, set "imageIndex" to N (the integer). Omit "imageIndex" entirely if no image precedes that hunk.
 
 For author: look for a line like "By [Name]", "Written by [Name]", or a standalone author name near the title. If not found, return an empty string.
 
@@ -40,6 +43,8 @@ Color hints from Word documents (supporting evidence only):
 green=KNOWN, orange=SEMI-OPEN, purple=MATH, blue=PRIOR KNOWLEDGE, pink=OPEN, red=VAKT
 
 Uncolored text before the questions = hunk body text. Uncolored text right after a question = its answer.
+
+For VAKT questions: also add a "youtubeQuery" field — a 2-4 word YouTube search term for a short video relevant to the movement or sensory activity (e.g. "jumping jacks exercise", "deep breathing kids", "yoga stretch children"). Also add a "youtubeDescription" field: one short sentence under 10 words describing what students will watch (e.g. "Watch a guided stretching exercise").
 
 For citations: Find every entry in any section headed References, Sources, Bibliography, Works Cited, or similar. Include ALL entries — do not omit any. Strip only the leading number or bullet (e.g. "1. Smith..." → "Smith..."). If no references section exists, return an empty array.`
 
@@ -137,39 +142,50 @@ async function uploadImage(buffer: Buffer, originalFilename: string): Promise<st
   return data.publicUrl
 }
 
-function formatParagraphsForClaude(paras: RawParagraph[]): string {
-  return paras.map(p => {
-    if (p.color && p.color !== '000000' && p.color !== 'auto') {
-      return `[color:#${p.color}] ${p.text}`
-    }
-    return p.text
-  }).join('\n')
-}
-
-// Build map: first 30 chars of a text paragraph → the image URL that immediately precedes it in the XML
-function buildTextToImageUrlMap(
-  embeds: Array<{ pos: number; rId: string }>,
+function formatParagraphsForClaude(
   paras: RawParagraph[],
+  embeds: Array<{ pos: number; rId: string }>,
   rIdToUrl: Map<string, string>
-): Map<string, string> {
-  const map = new Map<string, string>()
+): { annotatedText: string; imageUrls: string[] } {
+  // Build ordered list of image URLs (only those that uploaded successfully)
+  const imageUrls: string[] = []
+  // Map: paragraph pos → image index to inject before it
+  const posToImageIndex = new Map<number, number>()
+
   for (const embed of embeds) {
     const url = rIdToUrl.get(embed.rId)
     if (!url) continue
-    // Find the first text paragraph that appears AFTER this image in the XML
+    const idx = imageUrls.length
+    imageUrls.push(url)
+    // Find the first text paragraph AFTER this embed position
     const nextPara = paras.find(p => p.pos > embed.pos)
     if (nextPara) {
-      const key = nextPara.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
-      map.set(key, url)
-      console.log(`parse-lesson: image mapped to paragraph starting "${key.substring(0, 20)}…"`)
+      posToImageIndex.set(nextPara.pos, idx)
+      console.log(`parse-lesson: [IMAGE:${idx}] will appear before para at pos ${nextPara.pos}`)
     }
   }
-  return map
+
+  const lines: string[] = []
+  for (const p of paras) {
+    const imgIdx = posToImageIndex.get(p.pos)
+    if (imgIdx !== undefined) {
+      lines.push(`[IMAGE:${imgIdx}]`)
+    }
+    if (p.color && p.color !== '000000' && p.color !== 'auto') {
+      lines.push(`[color:#${p.color}] ${p.text}`)
+    } else {
+      lines.push(p.text)
+    }
+  }
+
+  return { annotatedText: lines.join('\n'), imageUrls }
 }
+
+type HunkWithIndex = Hunk & { imageIndex?: number }
 
 async function askClaude(
   userContent: Parameters<Anthropic['messages']['create']>[0]['messages'][0]['content']
-): Promise<{ title: string; author: string; hunks: Hunk[]; citations: string[] }> {
+): Promise<{ title: string; author: string; hunks: HunkWithIndex[]; citations: string[] }> {
   const client = new Anthropic()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const message = await (client.messages.create as any)({
@@ -187,7 +203,7 @@ async function askClaude(
   return {
     title: json.title ?? '',
     author: json.author ?? '',
-    hunks: (json.hunks ?? []).map((h: Hunk, i: number) => ({ ...h, number: i + 1 })),
+    hunks: (json.hunks ?? []).map((h: HunkWithIndex, i: number) => ({ ...h, number: i + 1 })),
     citations: json.citations ?? [],
   }
 }
@@ -228,23 +244,22 @@ export async function POST(request: Request) {
       }
     }
 
-    // Parse XML and map images to hunks
+    // Parse XML and build annotated text with [IMAGE:N] markers
     const paras = extractTextParagraphs(xmlContent)
     const embeds = extractImageEmbeds(xmlContent)
-    const textToImageUrl = buildTextToImageUrlMap(embeds, paras, rIdToUrl)
-    const annotatedText = formatParagraphsForClaude(paras)
+    const { annotatedText, imageUrls } = formatParagraphsForClaude(paras, embeds, rIdToUrl)
 
     const result = await askClaude([
       {
         type: 'text',
-        text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored questions. All other lines are body text or answers.\n\n${annotatedText}`,
+        text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored questions. Lines that say [IMAGE:N] indicate an image immediately precedes the next hunk — include "imageIndex": N in that hunk. All other lines are body text or answers.\n\n${annotatedText}`,
       },
     ])
 
     const hunks = result.hunks.map(hunk => {
-      const key = hunk.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
-      const url = textToImageUrl.get(key)
-      return url ? { ...hunk, imageUrl: url } : hunk
+      const { imageIndex, ...rest } = hunk
+      const url = imageIndex !== undefined ? imageUrls[imageIndex] : undefined
+      return url ? { ...rest, imageUrl: url } : rest
     })
 
     return NextResponse.json({ title: result.title, author: result.author, hunks, citations: result.citations })
