@@ -7,6 +7,7 @@ import {
   incrementLessons,
   MONTHLY_LIMIT,
   FREE_LESSON_LIMIT,
+  getFreeActionsUsed,
 } from '@/lib/usageStore'
 import { getSupabase } from '@/lib/supabase'
 
@@ -55,7 +56,9 @@ export async function POST(request: NextRequest) {
     const usage = await getUserUsage(userId)
 
     if (!isAdmin && !usage.isSubscribed) {
-      return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
+      if (getFreeActionsUsed(usage.lessonsThisMonth, usage.printsThisMonth) >= FREE_LESSON_LIMIT) {
+        return Response.json({ error: 'SUBSCRIBE_REQUIRED' }, { status: 403 })
+      }
     }
     if (!isAdmin && usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) {
       return Response.json({ error: 'LESSON_LIMIT_REACHED' }, { status: 403 })

@@ -13,6 +13,12 @@ function getMonthKey() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 }
 
+// Free users: actions = lessons + max(0, prints - lessons). Limit = FREE_LESSON_LIMIT.
+// Each lesson generated includes one free print; extra prints beyond lesson count cost an action.
+export function getFreeActionsUsed(lessons: number, prints: number): number {
+  return lessons + Math.max(0, prints - lessons)
+}
+
 export async function getUserUsage(userId: string): Promise<UserUsage> {
   const monthKey = getMonthKey()
   const [{ data }, codeAccess] = await Promise.all([
@@ -20,7 +26,11 @@ export async function getUserUsage(userId: string): Promise<UserUsage> {
     hasActiveRedemption(userId),
   ])
   const isSubscribed = (data?.is_subscribed ?? false) || codeAccess
-  if (!data || data.month_key !== monthKey) {
+  if (!data) {
+    return { lessonsThisMonth: 0, printsThisMonth: 0, monthKey, isSubscribed }
+  }
+  // Only reset monthly counts for subscribers; free users keep lifetime totals
+  if (isSubscribed && data.month_key !== monthKey) {
     return { lessonsThisMonth: 0, printsThisMonth: 0, monthKey, isSubscribed }
   }
   return {
@@ -34,26 +44,28 @@ export async function getUserUsage(userId: string): Promise<UserUsage> {
 export async function incrementLessons(userId: string): Promise<void> {
   const monthKey = getMonthKey()
   const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
-  const isNewMonth = !data || data.month_key !== monthKey
+  const isSubscribed = data?.is_subscribed ?? false
+  const isNewMonth = isSubscribed && (!data || data.month_key !== monthKey)
   await getSupabase().from('user_usage').upsert({
     user_id: userId,
-    lessons_this_month: isNewMonth ? 1 : data.lessons_this_month + 1,
-    prints_this_month: isNewMonth ? 0 : data.prints_this_month,
+    lessons_this_month: isNewMonth ? 1 : (data?.lessons_this_month ?? 0) + 1,
+    prints_this_month: isNewMonth ? 0 : (data?.prints_this_month ?? 0),
     month_key: monthKey,
-    is_subscribed: data?.is_subscribed ?? false,
+    is_subscribed: isSubscribed,
   })
 }
 
 export async function incrementPrints(userId: string): Promise<void> {
   const monthKey = getMonthKey()
   const { data } = await getSupabase().from('user_usage').select('*').eq('user_id', userId).single()
-  const isNewMonth = !data || data.month_key !== monthKey
+  const isSubscribed = data?.is_subscribed ?? false
+  const isNewMonth = isSubscribed && (!data || data.month_key !== monthKey)
   await getSupabase().from('user_usage').upsert({
     user_id: userId,
-    lessons_this_month: isNewMonth ? 0 : data.lessons_this_month,
-    prints_this_month: isNewMonth ? 1 : data.prints_this_month + 1,
+    lessons_this_month: isNewMonth ? 0 : (data?.lessons_this_month ?? 0),
+    prints_this_month: isNewMonth ? 1 : (data?.prints_this_month ?? 0) + 1,
     month_key: monthKey,
-    is_subscribed: data?.is_subscribed ?? false,
+    is_subscribed: isSubscribed,
   })
 }
 

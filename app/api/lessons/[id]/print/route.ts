@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import type { QuestionType } from '@/lib/types'
 import { auth } from '@clerk/nextjs/server'
-import { getUserUsage, incrementPrints, MONTHLY_LIMIT, FREE_LESSON_LIMIT, getVerifiedEmailUsage } from '@/lib/usageStore'
+import { getUserUsage, incrementPrints, MONTHLY_LIMIT, FREE_LESSON_LIMIT, getFreeActionsUsed, getVerifiedEmailUsage } from '@/lib/usageStore'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
@@ -30,8 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   } else {
     const usage = await getUserUsage(userId)
     const isAdmin = userId === ADMIN_USER_ID
-    const isFreeUser = !usage.isSubscribed && usage.lessonsThisMonth <= FREE_LESSON_LIMIT
-    if (!isAdmin && !usage.isSubscribed && !isFreeUser) return new Response('Subscription required', { status: 403 })
+    if (!isAdmin && !usage.isSubscribed && getFreeActionsUsed(usage.lessonsThisMonth, usage.printsThisMonth) >= FREE_LESSON_LIMIT) return new Response('Subscription required', { status: 403 })
     if (!isAdmin && usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) return new Response('Monthly print limit reached', { status: 403 })
     if (!isAdmin) await incrementPrints(userId)
   }
