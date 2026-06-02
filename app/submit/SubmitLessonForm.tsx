@@ -4,6 +4,27 @@ import { useState } from 'react'
 import JSZip from 'jszip'
 import type { Hunk, Question, QuestionType } from '@/lib/types'
 
+function compressImage(base64Data: string, ext: string): Promise<string> {
+  return new Promise((resolve) => {
+    const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'png' ? 'image/png' : 'image/jpeg'
+    const img = new Image()
+    img.onload = () => {
+      const MAX = 800
+      let { width, height } = img
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX }
+        else { width = Math.round(width * MAX / height); height = MAX }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width; canvas.height = height
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', 0.82).split(',')[1])
+    }
+    img.onerror = () => resolve(base64Data) // fallback: send original
+    img.src = `data:${mimeType};base64,${base64Data}`
+  })
+}
+
 function InsertButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="flex items-center gap-2 my-1 group">
@@ -108,8 +129,10 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
               const mediaPath = mediaEntries.find(f => f.endsWith(fileName)) ?? `word/${target}`
               const imgFile = zip.file(mediaPath)
               if (imgFile) {
-                const base64Data = await imgFile.async('base64')
-                images.push({ rId, fileName, base64Data })
+                const raw = await imgFile.async('base64')
+                const ext = fileName.split('.').pop()?.toLowerCase() ?? 'png'
+                const base64Data = await compressImage(raw, ext)
+                images.push({ rId, fileName: fileName.replace(/\.[^.]+$/, '.jpg'), base64Data })
               }
             }
           }
