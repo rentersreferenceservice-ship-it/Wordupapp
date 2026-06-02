@@ -82,7 +82,35 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
         const xmlFile = zip.file('word/document.xml')
         if (!xmlFile) throw new Error('Invalid DOCX — could not find document.xml inside the file.')
         const xmlContent = await xmlFile.async('string')
-        body = { fileName: file.name, xmlContent, isPdf: false }
+
+        // Extract relationship map and images from the ZIP
+        const relsFile = zip.file('word/_rels/document.xml.rels')
+        const relsXml = relsFile ? await relsFile.async('string') : ''
+        const images: Array<{ rId: string; fileName: string; base64Data: string }> = []
+        if (relsXml) {
+          const relRegex = /<Relationship\s[^>]+>/g
+          let m
+          while ((m = relRegex.exec(relsXml)) !== null) {
+            const el = m[0]
+            const idMatch = el.match(/\bId="([^"]+)"/)
+            const targetMatch = el.match(/\bTarget="([^"]+)"/)
+            const typeMatch = el.match(/\bType="([^"]+)"/)
+            if (idMatch && targetMatch && typeMatch && typeMatch[1].includes('/image')) {
+              const rId = idMatch[1]
+              const target = targetMatch[1]
+              const fileName = target.split('/').pop() || 'image.png'
+              const zipEntries = Object.keys(zip.files)
+              const mediaPath = zipEntries.find(f => f.endsWith(fileName)) ?? `word/${target}`
+              const imgFile = zip.file(mediaPath)
+              if (imgFile) {
+                const base64Data = await imgFile.async('base64')
+                images.push({ rId, fileName, base64Data })
+              }
+            }
+          }
+        }
+
+        body = { fileName: file.name, xmlContent, relsXml, images, isPdf: false }
       }
 
       let res: Response

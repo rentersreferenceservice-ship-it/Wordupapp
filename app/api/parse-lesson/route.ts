@@ -198,8 +198,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as { fileName: string; isPdf: boolean; fileData?: string; xmlContent?: string }
-    const { fileName, isPdf, fileData, xmlContent } = body
+    const body = await request.json() as {
+      fileName: string
+      isPdf: boolean
+      fileData?: string
+      xmlContent?: string
+      images?: Array<{ rId: string; fileName: string; base64Data: string }>
+    }
+    const { fileName, isPdf, fileData, xmlContent, images } = body
     if (!fileName) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
     if (isPdf && fileData) {
@@ -212,8 +218,20 @@ export async function POST(request: Request) {
 
     if (!xmlContent) return NextResponse.json({ error: 'No document content received' }, { status: 400 })
 
-    // DOCX: XML was already extracted in the browser — parse directly (images skipped for now)
+    // Upload images and build rId → URL map
+    const rIdToUrl = new Map<string, string>()
+    if (Array.isArray(images)) {
+      for (const img of images) {
+        const buf = Buffer.from(img.base64Data, 'base64')
+        const url = await uploadImage(buf, img.fileName)
+        if (url) rIdToUrl.set(img.rId, url)
+      }
+    }
+
+    // Parse XML and map images to hunks
     const paras = extractTextParagraphs(xmlContent)
+    const embeds = extractImageEmbeds(xmlContent)
+    const textToImageUrl = buildTextToImageUrlMap(embeds, paras, rIdToUrl)
     const annotatedText = formatParagraphsForClaude(paras)
 
     const result = await askClaude([
@@ -224,7 +242,9 @@ export async function POST(request: Request) {
     ])
 
     const hunks = result.hunks.map(hunk => {
-      return hunk
+      const key = hunk.text.substring(0, 30).toLowerCase().replace(/\s+/g, ' ').trim()
+      const url = textToImageUrl.get(key)
+      return url ? { ...hunk, imageUrl: url } : hunk
     })
 
     return NextResponse.json({ title: result.title, author: result.author, hunks, citations: result.citations })
