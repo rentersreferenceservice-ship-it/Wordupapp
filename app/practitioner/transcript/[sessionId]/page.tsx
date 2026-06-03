@@ -402,8 +402,8 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
                   <p className="text-xs font-semibold text-gray-400 mb-1">Hunk {n}</p>
-                  {lessonHunk?.writingPrompt && (
-                    <p className="text-xs text-pink-600 italic mb-2">{lessonHunk.writingPrompt}</p>
+                  {(lessonHunk?.writingPrompt || (writingRecord?.questionText && writingRecord.questionText !== 'Writing Prompt')) && (
+                    <p className="text-xs text-pink-600 italic mb-2">{lessonHunk?.writingPrompt ?? writingRecord?.questionText}</p>
                   )}
                   {response
                     ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>

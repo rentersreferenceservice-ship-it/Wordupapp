@@ -286,8 +286,8 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
               {(hunkPrompts[Number(hunkNum)] || writingRecord?.capturedAnswer) && (
                 <div style={{marginTop:8,paddingTop:6,borderTop:'1px solid #fce7f3'}}>
                   <div style={{fontSize:'8pt',fontWeight:'bold',color:'#ec4899',textTransform:'uppercase',marginBottom:3}}>Writing Prompt</div>
-                  {hunkPrompts[Number(hunkNum)] && (
-                    <div style={{fontSize:'9pt',color:'#ec4899',fontStyle:'italic',marginBottom:4}}>{hunkPrompts[Number(hunkNum)]}</div>
+                  {(hunkPrompts[Number(hunkNum)] || (writingRecord?.questionText && writingRecord.questionText !== 'Writing Prompt')) && (
+                    <div style={{fontSize:'9pt',color:'#ec4899',fontStyle:'italic',marginBottom:4}}>{hunkPrompts[Number(hunkNum)] ?? writingRecord?.questionText}</div>
                   )}
                   {writingRecord?.capturedAnswer
                     ? <div style={{fontSize:'10pt',color:'#333',whiteSpace:'pre-wrap'}}>{writingRecord.capturedAnswer}</div>

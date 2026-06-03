@@ -221,6 +221,12 @@ export default function EditTranscriptClient({
       if (hunk.writingPrompt) hunkPrompts[hunk.number] = hunk.writingPrompt
     }
   }
+  // Fall back to the questionText stored in the response record for submitted lessons without writingPrompt
+  for (const r of responses) {
+    if (r.questionType === 'WRITING_PROMPT' && r.hunkNumber && r.hunkNumber > 0 && !hunkPrompts[r.hunkNumber] && r.questionText && r.questionText !== 'Writing Prompt') {
+      hunkPrompts[r.hunkNumber] = r.questionText
+    }
+  }
 
   function buildPayload(invoiceOverride?: string) {
     const out: object[] = [
@@ -676,9 +682,9 @@ export default function EditTranscriptClient({
           {/* Writing Prompt */}
           <div className="mt-4 pt-3 border-t border-pink-100">
             <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-            {hunkPrompts[Number(hunkNum)] && (
+            {hunkPrompts[Number(hunkNum)] ? (
               <p className="text-xs text-pink-600 italic mb-2">{hunkPrompts[Number(hunkNum)]}</p>
-            )}
+            ) : null}
             <textarea
               value={writingResponses[Number(hunkNum)] ?? ''}
               onChange={e => setWritingResponses(prev => ({ ...prev, [Number(hunkNum)]: e.target.value }))}
