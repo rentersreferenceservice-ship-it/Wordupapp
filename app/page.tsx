@@ -112,7 +112,7 @@ export default function HomePage() {
       if (!res.ok) {
         const data = await res.json()
         if (data.error === 'SUBSCRIBE_REQUIRED') {
-          setShowSubscribe(true)
+          router.push('/subscribe')
           return
         }
         if (data.error === 'LESSON_LIMIT_REACHED') {
@@ -285,7 +285,7 @@ export default function HomePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Your Email <span className="text-gray-400 font-normal">(required for free access)</span>
               </label>
-              <input
+              <inputWhat you do is have the
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}

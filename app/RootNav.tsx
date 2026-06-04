@@ -31,10 +31,18 @@ export default function RootNav() {
       )}
 
       {isSignedIn && (
-        <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border-2 border-gray-900">
-          <span className="text-sm font-medium">My Account</span>
-          <UserButton />
-        </div>
+        <>
+          <a
+            href="/subscribe"
+            className="bg-yellow-300 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold border-2 border-yellow-400 hover:bg-yellow-400 transition-colors"
+          >
+            Subscribe
+          </a>
+          <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border-2 border-gray-900">
+            <span className="text-sm font-medium">My Account</span>
+            <UserButton />
+          </div>
+        </>
       )}
     </div>
   )

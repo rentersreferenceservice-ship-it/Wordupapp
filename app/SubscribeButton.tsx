@@ -10,15 +10,11 @@ export default function SubscribeButton({ referral }: { referral?: string }) {
     setLoading(true)
     setError('')
     try {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 8000)
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ origin: window.location.origin, referral }),
-        signal: controller.signal,
       })
-      clearTimeout(timeout)
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
