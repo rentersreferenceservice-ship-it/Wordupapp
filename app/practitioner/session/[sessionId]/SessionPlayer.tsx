@@ -135,7 +135,6 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [invoiceMode, setInvoiceMode] = useState<'link' | 'generate'>(
     (savedInvoice?.capturedAnswer ?? '').startsWith('/practitioner/invoice/') ? 'generate' : 'link'
   )
-  const [invoiceAmount, setInvoiceAmount] = useState('')
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
 
@@ -297,7 +296,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       const invoiceRes = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
+        body: JSON.stringify({ sessionId }),
       })
       const invoiceData = await invoiceRes.json()
       if (!invoiceRes.ok) {
@@ -544,25 +543,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       <button type="button" onClick={() => setSessionInvoice('')} className="text-xs text-gray-400 hover:text-gray-600">Remove</button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={invoiceAmount}
-                        onChange={e => setInvoiceAmount(e.target.value)}
-                        placeholder="Use default rate"
-                        className="w-32 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleGenerateInvoice}
-                        disabled={generatingInvoice}
-                        className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
-                      >
-                        {generatingInvoice ? 'Creating…' : 'Create Invoice'}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleGenerateInvoice}
+                      disabled={generatingInvoice}
+                      className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+                    >
+                      {generatingInvoice ? 'Creating…' : 'Create Invoice'}
+                    </button>
                   )}
                   {invoiceError && <p className="text-xs text-red-600 mt-1">{invoiceError}</p>}
                 </div>
