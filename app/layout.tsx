@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider signInForceRedirectUrl="/practitioner/dashboard" signUpForceRedirectUrl="/practitioner/dashboard">
+    <ClerkProvider signInForceRedirectUrl="/" signUpForceRedirectUrl="/subscribe">
       <html lang="en" className="h-full">
         <body className="min-h-full flex flex-col bg-white">
           <BackgroundText />

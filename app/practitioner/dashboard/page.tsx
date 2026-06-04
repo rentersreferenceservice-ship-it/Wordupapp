@@ -1,6 +1,6 @@
 ﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudents, getSessions } from '@/lib/practitionerStore'
+import { getStudents, getSessions, getPractitionerSubscription } from '@/lib/practitionerStore'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
@@ -12,6 +12,9 @@ export const dynamic = 'force-dynamic'
 export default async function PractitionerDashboard() {
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/get-started')
+
+  const subscription = await getPractitionerSubscription(userId)
+  if (!subscription?.isActive) redirect('/')
 
   const [students, sessions] = await Promise.all([
     getStudents(userId),
