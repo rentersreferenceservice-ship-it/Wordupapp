@@ -29,10 +29,11 @@ export default async function AdminSubscribersPage() {
           stripeCustomerId: row.stripe_customer_id ?? null,
           updatedAt: (row.updated_at ?? row.created_at ?? null) as string | null,
         }
-      } catch {
+      } catch (e) {
+        console.error('Clerk lookup failed for', row.user_id, e)
         return {
           userId: row.user_id,
-          name: '(unknown)',
+          name: '(Clerk lookup failed)',
           email: '—',
           stripeCustomerId: row.stripe_customer_id ?? null,
           updatedAt: (row.updated_at ?? row.created_at ?? null) as string | null,
@@ -63,7 +64,10 @@ export default async function AdminSubscribersPage() {
               <tbody className="divide-y divide-gray-100">
                 {subscribers.map(sub => (
                   <tr key={sub.userId} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-900">{sub.name}</td>
+                    <td className="px-5 py-3 font-medium text-gray-900">
+                      {sub.name}
+                      <div className="text-xs font-normal text-gray-400 font-mono">{sub.userId}</div>
+                    </td>
                     <td className="px-5 py-3 text-gray-700">{sub.email}</td>
                     <td className="px-5 py-3 text-gray-500 font-mono text-xs">
                       {sub.stripeCustomerId ? (
