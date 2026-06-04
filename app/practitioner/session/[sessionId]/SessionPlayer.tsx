@@ -93,8 +93,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       const hunkSkipped = initialResponses.some(r => r.hunkNumber === hunkNum && r.questionType === 'HUNK_SKIPPED')
       return {
         keywords: extractKeywords(hunk.text).map(k => {
+          if (hunkSkipped) return { keyword: k, misspokeCount: 0, asked: false }
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
-          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: true }
+          return { keyword: k, misspokeCount: saved?.misspokeCount ?? 0, asked: saved?.capturedAnswer !== 'SKIPPED' }
         }),
         extraKeywords: savedExtras,
         writingResponse: writingSkipped ? '' : (writingRecord?.capturedAnswer ?? ''),
@@ -102,6 +103,10 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         writingSkipped,
         skipped: hunkSkipped,
         questions: hunk.questions.map(q => {
+          if (hunkSkipped) return {
+            questionText: q.question, questionType: q.type, expectedAnswer: q.answer ?? '',
+            capturedAnswer: '', misspokeCount: 0, completedAnswers: [], asked: false, spellerSentence: '',
+          }
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
           return {
             questionText: q.question,
@@ -112,7 +117,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             completedAnswers: saved && q.type === 'SEMI-OPEN'
               ? (saved.capturedAnswer ?? '').split(', ').filter(Boolean)
               : [],
-            asked: true,
+            asked: saved?.capturedAnswer !== 'NOT_ASKED',
             spellerSentence: saved?.spellerSentence ?? '',
           }
         }),

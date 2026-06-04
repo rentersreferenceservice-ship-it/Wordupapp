@@ -276,20 +276,10 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
 
   const sessionIds = sessions.map(s => s.id)
 
-  const { data: completedRecords } = await getSupabase()
-    .from('session_responses')
-    .select('session_id')
-    .in('session_id', sessionIds)
-    .eq('question_type', 'SESSION_COMPLETE')
-
-  const completedIds = new Set((completedRecords ?? []).map(r => r.session_id))
-  const completedSessions = sessions.filter(s => completedIds.has(s.id))
-  if (!completedSessions.length) return []
-
   const { data: responses } = await getSupabase()
     .from('session_responses')
     .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer')
-    .in('session_id', completedSessions.map(s => s.id))
+    .in('session_id', sessionIds)
     .in('question_type', ['KEYWORD', 'KNOWN'])
     .gt('hunk_number', 0)
 
@@ -300,7 +290,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     bySession[r.session_id].push(r as RawResponse)
   }
 
-  return completedSessions.flatMap(s => {
+  return sessions.flatMap(s => {
     const rs = bySession[s.id] ?? []
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
