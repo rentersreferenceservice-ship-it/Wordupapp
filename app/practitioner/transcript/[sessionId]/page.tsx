@@ -292,11 +292,15 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             seenKeywords.add(key)
             return true
           })
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'EXTRA_SPELLING' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
-          if (hunkKeywords.length === 0 && hunkQuestions.length === 0) return null
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'EXTRA_SPELLING' && r.questionType !== 'WRITING_PROMPT' && r.questionType !== 'HUNK_SKIPPED' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const hunkWasSkipped = items.some(r => r.questionType === 'HUNK_SKIPPED')
+          if (hunkKeywords.length === 0 && hunkQuestions.length === 0 && !hunkWasSkipped) return null
           return (
-            <div key={hunkNum} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
-              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunkNum}</h2>
+            <div key={hunkNum} className={`bg-white rounded-2xl shadow-sm border p-5 mb-4 print:shadow-none print:border print:rounded-lg print-card ${hunkWasSkipped ? 'border-gray-200 opacity-60' : 'border-gray-100'}`}>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide">Hunk {hunkNum}</h2>
+                {hunkWasSkipped && <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full uppercase tracking-wide">Skipped</span>}
+              </div>
 
               {hunkKeywords.length > 0 && (
                 <div className="mb-4">
@@ -385,25 +389,27 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           )
         })}
 
-        {/* Writing Responses — read-only display */}
-        {writingHunkNumbers.some(n => {
-          const wr = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-          return wr && wr.capturedAnswer !== 'SKIPPED'
-        }) && (
+        {/* Writing Responses — show for all hunks that have a writing prompt */}
+        {(lessonHunks.some(h => h.writingPrompt) || responses.some(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber != null && r.hunkNumber > 0)) && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Writing Responses</h2>
             {writingHunkNumbers.map(n => {
               const lessonHunk = lessonHunks.find(h => h.number === n)
               const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-              if (!writingRecord || writingRecord.capturedAnswer === 'SKIPPED') return null
-              const response = writingRecord.capturedAnswer ?? null
-              const misspokes = writingRecord.misspokeCount ?? 0
+              const promptText = lessonHunk?.writingPrompt ?? (writingRecord?.questionText !== 'Writing Prompt' ? writingRecord?.questionText : undefined)
+              if (!promptText && !writingRecord) return null
+              const skipped = !writingRecord || writingRecord.capturedAnswer === 'SKIPPED'
+              const response = skipped ? null : (writingRecord.capturedAnswer ?? null)
+              const misspokes = skipped ? 0 : (writingRecord.misspokeCount ?? 0)
               const letters = response ? response.replace(/\s/g, '').length : 0
               return (
                 <div key={n} className="mb-5 pb-5 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
-                  <p className="text-xs font-semibold text-gray-400 mb-1">Hunk {n}</p>
-                  {(lessonHunk?.writingPrompt || (writingRecord?.questionText && writingRecord.questionText !== 'Writing Prompt')) && (
-                    <p className="text-xs text-pink-600 italic mb-2">{lessonHunk?.writingPrompt ?? writingRecord?.questionText}</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-xs font-semibold text-gray-400">Hunk {n}</p>
+                    {skipped && <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">— not completed</span>}
+                  </div>
+                  {promptText && (
+                    <p className="text-xs text-pink-600 italic mb-2">{promptText}</p>
                   )}
                   {response
                     ? <p className="text-sm text-gray-800 whitespace-pre-wrap">{response}</p>

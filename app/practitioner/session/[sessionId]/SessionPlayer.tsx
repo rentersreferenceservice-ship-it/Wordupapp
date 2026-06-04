@@ -54,6 +54,7 @@ interface HunkCapture {
   writingResponse: string
   writingMisspokes: number
   writingSkipped: boolean
+  skipped: boolean
 }
 
 export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null }: {
@@ -89,6 +90,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
 
       const writingRecord = initialResponses.find(r => r.hunkNumber === hunkNum && r.questionType === 'WRITING_PROMPT')
       const writingSkipped = writingRecord?.capturedAnswer === 'SKIPPED'
+      const hunkSkipped = initialResponses.some(r => r.hunkNumber === hunkNum && r.questionType === 'HUNK_SKIPPED')
       return {
         keywords: extractKeywords(hunk.text).map(k => {
           const saved = existing.find(r => r.questionType === 'KEYWORD' && r.keyword === k)
@@ -98,6 +100,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         writingResponse: writingSkipped ? '' : (writingRecord?.capturedAnswer ?? ''),
         writingMisspokes: writingSkipped ? 0 : (writingRecord?.misspokeCount ?? 0),
         writingSkipped,
+        skipped: hunkSkipped,
         questions: hunk.questions.map(q => {
           const saved = existing.find(r => r.questionType !== 'KEYWORD' && r.questionText === q.question)
           return {
@@ -325,6 +328,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       ...(invoiceValue ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Session Invoice', capturedAnswer: invoiceValue, expectedAnswer: '', misspokeCount: 0 }] : []),
       ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
       ...captures.flatMap((hunkCapture, hunkIdx) => [
+        ...(hunkCapture.skipped ? [{ hunkNumber: hunkIdx + 1, questionType: 'HUNK_SKIPPED', questionText: 'Hunk Skipped', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
         ...hunkCapture.keywords.map(k => ({
           hunkNumber: hunkIdx + 1,
           keyword: k.keyword,
@@ -851,6 +855,20 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           )}
           <button onClick={handleSaveAndExit} disabled={saving} className="bg-white text-gray-700 px-4 py-3 rounded-xl font-medium text-sm border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-60 transition-colors">
             {saving ? '…' : '💾 Save & Exit'}
+          </button>
+          <button
+            onClick={() => {
+              setCaptures(prev => {
+                const next = [...prev]
+                next[currentHunk] = { ...next[currentHunk], skipped: true }
+                return next
+              })
+              if (!isLast) setCurrentHunk(h => h + 1)
+              else handleComplete()
+            }}
+            className="bg-gray-100 text-gray-500 px-4 py-3 rounded-xl font-medium text-sm border border-gray-200 hover:bg-gray-200 transition-colors"
+          >
+            Skip Page
           </button>
           {!isLast ? (
             <button onClick={() => setCurrentHunk(h => h + 1)} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
