@@ -12,16 +12,10 @@ export default async function AdminSubscribersPage() {
 
   const supabase = getSupabase()
 
-  // Fetch ALL rows first so we can see the total count for debugging
-  const { data: allRows, error: allError } = await supabase
-    .from('user_usage')
-    .select('user_id, is_subscribed')
-
-  const { data: rows, error: rowsError } = await supabase
+  const { data: rows } = await supabase
     .from('user_usage')
     .select('*')
     .eq('is_subscribed', true)
-    .order('created_at', { ascending: false })
 
   const clerk = await clerkClient()
   const subscribers = await Promise.all(
@@ -53,13 +47,7 @@ export default async function AdminSubscribersPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Subscribers</h1>
         <p className="text-sm text-gray-500 mb-6">{subscribers.length} active subscriber{subscribers.length !== 1 ? 's' : ''}</p>
 
-        <div className="text-xs text-gray-400 mb-4 font-mono space-y-0.5">
-          <p>total rows in user_usage: {allRows?.length ?? 'null'} {allError ? `(error: ${allError.message})` : ''}</p>
-          <p>is_subscribed=true rows: {rows?.length ?? 'null'} {rowsError ? `(error: ${rowsError.message})` : ''}</p>
-          <p>breakdown: {allRows?.map(r => `${r.user_id.slice(-6)}=${r.is_subscribed}`).join(', ') ?? 'none'}</p>
-        </div>
-
-        {subscribers.length === 0 ? (
+{subscribers.length === 0 ? (
           <p className="text-gray-500 text-sm">No active subscribers found.</p>
         ) : (
           <div className="bg-white rounded-2xl shadow overflow-hidden">
