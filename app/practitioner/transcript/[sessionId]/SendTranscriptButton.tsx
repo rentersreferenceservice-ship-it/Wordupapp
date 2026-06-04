@@ -1,6 +1,69 @@
-﻿'use client'
+'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+const STORAGE_KEY = 'practitioner_email_history'
+
+function loadHistory(): string[] {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') } catch { return [] }
+}
+
+function saveToHistory(emails: string[]) {
+  try {
+    const existing = loadHistory()
+    const merged = [...new Set([...emails, ...existing])].slice(0, 30)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+  } catch { /* ignore */ }
+}
+
+function EmailInput({ value, onChange, autoFocus, history }: {
+  value: string
+  onChange: (v: string) => void
+  autoFocus?: boolean
+  history: string[]
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const suggestions = history.filter(e =>
+    e.toLowerCase().includes(value.toLowerCase()) && e !== value
+  )
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <input
+        type="email"
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        placeholder="Recipient email..."
+        autoFocus={autoFocus}
+        className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-56"
+      />
+      {open && suggestions.length > 0 && (
+        <ul className="absolute z-50 top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+          {suggestions.map(s => (
+            <li
+              key={s}
+              onMouseDown={e => { e.preventDefault(); onChange(s); setOpen(false) }}
+              className="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer truncate"
+            >
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 export default function SendTranscriptButton({ sessionId, defaultTo }: { sessionId: string; defaultTo?: string }) {
   const [open, setOpen] = useState(false)
@@ -8,19 +71,18 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [history, setHistory] = useState<string[]>([])
+
+  useEffect(() => { setHistory(loadHistory()) }, [])
 
   function updateEmail(index: number, value: string) {
     setEmails(prev => prev.map((e, i) => i === index ? value : e))
     setError('')
   }
 
-  function addEmail() {
-    setEmails(prev => [...prev, ''])
-  }
+  function addEmail() { setEmails(prev => [...prev, '']) }
 
-  function removeEmail(index: number) {
-    setEmails(prev => prev.filter((_, i) => i !== index))
-  }
+  function removeEmail(index: number) { setEmails(prev => prev.filter((_, i) => i !== index)) }
 
   async function handleSend() {
     const trimmed = emails.map(e => e.trim()).filter(Boolean)
@@ -42,6 +104,8 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
         setSending(false)
         return
       }
+      saveToHistory(trimmed)
+      setHistory(loadHistory())
       setSent(true)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Send failed')
@@ -73,13 +137,11 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
     <div className="flex flex-col gap-2">
       {emails.map((email, index) => (
         <div key={index} className="flex items-center gap-2">
-          <input
-            type="email"
+          <EmailInput
             value={email}
-            onChange={e => updateEmail(index, e.target.value)}
-            placeholder="Recipient email..."
+            onChange={v => updateEmail(index, v)}
             autoFocus={index === 0}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-56"
+            history={history}
           />
           {emails.length > 1 && (
             <button
@@ -93,10 +155,7 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
         </div>
       ))}
       <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={addEmail}
-          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-        >
+        <button onClick={addEmail} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
           + Add another email
         </button>
         <button
