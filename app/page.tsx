@@ -285,7 +285,7 @@ export default function HomePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Your Email <span className="text-gray-400 font-normal">(required for free access)</span>
               </label>
-              <inputWhat you do is have the
+              <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
