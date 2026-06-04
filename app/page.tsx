@@ -141,6 +141,16 @@ export default function HomePage() {
         </div>
       )}
       <div className="w-full max-w-lg bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8">
+        {loading ? (
+          <div className="text-center py-10">
+            <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-6" style={{ width: 160 }} />
+            <div className="flex justify-center mb-4">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+            </div>
+            <p className="text-gray-700 font-semibold text-sm">Generating your lesson…</p>
+            <p className="text-gray-400 text-xs mt-1">This usually takes about a minute. Please wait.</p>
+          </div>
+        ) : (
         <div className="text-center mb-6">
           <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-1" style={{ width: 220 }} />
           <p className="text-gray-500 text-sm">S2C Lesson Generator</p>
@@ -292,13 +302,14 @@ export default function HomePage() {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Generating lesson — this may take a minute…' : 'Generate Lesson'}
+            Generate Lesson
           </button>
         </div>
 
         <div className="text-center mt-6">
           <a href="/submit" className="text-sm text-blue-600 hover:underline">Submit a lesson</a>
         </div>
+        )}
       </div>
     </main>
   )
