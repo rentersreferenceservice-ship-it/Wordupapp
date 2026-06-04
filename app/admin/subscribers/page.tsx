@@ -11,11 +11,12 @@ export default async function AdminSubscribersPage() {
   if (!userId || userId !== ADMIN_USER_ID) redirect('/')
 
   const supabase = getSupabase()
-  const { data: rows } = await supabase
+  const { data: rows, error: rowsError } = await supabase
     .from('user_usage')
-    .select('user_id, is_subscribed, stripe_customer_id, updated_at')
+    .select('*')
     .eq('is_subscribed', true)
-    .order('updated_at', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (rowsError) console.error('Supabase error:', rowsError.message)
 
   const clerk = await clerkClient()
   const subscribers = await Promise.all(
@@ -27,7 +28,7 @@ export default async function AdminSubscribersPage() {
           name: [u.firstName, u.lastName].filter(Boolean).join(' ') || '—',
           email: u.emailAddresses[0]?.emailAddress ?? '—',
           stripeCustomerId: row.stripe_customer_id ?? null,
-          updatedAt: row.updated_at as string,
+          updatedAt: (row.updated_at ?? row.created_at ?? null) as string | null,
         }
       } catch {
         return {
@@ -35,14 +36,14 @@ export default async function AdminSubscribersPage() {
           name: '(unknown)',
           email: '—',
           stripeCustomerId: row.stripe_customer_id ?? null,
-          updatedAt: row.updated_at as string,
+          updatedAt: (row.updated_at ?? row.created_at ?? null) as string | null,
         }
       }
     })
   )
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="min-h-screen bg-white px-6 py-10">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Subscribers</h1>
         <p className="text-sm text-gray-500 mb-6">{subscribers.length} active subscriber{subscribers.length !== 1 ? 's' : ''}</p>
