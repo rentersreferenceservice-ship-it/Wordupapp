@@ -151,6 +151,7 @@ export default function HomePage() {
             <p className="text-gray-400 text-xs mt-1">This usually takes about a minute. Please wait.</p>
           </div>
         ) : (
+        <>
         <div className="text-center mb-6">
           <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-1" style={{ width: 220 }} />
           <p className="text-gray-500 text-sm">S2C Lesson Generator</p>
@@ -309,6 +310,7 @@ export default function HomePage() {
         <div className="text-center mt-6">
           <a href="/submit" className="text-sm text-blue-600 hover:underline">Submit a lesson</a>
         </div>
+        </>
         )}
       </div>
     </main>
