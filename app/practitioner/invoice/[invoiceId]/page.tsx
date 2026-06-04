@@ -43,9 +43,13 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
     return sum + Math.max(0, parseFloat(inv.amount) - parseFloat(inv.amount_paid ?? '0'))
   }, 0)
 
+  const extraItems = (invoice.extra_items ?? []) as Array<{ description: string; amount: number }>
+  const extraTotal = extraItems.reduce((sum: number, item: { amount: number }) => sum + (item.amount || 0), 0)
+
   const amount = parseFloat(invoice.amount)
   const amountPaid = parseFloat(invoice.amount_paid ?? '0')
-  const balanceDue = Math.max(0, amount - amountPaid)
+  const subtotal = amount + extraTotal
+  const balanceDue = Math.max(0, subtotal - amountPaid)
   const totalDue = balanceDue + outstandingBalance
 
   const today = new Date()
@@ -71,8 +75,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
             ← Dashboard
           </Link>
         )}
-        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${amount === 0 ? 'bg-gray-100 text-gray-500' : invoice.is_paid ? 'bg-green-100 text-green-700' : isOverdue ? 'bg-red-600 text-white' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
-          {amount === 0 ? 'No Charge' : invoice.is_paid ? 'Paid' : isOverdue ? 'Overdue' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
+        <span className={`px-3 py-2 rounded-lg text-xs font-semibold ${subtotal === 0 ? 'bg-gray-100 text-gray-500' : invoice.is_paid ? 'bg-green-100 text-green-700' : isOverdue ? 'bg-red-600 text-white' : amountPaid > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'}`}>
+          {subtotal === 0 ? 'No Charge' : invoice.is_paid ? 'Paid' : isOverdue ? 'Overdue' : amountPaid > 0 ? 'Partially Paid' : 'Unpaid'}
         </span>
       </div>
 
@@ -131,12 +135,24 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
               </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(amount)}</td>
             </tr>
+            {extraItems.map((item, i) => (
+              <tr key={i} className="border-b border-gray-100">
+                <td className="px-4 py-3 text-sm text-gray-800">{item.description || <span className="text-gray-400 italic">Unnamed item</span>}</td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(item.amount || 0)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
         {/* Totals */}
         <div className="flex justify-end mb-6">
           <div className="w-64">
+            {extraItems.length > 0 && (
+              <div className="flex justify-between text-sm text-gray-600 py-1.5 border-b border-gray-100">
+                <span>Subtotal</span>
+                <span className="font-semibold">{fmt(subtotal)}</span>
+              </div>
+            )}
             {amountPaid > 0 && (
               <div className="flex justify-between text-sm text-gray-500 py-1.5 border-b border-gray-100">
                 <span>Amount Paid</span>
@@ -185,6 +201,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
           invoiceDate={invoice.invoice_date}
           dueDate={invoice.due_date ?? null}
           sessionId={invoice.session_id ?? null}
+          initialExtraItems={extraItems}
         />
       </div>
     </div>

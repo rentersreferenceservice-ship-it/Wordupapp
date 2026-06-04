@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface ExtraItem {
+  description: string
+  amount: number
+}
+
 interface Props {
   invoiceId: string
   initialAmountPaid: number
@@ -14,6 +19,7 @@ interface Props {
   invoiceDate: string
   dueDate: string | null
   sessionId: string | null
+  initialExtraItems: ExtraItem[]
 }
 
 export default function InvoiceActions({
@@ -27,8 +33,10 @@ export default function InvoiceActions({
   invoiceDate: initialInvoiceDate,
   dueDate: initialDueDate,
   sessionId,
+  initialExtraItems,
 }: Props) {
   const [invoiceAmount, setInvoiceAmount] = useState(String(initialAmount))
+  const [extraItems, setExtraItems] = useState<ExtraItem[]>(initialExtraItems)
   const [funderName, setFunderName] = useState(initialFunderName)
   const [funderEmail, setFunderEmail] = useState(initialFunderEmail)
   const [guardianEmail, setGuardianEmail] = useState(initialGuardianEmail)
@@ -60,6 +68,7 @@ export default function InvoiceActions({
         dueDate: dueDate || null,
         amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
         isPaid,
+        extraItems,
       }),
     })
     setSaving(false)
@@ -108,7 +117,9 @@ export default function InvoiceActions({
   }
 
   const amount = parseFloat(invoiceAmount) || 0
-  const balance = Math.max(0, amount - (parseFloat(amountPaid) || 0))
+  const extraTotal = extraItems.reduce((sum, item) => sum + (item.amount || 0), 0)
+  const subtotal = amount + extraTotal
+  const balance = Math.max(0, subtotal - (parseFloat(amountPaid) || 0))
 
   return (
     <div className="print:hidden space-y-4 mt-6">
@@ -190,6 +201,52 @@ export default function InvoiceActions({
         </div>
       </div>
 
+      {/* Extra Line Items */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Extra Line Items</h3>
+          <button
+            onClick={() => setExtraItems(prev => [...prev, { description: '', amount: 0 }])}
+            className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+          >
+            + Add Item
+          </button>
+        </div>
+        {extraItems.length === 0 && (
+          <p className="text-xs text-gray-400 italic">No extra items. Click + Add Item to add additional sessions, materials, etc.</p>
+        )}
+        <div className="space-y-2">
+          {extraItems.map((item, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={item.description}
+                onChange={e => setExtraItems(prev => prev.map((it, idx) => idx === i ? { ...it, description: e.target.value } : it))}
+                placeholder="e.g. Letter boards, Extra session"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-gray-400 text-sm">$</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={item.amount || ''}
+                onChange={e => setExtraItems(prev => prev.map((it, idx) => idx === i ? { ...it, amount: parseFloat(e.target.value) || 0 } : it))}
+                placeholder="0.00"
+                className="w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => setExtraItems(prev => prev.filter((_, idx) => idx !== i))}
+                className="text-gray-400 hover:text-red-500 text-sm px-1"
+                title="Remove"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Payment Status */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Payment Status</h3>
@@ -200,7 +257,7 @@ export default function InvoiceActions({
             checked={isPaid}
             onChange={e => {
               setIsPaid(e.target.checked)
-              if (e.target.checked && !amountPaid) setAmountPaid(String(amount))
+              if (e.target.checked && !amountPaid) setAmountPaid(String(subtotal))
             }}
             className="w-4 h-4 rounded accent-green-600"
           />

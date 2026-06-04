@@ -92,6 +92,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ in
   if (body.guardianEmail != null) updates.guardian_email = body.guardianEmail || null
   if (body.invoiceDate != null) updates.invoice_date = body.invoiceDate || null
   if (body.dueDate != null) updates.due_date = body.dueDate || null
+  if (body.extraItems != null) updates.extra_items = body.extraItems
 
   const { error } = await supabase.from('invoices').update(updates).eq('id', invoiceId)
   if (error) return Response.json({ error: error.message }, { status: 500 })

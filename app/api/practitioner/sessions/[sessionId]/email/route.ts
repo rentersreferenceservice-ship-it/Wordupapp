@@ -278,7 +278,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
         // Per-hunk
         ...Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
           const hunkKeywords = items.filter(r => r.questionType === 'KEYWORD' && r.capturedAnswer !== 'SKIPPED')
-          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
+          const hunkQuestions = items.filter(r => r.questionType !== 'KEYWORD' && r.questionType !== 'WRITING_PROMPT' && r.questionType !== 'HUNK_SKIPPED' && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIP')
           const writingRecord = items.find(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED')
           if (hunkKeywords.length === 0 && hunkQuestions.length === 0 && !writingRecord) return null
 
@@ -344,10 +344,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
                     miss > 0 && !notAsked ? React.createElement(Text, { style: { color: '#dc2626', fontSize: 8 } }, `\n${miss} ✗`) : null,
                   ),
                 ),
-                !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
-                isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
-                isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
-                isOpen && !notAsked && !skipped ? React.createElement(View, { style: s.writeLine }) : null,
               )
             }),
           )
