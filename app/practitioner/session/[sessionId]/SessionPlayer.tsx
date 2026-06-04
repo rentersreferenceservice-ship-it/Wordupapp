@@ -860,7 +860,17 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             onClick={() => {
               setCaptures(prev => {
                 const next = [...prev]
-                next[currentHunk] = { ...next[currentHunk], skipped: true }
+                const c = next[currentHunk]
+                next[currentHunk] = {
+                  ...c,
+                  skipped: true,
+                  keywords: c.keywords.map(k => ({ ...k, asked: false, misspokeCount: 0 })),
+                  extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: true, misspokeCount: 0 })),
+                  questions: c.questions.map(q => ({ ...q, asked: false, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
+                  writingSkipped: true,
+                  writingResponse: '',
+                  writingMisspokes: 0,
+                }
                 return next
               })
               if (!isLast) setCurrentHunk(h => h + 1)
