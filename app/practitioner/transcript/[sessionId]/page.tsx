@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { QuestionType, Hunk } from '@/lib/types'
 import PrintTranscriptButton from './PrintTranscriptButton'
 import SendTranscriptButton from './SendTranscriptButton'
+import GenerateInvoiceButton from './GenerateInvoiceButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import SpellerSentenceInput from './SpellerSentenceInput'
 
@@ -123,6 +124,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             Edit
           </Link>
           <SendTranscriptButton sessionId={sessionId} defaultTo={studentData?.guardian_email ?? ''} />
+          <GenerateInvoiceButton sessionId={sessionId} hasInvoice={!!sessionInvoiceRecord} />
           <PrintTranscriptButton />
         </div>
 
