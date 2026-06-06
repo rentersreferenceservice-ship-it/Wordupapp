@@ -118,5 +118,13 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { error } = await supabase.from('invoices').delete().eq('id', invoiceId)
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
+  // Clear the SESSION_INVOICE link in the transcript so it no longer shows a broken link
+  if (invoice.session_id) {
+    await supabase.from('session_responses')
+      .delete()
+      .eq('session_id', invoice.session_id)
+      .eq('question_type', 'SESSION_INVOICE')
+  }
+
   return Response.json({ ok: true, sessionId: invoice.session_id ?? null })
 }

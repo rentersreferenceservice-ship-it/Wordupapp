@@ -58,6 +58,19 @@ export async function POST(req: NextRequest) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
+  // Update SESSION_INVOICE record in session_responses so transcript "View Invoice" link stays current
+  await supabase.from('session_responses')
+    .delete()
+    .eq('session_id', sessionId)
+    .eq('question_type', 'SESSION_INVOICE')
+  await supabase.from('session_responses').insert({
+    session_id: sessionId,
+    hunk_number: -1,
+    question_type: 'SESSION_INVOICE',
+    question_text: 'Invoice',
+    captured_answer: `/practitioner/invoice/${invoice.id}`,
+  })
+
   // Increment invoice number
   await supabase.from('practitioner_settings').upsert({
     practitioner_id: userId,
