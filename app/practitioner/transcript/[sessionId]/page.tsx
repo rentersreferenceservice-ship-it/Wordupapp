@@ -43,11 +43,14 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     .eq('id', session.student_id)
     .single()
 
-  const [responses, accuracyHistory, lessonRow] = await Promise.all([
+  const [responses, accuracyHistory, lessonRow, crpRow] = await Promise.all([
     getSessionResponses(sessionId),
     getStudentAccuracyHistory(session.student_id, userId),
     session.lesson_id
       ? getSupabase().from('lessons').select('hunks').eq('id', session.lesson_id).single().then(r => r.data)
+      : Promise.resolve(null),
+    session.crp_id
+      ? getSupabase().from('crps').select('name, color').eq('id', session.crp_id).single().then(r => r.data)
       : Promise.resolve(null),
   ])
 
@@ -142,6 +145,17 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
               <p className="text-sm text-gray-500">{new Date(session.session_date + 'T00:00:00').toLocaleDateString()}</p>
             </div>
           </div>
+
+          {/* CRP badge */}
+          {crpRow && (
+            <div className="mt-4 flex items-center gap-3 p-3 rounded-xl" style={{ background: `${crpRow.color}18`, border: `2px solid ${crpRow.color}` }}>
+              <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: crpRow.color }} />
+              <div>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide leading-none">Communication Regulation Partner</p>
+                <p className="text-lg font-bold mt-0.5" style={{ color: crpRow.color }}>{crpRow.name}</p>
+              </div>
+            </div>
+          )}
 
           {/* Student state & notes — always shown at top */}
           <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">

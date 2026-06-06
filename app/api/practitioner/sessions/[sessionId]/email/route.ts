@@ -54,6 +54,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     const { data: student } = await getSupabase()
       .from('students').select('name, age_group').eq('id', session.student_id).single()
 
+    const crpRow = session.crp_id
+      ? await getSupabase().from('crps').select('name, color').eq('id', session.crp_id).single().then(r => r.data)
+      : null
+
     const clerk = await clerkClient()
     const user = await clerk.users.getUser(userId)
     const practitionerEmail = user.emailAddresses[0]?.emailAddress ?? ''
@@ -213,6 +217,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
           ),
         ),
 
+        // CRP banner
+        ...(crpRow ? [
+          React.createElement(View, { style: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, padding: 8, borderRadius: 4, backgroundColor: crpRow.color + '1a', borderWidth: 1.5, borderColor: crpRow.color } },
+            React.createElement(View, { style: { width: 10, height: 10, borderRadius: 5, backgroundColor: crpRow.color } }),
+            React.createElement(View, {},
+              React.createElement(Text, { style: { fontSize: 7, fontFamily: 'Helvetica-Bold', color: '#888', textTransform: 'uppercase' } }, 'Communication Regulation Partner'),
+              React.createElement(Text, { style: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: crpRow.color } }, crpRow.name),
+            ),
+          ),
+        ] : []),
+
         // Student state
         ...(sessionStateRecord?.capturedAnswer ? [
           React.createElement(View, { style: s.section },
@@ -368,7 +383,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
 <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#374151">
   <h2 style="margin:0 0 4px 0;font-size:20px">Session Transcript</h2>
   <p style="margin:0 0 2px 0;font-size:15px;font-weight:600">${student?.name ?? 'Student'}</p>
-  <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280">${sessionDate}</p>
+  <p style="margin:0 0 ${crpRow ? '10px' : '16px'} 0;font-size:13px;color:#6b7280">${sessionDate}</p>
+  ${crpRow ? `<div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;border-radius:8px;background:${crpRow.color}1a;border:2px solid ${crpRow.color}">
+    <span style="width:12px;height:12px;border-radius:50%;background:${crpRow.color};display:inline-block;flex-shrink:0"></span>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em">Communication Regulation Partner</div>
+      <div style="font-size:17px;font-weight:700;color:${crpRow.color}">${crpRow.name}</div>
+    </div>
+  </div>` : ''}
   ${hasHunkResponses ? `
   <div style="display:flex;gap:10px;margin-bottom:18px">
     <div style="flex:1;background:#eff6ff;border-radius:8px;padding:12px;text-align:center">

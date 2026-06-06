@@ -71,11 +71,14 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
   const { data: studentData } = await getSupabase()
     .from('students').select('name, age_group').eq('id', session.student_id).single()
 
-  const [responses, accuracyHistory, lessonRow] = await Promise.all([
+  const [responses, accuracyHistory, lessonRow, crpRow] = await Promise.all([
     getSessionResponses(sessionId),
     getStudentAccuracyHistory(session.student_id, userId),
     session.lesson_id
       ? getSupabase().from('lessons').select('hunks').eq('id', session.lesson_id).single().then(r => r.data)
+      : Promise.resolve(null),
+    session.crp_id
+      ? getSupabase().from('crps').select('name, color').eq('id', session.crp_id).single().then(r => r.data)
       : Promise.resolve(null),
   ])
 
@@ -161,6 +164,16 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
             <div><strong>Date:</strong> {new Date(session.session_date + 'T00:00:00').toLocaleDateString()}</div>
           </div>
         </div>
+
+        {crpRow && (
+          <div style={{display:'inline-flex',alignItems:'center',gap:10,marginBottom:14,padding:'8px 12px',borderRadius:6,background:crpRow.color+'1a',border:`2px solid ${crpRow.color}`}}>
+            <span style={{width:12,height:12,borderRadius:'50%',background:crpRow.color,display:'inline-block',flexShrink:0}} />
+            <div>
+              <div style={{fontSize:'8pt',fontWeight:'bold',color:'#888',textTransform:'uppercase',letterSpacing:'0.05em'}}>Communication Regulation Partner</div>
+              <div style={{fontSize:'14pt',fontWeight:'bold',color:crpRow.color}}>{crpRow.name}</div>
+            </div>
+          </div>
+        )}
 
         <div style={{display:'flex',gap:32,marginBottom:10,paddingBottom:10,borderBottom: mathAnswered.length === 0 && openAsked.length === 0 ? '1px solid #ddd' : 'none'}}>
           {[
