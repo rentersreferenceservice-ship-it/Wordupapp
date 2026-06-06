@@ -115,7 +115,7 @@ export default function InvoiceActions({
   }
 
   const extraTotal = extraItems.reduce((sum, item) => sum + (item.amount || 0), 0)
-  const subtotal = amount + extraTotal
+  const subtotal = initialAmount + extraTotal
   const balance = Math.max(0, subtotal - (parseFloat(amountPaid) || 0))
 
   return (
