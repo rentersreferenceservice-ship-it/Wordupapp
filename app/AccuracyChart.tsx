@@ -201,7 +201,7 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
               dataKey={fac.key}
               stroke={fac.color}
               strokeWidth={2}
-              connectNulls={false}
+              connectNulls={true}
               dot={(props) => {
                 const val = props.payload?.[fac.key]
                 if (val === undefined || val === null) return <g key={props.index} />
