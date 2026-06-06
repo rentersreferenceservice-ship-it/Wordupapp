@@ -39,7 +39,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
 
   const { data: studentData } = await getSupabase()
     .from('students')
-    .select('name, age_group, guardian_email')
+    .select('name, age_group, guardian_email, session_rate')
     .eq('id', session.student_id)
     .single()
 
@@ -124,7 +124,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             Edit
           </Link>
           <SendTranscriptButton sessionId={sessionId} defaultTo={studentData?.guardian_email ?? ''} />
-          <GenerateInvoiceButton sessionId={sessionId} hasInvoice={!!sessionInvoiceRecord} />
+          <GenerateInvoiceButton sessionId={sessionId} hasInvoice={!!sessionInvoiceRecord} defaultRate={studentData?.session_rate ?? undefined} />
           <PrintTranscriptButton />
         </div>
 
