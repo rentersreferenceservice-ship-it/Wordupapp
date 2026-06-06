@@ -408,15 +408,15 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
         {/* Writing Responses — only show hunks with an actual response */}
         {writingHunkNumbers.some(n => {
           const wr = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-          return wr && wr.capturedAnswer !== 'SKIPPED'
+          return wr && wr.capturedAnswer && wr.capturedAnswer !== 'SKIPPED'
         }) && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:border-gray-200 print:rounded-lg print-card">
             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Writing Responses</h2>
             {writingHunkNumbers.map(n => {
               const lessonHunk = lessonHunks.find(h => h.number === n)
               const writingRecord = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
-              if (!writingRecord || writingRecord.capturedAnswer === 'SKIPPED') return null
-              const response = writingRecord.capturedAnswer ?? null
+              if (!writingRecord || !writingRecord.capturedAnswer || writingRecord.capturedAnswer === 'SKIPPED') return null
+              const response = writingRecord.capturedAnswer
               const misspokes = writingRecord.misspokeCount ?? 0
               const letters = response ? response.replace(/\s/g, '').length : 0
               const promptText = lessonHunk?.writingPrompt ?? (writingRecord.questionText !== 'Writing Prompt' ? writingRecord.questionText : undefined)
