@@ -124,7 +124,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
             Edit
           </Link>
           <SendTranscriptButton sessionId={sessionId} defaultTo={studentData?.guardian_email ?? ''} />
-          <GenerateInvoiceButton sessionId={sessionId} hasInvoice={!!sessionInvoiceRecord} defaultRate={studentData?.session_rate ?? undefined} />
+          <GenerateInvoiceButton sessionId={sessionId} hasInvoice={!!sessionInvoiceRecord} />
           <PrintTranscriptButton />
         </div>
 
