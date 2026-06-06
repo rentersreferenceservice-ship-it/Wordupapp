@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import InvoiceActions from './InvoiceActions'
+import InvoiceSessionFee from './InvoiceSessionFee'
 
 export const dynamic = 'force-dynamic'
 
@@ -133,7 +134,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
                 S2C Session{session?.lesson_title ? ` — ${session.lesson_title}` : ''}
                 {sessionDate && <span className="text-gray-400 text-xs ml-2">({sessionDate})</span>}
               </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(amount)}</td>
+              <td className="px-4 py-3 text-right print:hidden">
+                <InvoiceSessionFee invoiceId={invoiceId} studentId={invoice.student_id} initialAmount={amount} />
+              </td>
+              <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right hidden print:table-cell">{fmt(amount)}</td>
             </tr>
             {extraItems.map((item, i) => (
               <tr key={i} className="border-b border-gray-100">
