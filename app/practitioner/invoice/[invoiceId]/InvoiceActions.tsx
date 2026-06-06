@@ -35,7 +35,6 @@ export default function InvoiceActions({
   sessionId,
   initialExtraItems,
 }: Props) {
-  const [invoiceAmount, setInvoiceAmount] = useState(String(initialAmount))
   const [extraItems, setExtraItems] = useState<ExtraItem[]>(initialExtraItems)
   const [funderName, setFunderName] = useState(initialFunderName)
   const [funderEmail, setFunderEmail] = useState(initialFunderEmail)
@@ -60,7 +59,6 @@ export default function InvoiceActions({
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined,
         funderName: funderName.trim(),
         funderEmail: funderEmail.trim(),
         guardianEmail: guardianEmail.trim(),
@@ -116,7 +114,6 @@ export default function InvoiceActions({
     }
   }
 
-  const amount = parseFloat(invoiceAmount) || 0
   const extraTotal = extraItems.reduce((sum, item) => sum + (item.amount || 0), 0)
   const subtotal = amount + extraTotal
   const balance = Math.max(0, subtotal - (parseFloat(amountPaid) || 0))
@@ -184,24 +181,7 @@ export default function InvoiceActions({
         </div>
       </div>
 
-      {/* Session Fee */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Session Fee</h3>
-        <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-gray-300">$</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={invoiceAmount}
-            onChange={e => setInvoiceAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-40 border-2 border-gray-200 rounded-lg px-3 py-2 text-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-500"
-          />
-        </div>
-      </div>
-
-      {/* Extra Line Items */}
+{/* Extra Line Items */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Extra Line Items</h3>

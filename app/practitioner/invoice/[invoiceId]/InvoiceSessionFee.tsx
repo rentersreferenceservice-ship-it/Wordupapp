@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   invoiceId: string
@@ -14,6 +15,7 @@ export default function InvoiceSessionFee({ invoiceId, studentId, initialAmount 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (editing) inputRef.current?.focus()
@@ -37,6 +39,7 @@ export default function InvoiceSessionFee({ invoiceId, studentId, initialAmount 
     setSaving(false)
     setSaved(true)
     setEditing(false)
+    router.refresh()
     setTimeout(() => setSaved(false), 2000)
   }
 
