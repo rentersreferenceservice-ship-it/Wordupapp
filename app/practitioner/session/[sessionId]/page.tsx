@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getSessionResponses } from '@/lib/practitionerStore'
+import { getSessionResponses, getCrps } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 import { getLesson } from '@/lib/lessonStore'
 import SessionPlayer from './SessionPlayer'
@@ -28,9 +28,10 @@ export default async function SessionPage({ params }: { params: Promise<{ sessio
     .eq('id', session.student_id)
     .single()
 
-  const [lesson, initialResponses] = await Promise.all([
+  const [lesson, initialResponses, crps] = await Promise.all([
     getLesson(session.lesson_id),
     getSessionResponses(sessionId),
+    getCrps(session.student_id, userId),
   ])
   if (!lesson) redirect('/practitioner/dashboard')
 
@@ -45,6 +46,8 @@ export default async function SessionPage({ params }: { params: Promise<{ sessio
       initialResponses={initialResponses}
       initialRegulationArrival={session.regulation_arrival ?? null}
       initialRegulationDeparture={session.regulation_departure ?? null}
+      crps={crps}
+      initialCrpId={session.crp_id ?? null}
     />
   )
 }

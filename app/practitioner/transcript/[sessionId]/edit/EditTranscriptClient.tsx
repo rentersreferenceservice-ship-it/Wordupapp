@@ -93,11 +93,15 @@ export default function EditTranscriptClient({
   studentId,
   responses,
   lessonHunks,
+  initialRegulationArrival = null,
+  initialRegulationDeparture = null,
 }: {
   sessionId: string
   studentId: string
   responses: SessionResponse[]
   lessonHunks?: Hunk[]
+  initialRegulationArrival?: string | null
+  initialRegulationDeparture?: string | null
 }) {
   const hasHunkData = responses.some(r => r.hunkNumber != null && r.hunkNumber > 0)
   const allResponses = hasHunkData || !lessonHunks
@@ -109,6 +113,8 @@ export default function EditTranscriptClient({
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
   const [invoiceAmount, setInvoiceAmount] = useState('')
+  const [regArrival, setRegArrival] = useState<string | null>(initialRegulationArrival)
+  const [regDeparture, setRegDeparture] = useState<string | null>(initialRegulationDeparture)
 
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
@@ -302,18 +308,25 @@ export default function EditTranscriptClient({
     setSaving(true)
     setSaveError('')
     try {
-      const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ responses: buildPayload() }),
-      })
+      const [res] = await Promise.all([
+        fetch(`/api/practitioner/sessions/${sessionId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ responses: buildPayload() }),
+        }),
+        fetch(`/api/practitioner/sessions/${sessionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ regulation_arrival: regArrival, regulation_departure: regDeparture }),
+        }),
+      ])
       if (!res.ok) {
         const data = await res.json()
         setSaveError(`Save failed: ${data.error ?? res.status}`)
         setSaving(false)
         return
       }
-      router.push(`/practitioner/transcript/${sessionId}`)
+      window.location.href = `/practitioner/transcript/${sessionId}`
     } catch (e) {
       setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
       setSaving(false)
@@ -339,19 +352,59 @@ export default function EditTranscriptClient({
         <h1 className="text-xl font-bold text-gray-900">Edit Transcript</h1>
       </div>
 
-      {/* Student State */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student State</p>
-        <div className="flex flex-wrap gap-2">
-          {STATE_OPTIONS.map(s => (
-            <button
-              key={s}
-              onClick={() => toggleState(s)}
-              className={`px-3 py-1.5 rounded-full border-2 text-xs font-medium transition-colors ${studentStates.includes(s) ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
-            >
-              {s}
-            </button>
-          ))}
+      {/* Regulation + Student State */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-4">
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Arrived</p>
+          <div className="flex gap-2">
+            {['regulated', 'dysregulated'].map(val => (
+              <button
+                key={val}
+                onClick={() => setRegArrival(prev => prev === val ? null : val)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                  regArrival === val
+                    ? val === 'regulated' ? 'bg-green-500 border-green-500 text-white' : 'bg-yellow-400 border-yellow-400 text-white'
+                    : val === 'regulated' ? 'border-green-400 text-green-600 hover:bg-green-50' : 'border-yellow-400 text-yellow-600 hover:bg-yellow-50'
+                }`}
+              >
+                {val.charAt(0).toUpperCase() + val.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student State</p>
+          <div className="flex flex-wrap gap-2">
+            {STATE_OPTIONS.map(s => (
+              <button
+                key={s}
+                onClick={() => toggleState(s)}
+                className={`px-3 py-1.5 rounded-full border-2 text-xs font-medium transition-colors ${studentStates.includes(s) ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Departed</p>
+          <div className="flex gap-2">
+            {['regulated', 'dysregulated'].map(val => (
+              <button
+                key={val}
+                onClick={() => setRegDeparture(prev => prev === val ? null : val)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                  regDeparture === val
+                    ? val === 'regulated' ? 'bg-green-500 border-green-500 text-white' : 'bg-yellow-400 border-yellow-400 text-white'
+                    : val === 'regulated' ? 'border-green-400 text-green-600 hover:bg-green-50' : 'border-yellow-400 text-yellow-600 hover:bg-yellow-50'
+                }`}
+              >
+                {val.charAt(0).toUpperCase() + val.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

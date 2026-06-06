@@ -251,6 +251,55 @@ export async function getCompletedSessionIds(sessionIds: string[]): Promise<Set<
   return new Set((data ?? []).map((d: { session_id: string }) => d.session_id))
 }
 
+export interface CRP {
+  id: string
+  studentId: string
+  practitionerId: string
+  name: string
+  color: string
+  createdAt: string
+}
+
+export const CRP_COLORS = ['#16a34a', '#ea580c', '#7c3aed', '#db2777', '#0891b2', '#ca8a04']
+
+export async function getCrps(studentId: string, practitionerId: string): Promise<CRP[]> {
+  const { data } = await getSupabase()
+    .from('crps')
+    .select('*')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .order('created_at')
+  return (data ?? []).map(d => ({
+    id: d.id,
+    studentId: d.student_id,
+    practitionerId: d.practitioner_id,
+    name: d.name,
+    color: d.color,
+    createdAt: d.created_at,
+  }))
+}
+
+export async function createCrp(studentId: string, practitionerId: string, name: string, color: string): Promise<CRP> {
+  const { data } = await getSupabase().from('crps').insert({
+    student_id: studentId,
+    practitioner_id: practitionerId,
+    name,
+    color,
+  }).select().single()
+  return {
+    id: data.id,
+    studentId: data.student_id,
+    practitionerId: data.practitioner_id,
+    name: data.name,
+    color: data.color,
+    createdAt: data.created_at,
+  }
+}
+
+export async function deleteCrp(id: string): Promise<void> {
+  await getSupabase().from('crps').delete().eq('id', id)
+}
+
 export interface SessionAccuracy {
   sessionId: string
   date: string
@@ -258,6 +307,9 @@ export interface SessionAccuracy {
   lessonTitle: string
   regulationArrival: string | null
   regulationDeparture: string | null
+  crpId: string | null
+  crpName: string | null
+  crpColor: string | null
 }
 
 export async function getStudentAccuracyHistory(studentId: string, practitionerId: string): Promise<SessionAccuracy[]> {
@@ -266,7 +318,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
 
   const { data: sessions } = await getSupabase()
     .from('sessions')
-    .select('id, session_date, lesson_title, regulation_arrival, regulation_departure')
+    .select('id, session_date, lesson_title, regulation_arrival, regulation_departure, crp_id')
     .eq('student_id', studentId)
     .eq('practitioner_id', practitionerId)
     .gte('session_date', cutoff.toISOString().split('T')[0])
@@ -283,6 +335,13 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     .in('question_type', ['KEYWORD', 'KNOWN'])
     .gt('hunk_number', 0)
 
+  const crpIds = [...new Set((sessions ?? []).map(s => s.crp_id).filter(Boolean))]
+  const crpMap: Record<string, { name: string; color: string }> = {}
+  if (crpIds.length > 0) {
+    const { data: crpRows } = await getSupabase().from('crps').select('id, name, color').in('id', crpIds)
+    for (const c of crpRows ?? []) crpMap[c.id] = { name: c.name, color: c.color }
+  }
+
   type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null }
   const bySession: Record<string, RawResponse[]> = {}
   for (const r of responses ?? []) {
@@ -290,7 +349,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     bySession[r.session_id].push(r as RawResponse)
   }
 
-  return sessions.flatMap(s => {
+  return sessions!.flatMap(s => {
     const rs = bySession[s.id] ?? []
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
@@ -300,7 +359,8 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const misspokes = [...kw, ...kn].reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
     const pokes = letters + misspokes
     if (pokes === 0) return []
-    return [{ sessionId: s.id, date: s.session_date, accuracy: Math.round((letters / pokes) * 100), lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null }]
+    const crp = s.crp_id ? crpMap[s.crp_id] : null
+    return [{ sessionId: s.id, date: s.session_date, accuracy: Math.round((letters / pokes) * 100), lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null, crpId: s.crp_id ?? null, crpName: crp?.name ?? null, crpColor: crp?.color ?? null }]
   })
 }
 

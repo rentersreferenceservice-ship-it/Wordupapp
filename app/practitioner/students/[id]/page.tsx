@@ -1,6 +1,6 @@
 ﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory } from '@/lib/practitionerStore'
+import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps } from '@/lib/practitionerStore'
 import { listPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -8,6 +8,7 @@ import StartSessionButton from './StartSessionButton'
 import DeleteStudentButton from './DeleteStudentButton'
 import DeleteSessionButton from './DeleteSessionButton'
 import AccuracyChart from '@/app/AccuracyChart'
+import CrpManager from './CrpManager'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +25,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   ])
   const lessons = [...privateLessons, ...publicLessons]
 
-  const [completedIds, accuracyHistory, invoicesResult] = await Promise.all([
+  const [completedIds, accuracyHistory, invoicesResult, crps] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
     getStudentAccuracyHistory(id, userId),
     getSupabase()
@@ -33,6 +34,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
       .eq('student_id', id)
       .eq('practitioner_id', userId)
       .order('invoice_date', { ascending: false }),
+    getCrps(id, userId),
   ])
   const invoices = invoicesResult.data ?? []
   const todayStr = new Date().toISOString().split('T')[0]
@@ -69,6 +71,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         <p className="text-xs text-gray-400 mb-4">Spelling accuracy across completed sessions</p>
         <AccuracyChart data={accuracyHistory} />
       </div>
+
+      {/* CRP Management */}
+      <CrpManager studentId={id} initialCrps={crps} />
 
       {/* Invoices */}
       {invoices.length > 0 && (

@@ -12,14 +12,22 @@ const PERIODS = [
   { label: '12M', months: 12 },
 ]
 
-interface TooltipPayload {
-  payload: {
-    accuracy: number
-    date: string
-    lessonTitle: string
-    regulationArrival: string | null
-    regulationDeparture: string | null
-  }
+const PRACTITIONER_COLOR = '#2563eb'
+
+interface Facilitator {
+  key: string
+  name: string
+  color: string
+}
+
+interface TooltipEntry {
+  accuracy: number
+  date: string
+  lessonTitle: string
+  regulationArrival: string | null
+  regulationDeparture: string | null
+  facilitatorName: string
+  facilitatorColor: string
 }
 
 function regLabel(val: string | null) {
@@ -28,7 +36,7 @@ function regLabel(val: string | null) {
   return null
 }
 
-function ChartTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayload[] }) {
+function ChartTooltip({ active, payload }: { active?: boolean; payload?: { payload: TooltipEntry }[] }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const arrived = regLabel(d.regulationArrival)
@@ -38,6 +46,7 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
       <p className="font-bold text-gray-900">{d.accuracy}%</p>
       <p className="text-gray-500">{d.date}</p>
       {d.lessonTitle && <p className="text-gray-400 truncate max-w-[180px]">{d.lessonTitle}</p>}
+      <p className="font-semibold mt-0.5" style={{ color: d.facilitatorColor }}>{d.facilitatorName}</p>
       {arrived && <p className={`font-semibold mt-0.5 ${d.regulationArrival === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Arrived: {arrived}</p>}
       {departed && <p className={`font-semibold ${d.regulationDeparture === 'regulated' ? 'text-green-600' : 'text-yellow-600'}`}>Departed: {departed}</p>}
     </div>
@@ -60,9 +69,7 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
           key={p.months}
           onClick={() => setMonths(p.months)}
           className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-            months === p.months
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            months === p.months ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
           }`}
         >
           {p.label}
@@ -85,44 +92,69 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
   }
 
   if (filtered.length === 1) {
+    const s = filtered[0]
+    const name = s.crpName ?? 'Practitioner'
+    const color = s.crpColor ?? PRACTITIONER_COLOR
     return (
       <>
         {periodSelector}
         <div className="text-center py-4">
-          <p className="text-2xl font-bold text-blue-600">{filtered[0].accuracy}%</p>
+          <p className="text-2xl font-bold" style={{ color }}>{s.accuracy}%</p>
           <p className="text-xs text-gray-400 mt-1">One session in this period — more sessions will show a trend</p>
+          <p className="text-xs mt-1 font-semibold" style={{ color }}>{name}</p>
         </div>
       </>
     )
   }
 
+  // Build facilitator list (preserving insertion order: practitioner first, then CRPs by first appearance)
+  const facilitatorMap = new Map<string, Facilitator>()
+  for (const s of filtered) {
+    const key = s.crpId ? `crp_${s.crpId}` : 'practitioner'
+    if (!facilitatorMap.has(key)) {
+      facilitatorMap.set(key, {
+        key,
+        name: s.crpName ?? 'Practitioner',
+        color: s.crpColor ?? PRACTITIONER_COLOR,
+      })
+    }
+  }
+  const facilitators = Array.from(facilitatorMap.values())
+
   const hasRegulation = filtered.some(s => s.regulationArrival || s.regulationDeparture)
 
-  // Auto-range Y-axis to where the data actually lives
   const accuracies = filtered.map(s => s.accuracy)
   const dataMin = Math.min(...accuracies)
   const dataMax = Math.max(...accuracies)
   const yFloor = Math.max(0, Math.floor(dataMin / 10) * 10 - 10)
   const yCeil = Math.min(100, Math.ceil(dataMax / 10) * 10 + 5)
-  // Regulation lanes sit just outside the data range
   const regTop = yCeil + 4
   const regBottom = yFloor - 4
   const yMin = hasRegulation ? yFloor - 8 : yFloor
   const yMax = hasRegulation ? yCeil + 8 : yCeil
 
-  const chartData = filtered.map((s, i) => ({
-    idx: i,
-    date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    accuracy: s.accuracy,
-    lessonTitle: s.lessonTitle ?? '',
-    regulationArrival: s.regulationArrival ?? null,
-    regulationDeparture: s.regulationDeparture ?? null,
-    arrived: s.regulationArrival ? regTop : undefined,
-    departed: s.regulationDeparture ? regBottom : undefined,
-    isCurrent: s.sessionId === currentSessionId,
-  }))
+  // One chart entry per session; only the owning facilitator's key has a value
+  const chartData = filtered.map((s, i) => {
+    const key = s.crpId ? `crp_${s.crpId}` : 'practitioner'
+    const fac = facilitatorMap.get(key)!
+    const entry: Record<string, unknown> = {
+      idx: i,
+      date: new Date(s.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      lessonTitle: s.lessonTitle ?? '',
+      regulationArrival: s.regulationArrival ?? null,
+      regulationDeparture: s.regulationDeparture ?? null,
+      facilitatorName: fac.name,
+      facilitatorColor: fac.color,
+      isCurrent: s.sessionId === currentSessionId,
+      arrived: s.regulationArrival ? regTop : undefined,
+      departed: s.regulationDeparture ? regBottom : undefined,
+      accuracy: s.accuracy,
+    }
+    // Set this session's value on its facilitator key
+    entry[key] = s.accuracy
+    return entry
+  })
 
-  // Generate evenly-spaced ticks within the visible range
   const tickStep = (yCeil - yFloor) <= 20 ? 5 : (yCeil - yFloor) <= 40 ? 10 : 25
   const yTicks: number[] = []
   for (let t = Math.ceil(yFloor / tickStep) * tickStep; t <= yCeil; t += tickStep) yTicks.push(t)
@@ -143,8 +175,8 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
             dataKey="idx"
             type="number"
             domain={[0, chartData.length - 1]}
-            ticks={chartData.map(d => d.idx)}
-            tickFormatter={(i: number) => chartData[i]?.date ?? ''}
+            ticks={chartData.map(d => d.idx as number)}
+            tickFormatter={(i: number) => (chartData[i]?.date as string) ?? ''}
             tick={{ fontSize: 9, fill: '#9ca3af' }}
             tickLine={false}
             axisLine={false}
@@ -161,30 +193,36 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
           />
           <Tooltip content={<ChartTooltip />} />
 
-          {/* Accuracy */}
-          <Line
-            type="monotone"
-            dataKey="accuracy"
-            stroke="#2563eb"
-            strokeWidth={2}
-            dot={(props) => {
-              const isCurrent = props.payload?.isCurrent
-              return (
-                <circle
-                  key={props.index}
-                  cx={props.cx}
-                  cy={props.cy}
-                  r={isCurrent ? 5 : 3}
-                  fill="#2563eb"
-                  stroke={isCurrent ? '#bfdbfe' : 'none'}
-                  strokeWidth={isCurrent ? 3 : 0}
-                />
-              )
-            }}
-            activeDot={{ r: 5, fill: '#1d4ed8' }}
-          />
+          {/* One line per facilitator */}
+          {facilitators.map(fac => (
+            <Line
+              key={fac.key}
+              type="monotone"
+              dataKey={fac.key}
+              stroke={fac.color}
+              strokeWidth={2}
+              connectNulls={false}
+              dot={(props) => {
+                const val = props.payload?.[fac.key]
+                if (val === undefined || val === null) return <g key={props.index} />
+                const isCurrent = props.payload?.isCurrent && props.payload?.facilitatorName === fac.name
+                return (
+                  <circle
+                    key={props.index}
+                    cx={props.cx}
+                    cy={props.cy}
+                    r={isCurrent ? 5 : 3}
+                    fill={fac.color}
+                    stroke={isCurrent ? '#bfdbfe' : 'none'}
+                    strokeWidth={isCurrent ? 3 : 0}
+                  />
+                )
+              }}
+              activeDot={{ r: 5 }}
+            />
+          ))}
 
-          {/* Arrived dots — top lane */}
+          {/* Arrived dots — top regulation lane */}
           {hasRegulation && (
             <Line
               type="monotone"
@@ -194,14 +232,8 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
                 const ra = props.payload?.regulationArrival
                 if (!ra) return <g key={props.index} />
                 return (
-                  <circle
-                    key={props.index}
-                    cx={props.cx}
-                    cy={props.cy}
-                    r={4}
-                    fill={ra === 'regulated' ? '#16a34a' : '#ca8a04'}
-                    stroke="none"
-                  />
+                  <circle key={props.index} cx={props.cx} cy={props.cy} r={4}
+                    fill={ra === 'regulated' ? '#16a34a' : '#ca8a04'} stroke="none" />
                 )
               }}
               activeDot={false}
@@ -210,7 +242,7 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
             />
           )}
 
-          {/* Departed dots — bottom lane */}
+          {/* Departed dots — bottom regulation lane */}
           {hasRegulation && (
             <Line
               type="monotone"
@@ -220,14 +252,8 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
                 const rd = props.payload?.regulationDeparture
                 if (!rd) return <g key={props.index} />
                 return (
-                  <circle
-                    key={props.index}
-                    cx={props.cx}
-                    cy={props.cy}
-                    r={4}
-                    fill={rd === 'regulated' ? '#16a34a' : '#ca8a04'}
-                    stroke="none"
-                  />
+                  <circle key={props.index} cx={props.cx} cy={props.cy} r={4}
+                    fill={rd === 'regulated' ? '#16a34a' : '#ca8a04'} stroke="none" />
                 )
               }}
               activeDot={false}
@@ -238,13 +264,22 @@ export default function AccuracyChart({ data, currentSessionId }: { data: Sessio
         </LineChart>
       </ResponsiveContainer>
 
-      {hasRegulation && (
-        <div className="flex gap-4 mt-1 text-[9px] text-gray-400 pl-4">
-          <span>top band = arrived &nbsp; bottom band = departed</span>
-          <span className="text-green-600">● regulated</span>
-          <span className="text-yellow-600">● dysregulated</span>
-        </div>
-      )}
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 mt-2 pl-4">
+        {facilitators.map(fac => (
+          <span key={fac.key} className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: fac.color }}>
+            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: fac.color }} />
+            {fac.name}
+          </span>
+        ))}
+        {hasRegulation && (
+          <>
+            <span className="text-[9px] text-gray-400 self-center">· top = arrived · bottom = departed ·</span>
+            <span className="text-[9px] text-green-600 font-semibold">● regulated</span>
+            <span className="text-[9px] text-yellow-600 font-semibold">● dysregulated</span>
+          </>
+        )}
+      </div>
     </>
   )
 }

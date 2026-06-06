@@ -28,6 +28,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ se
   const update: Record<string, string | null> = {}
   if ('regulation_arrival' in body) update.regulation_arrival = body.regulation_arrival
   if ('regulation_departure' in body) update.regulation_departure = body.regulation_departure
+  if ('crp_id' in body) update.crp_id = body.crp_id
   if (!Object.keys(update).length) return Response.json({ error: 'Nothing to update' }, { status: 400 })
 
   const { data: session } = await getSupabase().from('sessions').select('practitioner_id').eq('id', sessionId).single()

@@ -37,6 +37,8 @@ export default async function EditTranscriptPage({ params }: { params: Promise<{
         studentId={session.student_id}
         responses={responses}
         lessonHunks={lessonHunks}
+        initialRegulationArrival={session.regulation_arrival ?? null}
+        initialRegulationDeparture={session.regulation_departure ?? null}
       />
     </div>
   )

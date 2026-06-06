@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lesson, QuestionType } from '@/lib/types'
-import type { SessionResponse } from '@/lib/practitionerStore'
+import type { SessionResponse, CRP } from '@/lib/practitionerStore'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -57,7 +57,7 @@ interface HunkCapture {
   skipped: boolean
 }
 
-export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null }: {
+export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null, crps = [], initialCrpId = null }: {
   sessionId: string
   studentName: string
   sessionDate: string
@@ -67,6 +67,8 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   initialResponses?: SessionResponse[]
   initialRegulationArrival?: string | null
   initialRegulationDeparture?: string | null
+  crps?: CRP[]
+  initialCrpId?: string | null
 }) {
   const router = useRouter()
 
@@ -137,6 +139,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [sessionInvoice, setSessionInvoice] = useState(savedInvoice?.capturedAnswer ?? '')
   const [regArrival, setRegArrival] = useState<string | null>(initialRegulationArrival)
   const [regDeparture, setRegDeparture] = useState<string | null>(initialRegulationDeparture)
+  const [crpId, setCrpId] = useState<string | null>(initialCrpId)
+  const [addingCrp, setAddingCrp] = useState(false)
+  const [newCrpName, setNewCrpName] = useState('')
+  const [savingCrp, setSavingCrp] = useState(false)
+  const [localCrps, setLocalCrps] = useState<CRP[]>(crps)
   const [invoiceMode, setInvoiceMode] = useState<'link' | 'generate'>(
     (savedInvoice?.capturedAnswer ?? '').startsWith('/practitioner/invoice/') ? 'generate' : 'link'
   )
@@ -178,6 +185,33 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     const next = regDeparture === reg ? null : reg
     setRegDeparture(next)
     patchRegulation('regulation_departure', next)
+  }
+
+  function selectCrp(id: string | null) {
+    setCrpId(id)
+    fetch(`/api/practitioner/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ crp_id: id }),
+    })
+  }
+
+  async function handleAddCrp() {
+    if (!newCrpName.trim()) return
+    setSavingCrp(true)
+    const res = await fetch('/api/practitioner/crps', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, name: newCrpName.trim() }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setLocalCrps(prev => [...prev, data.crp])
+      selectCrp(data.crp.id)
+      setNewCrpName('')
+      setAddingCrp(false)
+    }
+    setSavingCrp(false)
   }
 
   function updateKeywordMisspoke(idx: number, delta: number) {
@@ -460,6 +494,63 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         {/* Observation panel — persistent */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student Observation</p>
+
+          {/* Facilitator selector */}
+          <div className="mb-4">
+            <p className="text-xs text-gray-400 mb-1.5">Session run by</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => selectCrp(null)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                  crpId === null
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'border-blue-300 text-blue-600 hover:bg-blue-50'
+                }`}
+              >
+                Practitioner
+              </button>
+              {localCrps.map(crp => (
+                <button
+                  key={crp.id}
+                  onClick={() => selectCrp(crp.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                    crpId === crp.id ? 'text-white' : 'hover:opacity-80'
+                  }`}
+                  style={crpId === crp.id
+                    ? { backgroundColor: crp.color, borderColor: crp.color }
+                    : { borderColor: crp.color, color: crp.color }
+                  }
+                >
+                  {crp.name}
+                </button>
+              ))}
+              {!addingCrp && (
+                <button
+                  onClick={() => setAddingCrp(true)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  + New CRP
+                </button>
+              )}
+            </div>
+            {addingCrp && (
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  value={newCrpName}
+                  onChange={e => setNewCrpName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleAddCrp(); if (e.key === 'Escape') { setAddingCrp(false); setNewCrpName('') } }}
+                  placeholder="CRP name…"
+                  autoFocus
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button onClick={handleAddCrp} disabled={savingCrp || !newCrpName.trim()} className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-medium disabled:opacity-50">
+                  {savingCrp ? '…' : 'Add'}
+                </button>
+                <button onClick={() => { setAddingCrp(false); setNewCrpName('') }} className="text-gray-400 text-xs px-1">Cancel</button>
+              </div>
+            )}
+          </div>
 
           {/* Arrival regulation */}
           <div className="mb-3">
