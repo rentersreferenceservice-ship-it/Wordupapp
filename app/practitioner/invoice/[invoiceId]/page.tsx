@@ -196,6 +196,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
       <div className="max-w-2xl mx-auto">
         <InvoiceActions
           invoiceId={invoiceId}
+          studentId={invoice.student_id}
           initialAmountPaid={amountPaid}
           initialIsPaid={invoice.is_paid}
           amount={amount}

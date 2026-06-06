@@ -10,6 +10,7 @@ interface ExtraItem {
 
 interface Props {
   invoiceId: string
+  studentId: string
   initialAmountPaid: number
   initialIsPaid: boolean
   amount: number
@@ -24,6 +25,7 @@ interface Props {
 
 export default function InvoiceActions({
   invoiceId,
+  studentId,
   initialAmountPaid,
   initialIsPaid,
   amount: initialAmount,
@@ -55,20 +57,31 @@ export default function InvoiceActions({
   async function handleSave() {
     setSaving(true)
     setSaved(false)
-    await fetch(`/api/practitioner/invoice/${invoiceId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        funderName: funderName.trim(),
-        funderEmail: funderEmail.trim(),
-        guardianEmail: guardianEmail.trim(),
-        invoiceDate: invoiceDate || null,
-        dueDate: dueDate || null,
-        amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
-        isPaid,
-        extraItems,
+    await Promise.all([
+      fetch(`/api/practitioner/invoice/${invoiceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          funderName: funderName.trim(),
+          funderEmail: funderEmail.trim(),
+          guardianEmail: guardianEmail.trim(),
+          invoiceDate: invoiceDate || null,
+          dueDate: dueDate || null,
+          amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
+          isPaid,
+          extraItems,
+        }),
       }),
-    })
+      fetch(`/api/practitioner/students/${studentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          funderName: funderName.trim(),
+          funderEmail: funderEmail.trim(),
+          guardianEmail: guardianEmail.trim(),
+        }),
+      }),
+    ])
     setSaving(false)
     setSaved(true)
     router.refresh()
