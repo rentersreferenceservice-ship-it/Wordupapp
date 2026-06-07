@@ -258,8 +258,10 @@ export default function EditTranscriptClient({
         misspokeCount = edit.skipped ? 0 : edit.misspokeCount
       } else if (edit.notAsked) {
         capturedAnswer = 'NOT_ASKED'
+        misspokeCount = r.misspokeCount ?? 0
       } else if (edit.skipped) {
         capturedAnswer = 'SKIP'
+        misspokeCount = r.misspokeCount ?? 0
       } else {
         capturedAnswer = edit.capturedAnswer
         misspokeCount = edit.misspokeCount
