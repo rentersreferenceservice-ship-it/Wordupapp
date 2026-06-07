@@ -84,6 +84,9 @@ function Stepper({ value, onChange }: { value: number; onChange: (n: number) => 
       <button onClick={() => onChange(Math.max(0, value - 1))} className="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 flex items-center justify-center text-sm">−</button>
       <span className="w-5 text-center text-sm font-semibold text-red-600">{value}</span>
       <button onClick={() => onChange(value + 1)} className="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 flex items-center justify-center text-sm">+</button>
+      {value > 0 && (
+        <button onClick={() => onChange(0)} className="text-gray-300 hover:text-red-400 text-xs leading-none ml-0.5" title="Clear">×</button>
+      )}
     </div>
   )
 }
@@ -185,6 +188,24 @@ export default function EditTranscriptClient({
 
   function update(id: string, changes: Partial<EditState>) {
     setEdits(prev => ({ ...prev, [id]: { ...prev[id], ...changes } }))
+  }
+
+  function resetAllMisspokes() {
+    setEdits(prev => {
+      const next = { ...prev }
+      for (const id of Object.keys(next)) next[id] = { ...next[id], misspokeCount: 0 }
+      return next
+    })
+    setExtraKeywords(prev => {
+      const next = { ...prev }
+      for (const k of Object.keys(next)) next[Number(k)] = next[Number(k)].map(s => ({ ...s, misspokeCount: 0 }))
+      return next
+    })
+    setWritingMisspokes(prev => {
+      const next = { ...prev }
+      for (const k of Object.keys(next)) next[Number(k)] = 0
+      return next
+    })
   }
 
   function toggleState(s: string) {
@@ -758,6 +779,13 @@ export default function EditTranscriptClient({
       ))}
 
       {saveError && <p className="text-red-600 text-sm mb-4">{saveError}</p>}
+
+      <button
+        onClick={resetAllMisspokes}
+        className="w-full mb-3 bg-gray-50 text-gray-500 py-2 rounded-xl font-medium text-sm border border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors"
+      >
+        Reset all misspoke counts to 0
+      </button>
 
       <button
         onClick={handleSave}
