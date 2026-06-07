@@ -12,7 +12,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
 
   const { responses } = await req.json()
   try {
-    await saveSessionResponses(sessionId, responses)
+    const seenExtra = new Set<string>()
+    const deduped = (responses as { questionType?: string; keyword?: string; hunkNumber?: number }[]).filter(r => {
+      if (r.questionType !== 'EXTRA_SPELLING') return true
+      const key = `${r.hunkNumber}:${(r.keyword ?? '').toUpperCase().trim()}`
+      if (seenExtra.has(key)) return false
+      seenExtra.add(key)
+      return true
+    })
+    await saveSessionResponses(sessionId, deduped)
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
   }

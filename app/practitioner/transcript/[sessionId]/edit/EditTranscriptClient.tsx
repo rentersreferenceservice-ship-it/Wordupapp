@@ -169,9 +169,16 @@ export default function EditTranscriptClient({
     const allHunks = new Set(allResponses.filter(r => r.hunkNumber && r.hunkNumber > 0).map(r => r.hunkNumber!))
     const map: Record<number, { word: string; misspokeCount: number; skipped: boolean }[]> = {}
     for (const hunkNum of allHunks) {
+      const seenWords = new Set<string>()
       const existing = allResponses
         .filter(r => r.questionType === 'EXTRA_SPELLING' && r.hunkNumber === hunkNum)
         .map(r => ({ word: r.keyword ?? '', misspokeCount: r.misspokeCount ?? 0, skipped: r.capturedAnswer === 'SKIPPED' }))
+        .filter(e => {
+          const key = e.word.toUpperCase().trim()
+          if (seenWords.has(key)) return false
+          seenWords.add(key)
+          return true
+        })
       while (existing.length < 2) existing.push({ word: '', misspokeCount: 0, skipped: false })
       map[hunkNum] = existing
     }
@@ -268,6 +275,7 @@ export default function EditTranscriptClient({
     for (const r of allResponses) {
       if (!r.hunkNumber || r.hunkNumber <= 0) continue
       if (r.questionType === 'WRITING_PROMPT') continue
+      if (r.questionType === 'EXTRA_SPELLING') continue
       const edit = edits[r.id]
       if (!edit) continue
 

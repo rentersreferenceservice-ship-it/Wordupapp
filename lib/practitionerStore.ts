@@ -208,11 +208,23 @@ export async function createSession(
 export async function saveSessionResponses(sessionId: string, responses: Omit<SessionResponse, 'id' | 'sessionId'>[]): Promise<void> {
   if (responses.length === 0) return
 
+  // Deduplicate EXTRA_SPELLING rows — the Edit Transcript client historically sent
+  // each extra keyword twice (once from the main response loop, once from the
+  // extraKeywords loop), causing the count to double on every save.
+  const seenExtra = new Set<string>()
+  const deduped = responses.filter(r => {
+    if (r.questionType !== 'EXTRA_SPELLING') return true
+    const key = `${r.hunkNumber}:${(r.keyword ?? '').toUpperCase().trim()}`
+    if (seenExtra.has(key)) return false
+    seenExtra.add(key)
+    return true
+  })
+
   // Separate special session-level records (hunkNumber 0) from regular hunk responses.
   // Insert regular records first, then special ones — so a constraint on hunk_number
   // doesn't wipe the session data.
-  const regularRows = responses.filter(r => (r.hunkNumber ?? 0) > 0)
-  const specialRows = responses.filter(r => (r.hunkNumber ?? 0) === 0)
+  const regularRows = deduped.filter(r => (r.hunkNumber ?? 0) > 0)
+  const specialRows = deduped.filter(r => (r.hunkNumber ?? 0) === 0)
 
   const toRow = (r: Omit<SessionResponse, 'id' | 'sessionId'>) => ({
     session_id: sessionId,
