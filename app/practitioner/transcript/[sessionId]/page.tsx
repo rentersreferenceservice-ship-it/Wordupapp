@@ -89,8 +89,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
     sentenceLetters +
     writingLetters
-  const totalMisspokes = responses
-    .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
+  const totalMisspokes = [...spellKeywords, ...spellKnown]
     .reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0

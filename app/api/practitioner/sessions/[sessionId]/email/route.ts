@@ -79,8 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       known.reduce((s, q) => s + (q.expectedAnswer ?? '').split('/').reduce((a, x) => a + x.trim().replace(/\s/g, '').length, 0), 0) +
       sentenceLetters +
       writingLetters
-    const totalMisspokes = responses
-      .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
+    const totalMisspokes = [...keywords, ...known]
       .reduce((s, r) => s + (r.misspokeCount ?? 0), 0)
     const totalPokes = totalLetters + totalMisspokes
     const accuracy = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : null
