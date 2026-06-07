@@ -214,7 +214,9 @@ export async function saveSessionResponses(sessionId: string, responses: Omit<Se
   const seenExtra = new Set<string>()
   const deduped = responses.filter(r => {
     if (r.questionType !== 'EXTRA_SPELLING') return true
-    const key = `${r.hunkNumber}:${(r.keyword ?? '').toUpperCase().trim()}`
+    const word = (r.keyword ?? '').trim()
+    if (!word) return false
+    const key = `${r.hunkNumber}:${word.toUpperCase()}`
     if (seenExtra.has(key)) return false
     seenExtra.add(key)
     return true
