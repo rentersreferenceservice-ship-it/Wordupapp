@@ -95,6 +95,9 @@ export async function POST(req: NextRequest) {
         const active = sub.status === 'active' || sub.status === 'trialing'
         await setSubscribed(clerkUserId, active)
         await getSupabase()
+          .from('user_usage')
+          .upsert({ user_id: clerkUserId, subscription_status: sub.status }, { onConflict: 'user_id', ignoreDuplicates: false })
+        await getSupabase()
           .from('practitioner_subscriptions')
           .update({ is_active: active })
           .eq('user_id', clerkUserId)
@@ -106,6 +109,9 @@ export async function POST(req: NextRequest) {
       const clerkUserId = await getClerkUserId(sub.customer as string)
       if (clerkUserId) {
         await setSubscribed(clerkUserId, false)
+        await getSupabase()
+          .from('user_usage')
+          .upsert({ user_id: clerkUserId, subscription_status: 'canceled' }, { onConflict: 'user_id', ignoreDuplicates: false })
         await getSupabase()
           .from('practitioner_subscriptions')
           .update({ is_active: false })
