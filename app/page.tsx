@@ -311,7 +311,7 @@ export default function HomePage() {
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4">
             <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
             <p className="text-xs text-blue-800 mb-1">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, and track student progress — all in one place.</p>
-            <p className="text-xs text-blue-700 font-semibold mb-3">30-day free trial · $29.99/month or $305.89/year · No charge until your trial ends.</p>
+            <p className="text-xs text-blue-700 font-semibold mb-3">Start your 30-day free trial today — no charge until your trial ends.</p>
             <a
               href="/practitioner/get-started"
               className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
