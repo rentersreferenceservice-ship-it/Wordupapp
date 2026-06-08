@@ -389,7 +389,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
       <aside className="lg:w-72 shrink-0">
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-5 sticky top-6">
           <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
-          <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, and track student progress — all in one place.</p>
+          <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>
           <p className="text-xs text-blue-700 font-semibold mb-4">Start your 30-day free trial today — no charge until your trial ends.</p>
           <a
             href="/practitioner/get-started"
