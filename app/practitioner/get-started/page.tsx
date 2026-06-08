@@ -43,7 +43,7 @@ export default function PractitionerAccessPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 120 }} className="mb-8" />
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Practitioner Portal</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">Practitioner Dashboard</h1>
       <p className="text-gray-500 mb-6 text-center max-w-sm">Tell us about yourself to get started.</p>
 
       <SignInButton>
