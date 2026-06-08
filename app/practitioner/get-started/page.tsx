@@ -44,7 +44,12 @@ export default function PractitionerAccessPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 120 }} className="mb-8" />
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Practitioner Dashboard</h1>
-      <p className="text-gray-500 mb-6 text-center max-w-sm">Tell us about yourself to get started.</p>
+      <p className="text-gray-500 mb-3 text-center max-w-sm">Manage your caseload, run sessions, generate invoices, and track student progress.</p>
+      <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-3 text-center mb-6 max-w-sm w-full">
+        <p className="text-sm font-bold text-blue-900">30-day free trial</p>
+        <p className="text-xs text-blue-700 mt-0.5">$29.99/month or $305.89/year after your trial ends. Your card will not be charged until the trial period is complete. Cancel anytime.</p>
+      </div>
+      <p className="text-gray-500 mb-4 text-center max-w-sm text-sm">Tell us about yourself to get started.</p>
 
       <SignInButton>
         <button className="w-full max-w-sm bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors mb-6">
