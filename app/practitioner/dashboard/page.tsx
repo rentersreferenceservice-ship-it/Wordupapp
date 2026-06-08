@@ -7,6 +7,7 @@ import AddToHomeScreen from '../AddToHomeScreen'
 import BackfillButton from './BackfillButton'
 import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
 import InvoiceLookup from './InvoiceLookup'
+import GettingStarted from './GettingStarted'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +65,7 @@ export default async function PractitionerDashboard() {
         </div>
       </div>
 
+      {students.length === 0 && <GettingStarted />}
       <InvoiceLookup />
 
       <div className="mb-6">

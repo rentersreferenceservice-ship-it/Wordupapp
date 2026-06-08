@@ -1,9 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function PractitionerSubscribePage() {
+  const router = useRouter()
   const [loading, setLoading] = useState<'monthly' | 'annual' | null>(null)
+  const [showCode, setShowCode] = useState(false)
+  const [code, setCode] = useState('')
+  const [codeError, setCodeError] = useState('')
+  const [redeeming, setRedeeming] = useState(false)
 
   async function subscribe(billing: 'monthly' | 'annual') {
     setLoading(billing)
@@ -17,6 +23,23 @@ export default function PractitionerSubscribePage() {
       window.location.href = data.url
     } else {
       setLoading(null)
+    }
+  }
+
+  async function redeemCode(e: React.FormEvent) {
+    e.preventDefault()
+    setCodeError('')
+    setRedeeming(true)
+    const res = await fetch('/api/practitioner/subscribe/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+    setRedeeming(false)
+    if (res.ok) {
+      router.push('/practitioner/dashboard')
+    } else {
+      setCodeError('Invalid access code. Please try again.')
     }
   }
 
@@ -59,6 +82,35 @@ export default function PractitionerSubscribePage() {
       <p className="text-xs text-gray-400 mt-6 text-center max-w-sm">
         Cancel anytime before your trial ends and you will not be charged. After the trial, your chosen plan renews automatically.
       </p>
+
+      <div className="mt-6">
+        {!showCode ? (
+          <button onClick={() => setShowCode(true)} className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2">
+            Have an access code?
+          </button>
+        ) : (
+          <form onSubmit={redeemCode} className="flex flex-col items-center gap-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter access code"
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-48"
+                autoFocus
+              />
+              <button
+                type="submit"
+                disabled={redeeming || !code.trim()}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {redeeming ? 'Checking...' : 'Redeem'}
+              </button>
+            </div>
+            {codeError && <p className="text-xs text-red-500">{codeError}</p>}
+          </form>
+        )}
+      </div>
     </main>
   )
 }
