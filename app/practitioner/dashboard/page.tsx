@@ -6,6 +6,7 @@ import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
 import BackfillButton from './BackfillButton'
 import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
+import InvoiceLookup from './InvoiceLookup'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export default async function PractitionerDashboard() {
   if (!userId) redirect('/practitioner/get-started')
 
   const subscription = await getPractitionerSubscription(userId)
-  if (!subscription?.isActive) redirect('/')
+  if (!subscription?.isActive) redirect('/practitioner/subscribe')
 
   const [students, sessions] = await Promise.all([
     getStudents(userId),
@@ -62,6 +63,8 @@ export default async function PractitionerDashboard() {
           <p className="text-sm text-gray-500 mt-1">Total Sessions</p>
         </div>
       </div>
+
+      <InvoiceLookup />
 
       <div className="mb-6">
         <AccessCodeManager />

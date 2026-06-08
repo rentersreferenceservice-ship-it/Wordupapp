@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import Stripe from 'stripe'
 import { setSubscribed } from '@/lib/usageStore'
-import { setPractitionerSubscription, PractitionerTier, BillingPeriod } from '@/lib/practitionerStore'
+import { setPractitionerSubscription, BillingPeriod } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 
 async function getConfig(key: string): Promise<string | null> {
@@ -50,12 +50,12 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const clerkUserId = session.metadata?.clerkUserId
-      const practitionerTier = session.metadata?.practitionerTier as PractitionerTier | undefined
+      const practitionerTier = session.metadata?.practitionerTier
       const billingPeriod = session.metadata?.billingPeriod as BillingPeriod | undefined
       const referralSource = session.metadata?.referralSource
       if (clerkUserId) {
         if (practitionerTier && billingPeriod) {
-          await setPractitionerSubscription(clerkUserId, practitionerTier, billingPeriod, true)
+          await setPractitionerSubscription(clerkUserId, billingPeriod, true)
           console.log('Practitioner subscribed:', clerkUserId, practitionerTier)
         } else {
           await setSubscribed(clerkUserId, true)
@@ -94,6 +94,10 @@ export async function POST(req: NextRequest) {
       if (clerkUserId) {
         const active = sub.status === 'active' || sub.status === 'trialing'
         await setSubscribed(clerkUserId, active)
+        await getSupabase()
+          .from('practitioner_subscriptions')
+          .update({ is_active: active })
+          .eq('user_id', clerkUserId)
       }
       break
     }
@@ -102,6 +106,10 @@ export async function POST(req: NextRequest) {
       const clerkUserId = await getClerkUserId(sub.customer as string)
       if (clerkUserId) {
         await setSubscribed(clerkUserId, false)
+        await getSupabase()
+          .from('practitioner_subscriptions')
+          .update({ is_active: false })
+          .eq('user_id', clerkUserId)
         console.log('Unsubscribed user:', clerkUserId)
       }
       break

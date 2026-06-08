@@ -1,21 +1,9 @@
 import { getSupabase } from './supabase'
 
-export type PractitionerTier = 'starter' | 'growing' | 'established' | 'agency'
+export type PractitionerTier = 'standard' | 'agency'
 export type BillingPeriod = 'monthly' | 'annual'
 
-export const TIER_LIMITS: Record<PractitionerTier, number> = {
-  starter: 10,
-  growing: 25,
-  established: 50,
-  agency: 100,
-}
-
-export const TIER_PRICES: Record<PractitionerTier, { monthly: number; annual: number }> = {
-  starter:     { monthly: 2999,  annual: 30589 },  // $29.99/mo, $305.89/yr (~15% off)
-  growing:     { monthly: 6999,  annual: 71389 },  // $69.99/mo, $713.89/yr
-  established: { monthly: 12999, annual: 132589 }, // $129.99/mo, $1325.89/yr
-  agency:      { monthly: 24999, annual: 254989 }, // $249.99/mo, $2549.89/yr
-}
+export const PLAN_PRICE = { monthly: 2999, annual: 30589 } // $29.99/mo, $305.89/yr (~15% off)
 
 export interface PractitionerSubscription {
   userId: string
@@ -85,14 +73,13 @@ export async function getPractitionerSubscription(userId: string): Promise<Pract
 
 export async function setPractitionerSubscription(
   userId: string,
-  tier: PractitionerTier,
   billingPeriod: BillingPeriod,
   active: boolean
 ): Promise<void> {
   await getSupabase().from('practitioner_subscriptions').upsert({
     user_id: userId,
-    tier,
-    student_limit: TIER_LIMITS[tier],
+    tier: 'standard',
+    student_limit: 999,
     is_active: active,
     billing_period: billingPeriod,
   })

@@ -4,6 +4,44 @@ import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+export async function GET(req: NextRequest) {
+  const { userId } = await auth()
+  if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
+
+  const number = new URL(req.url).searchParams.get('number')
+  if (!number) return Response.json({ error: 'number required' }, { status: 400 })
+
+  const supabase = getSupabase()
+  const { data: invoice } = await supabase
+    .from('invoices')
+    .select('*')
+    .eq('practitioner_id', userId)
+    .eq('invoice_number', parseInt(number, 10))
+    .single()
+
+  if (!invoice) return Response.json({ error: 'Not found' }, { status: 404 })
+
+  const { data: student } = await supabase
+    .from('students').select('name').eq('id', invoice.student_id).single()
+
+  const extraItems = (invoice.extra_items ?? []) as Array<{ description: string; amount: number }>
+  const extraTotal = extraItems.reduce((sum: number, item) => sum + (item.amount || 0), 0)
+
+  return Response.json({
+    id: invoice.id,
+    invoiceNumber: invoice.invoice_number,
+    studentName: student?.name ?? '',
+    amount: parseFloat(invoice.amount),
+    extraTotal,
+    amountPaid: parseFloat(invoice.amount_paid ?? '0'),
+    isPaid: invoice.is_paid,
+    invoiceDate: invoice.invoice_date,
+    dueDate: invoice.due_date ?? null,
+    funderName: invoice.funder_name ?? '',
+    notes: invoice.notes ?? '',
+  })
+}
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
