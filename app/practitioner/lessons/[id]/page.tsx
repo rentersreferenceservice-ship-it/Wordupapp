@@ -10,6 +10,8 @@ import FactCheckButton from '@/app/lessons/[id]/FactCheckButton'
 import VerifyToggle from '@/app/lessons/[id]/VerifyToggle'
 import TranslateButton from '@/app/lessons/[id]/TranslateButton'
 import { generateQRDataUrl } from '@/lib/qrcode'
+import { getStudents } from '@/lib/practitionerStore'
+import StartSessionFromLesson from './StartSessionFromLesson'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +32,10 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
 
   const isAdmin = userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
-  const lesson = await getLesson(id)
+  const [lesson, students] = await Promise.all([
+    getLesson(id),
+    getStudents(userId),
+  ])
   if (!lesson) notFound()
 
   // Pre-generate QR codes for VAKT questions that have a youtubeQuery
@@ -68,6 +73,10 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           {isAdmin && <DeleteButton redirectTo="/practitioner/library" />}
         </div>
       </nav>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 mb-4 print:hidden">
+        <StartSessionFromLesson lessonId={id} lessonTitle={lesson.title} students={students} />
+      </div>
 
       <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
         <div className="flex justify-center mb-1">
