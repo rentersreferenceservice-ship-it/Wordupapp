@@ -1,12 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { SignUpButton, SignInButton } from '@clerk/nextjs'
+import { useState, useEffect } from 'react'
+import { SignUpButton, SignInButton, useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 
 export default function PractitionerAccessPage() {
+  const { isSignedIn } = useUser()
+  const router = useRouter()
   const [form, setForm] = useState({ name: '', email: '', organization: '', role: '' })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (isSignedIn) router.replace('/practitioner/dashboard')
+  }, [isSignedIn, router])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
