@@ -260,7 +260,9 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
   }, [lessons, ageFilter, subjectFilter, search])
 
   return (
-    <main className="relative z-10 min-h-screen px-4 py-10 max-w-2xl mx-auto">
+    <main className="relative z-10 min-h-screen px-4 py-10 max-w-5xl mx-auto">
+      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex-1 min-w-0">
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
 
       {/* Verified explanation note */}
@@ -381,6 +383,24 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
           ))}
         </ul>
       )}
+      </div>{/* end left column */}
+
+      {/* Practitioner sidebar */}
+      <aside className="lg:w-72 shrink-0">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-5 sticky top-6">
+          <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
+          <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, and track student progress — all in one place.</p>
+          <p className="text-xs text-blue-700 font-semibold mb-4">30-day free trial · $29.99/month or $305.89/year · No charge until your trial ends.</p>
+          <a
+            href="/practitioner/get-started"
+            className="block bg-blue-600 text-white px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors text-center"
+          >
+            Explore the Practitioner Dashboard →
+          </a>
+        </div>
+      </aside>
+
+      </div>{/* end flex row */}
     </main>
   )
 }
