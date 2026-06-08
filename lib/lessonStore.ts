@@ -36,7 +36,8 @@ export async function listLessons(): Promise<Lesson[]> {
   lessons.sort((a, b) => {
     const aVerified = a.verified ? 1 : 0
     const bVerified = b.verified ? 1 : 0
-    return aVerified - bVerified
+    if (aVerified !== bVerified) return aVerified - bVerified
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
   return lessons
 }
