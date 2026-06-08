@@ -47,6 +47,12 @@ export async function listPractitionerLessons(practitionerId: string): Promise<L
   return data.map(dbRowToLesson)
 }
 
+export async function listAllPractitionerLessons(): Promise<Lesson[]> {
+  const { data } = await getSupabase().from('lessons').select('*').not('practitioner_id', 'is', null).order('created_at', { ascending: false })
+  if (!data) return []
+  return data.map(dbRowToLesson)
+}
+
 export async function deleteLesson(id: string): Promise<boolean> {
   const { error } = await getSupabase().from('lessons').delete().eq('id', id)
   return !error

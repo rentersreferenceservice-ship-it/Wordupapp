@@ -1,7 +1,7 @@
 ﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps } from '@/lib/practitionerStore'
-import { listPractitionerLessons, listLessons } from '@/lib/lessonStore'
+import { listAllPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
@@ -17,13 +17,13 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/get-started')
 
-  const [student, sessions, privateLessons, publicLessons] = await Promise.all([
+  const [student, sessions, practitionerLessons, publicLessons] = await Promise.all([
     getStudent(id),
     getSessions(userId, id),
-    listPractitionerLessons(userId),
+    listAllPractitionerLessons(),
     listLessons(),
   ])
-  const lessons = [...privateLessons, ...publicLessons]
+  const lessons = [...practitionerLessons, ...publicLessons]
 
   const [completedIds, accuracyHistory, invoicesResult, crps] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
