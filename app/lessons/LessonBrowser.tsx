@@ -267,12 +267,10 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
 
       {/* Practitioner callout */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 mb-4">
-        <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
-        <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>
-        <p className="text-xs text-blue-700 font-semibold mb-3">Start your 30-day free trial today — no charge until your trial ends.</p>
-        <a href="/practitioner/get-started" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
-          Explore the Practitioner Dashboard →
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between gap-4">
+        <p className="text-xs text-blue-800"><span className="font-semibold">S2C Practitioner?</span> Manage sessions, invoices & student progress.</p>
+        <a href="/practitioner/get-started" className="shrink-0 text-xs font-bold text-blue-600 hover:underline whitespace-nowrap">
+          Try free →
         </a>
       </div>
 
