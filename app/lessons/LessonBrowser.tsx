@@ -261,7 +261,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
 
   return (
     <main className="relative z-10 min-h-screen px-4 py-10 max-w-5xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col xl:flex-row gap-6">
       <div className="flex-1 min-w-0">
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
 
@@ -386,7 +386,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
       </div>{/* end left column */}
 
       {/* Practitioner sidebar */}
-      <aside className="lg:w-72 shrink-0">
+      <aside className="xl:w-72 shrink-0">
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-5 sticky top-6">
           <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
           <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>

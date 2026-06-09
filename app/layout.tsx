@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider signInForceRedirectUrl="/" signUpForceRedirectUrl="/subscribe">
       <html lang="en" className="h-full">
-        <body className="min-h-full flex flex-col bg-white">
+        <body className="min-h-full flex flex-col bg-white overflow-x-hidden">
           <BackgroundText />
           <RootNav />
           {children}
