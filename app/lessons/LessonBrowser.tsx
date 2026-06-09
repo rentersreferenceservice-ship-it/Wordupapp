@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useUser, UserButton, useClerk } from '@clerk/nextjs'
 import type { Lesson } from '@/lib/types'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
@@ -232,6 +233,8 @@ function SuggestEditModal({ lessons, onClose }: { lessons: Lesson[]; onClose: ()
 }
 
 export default function LessonBrowser({ lessons, isSubscribed = false }: { lessons: Lesson[]; isSubscribed?: boolean }) {
+  const { isSignedIn } = useUser()
+  const { openSignIn, openSignUp } = useClerk()
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
   const [search, setSearch] = useState('')
@@ -260,10 +263,44 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
   }, [lessons, ageFilter, subjectFilter, search])
 
   return (
-    <main className="relative z-10 min-h-screen px-4 py-10 max-w-5xl mx-auto">
-      <div className="flex flex-col xl:flex-row gap-6">
-      <div className="flex-1 min-w-0">
+    <main className="relative z-10 min-h-screen px-4 py-6 max-w-3xl mx-auto">
       {showSuggest && <SuggestEditModal lessons={lessons} onClose={() => setShowSuggest(false)} />}
+
+      {/* Practitioner callout */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 mb-4">
+        <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
+        <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>
+        <p className="text-xs text-blue-700 font-semibold mb-3">Start your 30-day free trial today — no charge until your trial ends.</p>
+        <a href="/practitioner/get-started" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
+          Explore the Practitioner Dashboard →
+        </a>
+      </div>
+
+      {/* Account / auth buttons */}
+      <div className="flex flex-wrap gap-2 mb-4 justify-end">
+        {isSignedIn ? (
+          <>
+            {!isSubscribed && (
+              <a href="/subscribe" className="bg-yellow-300 text-gray-900 px-4 py-2 rounded-lg text-sm font-bold border-2 border-yellow-400 hover:bg-yellow-400 transition-colors">
+                Subscribe
+              </a>
+            )}
+            <div className="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border-2 border-gray-900">
+              <span className="text-sm font-medium">My Account</span>
+              <UserButton />
+            </div>
+          </>
+        ) : (
+          <>
+            <button onClick={() => openSignIn()} className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">
+              Log In
+            </button>
+            <button onClick={() => openSignUp()} className="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-900 hover:bg-gray-100 transition-colors">
+              Create Account
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Verified explanation note */}
       <div className="mb-4 bg-green-50 border-2 border-black rounded-xl px-5 py-4">
@@ -319,25 +356,14 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
 
       {/* Filters */}
       <div className="flex gap-3 mb-6 flex-wrap">
-        <select
-          value={ageFilter}
-          onChange={e => setAgeFilter(e.target.value)}
-          className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300 cursor-pointer"
-        >
+        <select value={ageFilter} onChange={e => setAgeFilter(e.target.value)} className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none cursor-pointer">
           {AGE_GROUPS.map(a => <option key={a}>{a}</option>)}
         </select>
-        <select
-          value={subjectFilter}
-          onChange={e => setSubjectFilter(e.target.value)}
-          className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-300 cursor-pointer"
-        >
+        <select value={subjectFilter} onChange={e => setSubjectFilter(e.target.value)} className="border-2 border-yellow-300 rounded-lg px-3 py-2 text-sm bg-yellow-200 font-semibold text-gray-800 focus:outline-none cursor-pointer">
           {SUBJECTS.map(s => <option key={s}>{s}</option>)}
         </select>
         {(ageFilter !== 'All Ages' || subjectFilter !== 'All Subjects' || search) && (
-          <button
-            onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }}
-            className="text-sm text-gray-400 hover:text-gray-700 underline"
-          >
+          <button onClick={() => { setAgeFilter('All Ages'); setSubjectFilter('All Subjects'); setSearch('') }} className="text-sm text-gray-400 hover:text-gray-700 underline">
             Clear filters
           </button>
         )}
@@ -357,16 +383,11 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
         <ul className="space-y-3">
           {filtered.map(lesson => (
             <li key={lesson.id}>
-              <Link
-                href={`/lessons/${lesson.id}`}
-                className="block bg-white border-4 border-gray-300 rounded-xl px-5 py-4 hover:border-blue-500 hover:shadow-md transition-all"
-              >
+              <Link href={`/lessons/${lesson.id}`} className="block bg-white border-4 border-gray-300 rounded-xl px-5 py-4 hover:border-blue-500 hover:shadow-md transition-all">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-gray-900">{lesson.title}</span>
                   {lesson.verified && (
-                    <span className="inline-flex items-center gap-1 bg-green-50 border border-green-300 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                      ✓ Verified
-                    </span>
+                    <span className="inline-flex items-center gap-1 bg-green-50 border border-green-300 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">✓ Verified</span>
                   )}
                 </div>
                 <div className="text-sm text-gray-500 mt-0.5 flex gap-2 flex-wrap items-center">
@@ -383,24 +404,6 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
           ))}
         </ul>
       )}
-      </div>{/* end left column */}
-
-      {/* Practitioner sidebar */}
-      <aside className="xl:w-72 shrink-0">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-5 sticky top-6">
-          <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
-          <p className="text-xs text-blue-800 mb-3">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>
-          <p className="text-xs text-blue-700 font-semibold mb-4">Start your 30-day free trial today — no charge until your trial ends.</p>
-          <a
-            href="/practitioner/get-started"
-            className="block bg-blue-600 text-white px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors text-center"
-          >
-            Explore the Practitioner Dashboard →
-          </a>
-        </div>
-      </aside>
-
-      </div>{/* end flex row */}
     </main>
   )
 }
