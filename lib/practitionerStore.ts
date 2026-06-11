@@ -329,16 +329,15 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
 
   const sessionIds = sessions.map(s => s.id)
 
-  type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null }
+  type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null; speller_sentence: string | null }
   const responses: RawResponse[] = []
   const PAGE = 1000
   let from = 0
   while (true) {
     const { data: page } = await getSupabase()
       .from('session_responses')
-      .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer')
+      .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer, speller_sentence')
       .in('session_id', sessionIds)
-      .in('question_type', ['KEYWORD', 'KNOWN'])
       .gt('hunk_number', 0)
       .range(from, from + PAGE - 1)
     if (!page?.length) break
@@ -364,10 +363,15 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const rs = bySession[s.id] ?? []
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
+    const wp = rs.filter(r => r.question_type === 'WRITING_PROMPT' && r.captured_answer && r.captured_answer !== 'SKIPPED')
     const letters =
       kw.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
-      kn.reduce((sum, q) => sum + (q.expected_answer ?? '').split('/').reduce((acc: number, a: string) => acc + a.trim().replace(/\s/g, '').length, 0), 0)
-    const misspokes = [...kw, ...kn].reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
+      kn.reduce((sum, q) => sum + (q.expected_answer ?? '').split('/').reduce((acc: number, a: string) => acc + a.trim().replace(/\s/g, '').length, 0), 0) +
+      rs.filter(r => r.speller_sentence && r.speller_sentence.trim()).reduce((sum, r) => sum + (r.speller_sentence ?? '').replace(/\s/g, '').length, 0) +
+      wp.reduce((sum, r) => sum + (r.captured_answer ?? '').replace(/\s/g, '').length, 0)
+    const misspokes = rs
+      .filter(r => r.captured_answer !== 'NOT_ASKED' && r.captured_answer !== 'SKIPPED')
+      .reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
     const pokes = letters + misspokes
     if (pokes === 0) return []
     const crp = s.crp_id ? crpMap[s.crp_id] : null
