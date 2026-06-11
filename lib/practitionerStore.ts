@@ -335,7 +335,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     .in('session_id', sessionIds)
     .in('question_type', ['KEYWORD', 'KNOWN'])
     .gt('hunk_number', 0)
-    .limit(50000)
+    .limit(1000000)
 
   const crpIds = [...new Set((sessions ?? []).map(s => s.crp_id).filter(Boolean))]
   const crpMap: Record<string, { name: string; color: string }> = {}
