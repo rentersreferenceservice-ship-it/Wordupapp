@@ -329,13 +329,23 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
 
   const sessionIds = sessions.map(s => s.id)
 
-  const { data: responses } = await getSupabase()
-    .from('session_responses')
-    .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer')
-    .in('session_id', sessionIds)
-    .in('question_type', ['KEYWORD', 'KNOWN'])
-    .gt('hunk_number', 0)
-    .limit(1000000)
+  type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null }
+  const responses: RawResponse[] = []
+  const PAGE = 1000
+  let from = 0
+  while (true) {
+    const { data: page } = await getSupabase()
+      .from('session_responses')
+      .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer')
+      .in('session_id', sessionIds)
+      .in('question_type', ['KEYWORD', 'KNOWN'])
+      .gt('hunk_number', 0)
+      .range(from, from + PAGE - 1)
+    if (!page?.length) break
+    responses.push(...(page as RawResponse[]))
+    if (page.length < PAGE) break
+    from += PAGE
+  }
 
   const crpIds = [...new Set((sessions ?? []).map(s => s.crp_id).filter(Boolean))]
   const crpMap: Record<string, { name: string; color: string }> = {}
@@ -344,7 +354,6 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     for (const c of crpRows ?? []) crpMap[c.id] = { name: c.name, color: c.color }
   }
 
-  type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null }
   const bySession: Record<string, RawResponse[]> = {}
   for (const r of responses ?? []) {
     if (!bySession[r.session_id]) bySession[r.session_id] = []
