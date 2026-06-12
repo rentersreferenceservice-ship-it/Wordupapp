@@ -125,7 +125,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
                 <li key={s.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 text-sm truncate">{s.lessonTitle}</p>
-                    <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-400">{new Date(s.sessionDate + 'T00:00:00').toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-3 ml-3 shrink-0">
                     {isComplete ? (

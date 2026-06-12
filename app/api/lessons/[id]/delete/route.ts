@@ -15,7 +15,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const isAdmin = userId === ADMIN_USER_ID
   const isOwner = lesson.practitionerId === userId
 
-  if (!isAdmin && !isOwner && lesson.practitionerId !== null) {
+  if (!isAdmin && !isOwner) {
     return Response.json({ error: 'Unauthorized' }, { status: 403 })
   }
 

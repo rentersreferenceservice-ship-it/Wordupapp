@@ -39,7 +39,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const body = await req.json()
   const updates: Record<string, unknown> = {}
-  if (body.sessionRate != null) updates.session_rate = parseFloat(String(body.sessionRate)) || null
+  if (body.sessionRate != null) {
+    const rate = parseFloat(String(body.sessionRate))
+    updates.session_rate = isNaN(rate) ? null : rate
+  }
   if (body.funderName != null) updates.funder_name = body.funderName || null
   if (body.funderEmail != null) updates.funder_email = body.funderEmail || null
   if (body.guardianEmail != null) updates.guardian_email = body.guardianEmail || null

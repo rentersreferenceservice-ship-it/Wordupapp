@@ -339,6 +339,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
       .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer, speller_sentence')
       .in('session_id', sessionIds)
       .gt('hunk_number', 0)
+      .order('id')
       .range(from, from + PAGE - 1)
     if (!page?.length) break
     responses.push(...(page as RawResponse[]))

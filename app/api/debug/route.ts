@@ -1,4 +1,10 @@
+import { auth } from '@clerk/nextjs/server'
+
+const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
+
 export async function GET() {
+  const { userId } = await auth()
+  if (userId !== ADMIN_USER_ID) return Response.json({ error: 'Unauthorized' }, { status: 403 })
   return Response.json({
     hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     hasResendKey: !!process.env.RESEND_API_KEY,

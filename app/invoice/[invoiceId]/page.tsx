@@ -29,7 +29,9 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
 
   const amount = parseFloat(invoice.amount)
   const amountPaid = parseFloat(invoice.amount_paid ?? '0')
-  const balanceDue = Math.max(0, amount - amountPaid)
+  const extraItems = (invoice.extra_items ?? []) as Array<{ description: string; amount: number }>
+  const extraTotal = extraItems.reduce((sum: number, item) => sum + (item.amount || 0), 0)
+  const balanceDue = Math.max(0, amount + extraTotal - amountPaid)
 
   const invoiceDate = new Date(invoice.invoice_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   const sessionDate = session?.session_date
@@ -99,6 +101,12 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
               </td>
               <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(amount)}</td>
             </tr>
+            {extraItems.map((item, i) => (
+              <tr key={i} className="border-b border-gray-100">
+                <td className="px-4 py-3 text-sm text-gray-800">{item.description}</td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(item.amount)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 

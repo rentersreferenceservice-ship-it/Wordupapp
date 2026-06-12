@@ -327,7 +327,7 @@ export default function EditTranscriptClient({
         hunkNumber: Number(hunkNum),
         questionType: 'WRITING_PROMPT',
         questionText: hunkPrompts[Number(hunkNum)] ?? 'Writing Prompt',
-        capturedAnswer: response,
+        capturedAnswer: response || 'SKIPPED',
         expectedAnswer: '',
         misspokeCount: writingMisspokes[Number(hunkNum)] ?? 0,
       })

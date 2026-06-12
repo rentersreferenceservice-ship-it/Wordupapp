@@ -7,6 +7,7 @@ import type { Lesson } from '@/lib/types'
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const body = await request.json()
     const { title, topic, ageGroup, hunks, citations, scope, author } = body
 

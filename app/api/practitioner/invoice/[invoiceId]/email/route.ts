@@ -44,6 +44,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
 
   const amount = parseFloat(invoice.amount)
   const amountPaid = parseFloat(invoice.amount_paid ?? '0')
+  const extraItems = (invoice.extra_items ?? []) as Array<{ description: string; amount: number }>
+  const extraTotal = extraItems.reduce((sum: number, item) => sum + (item.amount || 0), 0)
   const invoiceDate = new Date(invoice.invoice_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   const sessionDate = session?.session_date
     ? new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -99,6 +101,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
           <td style="padding:12px;font-size:13px">S2C Session${session?.lesson_title ? ` — ${session.lesson_title}` : ''}${sessionDate ? ` (${sessionDate})` : ''}</td>
           <td style="padding:12px;text-align:right;font-size:13px;font-weight:600">${fmt(amount)}</td>
         </tr>
+        ${extraItems.map(item => `
+        <tr style="border-bottom:1px solid #e5e7eb">
+          <td style="padding:12px;font-size:13px">${item.description}</td>
+          <td style="padding:12px;text-align:right;font-size:13px;font-weight:600">${fmt(item.amount)}</td>
+        </tr>`).join('')}
       </tbody>
     </table>
 
@@ -111,7 +118,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
         </div>` : ''}
         <div style="display:flex;justify-content:space-between;padding:10px 12px;background:#1e3a5f;border-radius:8px;color:white;font-weight:700;font-size:15px">
           <span>Balance Due</span>
-          <span>${fmt(Math.max(0, amount - amountPaid))}</span>
+          <span>${fmt(Math.max(0, amount + extraTotal - amountPaid))}</span>
         </div>
       </div>
     </div>

@@ -10,6 +10,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
+  const { data: session } = await getSupabase().from('sessions').select('practitioner_id').eq('id', sessionId).single()
+  if (!session || session.practitioner_id !== userId) return Response.json({ error: 'Not found' }, { status: 404 })
+
   const { responses } = await req.json()
   try {
     await saveSessionResponses(sessionId, responses)

@@ -118,7 +118,7 @@ export default async function PractitionerDashboard() {
                   <Link href={`/practitioner/transcript/${s.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
                     <div>
                       <p className="font-medium text-gray-900 text-sm group-hover:text-blue-600">{s.lessonTitle}</p>
-                      <p className="text-xs text-gray-400">{new Date(s.sessionDate).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-400">{new Date(s.sessionDate + 'T00:00:00').toLocaleDateString()}</p>
                     </div>
                     <span className="text-xs text-blue-600 group-hover:underline">View</span>
                   </Link>

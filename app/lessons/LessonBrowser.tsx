@@ -137,12 +137,16 @@ function detectSubject(lesson: Lesson): string {
   }
   for (const [name, subject] of Object.entries(subjectNames)) {
     const titleTopic = [lesson.title, lesson.topic].join(' ').toLowerCase()
-    if (titleTopic.includes(name)) return subject
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    if (new RegExp(`\\b${escaped}\\b`).test(titleTopic)) return subject
   }
 
   // Fall back to keyword matching
   for (const [subject, keywords] of Object.entries(SUBJECT_KEYWORDS)) {
-    if (keywords.some(k => searchText.includes(k))) return subject
+    if (keywords.some(k => {
+      const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return new RegExp(`\\b${escaped}\\b`).test(searchText)
+    })) return subject
   }
   return 'Other'
 }

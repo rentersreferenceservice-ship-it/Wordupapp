@@ -22,6 +22,8 @@ export async function PATCH(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
   const { codeId, isActive } = await req.json()
+  const existingCode = await getPractitionerCode(userId)
+  if (!existingCode || existingCode.id !== codeId) return Response.json({ error: 'Not found' }, { status: 404 })
   await toggleAccessCode(codeId, isActive)
   return Response.json({ ok: true })
 }

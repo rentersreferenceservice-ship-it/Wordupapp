@@ -61,7 +61,7 @@ export async function hasActiveRedemption(userId: string): Promise<boolean> {
     .select('is_active')
     .eq('user_id', userId)
     .single()
-  return data?.is_active !== false
+  return data != null && data.is_active !== false
 }
 
 export async function toggleFamilyAccess(userId: string, isActive: boolean): Promise<void> {
