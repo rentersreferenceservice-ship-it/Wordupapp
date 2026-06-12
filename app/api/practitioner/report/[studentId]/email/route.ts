@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
 
   const clerk = await clerkClient()
   const user = await clerk.users.getUser(userId)
-  const practitionerName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.emailAddresses[0]?.emailAddress ?? ''
+  const practitionerName = ([user.firstName, user.lastName].filter(Boolean).join(' ') || user.emailAddresses[0]?.emailAddress) ?? ''
   const practitionerEmail = user.emailAddresses[0]?.emailAddress ?? ''
 
   const { student, accuracyTrend, boardMilestones, questionTypeMilestones, regulationStats, topMisspokedKeywords } = reportData
