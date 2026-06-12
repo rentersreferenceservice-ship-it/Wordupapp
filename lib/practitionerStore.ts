@@ -400,6 +400,227 @@ export async function getSessionResponses(sessionId: string): Promise<SessionRes
   }))
 }
 
+export interface StudentReportData {
+  student: { name: string; ageGroup: string }
+  sessions: Array<{
+    id: string
+    date: string
+    lessonTitle: string
+    notes: string
+    regulationArrival: string | null
+    regulationDeparture: string | null
+    accuracy: number | null
+    pokes: number
+    isComplete: boolean
+  }>
+  boardMilestones: Array<{ board: string; date: string }>
+  questionTypeMilestones: Array<{ type: string; date: string }>
+  regulationStats: {
+    arrivedDysregulated: number
+    improvedByEnd: number
+    ongoingConcern: number
+    arrivedRegulated: number
+  }
+  topMisspokedKeywords: Array<{ keyword: string; count: number }>
+  accuracyTrend: {
+    first: number | null
+    last: number | null
+    average: number | null
+    highest: number | null
+    completedCount: number
+  }
+}
+
+const BOARD_PATTERNS: Array<{ regex: RegExp; label: string }> = [
+  { regex: /\b(3[-\s]?board|three[-\s]?board)\b/i, label: '3-Board' },
+  { regex: /\b(26[-\s]?board|twenty[-\s]?six[-\s]?board|letterboard)\b/i, label: '26-Board' },
+  { regex: /\blaminate\b/i, label: 'Laminate Board' },
+  { regex: /\bstencil\b/i, label: 'Stencil Board' },
+  { regex: /\bkeyboard\b/i, label: 'Keyboard' },
+]
+
+const REPORT_QUESTION_TYPE_LABELS: Record<string, string> = {
+  KNOWN: 'KNOWN questions',
+  'SEMI-OPEN': 'SEMI-OPEN questions',
+  'PRIOR KNOWLEDGE': 'PRIOR KNOWLEDGE questions',
+  MATH: 'MATH questions',
+  OPEN: 'OPEN questions',
+  VAKT: 'VAKT activities',
+  WRITING_PROMPT: 'Writing prompts',
+  EXTRA_SPELLING: 'Extra spelling words',
+}
+
+export async function getStudentReportData(
+  studentId: string,
+  practitionerId: string,
+  startDate: string,
+  endDate: string
+): Promise<StudentReportData | null> {
+  const supabase = getSupabase()
+
+  const [{ data: studentRow }, { data: sessions }] = await Promise.all([
+    supabase.from('students').select('name, age_group').eq('id', studentId).single(),
+    supabase
+      .from('sessions')
+      .select('id, session_date, lesson_title, regulation_arrival, regulation_departure')
+      .eq('student_id', studentId)
+      .eq('practitioner_id', practitionerId)
+      .gte('session_date', startDate)
+      .lte('session_date', endDate)
+      .order('session_date'),
+  ])
+
+  if (!studentRow || !sessions?.length) {
+    return {
+      student: { name: studentRow?.name ?? '', ageGroup: studentRow?.age_group ?? '' },
+      sessions: [],
+      boardMilestones: [],
+      questionTypeMilestones: [],
+      regulationStats: { arrivedDysregulated: 0, improvedByEnd: 0, ongoingConcern: 0, arrivedRegulated: 0 },
+      topMisspokedKeywords: [],
+      accuracyTrend: { first: null, last: null, average: null, highest: null, completedCount: 0 },
+    }
+  }
+
+  const sessionIds = sessions.map(s => s.id)
+
+  type RawRow = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null; speller_sentence: string | null }
+  const allRows: RawRow[] = []
+  const PAGE = 1000
+  let from = 0
+  while (true) {
+    const { data: page } = await supabase
+      .from('session_responses')
+      .select('session_id, question_type, keyword, misspoke_count, expected_answer, captured_answer, speller_sentence')
+      .in('session_id', sessionIds)
+      .order('id')
+      .range(from, from + PAGE - 1)
+    if (!page?.length) break
+    allRows.push(...(page as RawRow[]))
+    if (page.length < PAGE) break
+    from += PAGE
+  }
+
+  const bySession: Record<string, RawRow[]> = {}
+  for (const r of allRows) {
+    if (!bySession[r.session_id]) bySession[r.session_id] = []
+    bySession[r.session_id].push(r)
+  }
+
+  const completedIds = new Set(allRows.filter(r => r.question_type === 'SESSION_COMPLETE').map(r => r.session_id))
+  const seenBoards = new Set<string>()
+  const boardMilestones: StudentReportData['boardMilestones'] = []
+  const seenQTypes = new Set<string>()
+  const questionTypeMilestones: StudentReportData['questionTypeMilestones'] = []
+  const keywordMisspokes: Record<string, number> = {}
+
+  const sessionEntries: StudentReportData['sessions'] = sessions.map(s => {
+    const rows = bySession[s.id] ?? []
+    const hunkRows = rows.filter(r => {
+      const hn = r as RawRow & { hunk_number?: number }
+      return true
+    })
+    const notesRow = rows.find(r => r.question_type === 'SESSION_NOTES')
+    const notes = notesRow?.captured_answer ?? ''
+
+    // Board milestones from notes
+    for (const bp of BOARD_PATTERNS) {
+      if (!seenBoards.has(bp.label) && bp.regex.test(notes)) {
+        seenBoards.add(bp.label)
+        boardMilestones.push({ board: bp.label, date: s.session_date })
+      }
+    }
+
+    // Question type milestones (real hunk responses only)
+    const hunkResponseRows = rows.filter(r => {
+      const raw = r as RawRow & { hunk_number?: number }
+      return true
+    })
+    for (const r of rows) {
+      const label = REPORT_QUESTION_TYPE_LABELS[r.question_type]
+      if (label && !seenQTypes.has(r.question_type)) {
+        if (r.question_type !== 'SESSION_NOTES' && r.question_type !== 'SESSION_STATE' && r.question_type !== 'SESSION_COMPLETE' && r.question_type !== 'SESSION_VIDEO' && r.question_type !== 'SESSION_INVOICE') {
+          seenQTypes.add(r.question_type)
+          questionTypeMilestones.push({ type: label, date: s.session_date })
+        }
+      }
+    }
+
+    // Accuracy (same formula as transcript)
+    const kw = rows.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
+    const kn = rows.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
+    const wp = rows.filter(r => r.question_type === 'WRITING_PROMPT' && r.captured_answer && r.captured_answer !== 'SKIPPED')
+    const letters =
+      kw.reduce((sum, r) => sum + (r.keyword ?? '').replace(/\s/g, '').length, 0) +
+      kn.reduce((sum, r) => sum + (r.expected_answer ?? '').split('/').reduce((a: number, s2: string) => a + s2.trim().replace(/\s/g, '').length, 0), 0) +
+      rows.filter(r => r.speller_sentence && r.speller_sentence.trim()).reduce((sum, r) => sum + (r.speller_sentence ?? '').replace(/\s/g, '').length, 0) +
+      wp.reduce((sum, r) => sum + (r.captured_answer ?? '').replace(/\s/g, '').length, 0)
+    const misspokes = rows
+      .filter(r => r.captured_answer !== 'NOT_ASKED' && r.captured_answer !== 'SKIPPED')
+      .reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
+    const pokes = letters + misspokes
+    const accuracy = pokes > 0 ? Math.round((letters / pokes) * 100) : null
+
+    // Top misspoked keywords
+    for (const r of kw) {
+      if ((r.misspoke_count ?? 0) > 0 && r.keyword) {
+        keywordMisspokes[r.keyword] = (keywordMisspokes[r.keyword] ?? 0) + (r.misspoke_count ?? 0)
+      }
+    }
+
+    return {
+      id: s.id,
+      date: s.session_date,
+      lessonTitle: s.lesson_title,
+      notes,
+      regulationArrival: s.regulation_arrival ?? null,
+      regulationDeparture: s.regulation_departure ?? null,
+      accuracy,
+      pokes,
+      isComplete: completedIds.has(s.id),
+    }
+  })
+
+  // Regulation stats
+  const regulationStats = { arrivedDysregulated: 0, improvedByEnd: 0, ongoingConcern: 0, arrivedRegulated: 0 }
+  for (const s of sessionEntries) {
+    if (s.regulationArrival === 'dysregulated') {
+      regulationStats.arrivedDysregulated++
+      if (s.regulationDeparture === 'regulated') regulationStats.improvedByEnd++
+      else if (s.regulationDeparture === 'dysregulated') regulationStats.ongoingConcern++
+    } else if (s.regulationArrival === 'regulated') {
+      regulationStats.arrivedRegulated++
+    }
+  }
+
+  // Top 5 misspoked keywords
+  const topMisspokedKeywords = Object.entries(keywordMisspokes)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([keyword, count]) => ({ keyword, count }))
+
+  // Accuracy trend
+  const completedSessions = sessionEntries.filter(s => s.isComplete && s.accuracy !== null)
+  const accuracies = completedSessions.map(s => s.accuracy!)
+  const accuracyTrend = {
+    first: accuracies[0] ?? null,
+    last: accuracies[accuracies.length - 1] ?? null,
+    average: accuracies.length ? Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length) : null,
+    highest: accuracies.length ? Math.max(...accuracies) : null,
+    completedCount: completedSessions.length,
+  }
+
+  return {
+    student: { name: studentRow.name, ageGroup: studentRow.age_group },
+    sessions: sessionEntries,
+    boardMilestones,
+    questionTypeMilestones,
+    regulationStats,
+    topMisspokedKeywords,
+    accuracyTrend,
+  }
+}
+
 export async function updateSpellerSentence(sessionId: string, responseId: string, sentence: string): Promise<void> {
   const { error } = await getSupabase()
     .from('session_responses')
