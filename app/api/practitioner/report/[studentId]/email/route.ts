@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
   const practitionerName = ([user.firstName, user.lastName].filter(Boolean).join(' ') || user.emailAddresses[0]?.emailAddress) ?? ''
   const practitionerEmail = user.emailAddresses[0]?.emailAddress ?? ''
 
-  const { student, accuracyTrend, boardMilestones, questionTypeMilestones, regulationStats, topMisspokedKeywords } = reportData
+  const { student, accuracyTrend, boardMilestones, questionTypeMilestones, regulationStats } = reportData
 
   const fmt = (n: number | null) => n !== null ? `${n}%` : 'N/A'
   const periodLabel = `${new Date(startDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} – ${new Date(endDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`

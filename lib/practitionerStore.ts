@@ -33,7 +33,22 @@ export interface Session {
   lessonId: string
   lessonTitle: string
   sessionDate: string
+  boardLevel: string | null
   createdAt: string
+}
+
+export const BOARD_LEVELS = ['3-Board', '26-Board', 'Laminate Board', 'Stencil Board', 'Keyboard'] as const
+
+export interface SavedReport {
+  id: string
+  startDate: string
+  endDate: string
+  createdAt: string
+  narrative: string
+  goals: string
+  sectionsContent: Record<string, string>
+  sectionsVisible: Record<string, boolean>
+  reportData: StudentReportData
 }
 
 export interface SessionResponse {
@@ -161,7 +176,7 @@ export async function deleteStudent(id: string): Promise<void> {
 }
 
 export async function getSessions(practitionerId: string, studentId?: string): Promise<Session[]> {
-  let query = getSupabase().from('sessions').select('*').eq('practitioner_id', practitionerId)
+  let query = getSupabase().from('sessions').select('id, practitioner_id, student_id, lesson_id, lesson_title, session_date, board_level, created_at').eq('practitioner_id', practitionerId)
   if (studentId) query = query.eq('student_id', studentId)
   const { data } = await query.order('session_date', { ascending: false })
   return (data ?? []).map(d => ({
@@ -171,6 +186,7 @@ export async function getSessions(practitionerId: string, studentId?: string): P
     lessonId: d.lesson_id,
     lessonTitle: d.lesson_title,
     sessionDate: d.session_date,
+    boardLevel: d.board_level ?? null,
     createdAt: d.created_at,
   }))
 }
@@ -180,7 +196,8 @@ export async function createSession(
   studentId: string,
   lessonId: string,
   lessonTitle: string,
-  sessionDate: string
+  sessionDate: string,
+  boardLevel: string | null = null
 ): Promise<string> {
   const { data } = await getSupabase().from('sessions').insert({
     practitioner_id: practitionerId,
@@ -188,8 +205,26 @@ export async function createSession(
     lesson_id: lessonId,
     lesson_title: lessonTitle,
     session_date: sessionDate,
+    board_level: boardLevel,
   }).select().single()
   return data.id
+}
+
+export async function updateSessionBoardLevel(sessionId: string, boardLevel: string | null): Promise<void> {
+  await getSupabase().from('sessions').update({ board_level: boardLevel }).eq('id', sessionId)
+}
+
+export async function getLastBoardLevel(studentId: string, practitionerId: string): Promise<string | null> {
+  const { data } = await getSupabase()
+    .from('sessions')
+    .select('board_level')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .not('board_level', 'is', null)
+    .order('session_date', { ascending: false })
+    .limit(1)
+    .single()
+  return (data as { board_level: string | null } | null)?.board_level ?? null
 }
 
 export async function saveSessionResponses(sessionId: string, responses: Omit<SessionResponse, 'id' | 'sessionId'>[]): Promise<void> {
@@ -421,7 +456,7 @@ export interface StudentReportData {
     ongoingConcern: number
     arrivedRegulated: number
   }
-  topMisspokedKeywords: Array<{ keyword: string; count: number }>
+  topMisspokedLetters: Array<{ letter: string; count: number }>
   accuracyTrend: {
     first: number | null
     last: number | null
@@ -429,15 +464,12 @@ export interface StudentReportData {
     highest: number | null
     completedCount: number
   }
+  financials: {
+    completedSessions: number
+    sessionRate: number | null
+    totalBilled: number
+  }
 }
-
-const BOARD_PATTERNS: Array<{ regex: RegExp; label: string }> = [
-  { regex: /\b(3[-\s]?board|three[-\s]?board)\b/i, label: '3-Board' },
-  { regex: /\b(26[-\s]?board|twenty[-\s]?six[-\s]?board|letterboard)\b/i, label: '26-Board' },
-  { regex: /\blaminate\b/i, label: 'Laminate Board' },
-  { regex: /\bstencil\b/i, label: 'Stencil Board' },
-  { regex: /\bkeyboard\b/i, label: 'Keyboard' },
-]
 
 const REPORT_QUESTION_TYPE_LABELS: Record<string, string> = {
   KNOWN: 'KNOWN questions',
@@ -458,16 +490,23 @@ export async function getStudentReportData(
 ): Promise<StudentReportData | null> {
   const supabase = getSupabase()
 
-  const [{ data: studentRow }, { data: sessions }] = await Promise.all([
-    supabase.from('students').select('name, age_group').eq('id', studentId).single(),
+  const [{ data: studentRow }, { data: sessions }, { data: invoices }] = await Promise.all([
+    supabase.from('students').select('name, age_group, session_rate').eq('id', studentId).single(),
     supabase
       .from('sessions')
-      .select('id, session_date, lesson_title, regulation_arrival, regulation_departure')
+      .select('id, session_date, lesson_title, regulation_arrival, regulation_departure, board_level')
       .eq('student_id', studentId)
       .eq('practitioner_id', practitionerId)
       .gte('session_date', startDate)
       .lte('session_date', endDate)
       .order('session_date'),
+    supabase
+      .from('invoices')
+      .select('amount, extra_items')
+      .eq('student_id', studentId)
+      .eq('practitioner_id', practitionerId)
+      .gte('invoice_date', startDate)
+      .lte('invoice_date', endDate),
   ])
 
   if (!studentRow || !sessions?.length) {
@@ -477,8 +516,9 @@ export async function getStudentReportData(
       boardMilestones: [],
       questionTypeMilestones: [],
       regulationStats: { arrivedDysregulated: 0, improvedByEnd: 0, ongoingConcern: 0, arrivedRegulated: 0 },
-      topMisspokedKeywords: [],
+      topMisspokedLetters: [],
       accuracyTrend: { first: null, last: null, average: null, highest: null, completedCount: 0 },
+      financials: { completedSessions: 0, sessionRate: null, totalBilled: 0 },
     }
   }
 
@@ -507,35 +547,30 @@ export async function getStudentReportData(
     bySession[r.session_id].push(r)
   }
 
+  type RawSession = { id: string; session_date: string; lesson_title: string; regulation_arrival: string | null; regulation_departure: string | null; board_level: string | null }
+  const typedSessions = sessions as RawSession[]
+
   const completedIds = new Set(allRows.filter(r => r.question_type === 'SESSION_COMPLETE').map(r => r.session_id))
+
+  // Board milestones: first session in period where each board_level appears
   const seenBoards = new Set<string>()
   const boardMilestones: StudentReportData['boardMilestones'] = []
+  for (const s of typedSessions) {
+    if (s.board_level && !seenBoards.has(s.board_level)) {
+      seenBoards.add(s.board_level)
+      boardMilestones.push({ board: s.board_level, date: s.session_date })
+    }
+  }
+
   const seenQTypes = new Set<string>()
   const questionTypeMilestones: StudentReportData['questionTypeMilestones'] = []
-  const keywordMisspokes: Record<string, number> = {}
+  const letterScores: Record<string, number> = {}
 
-  const sessionEntries: StudentReportData['sessions'] = sessions.map(s => {
+  const sessionEntries: StudentReportData['sessions'] = typedSessions.map(s => {
     const rows = bySession[s.id] ?? []
-    const hunkRows = rows.filter(r => {
-      const hn = r as RawRow & { hunk_number?: number }
-      return true
-    })
     const notesRow = rows.find(r => r.question_type === 'SESSION_NOTES')
     const notes = notesRow?.captured_answer ?? ''
 
-    // Board milestones from notes
-    for (const bp of BOARD_PATTERNS) {
-      if (!seenBoards.has(bp.label) && bp.regex.test(notes)) {
-        seenBoards.add(bp.label)
-        boardMilestones.push({ board: bp.label, date: s.session_date })
-      }
-    }
-
-    // Question type milestones (real hunk responses only)
-    const hunkResponseRows = rows.filter(r => {
-      const raw = r as RawRow & { hunk_number?: number }
-      return true
-    })
     for (const r of rows) {
       const label = REPORT_QUESTION_TYPE_LABELS[r.question_type]
       if (label && !seenQTypes.has(r.question_type)) {
@@ -561,10 +596,13 @@ export async function getStudentReportData(
     const pokes = letters + misspokes
     const accuracy = pokes > 0 ? Math.round((letters / pokes) * 100) : null
 
-    // Top misspoked keywords
+    // Letter misspoke scores — distribute each keyword's misspokes across its unique letters
     for (const r of kw) {
       if ((r.misspoke_count ?? 0) > 0 && r.keyword) {
-        keywordMisspokes[r.keyword] = (keywordMisspokes[r.keyword] ?? 0) + (r.misspoke_count ?? 0)
+        const uniqueLetters = [...new Set(r.keyword.replace(/\s/g, '').toUpperCase().split(''))].filter(l => /[A-Z]/.test(l))
+        for (const l of uniqueLetters) {
+          letterScores[l] = (letterScores[l] ?? 0) + (r.misspoke_count ?? 0)
+        }
       }
     }
 
@@ -593,11 +631,11 @@ export async function getStudentReportData(
     }
   }
 
-  // Top 5 misspoked keywords
-  const topMisspokedKeywords = Object.entries(keywordMisspokes)
+  // Top 10 most misspoked letters
+  const topMisspokedLetters = Object.entries(letterScores)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([keyword, count]) => ({ keyword, count }))
+    .slice(0, 10)
+    .map(([letter, count]) => ({ letter, count }))
 
   // Accuracy trend
   const completedSessions = sessionEntries.filter(s => s.isComplete && s.accuracy !== null)
@@ -610,14 +648,27 @@ export async function getStudentReportData(
     completedCount: completedSessions.length,
   }
 
+  // Financial summary
+  const totalBilled = (invoices ?? []).reduce((sum, inv) => {
+    const base = parseFloat(String(inv.amount)) || 0
+    const extras = ((inv.extra_items ?? []) as Array<{ amount: number }>).reduce((s, e) => s + (e.amount || 0), 0)
+    return sum + base + extras
+  }, 0)
+  const sessionRate = (studentRow as { session_rate?: number | null }).session_rate ?? null
+
   return {
     student: { name: studentRow.name, ageGroup: studentRow.age_group },
     sessions: sessionEntries,
     boardMilestones,
     questionTypeMilestones,
     regulationStats,
-    topMisspokedKeywords,
+    topMisspokedLetters,
     accuracyTrend,
+    financials: {
+      completedSessions: completedSessions.length,
+      sessionRate,
+      totalBilled,
+    },
   }
 }
 
@@ -628,4 +679,65 @@ export async function updateSpellerSentence(sessionId: string, responseId: strin
     .eq('id', responseId)
     .eq('session_id', sessionId)
   if (error) throw new Error(`Update failed: ${error.message}`)
+}
+
+export async function saveProgressReport(
+  practitionerId: string,
+  studentId: string,
+  startDate: string,
+  endDate: string,
+  narrative: string,
+  goals: string,
+  sectionsContent: Record<string, string>,
+  sectionsVisible: Record<string, boolean>,
+  reportData: StudentReportData,
+  existingId?: string
+): Promise<string> {
+  const row = {
+    practitioner_id: practitionerId,
+    student_id: studentId,
+    start_date: startDate,
+    end_date: endDate,
+    narrative,
+    goals,
+    sections_content: sectionsContent,
+    sections_visible: sectionsVisible,
+    report_data: reportData as unknown as Record<string, unknown>,
+  }
+  if (existingId) {
+    const { data } = await getSupabase()
+      .from('progress_reports')
+      .update(row)
+      .eq('id', existingId)
+      .eq('practitioner_id', practitionerId)
+      .select('id')
+      .single()
+    return (data as { id: string } | null)?.id ?? existingId
+  }
+  const { data } = await getSupabase().from('progress_reports').insert(row).select('id').single()
+  return (data as { id: string }).id
+}
+
+export async function getSavedReports(studentId: string, practitionerId: string): Promise<SavedReport[]> {
+  const { data } = await getSupabase()
+    .from('progress_reports')
+    .select('*')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .order('created_at', { ascending: false })
+  return (data ?? []).map(d => ({
+    id: d.id,
+    startDate: d.start_date,
+    endDate: d.end_date,
+    createdAt: d.created_at,
+    narrative: d.narrative ?? '',
+    goals: d.goals ?? '',
+    sectionsContent: (d.sections_content ?? {}) as Record<string, string>,
+    sectionsVisible: (d.sections_visible ?? {}) as Record<string, boolean>,
+    reportData: d.report_data as StudentReportData,
+  }))
+}
+
+export async function deleteProgressReport(id: string, practitionerId: string): Promise<void> {
+  await getSupabase().from('progress_reports').delete().eq('id', id).eq('practitioner_id', practitionerId)
 }

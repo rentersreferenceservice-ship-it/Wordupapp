@@ -1,6 +1,6 @@
-﻿import { auth } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps } from '@/lib/practitionerStore'
+import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports } from '@/lib/practitionerStore'
 import { listAllPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -9,6 +9,7 @@ import DeleteStudentButton from './DeleteStudentButton'
 import DeleteSessionButton from './DeleteSessionButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import CrpManager from './CrpManager'
+import BoardLevelPills from './BoardLevelPills'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +26,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   ])
   const lessons = [...practitionerLessons, ...publicLessons]
 
-  const [completedIds, accuracyHistory, invoicesResult, crps] = await Promise.all([
+  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
     getStudentAccuracyHistory(id, userId),
     getSupabase()
@@ -35,11 +36,24 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
       .eq('practitioner_id', userId)
       .order('invoice_date', { ascending: false }),
     getCrps(id, userId),
+    getSavedReports(id, userId),
   ])
   const invoices = invoicesResult.data ?? []
   const todayStr = new Date().toISOString().split('T')[0]
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
+
+  // Compute suggested board levels: scan sessions oldest→newest, carry last known
+  const oldestFirst = [...sessions].reverse()
+  let lastKnown: string | null = null
+  const suggested: Record<string, string | null> = {}
+  for (const s of oldestFirst) {
+    if (s.boardLevel) {
+      lastKnown = s.boardLevel
+    } else {
+      suggested[s.id] = lastKnown
+    }
+  }
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-4xl mx-auto">
@@ -77,6 +91,30 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
 
       {/* CRP Management */}
       <CrpManager studentId={id} initialCrps={crps} />
+
+      {/* Saved Progress Reports */}
+      {savedReports.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Saved Progress Reports</h2>
+          <ul className="space-y-2">
+            {savedReports.map(r => {
+              const periodLabel = `${new Date(r.startDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} – ${new Date(r.endDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+              const savedDate = new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              return (
+                <li key={r.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{periodLabel}</p>
+                    <p className="text-xs text-gray-400">Saved {savedDate}</p>
+                  </div>
+                  <Link href={`/practitioner/students/${id}/report?load=${r.id}`} className="text-xs font-semibold text-blue-600 hover:underline">
+                    Open →
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* Invoices */}
       {invoices.length > 0 && (
@@ -121,26 +159,33 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         {sessions.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-6">No sessions yet for {student.name}.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {sessions.map(s => {
               const isComplete = completedIds.has(s.id)
               return (
-                <li key={s.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">{s.lessonTitle}</p>
-                    <p className="text-xs text-gray-400">{new Date(s.sessionDate + 'T00:00:00').toLocaleDateString()}</p>
+                <li key={s.id} className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 text-sm truncate">{s.lessonTitle}</p>
+                      <p className="text-xs text-gray-400">{new Date(s.sessionDate + 'T00:00:00').toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex items-center gap-3 ml-3 shrink-0">
+                      {isComplete ? (
+                        <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-blue-600 hover:underline">View Transcript</Link>
+                      ) : (
+                        <>
+                          <Link href={`/practitioner/session/${s.id}`} className="text-xs font-semibold text-orange-600 hover:underline">▶ Resume</Link>
+                          <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-gray-400 hover:underline">Transcript</Link>
+                        </>
+                      )}
+                      <DeleteSessionButton sessionId={s.id} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 ml-3 shrink-0">
-                    {isComplete ? (
-                      <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-blue-600 hover:underline">View Transcript</Link>
-                    ) : (
-                      <>
-                        <Link href={`/practitioner/session/${s.id}`} className="text-xs font-semibold text-orange-600 hover:underline">▶ Resume</Link>
-                        <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-gray-400 hover:underline">Transcript</Link>
-                      </>
-                    )}
-                    <DeleteSessionButton sessionId={s.id} />
-                  </div>
+                  <BoardLevelPills
+                    sessionId={s.id}
+                    boardLevel={s.boardLevel}
+                    suggestedLevel={suggested[s.id] ?? null}
+                  />
                 </li>
               )
             })}

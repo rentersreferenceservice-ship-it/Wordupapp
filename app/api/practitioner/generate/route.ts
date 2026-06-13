@@ -8,6 +8,9 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const { getPractitionerSubscription } = await import('@/lib/practitionerStore')
+    const sub = await getPractitionerSubscription(userId)
+    if (!sub?.isActive) return Response.json({ error: 'Subscription required' }, { status: 403 })
 
     const { topic, ageGroup, style, genre } = await request.json()
     if (!topic || !ageGroup) return Response.json({ error: 'Topic and age group are required' }, { status: 400 })

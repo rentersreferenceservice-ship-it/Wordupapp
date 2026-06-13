@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
   const reportData = await getStudentReportData(studentId, userId, startDate, endDate)
   if (!reportData) return Response.json({ error: 'Student not found' }, { status: 404 })
 
-  const { student, sessions, boardMilestones, questionTypeMilestones, regulationStats, topMisspokedKeywords, accuracyTrend } = reportData
+  const { student, sessions, boardMilestones, questionTypeMilestones, regulationStats, topMisspokedLetters, accuracyTrend, financials } = reportData
 
   // Build prompt context
   const allNotes = sessions
@@ -48,7 +48,13 @@ REGULATION PATTERNS (${sessions.filter(s => s.regulationArrival).length} session
 - Arrived dysregulated, regulated by end (positive): ${regulationStats.improvedByEnd} sessions
 - Arrived dysregulated, remained dysregulated: ${regulationStats.ongoingConcern} sessions
 
-${topMisspokedKeywords.length ? `MOST CHALLENGING SPELLING WORDS:\n${topMisspokedKeywords.map(k => `- "${k.keyword}": ${k.count} total misspokes`).join('\n')}` : ''}
+FINANCIALS:
+- Sessions completed: ${financials.completedSessions}
+- Session rate: ${financials.sessionRate != null ? `$${financials.sessionRate}` : 'not set'}
+- Total billed this period: ${financials.totalBilled > 0 ? `$${financials.totalBilled.toFixed(2)}` : 'no invoices'}
+- Frequency: Twice weekly
+
+${topMisspokedLetters.length ? `MOST CHALLENGING LETTERS (approximated from misspoked words):\n${topMisspokedLetters.map(l => `- Letter ${l.letter}: ${l.count} weighted misspokes`).join('\n')}` : ''}
 
 SESSION NOTES:
 ${allNotes || 'No session notes recorded for this period.'}
