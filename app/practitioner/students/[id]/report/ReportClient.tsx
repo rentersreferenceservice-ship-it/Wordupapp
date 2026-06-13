@@ -193,10 +193,16 @@ export default function ReportClient({
         : 'No letter misspoke data for this period.')
       setShow(prev => ({ ...prev, letters: rd.topMisspokedLetters.length > 0 }))
 
+      const periodDays = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24) + 1
+      const periodWeeks = Math.max(1, periodDays / 7)
+      const annualProjectedSessions = Math.round(rd.financials.completedSessions * (52 / periodWeeks))
+      const rate = rd.financials.sessionRate
+      const projectedAnnualTotal = rate != null && annualProjectedSessions > 0 ? (annualProjectedSessions * rate).toFixed(2) : ''
+
       setFinSessions(rd.financials.completedSessions.toString())
-      setFinRate(rd.financials.sessionRate != null ? rd.financials.sessionRate.toString() : '')
-      setFinTotal(rd.financials.totalBilled > 0 ? rd.financials.totalBilled.toFixed(2) : '')
+      setFinRate(rate != null ? rate.toString() : '')
       setFinFrequency('Twice weekly')
+      setFinTotal(projectedAnnualTotal)
 
       setNarrative(data.narrative)
       setGoals(data.goals)
@@ -210,7 +216,7 @@ export default function ReportClient({
           startDate, endDate,
           narrative: data.narrative,
           goals: data.goals,
-          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: 'Twice weekly', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: rd.financials.totalBilled > 0 ? rd.financials.totalBilled.toFixed(2) : '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
+          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: 'Twice weekly', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: projectedAnnualTotal, statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
           sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
           reportData: rd,
         }),
@@ -414,7 +420,7 @@ export default function ReportClient({
                   { label: 'Sessions Completed', value: finSessions, set: setFinSessions, prefix: '' },
                   { label: 'Frequency', value: finFrequency, set: setFinFrequency, prefix: '' },
                   { label: 'Session Rate', value: finRate, set: setFinRate, prefix: '$' },
-                  { label: 'Annual Total', value: finTotal, set: setFinTotal, prefix: '$' },
+                  { label: 'Projected Annual Total', value: finTotal, set: setFinTotal, prefix: '$' },
                 ].map(f => (
                   <div key={f.label} className="bg-gray-50 rounded-xl p-3 text-center">
                     <div className="flex items-center justify-center gap-0.5">
