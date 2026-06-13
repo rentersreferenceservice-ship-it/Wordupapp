@@ -115,7 +115,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
           <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Sessions Completed</div>
         </td>
         <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">
-          <div style="font-size:20px;font-weight:700;color:#1e3a5f">${sections.finFrequency || '—'}</div>
+          <div style="font-size:20px;font-weight:700;color:#1e3a5f">${sections.finFrequency ? sections.finFrequency + 'x / wk' : '—'}</div>
           <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Frequency</div>
         </td>
         <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">

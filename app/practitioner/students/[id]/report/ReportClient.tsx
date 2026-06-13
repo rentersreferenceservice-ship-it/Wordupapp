@@ -67,7 +67,7 @@ export default function ReportClient({
   const [narrative, setNarrative] = useState(loadedReport?.narrative ?? '')
   const [goals, setGoals] = useState(loadedReport?.goals ?? '')
   const [finSessions, setFinSessions] = useState(sc.finSessions ?? '')
-  const [finFrequency, setFinFrequency] = useState(sc.finFrequency ?? 'Twice weekly')
+  const [finFrequency, setFinFrequency] = useState(sc.finFrequency ?? '2')
   const [finRate, setFinRate] = useState(sc.finRate ?? '')
   const [finTotal, setFinTotal] = useState(sc.finTotal ?? '')
   const [statAvg, setStatAvg] = useState(sc.statAvg ?? '')
@@ -86,6 +86,15 @@ export default function ReportClient({
     goals: sv.goals !== false,
   })
   const hide = (key: keyof typeof show) => setShow(prev => ({ ...prev, [key]: false }))
+
+  // Auto-compute projected annual total whenever rate or sessions/week changes
+  useEffect(() => {
+    const rate = parseFloat(finRate)
+    const freq = parseFloat(finFrequency)
+    if (!isNaN(rate) && rate > 0 && !isNaN(freq) && freq > 0) {
+      setFinTotal((Math.round(freq * 52) * rate).toFixed(2))
+    }
+  }, [finRate, finFrequency])
 
   const [emailInput, setEmailInput] = useState('')
   const [emailList, setEmailList] = useState<string[]>([])
@@ -203,7 +212,7 @@ export default function ReportClient({
 
       setFinSessions(rd.financials.completedSessions.toString())
       setFinRate(rate != null ? rate.toString() : '')
-      setFinFrequency('Twice weekly')
+      setFinFrequency('2')
       setFinTotal(projectedAnnualTotal)
 
       setNarrative(data.narrative)
@@ -218,7 +227,7 @@ export default function ReportClient({
           startDate, endDate,
           narrative: data.narrative,
           goals: data.goals,
-          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: 'Twice weekly', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: projectedAnnualTotal, statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
+          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '2', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: projectedAnnualTotal, statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
           sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
           reportData: rd,
         }),
@@ -430,17 +439,23 @@ export default function ReportClient({
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
-                  { label: 'Sessions Completed', value: finSessions, set: setFinSessions, prefix: '' },
-                  { label: 'Frequency', value: finFrequency, set: setFinFrequency, prefix: '' },
-                  { label: 'Session Rate', value: finRate, set: setFinRate, prefix: '$' },
-                  { label: 'Projected Annual Total', value: finTotal, set: setFinTotal, prefix: '$' },
+                  { label: 'Sessions Completed', value: finSessions, set: setFinSessions, prefix: '', type: 'number' },
+                  { label: 'Sessions / Wk', value: finFrequency, set: setFinFrequency, prefix: '', type: 'number' },
+                  { label: 'Session Rate', value: finRate, set: setFinRate, prefix: '$', type: 'number' },
+                  { label: 'Projected Annual Total', value: finTotal, set: setFinTotal, prefix: '$', type: 'number' },
                 ].map(f => (
                   <div key={f.label} className="bg-gray-50 rounded-xl p-3 text-center">
                     <div className="flex items-center justify-center gap-0.5">
                       {f.prefix && <span className="text-lg font-bold text-gray-700">{f.prefix}</span>}
-                      <input value={f.value} onChange={e => f.set(e.target.value)} className="w-full text-center text-lg font-bold text-gray-800 bg-transparent focus:outline-none" placeholder="—" />
+                      <input
+                        type={f.type}
+                        value={f.value}
+                        onChange={e => f.set(e.target.value)}
+                        className="w-full text-center text-lg font-bold text-gray-800 bg-white border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="—"
+                      />
                     </div>
-                    <p className="text-xs font-semibold text-gray-500 mt-0.5">{f.label}</p>
+                    <p className="text-xs font-semibold text-gray-500 mt-1">{f.label}</p>
                   </div>
                 ))}
               </div>
