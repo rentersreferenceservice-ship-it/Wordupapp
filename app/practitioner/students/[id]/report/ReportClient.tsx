@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import type { StudentReportData, SavedReport } from '@/lib/practitionerStore'
+import type { StudentReportData, SavedReport, PractitionerSettings } from '@/lib/practitionerStore'
 
 function getQuarterRange(offset = 0): { start: string; end: string; label: string } {
   const now = new Date()
@@ -37,11 +37,13 @@ export default function ReportClient({
   studentName,
   savedReports,
   loadedReport,
+  settings,
 }: {
   studentId: string
   studentName: string
   savedReports: SavedReport[]
   loadedReport: SavedReport | null
+  settings: PractitionerSettings
 }) {
   const today = new Date().toISOString().split('T')[0]
   const yearStart = today.slice(0, 4) + '-01-01'
@@ -365,10 +367,21 @@ export default function ReportClient({
 
       {generated && !loading && (
         <div>
-          <div className="hidden print:block mb-6">
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Word Up S2C — Progress Report</p>
-            <h1 className="text-2xl font-bold text-gray-900">{studentName}</h1>
-            <p className="text-sm text-gray-500">{periodLabel}</p>
+          {/* Business header — shows on screen and in print */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 flex items-start justify-between">
+            <div>
+              {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-12 object-contain mb-2" />}
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Progress Report</div>
+              {settings.businessName && <div className="text-base font-bold text-gray-900">{settings.businessName}</div>}
+              {settings.businessAddress && <div className="text-xs text-gray-500 whitespace-pre-line">{settings.businessAddress}</div>}
+              {settings.businessPhone && <div className="text-xs text-gray-500">{settings.businessPhone}</div>}
+              {settings.businessEmail && <div className="text-xs text-gray-500">{settings.businessEmail}</div>}
+              {settings.websiteUrl && <div className="text-xs text-blue-600">{settings.websiteUrl}</div>}
+            </div>
+            <div className="text-right">
+              <div className="text-base font-bold text-gray-900">{studentName}</div>
+              <div className="text-xs text-gray-500 mt-1">{periodLabel}</div>
+            </div>
           </div>
 
           <p className="text-xs text-gray-400 mb-4 no-print">All sections are editable. Hover a section to delete it.</p>

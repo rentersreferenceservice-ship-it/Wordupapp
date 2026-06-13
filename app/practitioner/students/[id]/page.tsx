@@ -10,6 +10,7 @@ import DeleteSessionButton from './DeleteSessionButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import CrpManager from './CrpManager'
 import BoardLevelPills from './BoardLevelPills'
+import DeleteReportButton from './DeleteReportButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,9 +111,12 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
                     <p className="text-sm font-medium text-gray-900">{periodLabel}</p>
                     <p className="text-xs text-gray-400">Saved {savedDate}</p>
                   </div>
-                  <Link href={`/practitioner/students/${id}/report?load=${r.id}`} className="text-xs font-semibold text-blue-600 hover:underline">
-                    Open →
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link href={`/practitioner/students/${id}/report?load=${r.id}`} className="text-xs font-semibold text-blue-600 hover:underline">
+                      Open →
+                    </Link>
+                    <DeleteReportButton studentId={id} reportId={r.id} />
+                  </div>
                 </li>
               )
             })}

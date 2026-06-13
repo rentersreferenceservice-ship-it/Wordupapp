@@ -672,6 +672,31 @@ export async function getStudentReportData(
   }
 }
 
+export interface PractitionerSettings {
+  businessName: string
+  businessAddress: string
+  businessPhone: string
+  businessEmail: string
+  logoUrl: string
+  websiteUrl: string
+}
+
+export async function getPractitionerSettings(userId: string): Promise<PractitionerSettings> {
+  const { data } = await getSupabase()
+    .from('practitioner_settings')
+    .select('business_name, business_address, business_phone, business_email, logo_url, website_url')
+    .eq('practitioner_id', userId)
+    .single()
+  return {
+    businessName: data?.business_name ?? '',
+    businessAddress: data?.business_address ?? '',
+    businessPhone: data?.business_phone ?? '',
+    businessEmail: data?.business_email ?? '',
+    logoUrl: data?.logo_url ?? '',
+    websiteUrl: data?.website_url ?? '',
+  }
+}
+
 export async function updateSpellerSentence(sessionId: string, responseId: string, sentence: string): Promise<void> {
   const { error } = await getSupabase()
     .from('session_responses')

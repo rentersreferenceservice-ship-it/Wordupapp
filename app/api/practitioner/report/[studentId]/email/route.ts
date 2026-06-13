@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { Resend } from 'resend'
+import { getPractitionerSettings } from '@/lib/practitionerStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,8 +36,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
   const validEmails = emails.filter(e => e && e.includes('@'))
   if (!validEmails.length) return Response.json({ error: 'No valid email addresses' }, { status: 400 })
 
-  const clerk = await clerkClient()
-  const user = await clerk.users.getUser(userId)
+  const [clerk_inst, settings] = await Promise.all([
+    clerkClient(),
+    getPractitionerSettings(userId),
+  ])
+  const user = await clerk_inst.users.getUser(userId)
   const practitionerName = ([user.firstName, user.lastName].filter(Boolean).join(' ') || user.emailAddresses[0]?.emailAddress) ?? ''
   const practitionerEmail = user.emailAddresses[0]?.emailAddress ?? ''
 
@@ -47,11 +51,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
 <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;color:#1f2937;background:#f9fafb;padding:24px;border-radius:12px">
   <div style="background:white;border-radius:10px;padding:28px;border:1px solid #e5e7eb">
 
-    <div style="margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #1e3a5f">
-      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Progress Report</div>
-      <div style="font-size:22px;font-weight:700;color:#1e3a5f">${studentName}</div>
-      <div style="font-size:13px;color:#6b7280;margin-top:2px">${periodLabel}</div>
-    </div>
+    <table style="width:100%;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #1e3a5f"><tr>
+      <td style="vertical-align:top">
+        ${settings.logoUrl ? `<img src="${settings.logoUrl}" alt="Logo" style="height:48px;object-fit:contain;display:block;margin-bottom:8px" />` : ''}
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Progress Report</div>
+        ${settings.businessName ? `<div style="font-size:15px;font-weight:700;color:#1f2937">${settings.businessName}</div>` : ''}
+        ${settings.businessAddress ? `<div style="font-size:12px;color:#6b7280;white-space:pre-line">${settings.businessAddress}</div>` : ''}
+        ${settings.businessPhone ? `<div style="font-size:12px;color:#6b7280">${settings.businessPhone}</div>` : ''}
+        ${settings.businessEmail ? `<div style="font-size:12px;color:#6b7280">${settings.businessEmail}</div>` : ''}
+        ${settings.websiteUrl ? `<div style="font-size:12px;color:#2563eb">${settings.websiteUrl}</div>` : ''}
+      </td>
+      <td style="vertical-align:top;text-align:right">
+        <div style="font-size:18px;font-weight:700;color:#1e3a5f">${studentName}</div>
+        <div style="font-size:13px;color:#6b7280;margin-top:2px">${periodLabel}</div>
+      </td>
+    </tr></table>
 
     ${show.stats !== false ? `
     <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#f8faff;border-radius:8px">
