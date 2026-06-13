@@ -659,8 +659,8 @@ export async function getStudentReportData(
     .slice(0, 10)
     .map(([letter, count]) => ({ letter, count }))
 
-  // All completed sessions in the period (for financial count)
-  const allCompleted = sessionEntries.filter(s => s.isComplete)
+  // All sessions in the period that were run (complete marker OR has poke data)
+  const allCompleted = sessionEntries.filter(s => s.isComplete || s.accuracy !== null)
 
   // Accuracy trend — only sessions that have poke/letter data
   const completedWithAccuracy = sessionEntries.filter(s => s.isComplete && s.accuracy !== null)
