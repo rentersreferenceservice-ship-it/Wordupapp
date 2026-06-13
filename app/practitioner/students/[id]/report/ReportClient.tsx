@@ -104,33 +104,50 @@ export default function ReportClient({
   }), [startDate, endDate, narrative, goals, milestonesText, regulationText, lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportId])
 
   const autoSave = useCallback(async () => {
-    if (!generated || !reportDataRef.current) return
+    if (!reportDataRef.current) return
     setSaveStatus('saving')
+    const payload = buildSavePayload()
     try {
       const res = await fetch(`/api/practitioner/report/${studentId}/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildSavePayload()),
+        body: JSON.stringify(payload),
       })
       const d = await res.json()
       if (res.ok && d.id) {
+        const isNew = !payload.existingId
         setReportId(d.id)
         setSaveStatus('saved')
+        if (isNew) {
+          const newEntry = {
+            id: d.id,
+            startDate: payload.startDate,
+            endDate: payload.endDate,
+            createdAt: new Date().toISOString(),
+            narrative: payload.narrative,
+            goals: payload.goals,
+            sectionsContent: payload.sectionsContent,
+            sectionsVisible: payload.sectionsVisible,
+            reportData: reportDataRef.current!,
+          }
+          setLocalSavedReports(prev => [newEntry, ...prev])
+        }
       } else {
         setSaveStatus('unsaved')
       }
     } catch {
       setSaveStatus('unsaved')
     }
-  }, [generated, studentId, buildSavePayload])
+  }, [studentId, buildSavePayload])
 
   useEffect(() => {
     if (!generated) return
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     setSaveStatus('unsaved')
-    saveTimerRef.current = setTimeout(() => { autoSave() }, 2000)
+    saveTimerRef.current = setTimeout(autoSave, 2000)
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
-  }, [milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, generated, autoSave])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show])
 
   async function handleGenerate() {
     setLoading(true)
@@ -184,8 +201,26 @@ export default function ReportClient({
       setNarrative(data.narrative)
       setGoals(data.goals)
       setGenerated(true)
-
-      setTimeout(() => autoSave(), 200)
+      // Trigger first save directly — state closure won't have updated yet
+      setSaveStatus('saving')
+      fetch(`/api/practitioner/report/${studentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate, endDate,
+          narrative: data.narrative,
+          goals: data.goals,
+          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: 'Twice weekly', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: rd.financials.totalBilled > 0 ? rd.financials.totalBilled.toFixed(2) : '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
+          sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
+          reportData: rd,
+        }),
+      }).then(r => r.json()).then(d => {
+        if (d.id) {
+          setReportId(d.id)
+          setSaveStatus('saved')
+          setLocalSavedReports(prev => [{ id: d.id, startDate, endDate, createdAt: new Date().toISOString(), narrative: data.narrative, goals: data.goals, sectionsContent: {}, sectionsVisible: {}, reportData: rd }, ...prev])
+        } else { setSaveStatus('unsaved') }
+      }).catch(() => setSaveStatus('unsaved'))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error generating report')
     } finally {
