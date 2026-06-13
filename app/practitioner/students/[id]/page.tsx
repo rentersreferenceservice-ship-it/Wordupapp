@@ -89,13 +89,17 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         <AccuracyChart data={accuracyHistory} />
       </div>
 
-      {/* CRP Management */}
-      <CrpManager studentId={id} initialCrps={crps} />
-
-      {/* Saved Progress Reports */}
-      {savedReports.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Saved Progress Reports</h2>
+      {/* Saved Progress Reports — always visible under the graph */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-semibold text-gray-900">Progress Reports</h2>
+          <Link href={`/practitioner/students/${id}/report`} className="text-xs font-semibold text-blue-600 hover:underline">
+            + New Report
+          </Link>
+        </div>
+        {savedReports.length === 0 ? (
+          <p className="text-sm text-gray-400">No reports saved yet. <Link href={`/practitioner/students/${id}/report`} className="text-blue-600 hover:underline">Generate one →</Link></p>
+        ) : (
           <ul className="space-y-2">
             {savedReports.map(r => {
               const periodLabel = `${new Date(r.startDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} – ${new Date(r.endDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
@@ -113,8 +117,11 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
               )
             })}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* CRP Management */}
+      <CrpManager studentId={id} initialCrps={crps} />
 
       {/* Invoices */}
       {invoices.length > 0 && (
