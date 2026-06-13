@@ -21,8 +21,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
     existingId?: string
   }
 
-  const id = await saveProgressReport(userId, studentId, startDate, endDate, narrative, goals, sectionsContent, sectionsVisible, reportData, existingId)
-  return Response.json({ id })
+  try {
+    const id = await saveProgressReport(userId, studentId, startDate, endDate, narrative, goals, sectionsContent, sectionsVisible, reportData, existingId)
+    return Response.json({ id })
+  } catch (e) {
+    console.error('saveProgressReport error:', e)
+    return Response.json({ error: e instanceof Error ? e.message : 'Save failed' }, { status: 500 })
+  }
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ studentId: string }> }) {

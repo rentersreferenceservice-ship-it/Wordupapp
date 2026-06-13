@@ -253,7 +253,7 @@ export default function ReportClient({
   async function handleSend() {
     if (!emailList.length) return
     setSending(true)
-    setSendStatus('')
+    setSendStatus('Sending…')
     try {
       const res = await fetch(`/api/practitioner/report/${studentId}/email`, {
         method: 'POST',
@@ -266,7 +266,7 @@ export default function ReportClient({
         }),
       })
       const d = await res.json()
-      setSendStatus(res.ok ? 'Sent!' : ('Error: ' + (d.error ?? 'Send failed')))
+      setSendStatus(res.ok ? 'Sent ✓' : ('Error: ' + (d.error ?? 'Send failed')))
     } catch {
       setSendStatus('Error sending')
     } finally {

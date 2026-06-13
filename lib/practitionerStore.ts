@@ -752,16 +752,18 @@ export async function saveProgressReport(
     report_data: reportData as unknown as Record<string, unknown>,
   }
   if (existingId) {
-    const { data } = await getSupabase()
+    const { data, error } = await getSupabase()
       .from('progress_reports')
       .update(row)
       .eq('id', existingId)
       .eq('practitioner_id', practitionerId)
       .select('id')
       .single()
+    if (error) throw new Error(error.message)
     return (data as { id: string } | null)?.id ?? existingId
   }
-  const { data } = await getSupabase().from('progress_reports').insert(row).select('id').single()
+  const { data, error } = await getSupabase().from('progress_reports').insert(row).select('id').single()
+  if (error) throw new Error(error.message)
   return (data as { id: string }).id
 }
 
