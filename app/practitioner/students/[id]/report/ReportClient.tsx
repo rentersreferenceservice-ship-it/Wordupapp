@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import type { StudentReportData, SavedReport, PractitionerSettings } from '@/lib/practitionerStore'
 
@@ -55,7 +55,6 @@ export default function ReportClient({
 
   const [reportId, setReportId] = useState<string | null>(loadedReport?.id ?? null)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved' | ''>(loadedReport ? 'saved' : '')
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [showSavedList, setShowSavedList] = useState(false)
   const [localSavedReports, setLocalSavedReports] = useState<SavedReport[]>(savedReports)
@@ -95,21 +94,16 @@ export default function ReportClient({
 
   const reportDataRef = useRef<StudentReportData | null>(loadedReport?.reportData ?? null)
 
-  const buildSavePayload = useCallback(() => ({
-    startDate,
-    endDate,
-    narrative,
-    goals,
-    sectionsContent: { milestones: milestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
-    sectionsVisible: show,
-    reportData: reportDataRef.current,
-    existingId: reportId ?? undefined,
-  }), [startDate, endDate, narrative, goals, milestonesText, regulationText, lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportId, reportType])
-
-  const autoSave = useCallback(async () => {
+  async function handleSave() {
     if (!reportDataRef.current) return
     setSaveStatus('saving')
-    const payload = buildSavePayload()
+    const payload = {
+      startDate, endDate, narrative, goals,
+      sectionsContent: { milestones: milestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
+      sectionsVisible: show,
+      reportData: reportDataRef.current,
+      existingId: reportId ?? undefined,
+    }
     try {
       const res = await fetch(`/api/practitioner/report/${studentId}/save`, {
         method: 'POST',
@@ -122,18 +116,14 @@ export default function ReportClient({
         setReportId(d.id)
         setSaveStatus('saved')
         if (isNew) {
-          const newEntry = {
-            id: d.id,
-            startDate: payload.startDate,
-            endDate: payload.endDate,
+          setLocalSavedReports(prev => [{
+            id: d.id, startDate, endDate,
             createdAt: new Date().toISOString(),
-            narrative: payload.narrative,
-            goals: payload.goals,
+            narrative, goals,
             sectionsContent: payload.sectionsContent,
-            sectionsVisible: payload.sectionsVisible,
+            sectionsVisible: show,
             reportData: reportDataRef.current!,
-          }
-          setLocalSavedReports(prev => [newEntry, ...prev])
+          }, ...prev])
         }
       } else {
         setSaveStatus('unsaved')
@@ -141,16 +131,7 @@ export default function ReportClient({
     } catch {
       setSaveStatus('unsaved')
     }
-  }, [studentId, buildSavePayload])
-
-  useEffect(() => {
-    if (!generated) return
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-    setSaveStatus('unsaved')
-    saveTimerRef.current = setTimeout(autoSave, 2000)
-    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show])
+  }
 
   async function handleGenerate() {
     setLoading(true)
@@ -204,26 +185,7 @@ export default function ReportClient({
       setNarrative(data.narrative)
       setGoals(data.goals)
       setGenerated(true)
-      // Trigger first save directly — state closure won't have updated yet
-      setSaveStatus('saving')
-      fetch(`/api/practitioner/report/${studentId}/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          startDate, endDate,
-          narrative: data.narrative,
-          goals: data.goals,
-          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '', finRate: '', finTotal: '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString(), reportType },
-          sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
-          reportData: rd,
-        }),
-      }).then(r => r.json()).then(d => {
-        if (d.id) {
-          setReportId(d.id)
-          setSaveStatus('saved')
-          setLocalSavedReports(prev => [{ id: d.id, startDate, endDate, createdAt: new Date().toISOString(), narrative: data.narrative, goals: data.goals, sectionsContent: {}, sectionsVisible: {}, reportData: rd }, ...prev])
-        } else { setSaveStatus('unsaved') }
-      }).catch(() => setSaveStatus('unsaved'))
+      setSaveStatus('unsaved')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error generating report')
     } finally {
@@ -478,9 +440,15 @@ export default function ReportClient({
           )}
 
           <div className="no-print space-y-4">
-            <button onClick={() => window.print()} className="w-full bg-gray-800 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors">
-              Print / Save as PDF
-            </button>
+            <div className="flex gap-3">
+              <button onClick={handleSave} disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-colors ${saveStatus === 'saved' ? 'bg-green-100 text-green-700 cursor-default' : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'}`}>
+                {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? '✓ Saved' : 'Save Report'}
+              </button>
+              <button onClick={() => window.print()} className="flex-1 bg-gray-800 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors">
+                Print / Save as PDF
+              </button>
+            </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h2 className="text-sm font-bold text-gray-700 mb-3">Email Report</h2>
@@ -501,9 +469,12 @@ export default function ReportClient({
                   ))}
                 </div>
               )}
-              <button onClick={handleSend} disabled={sending || !emailList.length}
+              {saveStatus !== 'saved' && (
+                <p className="text-xs text-amber-600 font-medium mb-2">Save the report before emailing so recipients get a print link.</p>
+              )}
+              <button onClick={handleSend} disabled={sending || !emailList.length || saveStatus !== 'saved'}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                {sending ? 'Sending…' : `Send to ${emailList.length} recipient${emailList.length !== 1 ? 's' : ''}`}
+                {sending ? 'Sending…' : `Send to ${emailList.length || 0} recipient${emailList.length !== 1 ? 's' : ''}`}
               </button>
               {sendStatus && <p className={`text-sm mt-2 ${sendStatus.startsWith('Error') ? 'text-red-500' : 'text-green-600 font-semibold'}`}>{sendStatus}</p>}
             </div>
