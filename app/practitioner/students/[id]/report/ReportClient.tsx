@@ -67,7 +67,7 @@ export default function ReportClient({
   const [narrative, setNarrative] = useState(loadedReport?.narrative ?? '')
   const [goals, setGoals] = useState(loadedReport?.goals ?? '')
   const [finSessions, setFinSessions] = useState(sc.finSessions ?? '')
-  const [finFrequency, setFinFrequency] = useState(sc.finFrequency ?? '2')
+  const [finFrequency, setFinFrequency] = useState(sc.finFrequency ?? '')
   const [finRate, setFinRate] = useState(sc.finRate ?? '')
   const [finTotal, setFinTotal] = useState(sc.finTotal ?? '')
   const [statAvg, setStatAvg] = useState(sc.statAvg ?? '')
@@ -86,15 +86,6 @@ export default function ReportClient({
     goals: sv.goals !== false,
   })
   const hide = (key: keyof typeof show) => setShow(prev => ({ ...prev, [key]: false }))
-
-  // Auto-compute projected annual total whenever rate or sessions/week changes
-  useEffect(() => {
-    const rate = parseFloat(finRate)
-    const freq = parseFloat(finFrequency)
-    if (!isNaN(rate) && rate > 0 && !isNaN(freq) && freq > 0) {
-      setFinTotal((Math.round(freq * 52) * rate).toFixed(2))
-    }
-  }, [finRate, finFrequency])
 
   const [emailInput, setEmailInput] = useState('')
   const [emailList, setEmailList] = useState<string[]>([])
@@ -212,7 +203,7 @@ export default function ReportClient({
 
       setFinSessions(rd.financials.completedSessions.toString())
       setFinRate(rate != null ? rate.toString() : '')
-      setFinFrequency('2')
+      setFinFrequency('')
       setFinTotal(projectedAnnualTotal)
 
       setNarrative(data.narrative)
@@ -227,7 +218,7 @@ export default function ReportClient({
           startDate, endDate,
           narrative: data.narrative,
           goals: data.goals,
-          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '2', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: projectedAnnualTotal, statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
+          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
           sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
           reportData: rd,
         }),
