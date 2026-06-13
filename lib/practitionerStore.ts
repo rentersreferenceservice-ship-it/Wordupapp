@@ -659,15 +659,18 @@ export async function getStudentReportData(
     .slice(0, 10)
     .map(([letter, count]) => ({ letter, count }))
 
-  // Accuracy trend
-  const completedSessions = sessionEntries.filter(s => s.isComplete && s.accuracy !== null)
-  const accuracies = completedSessions.map(s => s.accuracy!)
+  // All completed sessions in the period (for financial count)
+  const allCompleted = sessionEntries.filter(s => s.isComplete)
+
+  // Accuracy trend — only sessions that have poke/letter data
+  const completedWithAccuracy = sessionEntries.filter(s => s.isComplete && s.accuracy !== null)
+  const accuracies = completedWithAccuracy.map(s => s.accuracy!)
   const accuracyTrend = {
     first: accuracies[0] ?? null,
     last: accuracies[accuracies.length - 1] ?? null,
     average: accuracies.length ? Math.round(accuracies.reduce((a, b) => a + b, 0) / accuracies.length) : null,
     highest: accuracies.length ? Math.max(...accuracies) : null,
-    completedCount: completedSessions.length,
+    completedCount: completedWithAccuracy.length,
   }
 
   // Financial summary
@@ -687,7 +690,7 @@ export async function getStudentReportData(
     topMisspokedLetters,
     accuracyTrend,
     financials: {
-      completedSessions: completedSessions.length,
+      completedSessions: allCompleted.length,
       sessionRate,
       totalBilled,
     },
