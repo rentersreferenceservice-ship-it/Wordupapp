@@ -53,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
 <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;color:#1f2937;background:#f9fafb;padding:24px;border-radius:12px">
   <div style="background:white;border-radius:10px;padding:28px;border:1px solid #e5e7eb">
 
-    <table style="width:100%;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #1e3a5f"><tr>
+    <table style="width:100%;margin-bottom:16px;padding-bottom:16px;border-bottom:2px solid #1e3a5f"><tr>
       <td style="vertical-align:top">
         ${settings.logoUrl ? `<img src="${settings.logoUrl}" alt="Logo" style="height:48px;object-fit:contain;display:block;margin-bottom:8px" />` : ''}
         <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">${sections.reportType ?? 'Progress Report'}</div>
@@ -66,30 +66,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
       <td style="vertical-align:top;text-align:right">
         <div style="font-size:18px;font-weight:700;color:#1e3a5f">${studentName}</div>
         <div style="font-size:13px;color:#6b7280;margin-top:2px">${periodLabel}</div>
+        ${reportId ? `<a href="https://worduplessongenerator.com/report/${reportId}" style="display:inline-block;margin-top:8px;background:#1e3a5f;color:white;text-decoration:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700">View &amp; Print</a>` : ''}
       </td>
     </tr></table>
 
-    ${show.stats !== false ? `
-    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#f8faff;border-radius:8px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;border:1px solid #e5e7eb;border-radius:8px">
       <tr>
-        <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">
-          <div style="font-size:24px;font-weight:700;color:#1e3a5f">${sections.statSessions}</div>
-          <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Sessions</div>
+        <td width="25%" style="padding:12px 8px;text-align:center;border-right:1px solid #e5e7eb">
+          <div style="font-size:22px;font-weight:700;color:#1e3a5f">${sections.statSessions || '—'}</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase">Sessions</div>
         </td>
-        <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">
-          <div style="font-size:24px;font-weight:700;color:#16a34a">${sections.statAvg}</div>
-          <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Avg Accuracy</div>
+        <td width="25%" style="padding:12px 8px;text-align:center;border-right:1px solid #e5e7eb">
+          <div style="font-size:22px;font-weight:700;color:#16a34a">${sections.statAvg || '—'}</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase">Avg Accuracy</div>
         </td>
-        <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">
-          <div style="font-size:24px;font-weight:700;color:#2563eb">${sections.statProgress}</div>
-          <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Progress</div>
+        <td width="25%" style="padding:12px 8px;text-align:center;border-right:1px solid #e5e7eb">
+          <div style="font-size:22px;font-weight:700;color:#2563eb">${sections.statProgress || '—'}</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase">Progress</div>
         </td>
-        <td style="padding:12px 16px;text-align:center">
-          <div style="font-size:24px;font-weight:700;color:#7c3aed">${sections.statBest}</div>
-          <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase">Best Session</div>
+        <td width="25%" style="padding:12px 8px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#7c3aed">${sections.statBest || '—'}</div>
+          <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase">Best Session</div>
         </td>
       </tr>
-    </table>` : ''}
+    </table>
 
     ${show.milestones !== false && sections.milestonesText ? `
     <div style="margin-bottom:20px">
@@ -143,12 +143,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
       <div style="font-size:13px;color:#1f2937;line-height:1.7;white-space:pre-wrap">${sections.goals}</div>
     </div>` : ''}
 
-    ${reportId ? `
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center">
-      <a href="https://worduplessongenerator.com/report/${reportId}" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px">
-        View &amp; Print Report
-      </a>
-    </div>` : ''}
     <div style="margin-top:12px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">
       Prepared by ${practitionerName} · Word Up S2C · worduplessongenerator.com
     </div>
