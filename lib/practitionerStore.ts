@@ -490,7 +490,7 @@ export async function getStudentReportData(
 ): Promise<StudentReportData | null> {
   const supabase = getSupabase()
 
-  const [{ data: studentRow }, { data: sessions }, { data: invoices }] = await Promise.all([
+  const [{ data: studentRow }, { data: sessions }, { data: invoices }, { data: priorSessionData }] = await Promise.all([
     supabase.from('students').select('name, age_group, session_rate').eq('id', studentId).single(),
     supabase
       .from('sessions')
@@ -507,6 +507,12 @@ export async function getStudentReportData(
       .eq('practitioner_id', practitionerId)
       .gte('invoice_date', startDate)
       .lte('invoice_date', endDate),
+    supabase
+      .from('sessions')
+      .select('id, board_level')
+      .eq('student_id', studentId)
+      .eq('practitioner_id', practitionerId)
+      .lt('session_date', startDate),
   ])
 
   if (!studentRow || !sessions?.length) {
@@ -552,11 +558,27 @@ export async function getStudentReportData(
 
   const completedIds = new Set(allRows.filter(r => r.question_type === 'SESSION_COMPLETE').map(r => r.session_id))
 
-  // Board milestones: first session in period where each board_level appears
+  // Build exclusion sets from sessions before this period
+  const priorBoards = new Set<string>(
+    (priorSessionData ?? []).map(s => (s as { board_level: string | null }).board_level).filter((b): b is string => b !== null)
+  )
+  const priorSessionIds = (priorSessionData ?? []).map(s => (s as { id: string }).id)
+  const priorQTypes = new Set<string>()
+  if (priorSessionIds.length > 0) {
+    const { data: priorResponses } = await supabase
+      .from('session_responses')
+      .select('question_type')
+      .in('session_id', priorSessionIds)
+    for (const r of priorResponses ?? []) {
+      priorQTypes.add((r as { question_type: string }).question_type)
+    }
+  }
+
+  // Board milestones: only boards first reached during this period
   const seenBoards = new Set<string>()
   const boardMilestones: StudentReportData['boardMilestones'] = []
   for (const s of typedSessions) {
-    if (s.board_level && !seenBoards.has(s.board_level)) {
+    if (s.board_level && !seenBoards.has(s.board_level) && !priorBoards.has(s.board_level)) {
       seenBoards.add(s.board_level)
       boardMilestones.push({ board: s.board_level, date: s.session_date })
     }
@@ -573,7 +595,7 @@ export async function getStudentReportData(
 
     for (const r of rows) {
       const label = REPORT_QUESTION_TYPE_LABELS[r.question_type]
-      if (label && !seenQTypes.has(r.question_type)) {
+      if (label && !seenQTypes.has(r.question_type) && !priorQTypes.has(r.question_type)) {
         if (r.question_type !== 'SESSION_NOTES' && r.question_type !== 'SESSION_STATE' && r.question_type !== 'SESSION_COMPLETE' && r.question_type !== 'SESSION_VIDEO' && r.question_type !== 'SESSION_INVOICE') {
           seenQTypes.add(r.question_type)
           questionTypeMilestones.push({ type: label, date: s.session_date })

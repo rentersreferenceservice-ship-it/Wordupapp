@@ -267,6 +267,7 @@ export default function ReportClient({
           startDate, endDate, emails: emailList,
           sections: { milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show },
           studentName,
+          reportId: reportId ?? undefined,
         }),
       })
       const d = await res.json()

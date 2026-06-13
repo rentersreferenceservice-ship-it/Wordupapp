@@ -10,11 +10,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  const { startDate, endDate, emails, sections, studentName } = await req.json() as {
+  const { startDate, endDate, emails, sections, studentName, reportId } = await req.json() as {
     startDate: string
     endDate: string
     emails: string[]
     studentName: string
+    reportId?: string
     sections: {
       statSessions: string
       statAvg: string
@@ -141,7 +142,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
       <div style="font-size:13px;color:#1f2937;line-height:1.7;white-space:pre-wrap">${sections.goals}</div>
     </div>` : ''}
 
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">
+    ${reportId ? `
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center">
+      <a href="https://worduplessongenerator.com/report/${reportId}" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px">
+        View &amp; Print Report
+      </a>
+    </div>` : ''}
+    <div style="margin-top:12px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">
       Prepared by ${practitionerName} · Word Up S2C · worduplessongenerator.com
     </div>
   </div>
