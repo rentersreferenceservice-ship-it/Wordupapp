@@ -98,7 +98,7 @@ export default async function PractitionerDashboard() {
                       <p className="font-medium text-gray-900 group-hover:text-blue-600">{s.name}</p>
                       <p className="text-xs text-gray-400">{s.ageGroup}</p>
                     </div>
-                    <span className="text-2xl text-gray-300 group-hover:text-blue-400 px-3">›</span>
+                    <span className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white text-lg font-bold shrink-0">›</span>
                   </Link>
                 </li>
               ))}
