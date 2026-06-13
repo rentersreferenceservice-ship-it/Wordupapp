@@ -343,16 +343,6 @@ export default function ReportClient({
               </button>
             )
           })}
-          {[today.slice(0, 4), String(Number(today.slice(0, 4)) - 1), String(Number(today.slice(0, 4)) - 2)].map(yr => {
-            const s = `${yr}-01-01`
-            const e = `${yr}-12-31`
-            return (
-              <button key={yr} onClick={() => { setStartDate(s); setEndDate(e) }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${startDate === s && endDate === e ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-600 hover:border-blue-400'}`}>
-                {yr} Full Year
-              </button>
-            )
-          })}
         </div>
         <div className="flex flex-wrap gap-3 items-end">
           <div>
