@@ -31,6 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
       narrative: string
       goals: string
       show: Record<string, boolean>
+      reportType?: string
     }
   }
 
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
     <table style="width:100%;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #1e3a5f"><tr>
       <td style="vertical-align:top">
         ${settings.logoUrl ? `<img src="${settings.logoUrl}" alt="Logo" style="height:48px;object-fit:contain;display:block;margin-bottom:8px" />` : ''}
-        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Progress Report</div>
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">${sections.reportType ?? 'Progress Report'}</div>
         ${settings.businessName ? `<div style="font-size:15px;font-weight:700;color:#1f2937">${settings.businessName}</div>` : ''}
         ${settings.businessAddress ? `<div style="font-size:12px;color:#6b7280;white-space:pre-line">${settings.businessAddress}</div>` : ''}
         ${settings.businessPhone ? `<div style="font-size:12px;color:#6b7280">${settings.businessPhone}</div>` : ''}

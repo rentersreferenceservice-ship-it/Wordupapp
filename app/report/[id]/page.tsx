@@ -60,7 +60,7 @@ export default async function SharedReportPage({ params }: { params: Promise<{ i
         <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 flex items-start justify-between">
           <div>
             {s?.logo_url && <img src={s.logo_url} alt="Logo" className="h-12 object-contain mb-2" />}
-            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Progress Report</div>
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{sc.reportType ?? 'Progress Report'}</div>
             {s?.business_name && <div className="text-base font-bold text-gray-900">{s.business_name}</div>}
             {s?.business_address && <div className="text-xs text-gray-500 whitespace-pre-line">{s.business_address}</div>}
             {s?.business_phone && <div className="text-xs text-gray-500">{s.business_phone}</div>}

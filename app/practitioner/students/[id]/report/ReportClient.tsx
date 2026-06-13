@@ -74,6 +74,7 @@ export default function ReportClient({
   const [statProgress, setStatProgress] = useState(sc.statProgress ?? '')
   const [statBest, setStatBest] = useState(sc.statBest ?? '')
   const [statSessions, setStatSessions] = useState(sc.statSessions ?? '')
+  const [reportType, setReportType] = useState<string>(sc.reportType ?? 'Progress Report')
 
   const sv = loadedReport?.sectionsVisible ?? {}
   const [show, setShow] = useState({
@@ -99,11 +100,11 @@ export default function ReportClient({
     endDate,
     narrative,
     goals,
-    sectionsContent: { milestones: milestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions },
+    sectionsContent: { milestones: milestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
     sectionsVisible: show,
     reportData: reportDataRef.current,
     existingId: reportId ?? undefined,
-  }), [startDate, endDate, narrative, goals, milestonesText, regulationText, lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportId])
+  }), [startDate, endDate, narrative, goals, milestonesText, regulationText, lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportId, reportType])
 
   const autoSave = useCallback(async () => {
     if (!reportDataRef.current) return
@@ -195,16 +196,10 @@ export default function ReportClient({
         : 'No letter misspoke data for this period.')
       setShow(prev => ({ ...prev, letters: rd.topMisspokedLetters.length > 0 }))
 
-      const periodDays = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24) + 1
-      const periodWeeks = Math.max(1, periodDays / 7)
-      const annualProjectedSessions = Math.round(rd.financials.completedSessions * (52 / periodWeeks))
-      const rate = rd.financials.sessionRate
-      const projectedAnnualTotal = rate != null && annualProjectedSessions > 0 ? (annualProjectedSessions * rate).toFixed(2) : ''
-
       setFinSessions(rd.financials.completedSessions.toString())
-      setFinRate(rate != null ? rate.toString() : '')
+      setFinRate('')
       setFinFrequency('')
-      setFinTotal(projectedAnnualTotal)
+      setFinTotal('')
 
       setNarrative(data.narrative)
       setGoals(data.goals)
@@ -218,7 +213,7 @@ export default function ReportClient({
           startDate, endDate,
           narrative: data.narrative,
           goals: data.goals,
-          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '', finRate: rd.financials.sessionRate?.toString() ?? '', finTotal: '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString() },
+          sectionsContent: { milestones: mLines.join('\n'), regulation: rLines.join('\n'), letters: rd.topMisspokedLetters.map((l: { letter: string }) => l.letter).join('  ·  '), finSessions: rd.financials.completedSessions.toString(), finFrequency: '', finRate: '', finTotal: '', statAvg: fmt(rd.accuracyTrend.average), statProgress: `${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`, statBest: fmt(rd.accuracyTrend.highest), statSessions: rd.accuracyTrend.completedCount.toString(), reportType },
           sectionsVisible: { stats: true, milestones: mLines.length > 0, regulation: rLines.length > 0, letters: rd.topMisspokedLetters.length > 0, financials: true, narrative: true, goals: true },
           reportData: rd,
         }),
@@ -265,7 +260,7 @@ export default function ReportClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           startDate, endDate, emails: emailList,
-          sections: { milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show },
+          sections: { milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportType },
           studentName,
           reportId: reportId ?? undefined,
         }),
@@ -290,7 +285,7 @@ export default function ReportClient({
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 no-print">
         <Link href={`/practitioner/students/${studentId}`} className="text-sm text-blue-600 hover:underline">← {studentName}</Link>
-        <h1 className="text-xl font-bold text-gray-900">Progress Report</h1>
+        <h1 className="text-xl font-bold text-gray-900">{reportType}</h1>
         {saveStatus === 'saving' && <span className="text-xs text-gray-400 ml-auto">Saving…</span>}
         {saveStatus === 'saved' && <span className="text-xs text-green-600 ml-auto">✓ Saved</span>}
         {saveStatus === 'unsaved' && <span className="text-xs text-yellow-500 ml-auto">Unsaved changes</span>}
@@ -326,8 +321,19 @@ export default function ReportClient({
 
       {/* Date range picker */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 no-print">
-        <p className="text-sm font-semibold text-gray-700 mb-3">Select Reporting Period</p>
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Document type */}
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Document Type</p>
+        <div className="flex flex-wrap gap-2 mb-5">
+          {['Progress Report', 'Annual Funding Proposal'].map(type => (
+            <button key={type} onClick={() => setReportType(type)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${reportType === type ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-600 hover:border-blue-400'}`}>
+              {type}
+            </button>
+          ))}
+        </div>
+
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Reporting Period</p>
+        <div className="flex flex-wrap gap-2 mb-3">
           {[-3, -2, -1, 0].map(offset => {
             const q = getQuarterRange(offset)
             return (
@@ -337,10 +343,16 @@ export default function ReportClient({
               </button>
             )
           })}
-          <button onClick={() => { setStartDate(yearStart); setEndDate(today) }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${startDate === yearStart && endDate === today ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-600 hover:border-blue-400'}`}>
-            Full Year {today.slice(0, 4)}
-          </button>
+          {[today.slice(0, 4), String(Number(today.slice(0, 4)) - 1), String(Number(today.slice(0, 4)) - 2)].map(yr => {
+            const s = `${yr}-01-01`
+            const e = `${yr}-12-31`
+            return (
+              <button key={yr} onClick={() => { setStartDate(s); setEndDate(e) }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${startDate === s && endDate === e ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-600 hover:border-blue-400'}`}>
+                {yr} Full Year
+              </button>
+            )
+          })}
         </div>
         <div className="flex flex-wrap gap-3 items-end">
           <div>
@@ -353,7 +365,7 @@ export default function ReportClient({
           </div>
           <button onClick={handleGenerate} disabled={loading || !startDate || !endDate}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            {loading ? 'Generating…' : 'Generate Report'}
+            {loading ? 'Generating…' : 'Generate'}
           </button>
         </div>
         {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
@@ -372,7 +384,7 @@ export default function ReportClient({
           <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 flex items-start justify-between">
             <div>
               {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-12 object-contain mb-2" />}
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Progress Report</div>
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">{reportType}</div>
               {settings.businessName && <div className="text-base font-bold text-gray-900">{settings.businessName}</div>}
               {settings.businessAddress && <div className="text-xs text-gray-500 whitespace-pre-line">{settings.businessAddress}</div>}
               {settings.businessPhone && <div className="text-xs text-gray-500">{settings.businessPhone}</div>}
@@ -466,10 +478,11 @@ export default function ReportClient({
 
           {show.goals && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-5 mb-6 relative group">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-1">
                 <h2 className="text-xs font-bold text-green-700 uppercase tracking-wide">Recommended Goals</h2>
                 <button onClick={() => hide('goals')} className="no-print opacity-0 group-hover:opacity-100 text-green-200 hover:text-red-400 text-lg leading-none transition-opacity">×</button>
               </div>
+              <p className="text-xs text-green-600 mb-3 no-print">AI-suggested — review and edit before sharing.</p>
               <textarea value={goals} onChange={e => setGoals(e.target.value)} rows={6} className="w-full bg-white border border-green-200 rounded-lg p-3 text-sm text-gray-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-green-400 resize-none" />
             </div>
           )}
