@@ -107,14 +107,7 @@ export default async function SharedReportPage({ params }: { params: Promise<{ i
           </div>
         )}
 
-        {show.letters && sc.letters && (
-          <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Most Misspoked Letters</h2>
-            <p className="text-lg font-bold font-mono text-red-700 tracking-widest">{sc.letters}</p>
-          </div>
-        )}
-
-        {show.financials && (sc.finSessions || sc.finRate || sc.finTotal) && (
+        {show.financials && sc.reportType === 'Annual Funding Proposal' && (sc.finSessions || sc.finRate || sc.finTotal) && (
           <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4">
             <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Session & Funding Summary</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

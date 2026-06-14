@@ -382,12 +382,7 @@ export default function ReportClient({
             <textarea value={regulationText} onChange={e => setRegulationText(e.target.value)} rows={Math.max(2, regulationText.split('\n').length + 1)} className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
           </Section>
 
-          <Section title="Most Misspoked Letters" visible={show.letters} onDelete={() => hide('letters')}>
-            <input value={lettersText} onChange={e => setLettersText(e.target.value)} className="w-full text-sm font-mono font-bold text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 tracking-widest" />
-            <p className="text-xs text-gray-400 mt-1">Approximated from misspoked words — edit as needed</p>
-          </Section>
-
-          {show.financials && (
+          {show.financials && reportType === 'Annual Funding Proposal' && (
             <div className="bg-white rounded-xl border border-gray-100 p-5 mb-4 relative group">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Session & Funding Summary</h2>

@@ -103,13 +103,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
       <div style="font-size:13px;color:#1f2937;line-height:1.8;white-space:pre-wrap">${sections.regulationText}</div>
     </div>` : ''}
 
-    ${show.letters !== false && sections.lettersText ? `
-    <div style="margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Most Misspoked Letters</div>
-      <div style="font-size:16px;font-weight:700;color:#dc2626;letter-spacing:0.1em">${sections.lettersText}</div>
-    </div>` : ''}
-
-    ${show.financials !== false && (sections.finSessions || sections.finRate || sections.finTotal) ? `
+    ${sections.reportType === 'Annual Funding Proposal' && show.financials !== false && (sections.finSessions || sections.finRate || sections.finTotal) ? `
     <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#f8faff;border-radius:8px">
       <tr>
         <td style="padding:12px 16px;text-align:center;border-right:1px solid #e5e7eb">
