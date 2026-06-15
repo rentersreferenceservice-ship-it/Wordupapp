@@ -2,6 +2,14 @@
 
 import { useState } from 'react'
 
+type OutstandingInvoice = {
+  id: string
+  invoiceNumber: number
+  studentName: string
+  total: number
+  balanceDue: number
+}
+
 type InvoiceResult = {
   id: string
   invoiceNumber: number
@@ -17,7 +25,10 @@ type InvoiceResult = {
 
 const PAYMENT_METHODS = ['Venmo', 'PayPal', 'EFA', 'Check', 'Other']
 
-export default function InvoiceLookup({ outstandingTotal = 0, unpaidCount = 0 }: { outstandingTotal?: number; unpaidCount?: number }) {
+export default function InvoiceLookup({ outstandingInvoices = [] }: { outstandingInvoices?: OutstandingInvoice[] }) {
+  const outstandingTotal = outstandingInvoices.reduce((s, i) => s + i.balanceDue, 0)
+  const unpaidCount = outstandingInvoices.length
+  const [showList, setShowList] = useState(false)
   const [number, setNumber] = useState('')
   const [result, setResult] = useState<InvoiceResult | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -69,15 +80,47 @@ export default function InvoiceLookup({ outstandingTotal = 0, unpaidCount = 0 }:
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-gray-700">Invoice Lookup — Record Payment</h2>
         {unpaidCount > 0 ? (
-          <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
-            ${outstandingTotal.toFixed(2)} outstanding · {unpaidCount} unpaid
-          </span>
+          <button
+            onClick={() => setShowList(v => !v)}
+            className="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full hover:bg-orange-200 transition-colors"
+          >
+            ${outstandingTotal.toFixed(2)} outstanding · {unpaidCount} unpaid {showList ? '▲' : '▼'}
+          </button>
         ) : (
           <span className="bg-gray-100 text-gray-400 text-xs font-medium px-3 py-1 rounded-full">
             All invoices paid
           </span>
         )}
       </div>
+
+      {showList && outstandingInvoices.length > 0 && (
+        <div className="mb-4 rounded-lg border border-orange-100 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-orange-50 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                <th className="px-3 py-2">Invoice #</th>
+                <th className="px-3 py-2">Student</th>
+                <th className="px-3 py-2 text-right">Total</th>
+                <th className="px-3 py-2 text-right">Balance Due</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-orange-50">
+              {outstandingInvoices.map(inv => (
+                <tr key={inv.id} className="hover:bg-orange-50">
+                  <td className="px-3 py-2">
+                    <a href={`/practitioner/invoice/${inv.id}`} className="text-blue-600 hover:underline font-mono">
+                      #{inv.invoiceNumber}
+                    </a>
+                  </td>
+                  <td className="px-3 py-2 text-gray-700">{inv.studentName}</td>
+                  <td className="px-3 py-2 text-right text-gray-500">${inv.total.toFixed(2)}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-orange-700">${inv.balanceDue.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <form onSubmit={search} className="flex gap-2 mb-4">
         <input
           type="text"

@@ -19,19 +19,33 @@ export default async function PractitionerDashboard() {
   const subscription = await getPractitionerSubscription(userId)
   if (!subscription?.isActive) redirect('/practitioner/subscribe')
 
-  const [students, sessions, { data: unpaidInvoices }] = await Promise.all([
+  const [students, sessions, { data: rawUnpaid }] = await Promise.all([
     getStudents(userId),
     getSessions(userId),
-    getSupabase().from('invoices').select('amount, amount_paid, extra_items').eq('practitioner_id', userId).eq('is_paid', false),
+    getSupabase()
+      .from('invoices')
+      .select('id, invoice_number, student_id, amount, amount_paid, extra_items')
+      .eq('practitioner_id', userId)
+      .eq('is_paid', false)
+      .order('invoice_number', { ascending: false }),
   ])
 
-  const outstandingTotal = (unpaidInvoices ?? []).reduce((sum, inv) => {
-    const base = parseFloat(String(inv.amount)) || 0
-    const paid = parseFloat(String(inv.amount_paid)) || 0
-    const extras = ((inv.extra_items ?? []) as Array<{ amount: number }>).reduce((s, e) => s + (e.amount || 0), 0)
-    return sum + Math.max(0, base + extras - paid)
-  }, 0)
-  const unpaidCount = (unpaidInvoices ?? []).length
+  const studentNameMap = Object.fromEntries(students.map(s => [s.id, s.name]))
+
+  const outstandingInvoices = (rawUnpaid ?? [])
+    .map(inv => {
+      const base = parseFloat(String(inv.amount)) || 0
+      const paid = parseFloat(String(inv.amount_paid)) || 0
+      const extras = ((inv.extra_items ?? []) as Array<{ amount: number }>).reduce((s, e) => s + (e.amount || 0), 0)
+      return {
+        id: inv.id as string,
+        invoiceNumber: inv.invoice_number as number,
+        studentName: (studentNameMap[inv.student_id as string] ?? 'Unknown'),
+        total: base + extras,
+        balanceDue: Math.max(0, base + extras - paid),
+      }
+    })
+    .filter(inv => inv.balanceDue > 0)
 
   const recentSessions = sessions.slice(0, 5)
 
@@ -76,7 +90,7 @@ export default async function PractitionerDashboard() {
       </div>
 
       {students.length === 0 && <GettingStarted />}
-      <InvoiceLookup outstandingTotal={outstandingTotal} unpaidCount={unpaidCount} />
+      <InvoiceLookup outstandingInvoices={outstandingInvoices} />
 
       <div className="mb-6">
         <AccessCodeManager />
