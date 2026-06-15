@@ -48,11 +48,11 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
     return sum + base
   }, 0)
 
-  type MileageRow = { miles: number; trip_date: string; students: { name: string } | null }
+  type MileageRow = { miles: unknown; trip_date: string; students: { name: string }[] | null }
   const mileageEntries = (mileageRaw ?? []).map((m: MileageRow) => ({
     miles: parseFloat(String(m.miles)),
     trip_date: m.trip_date,
-    student_name: m.students?.name ?? null,
+    student_name: Array.isArray(m.students) ? (m.students[0]?.name ?? null) : null,
   }))
 
   const prevYear = year - 1
