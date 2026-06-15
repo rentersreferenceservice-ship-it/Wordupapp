@@ -450,6 +450,7 @@ export interface StudentReportData {
   }>
   boardMilestones: Array<{ board: string; date: string }>
   questionTypeMilestones: Array<{ type: string; date: string }>
+  questionTypesInPeriod: string[]
   regulationStats: {
     arrivedDysregulated: number
     improvedByEnd: number
@@ -521,6 +522,7 @@ export async function getStudentReportData(
       sessions: [],
       boardMilestones: [],
       questionTypeMilestones: [],
+      questionTypesInPeriod: [],
       regulationStats: { arrivedDysregulated: 0, improvedByEnd: 0, ongoingConcern: 0, arrivedRegulated: 0 },
       topMisspokedLetters: [],
       accuracyTrend: { first: null, last: null, average: null, highest: null, completedCount: 0 },
@@ -586,6 +588,8 @@ export async function getStudentReportData(
 
   const seenQTypes = new Set<string>()
   const questionTypeMilestones: StudentReportData['questionTypeMilestones'] = []
+  const periodQTypesSeen = new Set<string>()
+  const questionTypesInPeriod: string[] = []
   const letterScores: Record<string, number> = {}
 
   const sessionEntries: StudentReportData['sessions'] = typedSessions.map(s => {
@@ -595,10 +599,15 @@ export async function getStudentReportData(
 
     for (const r of rows) {
       const label = REPORT_QUESTION_TYPE_LABELS[r.question_type]
-      if (label && !seenQTypes.has(r.question_type) && !priorQTypes.has(r.question_type)) {
-        if (r.question_type !== 'SESSION_NOTES' && r.question_type !== 'SESSION_STATE' && r.question_type !== 'SESSION_COMPLETE' && r.question_type !== 'SESSION_VIDEO' && r.question_type !== 'SESSION_INVOICE') {
+      const isSpecial = r.question_type === 'SESSION_NOTES' || r.question_type === 'SESSION_STATE' || r.question_type === 'SESSION_COMPLETE' || r.question_type === 'SESSION_VIDEO' || r.question_type === 'SESSION_INVOICE'
+      if (label && !isSpecial) {
+        if (!seenQTypes.has(r.question_type) && !priorQTypes.has(r.question_type)) {
           seenQTypes.add(r.question_type)
           questionTypeMilestones.push({ type: label, date: s.session_date })
+        }
+        if (!periodQTypesSeen.has(r.question_type)) {
+          periodQTypesSeen.add(r.question_type)
+          questionTypesInPeriod.push(label)
         }
       }
     }
@@ -686,6 +695,7 @@ export async function getStudentReportData(
     sessions: sessionEntries,
     boardMilestones,
     questionTypeMilestones,
+    questionTypesInPeriod,
     regulationStats,
     topMisspokedLetters,
     accuracyTrend,

@@ -19,6 +19,16 @@ function getQuarterRange(offset = 0): { start: string; end: string; label: strin
   }
 }
 
+function computeMilestonesText(items: string[], checks: Record<string, boolean>, custom: string): string {
+  const lines = items.filter(i => checks[i]).map(i => `• ${i}`)
+  if (custom.trim()) {
+    for (const line of custom.trim().split('\n')) {
+      if (line.trim()) lines.push(line.trim().startsWith('•') ? line.trim() : `• ${line.trim()}`)
+    }
+  }
+  return lines.join('\n')
+}
+
 function Section({ title, visible, onDelete, children }: { title: string; visible: boolean; onDelete: () => void; children: React.ReactNode }) {
   if (!visible) return null
   return (
@@ -61,6 +71,9 @@ export default function ReportClient({
 
   const sc = loadedReport?.sectionsContent ?? {}
   const [milestonesText, setMilestonesText] = useState(sc.milestones ?? '')
+  const [milestoneItems, setMilestoneItems] = useState<string[]>([])
+  const [milestoneChecks, setMilestoneChecks] = useState<Record<string, boolean>>({})
+  const [milestoneCustom, setMilestoneCustom] = useState('')
   const [regulationText, setRegulationText] = useState(sc.regulation ?? '')
   const [lettersText, setLettersText] = useState(sc.letters ?? '')
   const [narrative, setNarrative] = useState(loadedReport?.narrative ?? '')
@@ -97,9 +110,12 @@ export default function ReportClient({
   async function handleSave() {
     if (!reportDataRef.current) return
     setSaveStatus('saving')
+    const currentMilestonesText = milestoneItems.length > 0
+      ? computeMilestonesText(milestoneItems, milestoneChecks, milestoneCustom)
+      : milestonesText
     const payload = {
       startDate, endDate, narrative, goals,
-      sectionsContent: { milestones: milestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
+      sectionsContent: { milestones: currentMilestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
       sectionsVisible: show,
       reportData: reportDataRef.current,
       existingId: reportId ?? undefined,
@@ -157,12 +173,15 @@ export default function ReportClient({
       setStatProgress(`${fmt(rd.accuracyTrend.first)} → ${fmt(rd.accuracyTrend.last)}`)
       setStatBest(fmt(rd.accuracyTrend.highest))
 
-      const mLines = [
-        ...rd.boardMilestones.map(m => `• Advanced to ${m.board} — ${new Date(m.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`),
-        ...rd.questionTypeMilestones.map(m => `• ${m.type} introduced — ${new Date(m.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`),
+      const checklistItems = [
+        ...rd.boardMilestones.map(m => `Advanced to ${m.board}`),
+        ...(rd.questionTypesInPeriod ?? []),
       ]
-      setMilestonesText(mLines.length ? mLines.join('\n') : 'No new milestones recorded this period.')
-      setShow(prev => ({ ...prev, milestones: mLines.length > 0 }))
+      setMilestoneItems(checklistItems)
+      setMilestoneChecks(Object.fromEntries(checklistItems.map(i => [i, false])))
+      setMilestoneCustom('')
+      setMilestonesText('')
+      setShow(prev => ({ ...prev, milestones: checklistItems.length > 0 }))
 
       const reg = rd.regulationStats
       const rLines: string[] = []
@@ -216,13 +235,16 @@ export default function ReportClient({
     if (!emailList.length) return
     setSending(true)
     setSendStatus('Sending…')
+    const currentMilestonesText = milestoneItems.length > 0
+      ? computeMilestonesText(milestoneItems, milestoneChecks, milestoneCustom)
+      : milestonesText
     try {
       const res = await fetch(`/api/practitioner/report/${studentId}/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           startDate, endDate, emails: emailList,
-          sections: { milestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportType },
+          sections: { milestonesText: currentMilestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportType },
           studentName,
           reportId: reportId ?? undefined,
         }),
@@ -242,7 +264,7 @@ export default function ReportClient({
 
   return (
     <main className="min-h-screen px-4 py-8 max-w-3xl mx-auto">
-      <style>{`@media print { .no-print { display: none !important; } body { background: white; } textarea, input { border: none !important; outline: none !important; resize: none; background: transparent !important; padding: 0 !important; } }`}</style>
+      <style>{`.print-only { display: none; } @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white; } textarea, input { border: none !important; outline: none !important; resize: none; background: transparent !important; padding: 0 !important; } }`}</style>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 no-print">
@@ -375,7 +397,39 @@ export default function ReportClient({
           )}
 
           <Section title="Milestones This Period" visible={show.milestones} onDelete={() => hide('milestones')}>
-            <textarea value={milestonesText} onChange={e => setMilestonesText(e.target.value)} rows={Math.max(2, milestonesText.split('\n').length + 1)} className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
+            {milestoneItems.length > 0 ? (
+              <>
+                <div className="no-print">
+                  <p className="text-xs text-gray-400 mb-3">Check the items to include in the report:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                    {milestoneItems.map(item => (
+                      <label key={item} className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={milestoneChecks[item] ?? false}
+                          onChange={e => { setMilestoneChecks(prev => ({ ...prev, [item]: e.target.checked })); setSaveStatus('unsaved') }}
+                          className="w-4 h-4 rounded accent-blue-600"
+                        />
+                        <span className="text-sm text-gray-700">{item}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <label className="text-xs text-gray-400 block mb-1">Additional notes (optional)</label>
+                  <textarea
+                    value={milestoneCustom}
+                    onChange={e => { setMilestoneCustom(e.target.value); setSaveStatus('unsaved') }}
+                    rows={2}
+                    placeholder="e.g. Wrote first open sentence"
+                    className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                  />
+                </div>
+                <p className="print-only text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                  {computeMilestonesText(milestoneItems, milestoneChecks, milestoneCustom) || 'No milestones selected.'}
+                </p>
+              </>
+            ) : (
+              <textarea value={milestonesText} onChange={e => setMilestonesText(e.target.value)} rows={Math.max(2, milestonesText.split('\n').length + 1)} className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
+            )}
           </Section>
 
           <Section title="Regulation" visible={show.regulation} onDelete={() => hide('regulation')}>
