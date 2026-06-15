@@ -17,7 +17,7 @@ export default async function AdminSignupsPage() {
   const [clerkResult, { data: practRows }, { data: leadRows }] = await Promise.all([
     clerk.users.getUserList({ limit: 200 }).catch(() => ({ data: [] })),
     supabase.from('practitioner_subscriptions').select('user_id, is_active, billing_period'),
-    supabase.from('practitioner_leads').select('email, name, organization, role, created_at').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
+    supabase.from('practitioner_leads').select('email, name, organization, role, created_at').order('created_at', { ascending: false }),
   ])
 
   const allUsers = (clerkResult.data ?? []).sort((a, b) => b.createdAt - a.createdAt)
