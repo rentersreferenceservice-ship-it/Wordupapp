@@ -15,13 +15,15 @@ export default async function AdminSignupsPage() {
   const supabase = getSupabase()
 
   const [clerkResult, { data: practRows }, { data: leadRows }] = await Promise.all([
-    clerk.users.getUserList({ limit: 200, orderBy: '-created_at' }),
-    supabase.from('practitioner_subscriptions').select('user_id, is_active, billing_period, created_at'),
-    supabase.from('practitioner_leads').select('email, name, organization, role, created_at').order('created_at', { ascending: false }),
+    clerk.users.getUserList({ limit: 200 }).catch(() => ({ data: [] })),
+    supabase.from('practitioner_subscriptions').select('user_id, is_active, billing_period'),
+    supabase.from('practitioner_leads').select('email, name, organization, role, created_at').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
   ])
 
-  const allUsers = clerkResult.data ?? []
-  const practMap = Object.fromEntries((practRows ?? []).map((r: { user_id: string; is_active: boolean; billing_period: string }) => [r.user_id, r]))
+  const allUsers = (clerkResult.data ?? []).sort((a, b) => b.createdAt - a.createdAt)
+  const practMap: Record<string, { is_active: boolean; billing_period: string }> = Object.fromEntries(
+    (practRows ?? []).map(r => [r.user_id, r])
+  )
 
   const rows = allUsers.map(u => {
     const email = u.emailAddresses[0]?.emailAddress ?? '—'
@@ -30,45 +32,42 @@ export default async function AdminSignupsPage() {
     const joined = new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     let status = 'No subscription'
     if (pract?.is_active) status = `Active — ${pract.billing_period}`
-    else if (pract) status = 'Inactive subscription'
+    else if (pract) status = 'Inactive'
     return { id: u.id, name, email, joined, status, hasActive: pract?.is_active ?? false }
   })
 
   const activeCount = rows.filter(r => r.hasActive).length
-  const signedUpNoSub = rows.filter(r => r.status === 'No subscription')
-  const inactiveSub = rows.filter(r => r.status === 'Inactive subscription')
+  const noSub = rows.filter(r => r.status === 'No subscription')
+  const inactive = rows.filter(r => r.status === 'Inactive')
 
   return (
     <main className="min-h-screen bg-white px-6 py-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-4 mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Signup Funnel</h1>
-          <Link href="/admin/subscribers" className="text-sm text-blue-600 hover:underline">View Subscribers →</Link>
-        </div>
-        <div className="flex gap-6 mb-8 text-sm">
-          <div className="bg-blue-50 rounded-xl px-4 py-3 text-center">
-            <p className="text-2xl font-bold text-blue-700">{rows.length}</p>
-            <p className="text-xs text-gray-500">Total Clerk accounts</p>
-          </div>
-          <div className="bg-green-50 rounded-xl px-4 py-3 text-center">
-            <p className="text-2xl font-bold text-green-700">{activeCount}</p>
-            <p className="text-xs text-gray-500">Active subscribers</p>
-          </div>
-          <div className="bg-yellow-50 rounded-xl px-4 py-3 text-center">
-            <p className="text-2xl font-bold text-yellow-700">{signedUpNoSub.length}</p>
-            <p className="text-xs text-gray-500">Signed up, no subscription</p>
-          </div>
-          <div className="bg-red-50 rounded-xl px-4 py-3 text-center">
-            <p className="text-2xl font-bold text-red-700">{inactiveSub.length}</p>
-            <p className="text-xs text-gray-500">Inactive / cancelled</p>
-          </div>
+          <Link href="/admin/subscribers" className="text-sm text-blue-600 hover:underline">Subscribers →</Link>
         </div>
 
-        {/* People who signed up but never subscribed — highest priority to follow up */}
-        {signedUpNoSub.length > 0 && (
+        <div className="flex flex-wrap gap-4 mb-8">
+          {[
+            { label: 'Total accounts', value: rows.length, bg: 'bg-blue-50', text: 'text-blue-700' },
+            { label: 'Active subscribers', value: activeCount, bg: 'bg-green-50', text: 'text-green-700' },
+            { label: 'Signed up, no sub', value: noSub.length, bg: 'bg-yellow-50', text: 'text-yellow-700' },
+            { label: 'Inactive / cancelled', value: inactive.length, bg: 'bg-red-50', text: 'text-red-700' },
+          ].map(s => (
+            <div key={s.label} className={`${s.bg} rounded-xl px-5 py-3 text-center min-w-[120px]`}>
+              <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {noSub.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-sm font-bold text-yellow-700 uppercase tracking-wide mb-3">Signed up — no subscription ({signedUpNoSub.length})</h2>
-            <div className="bg-white rounded-xl border border-yellow-200 overflow-hidden">
+            <h2 className="text-sm font-bold text-yellow-700 uppercase tracking-wide mb-3">
+              Signed up — no subscription ({noSub.length}) — follow up with these people
+            </h2>
+            <div className="rounded-xl border border-yellow-200 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-yellow-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
@@ -78,7 +77,7 @@ export default async function AdminSignupsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-yellow-100">
-                  {signedUpNoSub.map(r => (
+                  {noSub.map(r => (
                     <tr key={r.id} className="hover:bg-yellow-50">
                       <td className="px-4 py-3 font-medium text-gray-900">{r.name}</td>
                       <td className="px-4 py-3 text-gray-700">{r.email}</td>
@@ -91,10 +90,9 @@ export default async function AdminSignupsPage() {
           </div>
         )}
 
-        {/* All accounts */}
         <div className="mb-8">
-          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">All Clerk accounts</h2>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">All accounts ({rows.length})</h2>
+          <div className="rounded-xl border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
@@ -111,7 +109,7 @@ export default async function AdminSignupsPage() {
                     <td className="px-4 py-3 text-gray-700">{r.email}</td>
                     <td className="px-4 py-3 text-gray-400 text-xs">{r.joined}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.hasActive ? 'bg-green-100 text-green-700' : r.status === 'Inactive subscription' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.hasActive ? 'bg-green-100 text-green-700' : r.status === 'Inactive' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
                         {r.status}
                       </span>
                     </td>
@@ -122,11 +120,10 @@ export default async function AdminSignupsPage() {
           </div>
         </div>
 
-        {/* Lead form submissions */}
         {(leadRows ?? []).length > 0 && (
           <div>
-            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Access request form submissions ({leadRows!.length})</h2>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Access request form submissions ({(leadRows ?? []).length})</h2>
+            <div className="rounded-xl border border-gray-200 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
@@ -138,7 +135,7 @@ export default async function AdminSignupsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {(leadRows ?? []).map((r: { email: string; name: string; organization: string; role: string; created_at: string }, i: number) => (
+                  {(leadRows ?? []).map((r, i) => (
                     <tr key={i} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium text-gray-900">{r.name}</td>
                       <td className="px-4 py-3 text-gray-700">{r.email}</td>
