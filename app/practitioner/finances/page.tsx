@@ -21,18 +21,19 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
 
   const supabase = getSupabase()
 
-  const [{ data: paidInvoices }, { data: expenses }, { data: mileageRaw }] = await Promise.all([
+  const [{ data: allInvoices }, { data: expenses }, { data: mileageRaw }] = await Promise.all([
     supabase
       .from('invoices')
-      .select('amount, amount_paid, extra_items')
+      .select('amount, amount_paid, extra_items, is_paid')
       .eq('practitioner_id', userId)
-      .eq('is_paid', true)
       .gte('invoice_date', startDate)
       .lte('invoice_date', endDate),
     supabase
       .from('expenses')
       .select('*')
       .eq('practitioner_id', userId)
+      .gte('date', startDate)
+      .lte('date', endDate)
       .order('date', { ascending: false }),
     supabase
       .from('mileage_log')
@@ -43,9 +44,19 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
       .order('trip_date', { ascending: false }),
   ])
 
-  const yearlyIncome = (paidInvoices ?? []).reduce((sum, inv) => {
-    const base = parseFloat(String(inv.amount_paid)) || 0
-    return sum + base
+  const invoiceTotal = (inv: { amount: unknown; extra_items: unknown }) => {
+    const base = parseFloat(String(inv.amount)) || 0
+    const extras = ((inv.extra_items ?? []) as Array<{ amount: number }>).reduce((s, e) => s + (e.amount || 0), 0)
+    return base + extras
+  }
+
+  const paidInvoices = (allInvoices ?? []).filter(i => i.is_paid)
+  const unpaidInvoices = (allInvoices ?? []).filter(i => !i.is_paid)
+
+  const yearlyIncome = paidInvoices.reduce((sum, inv) => sum + invoiceTotal(inv), 0)
+  const yearlyOutstanding = unpaidInvoices.reduce((sum, inv) => {
+    const paid = parseFloat(String(inv.amount_paid)) || 0
+    return sum + Math.max(0, invoiceTotal(inv) - paid)
   }, 0)
 
   type MileageRow = { miles: unknown; trip_date: string; students: { name: string }[] | null }
@@ -93,6 +104,7 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
         }))}
         mileageEntries={mileageEntries}
         yearlyIncome={yearlyIncome}
+        yearlyOutstanding={yearlyOutstanding}
         year={year}
       />
     </main>

@@ -26,11 +26,13 @@ export default function ExpensesManager({
   initialExpenses,
   mileageEntries,
   yearlyIncome,
+  yearlyOutstanding,
   year,
 }: {
   initialExpenses: Expense[]
   mileageEntries: MileageEntry[]
   yearlyIncome: number
+  yearlyOutstanding: number
   year: number
 }) {
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses)
@@ -111,24 +113,32 @@ export default function ExpensesManager({
   return (
     <div className="space-y-6">
       {/* Year Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-green-700">${yearlyIncome.toFixed(2)}</p>
-          <p className="text-xs text-gray-500 mt-1">Income {year}</p>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{year} Summary</p>
+
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Collected (paid invoices)</span>
+          <span className="font-semibold text-green-700">${yearlyIncome.toFixed(2)}</span>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</p>
-          <p className="text-xs text-gray-500 mt-1">Expenses</p>
+        {yearlyOutstanding > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">Still outstanding (unpaid)</span>
+            <span className="font-medium text-orange-500">${yearlyOutstanding.toFixed(2)}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-sm border-t border-gray-50 pt-2">
+          <span className="text-gray-600">Expenses</span>
+          <span className="font-semibold text-red-600">−${totalExpenses.toFixed(2)}</span>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-          <p className="text-2xl font-bold text-blue-700">${mileageDeduction.toFixed(2)}</p>
-          <p className="text-xs text-gray-500 mt-1">Mileage deduction</p>
-          <p className="text-xs text-gray-400">{totalMiles.toFixed(1)} mi @ ${IRS_RATE}/mi</p>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Mileage deduction ({totalMiles.toFixed(1)} mi @ ${IRS_RATE}/mi)</span>
+          <span className="font-semibold text-blue-600">−${mileageDeduction.toFixed(2)}</span>
         </div>
-        <div className={`rounded-xl p-4 text-center border ${netIncome >= 0 ? 'bg-gray-50 border-gray-200' : 'bg-orange-50 border-orange-200'}`}>
-          <p className={`text-2xl font-bold ${netIncome >= 0 ? 'text-gray-800' : 'text-orange-700'}`}>${netIncome.toFixed(2)}</p>
-          <p className="text-xs text-gray-500 mt-1">Net income</p>
+        <div className={`flex justify-between font-bold text-sm border-t border-gray-200 pt-3 ${netIncome >= 0 ? 'text-gray-900' : 'text-orange-700'}`}>
+          <span>Net income</span>
+          <span>${netIncome.toFixed(2)}</span>
         </div>
+        <p className="text-xs text-gray-400">Net = collected − expenses − mileage deduction. Outstanding invoices not included until paid.</p>
       </div>
 
       {/* Expense breakdown by category */}
