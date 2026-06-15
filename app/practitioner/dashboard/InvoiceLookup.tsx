@@ -17,7 +17,7 @@ type InvoiceResult = {
 
 const PAYMENT_METHODS = ['Venmo', 'PayPal', 'EFA', 'Check', 'Other']
 
-export default function InvoiceLookup() {
+export default function InvoiceLookup({ outstandingTotal = 0, unpaidCount = 0 }: { outstandingTotal?: number; unpaidCount?: number }) {
   const [number, setNumber] = useState('')
   const [result, setResult] = useState<InvoiceResult | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -66,7 +66,18 @@ export default function InvoiceLookup() {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
-      <h2 className="text-sm font-semibold text-gray-700 mb-3">Invoice Lookup — Record Payment</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-gray-700">Invoice Lookup — Record Payment</h2>
+        {unpaidCount > 0 ? (
+          <span className="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
+            ${outstandingTotal.toFixed(2)} outstanding · {unpaidCount} unpaid
+          </span>
+        ) : (
+          <span className="bg-gray-100 text-gray-400 text-xs font-medium px-3 py-1 rounded-full">
+            All invoices paid
+          </span>
+        )}
+      </div>
       <form onSubmit={search} className="flex gap-2 mb-4">
         <input
           type="text"

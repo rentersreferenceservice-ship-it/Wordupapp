@@ -1,6 +1,7 @@
 ﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudents, getSessions, getPractitionerSubscription } from '@/lib/practitionerStore'
+import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
@@ -18,10 +19,19 @@ export default async function PractitionerDashboard() {
   const subscription = await getPractitionerSubscription(userId)
   if (!subscription?.isActive) redirect('/practitioner/subscribe')
 
-  const [students, sessions] = await Promise.all([
+  const [students, sessions, { data: unpaidInvoices }] = await Promise.all([
     getStudents(userId),
     getSessions(userId),
+    getSupabase().from('invoices').select('amount, amount_paid, extra_items').eq('practitioner_id', userId).eq('is_paid', false),
   ])
+
+  const outstandingTotal = (unpaidInvoices ?? []).reduce((sum, inv) => {
+    const base = parseFloat(String(inv.amount)) || 0
+    const paid = parseFloat(String(inv.amount_paid)) || 0
+    const extras = ((inv.extra_items ?? []) as Array<{ amount: number }>).reduce((s, e) => s + (e.amount || 0), 0)
+    return sum + Math.max(0, base + extras - paid)
+  }, 0)
+  const unpaidCount = (unpaidInvoices ?? []).length
 
   const recentSessions = sessions.slice(0, 5)
 
@@ -66,7 +76,7 @@ export default async function PractitionerDashboard() {
       </div>
 
       {students.length === 0 && <GettingStarted />}
-      <InvoiceLookup />
+      <InvoiceLookup outstandingTotal={outstandingTotal} unpaidCount={unpaidCount} />
 
       <div className="mb-6">
         <AccessCodeManager />
