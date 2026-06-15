@@ -69,6 +69,9 @@ export default async function PractitionerDashboard() {
           <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors border-2 border-blue-600">
             Upload Lesson
           </Link>
+          <Link href="/practitioner/finances" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            Finances
+          </Link>
           <Link href="/practitioner/settings" className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors">
             Business Settings
           </Link>

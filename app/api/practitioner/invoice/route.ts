@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   if (!session) return Response.json({ error: 'Session not found' }, { status: 404 })
 
   const [{ data: student }, { data: settings }] = await Promise.all([
-    supabase.from('students').select('name, guardian_email, funder_name, funder_email, session_rate').eq('id', session.student_id).single(),
+    supabase.from('students').select('name, guardian_email, funder_name, funder_email, session_rate, default_mileage').eq('id', session.student_id).single(),
     supabase.from('practitioner_settings').select('*').eq('practitioner_id', userId).single(),
   ])
 
@@ -108,6 +108,17 @@ export async function POST(req: NextRequest) {
     question_text: 'Invoice',
     captured_answer: `/practitioner/invoice/${invoice.id}`,
   })
+
+  // Auto-log mileage if student has a default trip mileage set
+  if (student?.default_mileage) {
+    await supabase.from('mileage_log').insert({
+      practitioner_id: userId,
+      student_id: session.student_id,
+      invoice_id: invoice.id,
+      miles: parseFloat(String(student.default_mileage)),
+      trip_date: session.session_date ?? invoiceDate,
+    })
+  }
 
   // Increment invoice number
   await supabase.from('practitioner_settings').upsert({

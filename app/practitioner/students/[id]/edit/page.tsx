@@ -15,6 +15,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
   const [funderName, setFunderName] = useState('')
   const [funderEmail, setFunderEmail] = useState('')
   const [sessionRate, setSessionRate] = useState('')
+  const [defaultMileage, setDefaultMileage] = useState('')
   const [loaded, setLoaded] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -31,6 +32,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           setFunderName(data.student.funderName ?? '')
           setFunderEmail(data.student.funderEmail ?? '')
           setSessionRate(data.student.sessionRate != null ? String(data.student.sessionRate) : '')
+          setDefaultMileage(data.student.defaultMileage != null ? String(data.student.defaultMileage) : '')
           setLoaded(true)
         }
       })
@@ -44,7 +46,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
     const res = await fetch(`/api/practitioner/students/${params.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate: sessionRate ? parseFloat(sessionRate) : null }),
+      body: JSON.stringify({ name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate: sessionRate ? parseFloat(sessionRate) : null, defaultMileage: defaultMileage ? parseFloat(defaultMileage) : null }),
     })
     const data = await res.json()
     if (!res.ok) {
@@ -126,6 +128,19 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
               value={sessionRate}
               onChange={e => setSessionRate(e.target.value)}
               placeholder="Leave blank to use your default rate"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Default Trip Mileage <span className="text-gray-400 font-normal">— auto-logged when you invoice this student</span></label>
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={defaultMileage}
+              onChange={e => setDefaultMileage(e.target.value)}
+              placeholder="e.g. 12.5"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

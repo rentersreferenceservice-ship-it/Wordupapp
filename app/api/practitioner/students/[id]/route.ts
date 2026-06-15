@@ -24,8 +24,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const student = await getStudent(id)
   if (!student || student.practitionerId !== userId) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const { name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate } = await req.json()
-  await updateStudent(id, name, ageGroup, notes ?? '', guardianEmail ?? '', funderName ?? '', funderEmail ?? '', sessionRate != null ? parseFloat(sessionRate) : null)
+  const { name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate, defaultMileage } = await req.json()
+  await updateStudent(id, name, ageGroup, notes ?? '', guardianEmail ?? '', funderName ?? '', funderEmail ?? '', sessionRate != null ? parseFloat(sessionRate) : null, defaultMileage != null ? parseFloat(defaultMileage) : null)
   return Response.json({ ok: true })
 }
 

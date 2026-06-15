@@ -23,6 +23,7 @@ export interface Student {
   funderName: string
   funderEmail: string
   sessionRate: number | null
+  defaultMileage: number | null
   createdAt: string
 }
 
@@ -116,6 +117,7 @@ export async function getStudents(practitionerId: string): Promise<Student[]> {
     funderName: d.funder_name ?? '',
     funderEmail: d.funder_email ?? '',
     sessionRate: d.session_rate ?? null,
+    defaultMileage: d.default_mileage ?? null,
     createdAt: d.created_at,
   }))
 }
@@ -133,6 +135,7 @@ export async function getStudent(id: string): Promise<Student | null> {
     funderName: data.funder_name ?? '',
     funderEmail: data.funder_email ?? '',
     sessionRate: data.session_rate ?? null,
+    defaultMileage: data.default_mileage ?? null,
     createdAt: data.created_at,
   }
 }
@@ -155,16 +158,18 @@ export async function createStudent(practitionerId: string, name: string, ageGro
     funderName: data.funder_name ?? '',
     funderEmail: data.funder_email ?? '',
     sessionRate: data.session_rate ?? null,
+    defaultMileage: data.default_mileage ?? null,
     createdAt: data.created_at,
   }
 }
 
-export async function updateStudent(id: string, name: string, ageGroup: string, notes: string, guardianEmail = '', funderName = '', funderEmail = '', sessionRate: number | null = null): Promise<void> {
+export async function updateStudent(id: string, name: string, ageGroup: string, notes: string, guardianEmail = '', funderName = '', funderEmail = '', sessionRate: number | null = null, defaultMileage: number | null = null): Promise<void> {
   await getSupabase().from('students').update({
     name,
     age_group: ageGroup,
     notes,
     guardian_email: guardianEmail,
+    default_mileage: defaultMileage,
     funder_name: funderName || null,
     funder_email: funderEmail || null,
     session_rate: sessionRate,
