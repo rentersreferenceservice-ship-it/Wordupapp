@@ -13,20 +13,22 @@ export default async function AdminSignupsPage() {
   const supabase = getSupabase()
 
   const [{ data: practRows }, { data: leadRows }] = await Promise.all([
-    supabase.from('practitioner_subscriptions').select('user_id, is_active, billing_period, created_at').order('created_at', { ascending: false }),
+    supabase.from('practitioner_subscriptions').select('user_id, is_active, billing_period, source, created_at').order('created_at', { ascending: false }),
     supabase.from('practitioner_leads').select('name, email, organization, role, created_at').order('created_at', { ascending: false }),
   ])
 
   const active = (practRows ?? []).filter(r => r.is_active)
   const inactive = (practRows ?? []).filter(r => !r.is_active)
 
-  // Look up Clerk profiles for all known user IDs
+  // Look up Clerk profiles individually — batch lookup misses users with no name set
   const allUserIds = (practRows ?? []).map(r => r.user_id).filter(Boolean)
   const clerk = await clerkClient()
-  const clerkUsers = allUserIds.length > 0
-    ? await clerk.users.getUserList({ userId: allUserIds, limit: 100 }).then(r => r.data).catch(() => [])
-    : []
-  const clerkMap = Object.fromEntries(clerkUsers.map(u => [u.id, u]))
+  const clerkEntries = await Promise.all(
+    allUserIds.map(id => clerk.users.getUser(id).catch(() => null))
+  )
+  const clerkMap = Object.fromEntries(
+    clerkEntries.filter(Boolean).map(u => [u!.id, u!])
+  )
 
   return (
     <main className="min-h-screen bg-white px-6 py-10">
@@ -58,6 +60,7 @@ export default async function AdminSignupsPage() {
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Email</th>
                     <th className="px-4 py-3">Plan</th>
+                    <th className="px-4 py-3">Source</th>
                     <th className="px-4 py-3">Since</th>
                   </tr>
                 </thead>
@@ -71,6 +74,7 @@ export default async function AdminSignupsPage() {
                         <td className="px-4 py-3 font-medium text-gray-900">{name}</td>
                         <td className="px-4 py-3 text-gray-700">{email}</td>
                         <td className="px-4 py-3 text-gray-600">{r.billing_period ?? '—'}</td>
+                        <td className="px-4 py-3 text-gray-400 text-xs">{r.source ?? '—'}</td>
                         <td className="px-4 py-3 text-gray-400 text-xs">{r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
                       </tr>
                     )

@@ -13,10 +13,13 @@ export default function PractitionerSubscribePage() {
 
   async function subscribe(billing: 'monthly' | 'annual') {
     setLoading(billing)
+    const source = document.referrer
+      ? new URL(document.referrer).pathname
+      : 'direct'
     const res = await fetch('/api/practitioner/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ billing, origin: window.location.origin }),
+      body: JSON.stringify({ billing, origin: window.location.origin, source }),
     })
     const data = await res.json()
     if (data.url) {

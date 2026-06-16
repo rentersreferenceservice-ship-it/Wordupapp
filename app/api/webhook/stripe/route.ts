@@ -56,6 +56,13 @@ export async function POST(req: NextRequest) {
       if (clerkUserId) {
         if (practitionerTier && billingPeriod) {
           await setPractitionerSubscription(clerkUserId, billingPeriod, true)
+          const source = session.metadata?.source
+          if (source) {
+            await getSupabase()
+              .from('practitioner_subscriptions')
+              .update({ source })
+              .eq('user_id', clerkUserId)
+          }
           console.log('Practitioner subscribed:', clerkUserId, practitionerTier)
         } else {
           await setSubscribed(clerkUserId, true)
