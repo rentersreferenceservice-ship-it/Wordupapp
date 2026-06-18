@@ -182,6 +182,11 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
           </div>
         </div>
 
+        {/* Notes */}
+        {invoice.notes && (
+          <p className="text-xs text-gray-600 border-t border-gray-100 pt-4 whitespace-pre-line">{invoice.notes}</p>
+        )}
+
         {/* Payment terms note */}
         {settings?.payment_terms && (
           <p className="text-xs text-gray-400 border-t border-gray-100 pt-4">
@@ -207,6 +212,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
           dueDate={invoice.due_date ?? null}
           sessionId={invoice.session_id ?? null}
           initialExtraItems={extraItems}
+          initialNotes={invoice.notes ?? ''}
         />
       </div>
     </div>

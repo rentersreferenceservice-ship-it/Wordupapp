@@ -21,6 +21,7 @@ interface Props {
   dueDate: string | null
   sessionId: string | null
   initialExtraItems: ExtraItem[]
+  initialNotes: string
 }
 
 export default function InvoiceActions({
@@ -36,8 +37,10 @@ export default function InvoiceActions({
   dueDate: initialDueDate,
   sessionId,
   initialExtraItems,
+  initialNotes,
 }: Props) {
   const [extraItems, setExtraItems] = useState<ExtraItem[]>(initialExtraItems)
+  const [notes, setNotes] = useState(initialNotes)
   const [funderName, setFunderName] = useState(initialFunderName)
   const [funderEmail, setFunderEmail] = useState(initialFunderEmail)
   const [guardianEmail, setGuardianEmail] = useState(initialGuardianEmail)
@@ -70,6 +73,7 @@ export default function InvoiceActions({
           amountPaid: amountPaid ? parseFloat(amountPaid) : 0,
           isPaid,
           extraItems,
+          notes,
         }),
       }),
       fetch(`/api/practitioner/students/${studentId}`, {
@@ -238,6 +242,18 @@ export default function InvoiceActions({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Notes */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Notes</h3>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          rows={3}
+          placeholder="e.g. EFA reimbursement, payment plan details, session notes…"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
       </div>
 
       {/* Payment Status */}
