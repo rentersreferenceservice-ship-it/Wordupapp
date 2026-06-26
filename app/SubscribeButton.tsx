@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function SubscribeButton({ referral }: { referral?: string }) {
+export default function SubscribeButton({ referral, skipTrial }: { referral?: string; skipTrial?: boolean }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -13,7 +13,7 @@ export default function SubscribeButton({ referral }: { referral?: string }) {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ origin: window.location.origin, referral }),
+        body: JSON.stringify({ origin: window.location.origin, referral, skipTrial }),
       })
       const data = await res.json()
       if (data.url) {
@@ -35,7 +35,7 @@ export default function SubscribeButton({ referral }: { referral?: string }) {
         disabled={loading}
         className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors disabled:opacity-60"
       >
-        {loading ? 'Loading…' : 'Start My Free Month'}
+        {loading ? 'Loading…' : skipTrial ? 'Subscribe Now — $9.99/mo' : 'Start My Free Month'}
       </button>
       {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Not logged in' }, { status: 401 })
   }
 
-  const { origin, referral } = await req.json()
+  const { origin, referral, skipTrial } = await req.json()
 
   // Create a Stripe checkout session with clerkUserId in metadata
   const session = await stripe.checkout.sessions.create({
@@ -50,15 +50,14 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       },
     ],
-    subscription_data: {
-      trial_period_days: 30,
-    },
+    ...(skipTrial ? {} : { subscription_data: { trial_period_days: 30 } }),
+    payment_method_collection: skipTrial ? 'always' : 'if_required',
     metadata: {
       clerkUserId: userId,
       ...(referral?.trim() ? { referralSource: referral.trim() } : {}),
     },
-    success_url: `${origin}/subscribe/success`,
-    cancel_url: `${origin}/`,
+    success_url: `${origin}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/subscribe`,
   })
 
   return Response.json({ url: session.url })

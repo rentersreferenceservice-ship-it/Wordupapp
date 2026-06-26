@@ -16,6 +16,7 @@ function SubscribeContent() {
   const { isSignedIn, isLoaded } = useUser()
   const searchParams = useSearchParams()
   const [referral, setReferral] = useState(searchParams.get('ref') ?? '')
+  const skipTrial = searchParams.get('skip') === '1'
 
   if (!isLoaded) return null
 
@@ -52,7 +53,7 @@ function SubscribeContent() {
         </div>
 
         {isSignedIn ? (
-          <SubscribeButton referral={referral} />
+          <SubscribeButton referral={referral} skipTrial={skipTrial} />
         ) : (
           <SignUpButton forceRedirectUrl="/subscribe" mode="modal">
             <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors">
@@ -60,6 +61,19 @@ function SubscribeContent() {
             </button>
           </SignUpButton>
         )}
+
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <p className="text-xs text-gray-400 mb-2">Prefer to skip the trial and subscribe now?</p>
+          {isSignedIn ? (
+            <SubscribeButton referral={referral} skipTrial />
+          ) : (
+            <SignUpButton forceRedirectUrl="/subscribe?skip=1" mode="modal">
+              <button className="text-xs text-blue-600 underline underline-offset-2 hover:text-blue-800">
+                Subscribe now — $9.99/mo, no trial
+              </button>
+            </SignUpButton>
+          )}
+        </div>
 
         <p className="text-xs text-gray-400 mt-3">
           Questions? Email us at{' '}
