@@ -1,6 +1,7 @@
 ﻿import { notFound } from 'next/navigation'
 import { getLesson } from '@/lib/lessonStore'
 import { getUserUsage } from '@/lib/usageStore'
+import { getPractitionerSubscription } from '@/lib/practitionerStore'
 import type { QuestionType } from '@/lib/types'
 import PrintButton from './PrintButton'
 import DeleteButton from './DeleteButton'
@@ -42,8 +43,11 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
   let isSubscribed = isAdmin
   if (userId && !isAdmin) {
     try {
-      const usage = await getUserUsage(userId)
-      isSubscribed = usage.isSubscribed
+      const [usage, practSub] = await Promise.all([
+        getUserUsage(userId).catch(() => null),
+        getPractitionerSubscription(userId).catch(() => null),
+      ])
+      isSubscribed = (usage?.isSubscribed ?? false) || (practSub?.isActive ?? false)
     } catch {
       isSubscribed = false
     }

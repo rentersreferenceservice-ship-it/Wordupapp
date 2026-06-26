@@ -1,6 +1,7 @@
 import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
 import { getUserUsage, incrementPrints, MONTHLY_LIMIT, FREE_LESSON_LIMIT, getFreeActionsUsed } from '@/lib/usageStore'
+import { getPractitionerSubscription } from '@/lib/practitionerStore'
 import { redirect } from 'next/navigation'
 import { type Metadata } from 'next'
 import fs from 'fs'
@@ -32,9 +33,15 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
   const { userId } = await auth()
 
   if (userId && userId !== ADMIN_USER_ID) {
-    const usage = await getUserUsage(userId)
-    if (usage.isSubscribed && usage.lessonsThisMonth + usage.printsThisMonth >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
-    if (!usage.isSubscribed && getFreeActionsUsed(usage.lessonsThisMonth, usage.printsThisMonth) >= FREE_LESSON_LIMIT) redirect(`/lessons/${id}`)
+    const [usage, practSub] = await Promise.all([
+      getUserUsage(userId).catch(() => null),
+      getPractitionerSubscription(userId).catch(() => null),
+    ])
+    const isPractitioner = practSub?.isActive ?? false
+    if (!isPractitioner) {
+      if (usage?.isSubscribed && (usage.lessonsThisMonth + usage.printsThisMonth) >= MONTHLY_LIMIT) redirect(`/lessons/${id}`)
+      if (!usage?.isSubscribed && getFreeActionsUsed(usage?.lessonsThisMonth ?? 0, usage?.printsThisMonth ?? 0) >= FREE_LESSON_LIMIT) redirect(`/lessons/${id}`)
+    }
     await incrementPrints(userId)
   }
 

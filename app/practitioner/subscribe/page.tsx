@@ -11,7 +11,7 @@ export default function PractitionerSubscribePage() {
   const [codeError, setCodeError] = useState('')
   const [redeeming, setRedeeming] = useState(false)
 
-  async function subscribe(billing: 'monthly' | 'annual') {
+  async function subscribe(billing: 'monthly' | 'annual', skipTrial = false) {
     setLoading(billing)
     const source = document.referrer
       ? new URL(document.referrer).pathname
@@ -19,7 +19,7 @@ export default function PractitionerSubscribePage() {
     const res = await fetch('/api/practitioner/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ billing, origin: window.location.origin, source }),
+      body: JSON.stringify({ billing, origin: window.location.origin, source, skipTrial }),
     })
     const data = await res.json()
     if (data.url) {
@@ -85,6 +85,27 @@ export default function PractitionerSubscribePage() {
       <p className="text-xs text-gray-400 mt-6 text-center max-w-sm">
         Cancel anytime before your trial ends and you will not be charged. After the trial, your chosen plan renews automatically.
       </p>
+
+      <div className="mt-4 text-center">
+        <p className="text-xs text-gray-400 mb-1">Want to skip the trial and subscribe now?</p>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => subscribe('monthly', true)}
+            disabled={loading !== null}
+            className="text-xs text-blue-600 hover:text-blue-800 underline underline-offset-2 disabled:opacity-50"
+          >
+            Monthly — pay now
+          </button>
+          <span className="text-xs text-gray-300">|</span>
+          <button
+            onClick={() => subscribe('annual', true)}
+            disabled={loading !== null}
+            className="text-xs text-green-600 hover:text-green-800 underline underline-offset-2 disabled:opacity-50"
+          >
+            Annual — pay now
+          </button>
+        </div>
+      </div>
 
       <div className="mt-6">
         {!showCode ? (

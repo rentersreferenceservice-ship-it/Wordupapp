@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  const { billing, origin, source } = await req.json()
+  const { billing, origin, source, skipTrial } = await req.json()
   if (!billing) return Response.json({ error: 'Missing billing period' }, { status: 400 })
 
   const billingPeriod = billing as BillingPeriod
@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
       },
       quantity: 1,
     }],
-    subscription_data: { trial_period_days: 30 },
-    payment_method_collection: 'if_required',
+    ...(skipTrial ? {} : { subscription_data: { trial_period_days: 30 } }),
+    payment_method_collection: skipTrial ? 'always' : 'if_required',
     metadata: { clerkUserId: userId, practitionerTier: 'standard', billingPeriod: billing, source: source ?? 'direct' },
     success_url: `${origin}/practitioner/welcome`,
     cancel_url: `${origin}/practitioner/subscribe`,
