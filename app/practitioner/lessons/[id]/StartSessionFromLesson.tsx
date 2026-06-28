@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Student } from '@/lib/practitionerStore'
+import type { Hunk } from '@/lib/types'
 
-export default function StartSessionFromLesson({ lessonId, lessonTitle, students }: {
+export default function StartSessionFromLesson({ lessonId, lessonTitle, students, customHunks }: {
   lessonId: string
   lessonTitle: string
   students: Student[]
+  customHunks?: Hunk[] | null
 }) {
   const router = useRouter()
   const [studentId, setStudentId] = useState(students[0]?.id ?? '')
@@ -20,7 +22,7 @@ export default function StartSessionFromLesson({ lessonId, lessonTitle, students
     const res = await fetch('/api/practitioner/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentId, lessonId, sessionDate: date }),
+      body: JSON.stringify({ studentId, lessonId, sessionDate: date, customHunks: customHunks ?? null }),
     })
     const data = await res.json()
     if (data.sessionId) {

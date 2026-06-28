@@ -1,7 +1,6 @@
 ﻿import { notFound, redirect } from 'next/navigation'
 import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
-import type { QuestionType } from '@/lib/types'
 import Link from 'next/link'
 import PrintButton from '@/app/lessons/[id]/PrintButton'
 import DeleteButton from '@/app/lessons/[id]/DeleteButton'
@@ -11,18 +10,10 @@ import VerifyToggle from '@/app/lessons/[id]/VerifyToggle'
 import TranslateButton from '@/app/lessons/[id]/TranslateButton'
 import { generateQRDataUrl } from '@/lib/qrcode'
 import { getStudents } from '@/lib/practitionerStore'
-import StartSessionFromLesson from './StartSessionFromLesson'
+import LessonHunkEditor from './LessonHunkEditor'
 
 export const dynamic = 'force-dynamic'
 
-const QUESTION_COLORS: Record<QuestionType, string> = {
-  'KNOWN': 'text-green-700',
-  'SEMI-OPEN': 'text-orange-500',
-  'PRIOR KNOWLEDGE': 'text-blue-600',
-  'MATH': 'text-purple-700',
-  'VAKT': 'text-red-500',
-  'OPEN': 'text-pink-500',
-}
 
 export default async function PractitionerLessonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -74,10 +65,6 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
         </div>
       </nav>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 mb-4 print:hidden">
-        <StartSessionFromLesson lessonId={id} lessonTitle={lesson.title} students={students} />
-      </div>
-
       <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
         <div className="flex justify-center mb-1">
           <img src="/word_up_clean.jpeg" alt="Word Up" className="h-20 object-contain" />
@@ -94,50 +81,13 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           </p>
         )}
 
-        {lesson.hunks.map((hunk) => (
-          <section key={hunk.number} className="mb-8">
-            {hunk.imageUrl && (
-              <img
-                src={hunk.imageUrl}
-                alt={hunk.imageAlt || ''}
-                className="w-full max-h-48 object-contain rounded-xl mb-3 bg-gray-50"
-              />
-            )}
-            <p className="mb-3 text-gray-900 leading-relaxed">{hunk.text}</p>
-            <div className="space-y-2 pl-2">
-              {hunk.questions.map((q, qi) => {
-                const qrDataUrl = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined
-                return (
-                  <div key={qi}>
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <span className={`font-medium ${QUESTION_COLORS[q.type]}`}>{q.question}</span>
-                        {q.answer && (
-                          <div className="ml-4 text-black font-normal">{q.answer}</div>
-                        )}
-                      </div>
-                      {qrDataUrl && (
-                        <div className="shrink-0 text-center" style={{maxWidth:96}}>
-                          <img src={qrDataUrl} alt="YouTube QR" width={80} height={80} />
-                          {q.youtubeDescription && <p className="text-[7pt] text-gray-600 mt-0.5 leading-tight">{q.youtubeDescription}</p>}
-                          {q.youtubeDuration && q.youtubeVideoTitle && (
-                            <p className="text-[7pt] text-gray-400 mt-0.5 leading-tight">{q.youtubeDuration} — {q.youtubeVideoTitle}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            {hunk.writingPrompt && (
-              <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50">
-                <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-                <p className="text-sm text-pink-600">{hunk.writingPrompt}</p>
-              </div>
-            )}
-          </section>
-        ))}
+        <LessonHunkEditor
+          lessonId={id}
+          lessonTitle={lesson.title}
+          initialHunks={lesson.hunks}
+          qrMap={qrMap}
+          students={students}
+        />
 
         <section className="mt-10 pt-6 border-t border-gray-200">
           <h2 className="font-bold text-sm mb-2">References</h2>

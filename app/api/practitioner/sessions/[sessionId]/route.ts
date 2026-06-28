@@ -28,10 +28,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ se
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
   const body = await req.json()
-  const update: Record<string, string | null> = {}
+  const update: Record<string, unknown> = {}
   if ('regulation_arrival' in body) update.regulation_arrival = body.regulation_arrival
   if ('regulation_departure' in body) update.regulation_departure = body.regulation_departure
   if ('crp_id' in body) update.crp_id = body.crp_id
+  if ('custom_hunks' in body) update.custom_hunks = body.custom_hunks
   if (!Object.keys(update).length) return Response.json({ error: 'Nothing to update' }, { status: 400 })
 
   const { data: session } = await getSupabase().from('sessions').select('practitioner_id').eq('id', sessionId).single()

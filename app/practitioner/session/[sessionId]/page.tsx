@@ -35,12 +35,17 @@ export default async function SessionPage({ params }: { params: Promise<{ sessio
   ])
   if (!lesson) redirect('/practitioner/dashboard')
 
+  // Use practitioner's custom hunks for this session if they exist
+  const effectiveLesson = session.custom_hunks
+    ? { ...lesson, hunks: session.custom_hunks }
+    : lesson
+
   return (
     <SessionPlayer
       sessionId={sessionId}
       studentName={studentData?.name ?? 'Student'}
       sessionDate={session.session_date}
-      lesson={lesson}
+      lesson={effectiveLesson}
       lessonId={session.lesson_id}
       studentId={session.student_id}
       initialResponses={initialResponses}

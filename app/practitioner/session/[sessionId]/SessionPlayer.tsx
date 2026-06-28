@@ -150,6 +150,13 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
 
+  // Inline question/writing-prompt editing (saved to session.custom_hunks)
+  const [questionEdits, setQuestionEdits] = useState<Record<string, string>>({})
+  const [writingPromptEdits, setWritingPromptEdits] = useState<Record<number, string>>({})
+  const [editingQKey, setEditingQKey] = useState<string | null>(null)
+  const [editingWP, setEditingWP] = useState<number | null>(null)
+  const [editDraft, setEditDraft] = useState('')
+
   const hunk = lesson.hunks[currentHunk]
   const capture = captures[currentHunk]
   const isLast = currentHunk === lesson.hunks.length - 1
@@ -301,6 +308,49 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  async function patchCustomHunks(qEdits: typeof questionEdits, wpEdits: typeof writingPromptEdits) {
+    const customHunks = lesson.hunks.map((h, hi) => ({
+      ...h,
+      writingPrompt: hi in wpEdits ? wpEdits[hi] : h.writingPrompt,
+      questions: h.questions.map((q, qi) => ({
+        ...q,
+        question: qEdits[`${hi}-${qi}`] ?? q.question,
+      })),
+    }))
+    await fetch(`/api/practitioner/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ custom_hunks: customHunks }),
+    })
+  }
+
+  function commitQuestionEdit(hunkIdx: number, qIdx: number) {
+    const key = `${hunkIdx}-${qIdx}`
+    const newEdits = { ...questionEdits, [key]: editDraft }
+    setQuestionEdits(newEdits)
+    setCaptures(prev => prev.map((cap, capIdx) =>
+      capIdx !== hunkIdx ? cap : {
+        ...cap,
+        questions: cap.questions.map((q, qi) =>
+          qi === qIdx ? { ...q, questionText: editDraft } : q
+        ),
+      }
+    ))
+    setEditingQKey(null)
+    patchCustomHunks(newEdits, writingPromptEdits)
+  }
+
+  function commitWritingPromptEdit(hunkIdx: number) {
+    const newEdits = { ...writingPromptEdits, [hunkIdx]: editDraft }
+    setWritingPromptEdits(newEdits)
+    setEditingWP(null)
+    patchCustomHunks(questionEdits, newEdits)
+  }
+
+  function getEffectiveWritingPrompt(hunkIdx: number): string | undefined {
+    return hunkIdx in writingPromptEdits ? writingPromptEdits[hunkIdx] : lesson.hunks[hunkIdx]?.writingPrompt
+  }
+
   function updateWritingMisspokes(delta: number) {
     setCaptures(prev => {
       const next = [...prev]
@@ -401,14 +451,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         ...(hunkCapture.writingSkipped ? [{
           hunkNumber: hunkIdx + 1,
           questionType: 'WRITING_PROMPT',
-          questionText: lesson.hunks[hunkIdx].writingPrompt ?? 'Writing Prompt',
+          questionText: getEffectiveWritingPrompt(hunkIdx) ?? 'Writing Prompt',
           capturedAnswer: 'SKIPPED',
           expectedAnswer: '',
           misspokeCount: 0,
         }] : hunkCapture.writingResponse.trim() ? [{
           hunkNumber: hunkIdx + 1,
           questionType: 'WRITING_PROMPT',
-          questionText: lesson.hunks[hunkIdx].writingPrompt ?? 'Writing Prompt',
+          questionText: getEffectiveWritingPrompt(hunkIdx) ?? 'Writing Prompt',
           capturedAnswer: hunkCapture.writingResponse.trim(),
           expectedAnswer: '',
           misspokeCount: hunkCapture.writingMisspokes,
@@ -743,9 +793,34 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
 
           {/* Writing Prompt */}
           <div className="mb-5 mt-1 p-4 bg-pink-50 rounded-xl border border-pink-100">
-            <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-            {hunk.writingPrompt && !capture.writingSkipped && (
-              <p className="text-xs text-pink-600 italic mb-2">{hunk.writingPrompt}</p>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompt</p>
+              {!capture.writingSkipped && editingWP !== currentHunk && (
+                <button
+                  onClick={() => { setEditDraft(getEffectiveWritingPrompt(currentHunk) ?? ''); setEditingWP(currentHunk) }}
+                  className="text-gray-300 hover:text-pink-400 text-sm transition-colors"
+                  title="Edit writing prompt"
+                >✏</button>
+              )}
+            </div>
+            {editingWP === currentHunk ? (
+              <div className="space-y-1 mb-2">
+                <textarea
+                  value={editDraft}
+                  onChange={e => setEditDraft(e.target.value)}
+                  rows={2}
+                  autoFocus
+                  className="w-full border border-pink-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none"
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => commitWritingPromptEdit(currentHunk)} className="text-xs bg-pink-500 text-white px-3 py-1 rounded-lg hover:bg-pink-600">Save</button>
+                  <button onClick={() => setEditingWP(null)} className="text-xs text-gray-500 hover:text-gray-700">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              getEffectiveWritingPrompt(currentHunk) && !capture.writingSkipped && (
+                <p className="text-xs text-pink-600 italic mb-2">{getEffectiveWritingPrompt(currentHunk)}</p>
+              )
             )}
             {capture.writingSkipped ? (
               <p className="text-xs text-gray-400 italic mb-2">Skipped — student did not engage in writing</p>
@@ -793,7 +868,30 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               return (
                 <div key={i} className={`border rounded-xl p-4 transition-colors ${q.asked ? 'border-gray-100' : 'border-gray-100 opacity-50'}`}>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <p className={`text-sm font-semibold ${q.asked ? '' : 'text-gray-400 line-through'}`} style={q.asked ? { color } : {}}>{q.questionText}</p>
+                    {editingQKey === `${currentHunk}-${i}` ? (
+                      <div className="flex-1 space-y-1">
+                        <textarea
+                          value={editDraft}
+                          onChange={e => setEditDraft(e.target.value)}
+                          rows={2}
+                          autoFocus
+                          className="w-full border border-blue-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        />
+                        <div className="flex gap-2">
+                          <button onClick={() => commitQuestionEdit(currentHunk, i)} className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700">Save</button>
+                          <button onClick={() => setEditingQKey(null)} className="text-xs text-gray-500 hover:text-gray-700">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex items-start gap-1">
+                        <p className={`flex-1 text-sm font-semibold ${q.asked ? '' : 'text-gray-400 line-through'}`} style={q.asked ? { color } : {}}>{q.questionText}</p>
+                        <button
+                          onClick={() => { setEditDraft(q.questionText); setEditingQKey(`${currentHunk}-${i}`) }}
+                          className="text-gray-300 hover:text-blue-500 text-sm transition-colors shrink-0"
+                          title="Edit question"
+                        >✏</button>
+                      </div>
+                    )}
                     <button
                       onClick={() => toggleQuestionAsked(i)}
                       className={`text-xs px-2 py-0.5 rounded border shrink-0 transition-colors ${q.asked ? 'text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200' : 'text-blue-500 border-blue-200 hover:bg-blue-50'}`}

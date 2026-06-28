@@ -12,11 +12,11 @@ export async function POST(req: NextRequest) {
   const sub = await getPractitionerSubscription(userId)
   if (!sub?.isActive) return Response.json({ error: 'Subscription required' }, { status: 403 })
 
-  const { studentId, lessonId, sessionDate } = await req.json()
+  const { studentId, lessonId, sessionDate, customHunks } = await req.json()
   const lesson = await getLesson(lessonId)
   if (!lesson) return Response.json({ error: 'Lesson not found' }, { status: 404 })
 
   const inheritedBoardLevel = await getLastBoardLevel(studentId, userId)
-  const sessionId = await createSession(userId, studentId, lessonId, lesson.title, sessionDate, inheritedBoardLevel)
+  const sessionId = await createSession(userId, studentId, lessonId, lesson.title, sessionDate, inheritedBoardLevel, customHunks ?? null)
   return Response.json({ sessionId })
 }

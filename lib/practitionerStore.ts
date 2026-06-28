@@ -202,7 +202,8 @@ export async function createSession(
   lessonId: string,
   lessonTitle: string,
   sessionDate: string,
-  boardLevel: string | null = null
+  boardLevel: string | null = null,
+  customHunks: unknown = null
 ): Promise<string> {
   const { data } = await getSupabase().from('sessions').insert({
     practitioner_id: practitionerId,
@@ -211,6 +212,7 @@ export async function createSession(
     lesson_title: lessonTitle,
     session_date: sessionDate,
     board_level: boardLevel,
+    ...(customHunks ? { custom_hunks: customHunks } : {}),
   }).select().single()
   return data.id
 }
