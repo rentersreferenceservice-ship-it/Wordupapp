@@ -14,7 +14,7 @@ const QUESTION_COLORS: Record<QuestionType, string> = {
   OPEN: 'text-pink-500',
 }
 
-interface EditingKey {
+type EditingKey = {
   type: 'question'
   hunkIdx: number
   qIdx: number
