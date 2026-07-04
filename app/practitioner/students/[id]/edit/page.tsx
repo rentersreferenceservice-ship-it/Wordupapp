@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -20,7 +20,7 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  if (!loaded) {
+  useEffect(() => {
     fetch(`/api/practitioner/students/${params.id}`)
       .then(r => r.json())
       .then(data => {
@@ -36,6 +36,10 @@ export default function EditStudentPage({ params }: { params: { id: string } }) 
           setLoaded(true)
         }
       })
+      .catch(() => setError('Failed to load student. Please refresh.'))
+  }, [params.id])
+
+  if (!loaded) {
     return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-400">Loading…</p></div>
   }
 
