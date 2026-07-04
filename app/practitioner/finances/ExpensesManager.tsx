@@ -19,7 +19,7 @@ type Expense = {
 type MileageEntry = {
   miles: number
   trip_date: string
-  student_name: string | null
+  invoice_number: string | null
 }
 
 export default function ExpensesManager({
@@ -176,7 +176,7 @@ export default function ExpensesManager({
                 <thead>
                   <tr className="text-left text-xs text-gray-400 uppercase">
                     <th className="pb-1">Date</th>
-                    <th className="pb-1">Student</th>
+                    <th className="pb-1">Invoice</th>
                     <th className="pb-1 text-right">Miles</th>
                   </tr>
                 </thead>
@@ -184,7 +184,7 @@ export default function ExpensesManager({
                   {mileageEntries.map((m, i) => (
                     <tr key={i}>
                       <td className="py-1.5 text-gray-500 text-xs">{new Date(m.trip_date + 'T00:00:00').toLocaleDateString()}</td>
-                      <td className="py-1.5 text-gray-700">{m.student_name ?? '—'}</td>
+                      <td className="py-1.5 text-gray-700">{m.invoice_number ? `#${m.invoice_number}` : '—'}</td>
                       <td className="py-1.5 text-right font-medium">{m.miles}</td>
                     </tr>
                   ))}

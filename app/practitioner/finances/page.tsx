@@ -24,7 +24,7 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
   const [{ data: allInvoices }, { data: expenses }, { data: mileageRaw }] = await Promise.all([
     supabase
       .from('invoices')
-      .select('amount, amount_paid, extra_items, is_paid')
+      .select('id, invoice_number, amount, amount_paid, extra_items, is_paid')
       .eq('practitioner_id', userId)
       .gte('invoice_date', startDate)
       .lte('invoice_date', endDate),
@@ -37,7 +37,7 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
       .order('date', { ascending: false }),
     supabase
       .from('mileage_log')
-      .select('miles, trip_date, students(name)')
+      .select('miles, trip_date, invoice_id')
       .eq('practitioner_id', userId)
       .gte('trip_date', startDate)
       .lte('trip_date', endDate)
@@ -59,11 +59,16 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
     return sum + Math.max(0, invoiceTotal(inv) - paid)
   }, 0)
 
-  type MileageRow = { miles: unknown; trip_date: string; students: { name: string }[] | null }
+  const invoiceNumberMap: Record<string, string> = {}
+  for (const inv of allInvoices ?? []) {
+    if (inv.id && inv.invoice_number) invoiceNumberMap[inv.id] = String(inv.invoice_number)
+  }
+
+  type MileageRow = { miles: unknown; trip_date: string; invoice_id: string | null }
   const mileageEntries = (mileageRaw ?? []).map((m: MileageRow) => ({
     miles: parseFloat(String(m.miles)),
     trip_date: m.trip_date,
-    student_name: Array.isArray(m.students) ? (m.students[0]?.name ?? null) : null,
+    invoice_number: m.invoice_id ? (invoiceNumberMap[m.invoice_id] ?? null) : null,
   }))
 
   const prevYear = year - 1
