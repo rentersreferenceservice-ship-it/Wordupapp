@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 
 const CATEGORIES = ['Subscriptions', 'Insurance', 'Materials', 'Other']
-const IRS_RATE = 0.70
+const IRS_RATE = 0.72
 
 type Expense = {
   id: string
