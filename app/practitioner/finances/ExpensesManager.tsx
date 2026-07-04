@@ -55,7 +55,8 @@ export default function ExpensesManager({
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
   const totalMiles = mileageEntries.reduce((s, e) => s + e.miles, 0)
   const mileageDeduction = totalMiles * IRS_RATE
-  const netIncome = yearlyIncome - totalExpenses - mileageDeduction
+  const netIncome = yearlyIncome - totalExpenses
+  const taxableIncome = netIncome - mileageDeduction
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -130,15 +131,19 @@ export default function ExpensesManager({
           <span className="text-gray-600">Expenses</span>
           <span className="font-semibold text-red-600">−${totalExpenses.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Mileage deduction ({totalMiles.toFixed(1)} mi @ ${IRS_RATE}/mi)</span>
-          <span className="font-semibold text-blue-600">−${mileageDeduction.toFixed(2)}</span>
-        </div>
         <div className={`flex justify-between font-bold text-sm border-t border-gray-200 pt-3 ${netIncome >= 0 ? 'text-gray-900' : 'text-orange-700'}`}>
           <span>Net income</span>
           <span>${netIncome.toFixed(2)}</span>
         </div>
-        <p className="text-xs text-gray-400">Net = collected − expenses − mileage deduction. Outstanding invoices not included until paid.</p>
+        <div className="flex justify-between text-sm pt-3 border-t border-gray-100">
+          <span className="text-gray-500">Mileage deduction ({totalMiles.toFixed(1)} mi @ ${IRS_RATE}/mi)</span>
+          <span className="font-medium text-blue-600">−${mileageDeduction.toFixed(2)}</span>
+        </div>
+        <div className={`flex justify-between font-bold text-sm ${taxableIncome >= 0 ? 'text-gray-700' : 'text-orange-700'}`}>
+          <span>Est. taxable income</span>
+          <span>${taxableIncome.toFixed(2)}</span>
+        </div>
+        <p className="text-xs text-gray-400">Net = collected − expenses. Mileage reduces taxable income at tax time. Outstanding invoices not included until paid.</p>
       </div>
 
       {/* Expense breakdown by category */}
