@@ -69,7 +69,6 @@ export default function SessionNotesImages({
           ref={fileRef}
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={handleUpload}
           className="hidden"
           disabled={uploading}
