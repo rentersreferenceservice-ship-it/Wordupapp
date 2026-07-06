@@ -9,6 +9,7 @@ import SendTranscriptButton from './SendTranscriptButton'
 import GenerateInvoiceButton from './GenerateInvoiceButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import SpellerSentenceInput from './SpellerSentenceInput'
+import SessionNotesImages from './SessionNotesImages'
 
 export const dynamic = 'force-dynamic'
 
@@ -199,6 +200,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                 ? <p className="text-sm text-gray-700 whitespace-pre-wrap">{sessionNotesRecord.capturedAnswer}</p>
                 : <p className="text-xs text-gray-300 italic">None</p>
               }
+              <SessionNotesImages
+                sessionId={sessionId}
+                initialImages={session.notes_images ?? []}
+              />
             </div>
             {(sessionVideoRecord?.capturedAnswer || sessionInvoiceRecord?.capturedAnswer) && (
               <div className="space-y-3 pt-1">
