@@ -45,7 +45,7 @@ export default function SessionNotesImages({
       {images.length > 0 && (
         <div className="flex flex-wrap gap-3 mb-2">
           {images.map((url, i) => (
-            <div key={i} className="relative group">
+            <div key={i} className="relative">
               <img
                 src={url}
                 alt={`Session note image ${i + 1}`}
@@ -53,7 +53,7 @@ export default function SessionNotesImages({
               />
               <button
                 onClick={() => handleDelete(url)}
-                className="print:hidden absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="print:hidden absolute top-1 right-1 bg-black/60 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center"
                 title="Remove image"
               >
                 ✕
