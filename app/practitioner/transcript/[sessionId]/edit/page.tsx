@@ -39,6 +39,7 @@ export default async function EditTranscriptPage({ params }: { params: Promise<{
         lessonHunks={lessonHunks}
         initialRegulationArrival={session.regulation_arrival ?? null}
         initialRegulationDeparture={session.regulation_departure ?? null}
+        initialNotesImages={session.notes_images ?? []}
       />
     </div>
   )

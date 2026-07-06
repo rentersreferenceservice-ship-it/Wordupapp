@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SessionResponse } from '@/lib/practitionerStore'
 import type { Hunk } from '@/lib/types'
+import SessionNotesImages from '../SessionNotesImages'
 
 function extractKeywords(text: string): string[] {
   const matches = text.match(/\b[A-Z][A-Z\s\-']{1,}[A-Z]\b/g) ?? []
@@ -98,6 +99,7 @@ export default function EditTranscriptClient({
   lessonHunks,
   initialRegulationArrival = null,
   initialRegulationDeparture = null,
+  initialNotesImages = [],
 }: {
   sessionId: string
   studentId: string
@@ -105,6 +107,7 @@ export default function EditTranscriptClient({
   lessonHunks?: Hunk[]
   initialRegulationArrival?: string | null
   initialRegulationDeparture?: string | null
+  initialNotesImages?: string[]
 }) {
   const hasHunkData = responses.some(r => r.hunkNumber != null && r.hunkNumber > 0)
   const allResponses = hasHunkData || !lessonHunks
@@ -449,6 +452,7 @@ export default function EditTranscriptClient({
           placeholder="Add notes..."
           className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
+        <SessionNotesImages sessionId={sessionId} initialImages={initialNotesImages} />
       </div>
 
       {/* Video Link & Invoice */}
