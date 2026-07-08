@@ -139,6 +139,8 @@ export default function EditTranscriptClient({
     initialInvoice.startsWith('/practitioner/invoice/') ? 'generate' : 'link'
   )
 
+  const [unskippedHunks, setUnskippedHunks] = useState<Set<number>>(new Set())
+
   const [edits, setEdits] = useState<Record<string, EditState>>(() => {
     const map: Record<string, EditState> = {}
     for (const r of allResponses) {
@@ -279,6 +281,7 @@ export default function EditTranscriptClient({
       if (!r.hunkNumber || r.hunkNumber <= 0) continue
       if (r.questionType === 'WRITING_PROMPT') continue
       if (r.questionType === 'EXTRA_SPELLING') continue
+      if (r.questionType === 'HUNK_SKIPPED' && unskippedHunks.has(r.hunkNumber)) continue
       const edit = edits[r.id]
       if (!edit) continue
 
@@ -545,9 +548,34 @@ export default function EditTranscriptClient({
       </div>
 
       {/* Per-hunk */}
-      {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => (
+      {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
+        const hunkNumber = Number(hunkNum)
+        const hunkIsSkipped = items.some(r => r.questionType === 'HUNK_SKIPPED') && !unskippedHunks.has(hunkNumber)
+        return (
         <div key={hunkNum} className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Hunk {hunkNum}</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide">Hunk {hunkNum}</h2>
+            {hunkIsSkipped && (
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full uppercase tracking-wide">Skipped</span>
+                <button
+                  onClick={() => {
+                    setUnskippedHunks(prev => new Set([...prev, hunkNumber]))
+                    setEdits(prev => {
+                      const next = { ...prev }
+                      for (const r of items) {
+                        if (next[r.id]) next[r.id] = { ...next[r.id], skipped: false, notAsked: false }
+                      }
+                      return next
+                    })
+                  }}
+                  className="text-xs text-blue-600 font-semibold hover:underline"
+                >
+                  Unskip
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Keywords */}
           {items.filter(r => r.questionType === 'KEYWORD').map(r => {
@@ -788,7 +816,8 @@ export default function EditTranscriptClient({
             </div>
           </div>
         </div>
-      ))}
+        )
+      })}
 
       {saveError && <p className="text-red-600 text-sm mb-4">{saveError}</p>}
 
