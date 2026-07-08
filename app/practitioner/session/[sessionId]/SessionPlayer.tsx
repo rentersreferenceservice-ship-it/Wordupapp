@@ -1038,30 +1038,55 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           <button onClick={handleSaveAndExit} disabled={saving} className="bg-white text-gray-700 px-4 py-3 rounded-xl font-medium text-sm border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-60 transition-colors">
             {saving ? '…' : '💾 Save & Exit'}
           </button>
-          <button
-            onClick={() => {
-              setCaptures(prev => {
-                const next = [...prev]
-                const c = next[currentHunk]
-                next[currentHunk] = {
-                  ...c,
-                  skipped: true,
-                  keywords: c.keywords.map(k => ({ ...k, asked: false, misspokeCount: 0 })),
-                  extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: true, misspokeCount: 0 })),
-                  questions: c.questions.map(q => ({ ...q, asked: false, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
-                  writingSkipped: true,
-                  writingResponse: '',
-                  writingMisspokes: 0,
-                }
-                return next
-              })
-              if (!isLast) setCurrentHunk(h => h + 1)
-              else handleComplete()
-            }}
-            className="bg-gray-100 text-gray-500 px-4 py-3 rounded-xl font-medium text-sm border border-gray-200 hover:bg-gray-200 transition-colors"
-          >
-            Skip Page
-          </button>
+          {capture.skipped ? (
+            <button
+              onClick={() => {
+                setCaptures(prev => {
+                  const next = [...prev]
+                  const c = next[currentHunk]
+                  next[currentHunk] = {
+                    ...c,
+                    skipped: false,
+                    keywords: c.keywords.map(k => ({ ...k, asked: true, misspokeCount: 0 })),
+                    extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: false, misspokeCount: 0 })),
+                    questions: c.questions.map(q => ({ ...q, asked: true, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
+                    writingSkipped: false,
+                    writingResponse: '',
+                    writingMisspokes: 0,
+                  }
+                  return next
+                })
+              }}
+              className="bg-blue-50 text-blue-600 px-4 py-3 rounded-xl font-medium text-sm border border-blue-200 hover:bg-blue-100 transition-colors"
+            >
+              Unskip
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setCaptures(prev => {
+                  const next = [...prev]
+                  const c = next[currentHunk]
+                  next[currentHunk] = {
+                    ...c,
+                    skipped: true,
+                    keywords: c.keywords.map(k => ({ ...k, asked: false, misspokeCount: 0 })),
+                    extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: true, misspokeCount: 0 })),
+                    questions: c.questions.map(q => ({ ...q, asked: false, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
+                    writingSkipped: true,
+                    writingResponse: '',
+                    writingMisspokes: 0,
+                  }
+                  return next
+                })
+                if (!isLast) setCurrentHunk(h => h + 1)
+                else handleComplete()
+              }}
+              className="bg-gray-100 text-gray-500 px-4 py-3 rounded-xl font-medium text-sm border border-gray-200 hover:bg-gray-200 transition-colors"
+            >
+              Skip Page
+            </button>
+          )}
           {!isLast ? (
             <button onClick={() => setCurrentHunk(h => h + 1)} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
               Next Hunk →
