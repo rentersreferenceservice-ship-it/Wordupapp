@@ -550,7 +550,11 @@ export default function EditTranscriptClient({
       {/* Per-hunk */}
       {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
         const hunkNumber = Number(hunkNum)
-        const hunkIsSkipped = items.some(r => r.questionType === 'HUNK_SKIPPED') && !unskippedHunks.has(hunkNumber)
+        const hasSkippedMarker = items.some(r => r.questionType === 'HUNK_SKIPPED')
+        const allNotAsked = items
+          .filter(r => r.questionType !== 'HUNK_SKIPPED' && r.questionType !== 'WRITING_PROMPT' && r.questionType !== 'EXTRA_SPELLING')
+          .every(r => r.capturedAnswer === 'NOT_ASKED' || r.capturedAnswer === 'SKIPPED')
+        const hunkIsSkipped = (hasSkippedMarker || allNotAsked) && !unskippedHunks.has(hunkNumber)
         return (
         <div key={hunkNum} className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
