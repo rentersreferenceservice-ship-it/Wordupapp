@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
   const {
     studentId, sessionDate, questions,
-    sessionNotes, sessionVideo,
+    sessionNotes, sessionVideo, invoiceLink,
     regulationArrival, regulationDeparture, studentStates,
   } = await req.json()
 
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     { session_id: session.id, hunk_number: 0, question_type: 'SESSION_STATE', question_text: 'Student State', captured_answer: (studentStates ?? []).join(', '), expected_answer: '', misspoke_count: 0 },
     { session_id: session.id, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: sessionNotes ?? '', expected_answer: '', misspoke_count: 0 },
     ...(sessionVideo?.trim() ? [{ session_id: session.id, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: sessionVideo.trim(), expected_answer: '', misspoke_count: 0 }] : []),
+    ...(invoiceLink?.trim() ? [{ session_id: session.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: invoiceLink.trim(), expected_answer: '', misspoke_count: 0 }] : []),
     { session_id: session.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
     ...questions.map((q: { question: string; response: string; misspokeCount: number }) => ({
       session_id: session.id,

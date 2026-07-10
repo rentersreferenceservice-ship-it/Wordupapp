@@ -41,6 +41,9 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [studentStates, setStudentStates] = useState<string[]>([])
   const [sessionNotes, setSessionNotes] = useState('')
   const [sessionVideo, setSessionVideo] = useState('')
+  const [invoiceMode, setInvoiceMode] = useState<'none' | 'link' | 'generate'>('none')
+  const [invoiceLink, setInvoiceLink] = useState('')
+  const [invoiceAmount, setInvoiceAmount] = useState('')
   const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -81,6 +84,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         studentId, sessionDate,
         questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
         sessionNotes, sessionVideo,
+        invoiceLink: invoiceMode === 'link' ? invoiceLink.trim() : null,
         regulationArrival: regArrival,
         regulationDeparture: regDeparture,
         studentStates,
@@ -88,6 +92,15 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
+
+    if (invoiceMode === 'generate') {
+      await fetch('/api/practitioner/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: data.sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
+      })
+    }
+
     router.push(`/practitioner/transcript/${data.sessionId}`)
   }
 
@@ -221,6 +234,43 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
             placeholder="https://youtube.com/…"
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           />
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Invoice</p>
+          <div className="flex gap-2 mb-2">
+            <button type="button" onClick={() => setInvoiceMode(m => m === 'link' ? 'none' : 'link')}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${invoiceMode === 'link' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              External Link
+            </button>
+            <button type="button" onClick={() => setInvoiceMode(m => m === 'generate' ? 'none' : 'generate')}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${invoiceMode === 'generate' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              Generate Invoice
+            </button>
+          </div>
+          {invoiceMode === 'link' && (
+            <input
+              type="url"
+              value={invoiceLink}
+              onChange={e => setInvoiceLink(e.target.value)}
+              placeholder="https://your-accounting-app.com/invoice/…"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          )}
+          {invoiceMode === 'generate' && (
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-600 whitespace-nowrap">Session fee ($)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={invoiceAmount}
+                onChange={e => setInvoiceAmount(e.target.value)}
+                placeholder="Use default rate"
+                className="w-36 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+          )}
         </div>
       </div>
 
