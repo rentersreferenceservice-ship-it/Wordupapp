@@ -1,0 +1,291 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import type { Student } from '@/lib/practitionerStore'
+
+const STATE_OPTIONS = [
+  'Happy', 'Excited', 'High energy',
+  'Anxious', 'Frustrated', 'Sad', 'Overwhelmed',
+  'Overstimulated', 'Understimulated', 'Sensory seeking',
+  'Low energy', 'Shutdown', 'Stuck in loops',
+  'Distracted', 'Transition difficulty',
+  'Hungry', 'Tired', 'Sick', 'Pain',
+]
+
+interface QuestionRow {
+  id: number
+  question: string
+  response: string
+  misspokeCount: number
+}
+
+function MisspokeCounter({ value, onChange }: { value: number; onChange: (delta: number) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <button type="button" onClick={() => onChange(-1)} className="w-7 h-7 rounded-full bg-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-300">−</button>
+      <span className={`w-5 text-center font-bold text-sm ${value > 0 ? 'text-red-600' : 'text-gray-400'}`}>{value}</span>
+      <button type="button" onClick={() => onChange(1)} className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold text-sm hover:bg-red-200">+</button>
+    </div>
+  )
+}
+
+export default function OpenSessionForm({ students }: { students: Student[] }) {
+  const router = useRouter()
+  const [studentId, setStudentId] = useState('')
+  const [search, setSearch] = useState('')
+  const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0])
+  const [regArrival, setRegArrival] = useState<string | null>(null)
+  const [regDeparture, setRegDeparture] = useState<string | null>(null)
+  const [studentStates, setStudentStates] = useState<string[]>([])
+  const [sessionNotes, setSessionNotes] = useState('')
+  const [sessionVideo, setSessionVideo] = useState('')
+  const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const nextId = useRef(2)
+
+  const filteredStudents = students.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  )
+  const selectedStudent = students.find(s => s.id === studentId)
+
+  function addQuestion() {
+    setQuestions(prev => [...prev, { id: nextId.current++, question: '', response: '', misspokeCount: 0 }])
+  }
+
+  function removeQuestion(id: number) {
+    setQuestions(prev => prev.filter(q => q.id !== id))
+  }
+
+  function updateQuestion(id: number, changes: Partial<QuestionRow>) {
+    setQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
+  }
+
+  function toggleState(s: string) {
+    setStudentStates(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!studentId) { setError('Please select a student.'); return }
+    const filled = questions.filter(q => q.question.trim())
+    if (!filled.length) { setError('Enter at least one question.'); return }
+    setSaving(true)
+    setError('')
+    const res = await fetch('/api/practitioner/open-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId, sessionDate,
+        questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
+        sessionNotes, sessionVideo,
+        regulationArrival: regArrival,
+        regulationDeparture: regDeparture,
+        studentStates,
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
+    router.push(`/practitioner/transcript/${data.sessionId}`)
+  }
+
+  return (
+    <form onSubmit={handleSave} className="space-y-5">
+      <div className="flex items-center gap-3 mb-2">
+        <Link href="/practitioner/dashboard" className="text-sm text-blue-600 hover:underline">← Dashboard</Link>
+      </div>
+      <h1 className="text-2xl font-bold text-gray-900">Open Session</h1>
+
+      {/* Student + Date */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Student</label>
+          {selectedStudent ? (
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5">
+              <span className="font-semibold text-blue-800">{selectedStudent.name}</span>
+              <button type="button" onClick={() => { setStudentId(''); setSearch('') }} className="text-xs text-blue-400 hover:text-blue-600">Change</button>
+            </div>
+          ) : (
+            <div>
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search students…"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-1"
+              />
+              {search && (
+                <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                  {filteredStudents.length === 0 ? (
+                    <p className="text-sm text-gray-400 px-3 py-2">No students found</p>
+                  ) : (
+                    filteredStudents.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => { setStudentId(s.id); setSearch('') }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0"
+                      >
+                        {s.name} <span className="text-gray-400 text-xs">{s.ageGroup}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Session Date</label>
+          <input
+            type="date"
+            value={sessionDate}
+            onChange={e => setSessionDate(e.target.value)}
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Observation */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Student Observation</p>
+
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Arrived</p>
+          <div className="flex gap-2">
+            {['regulated', 'dysregulated'].map(val => (
+              <button key={val} type="button"
+                onClick={() => setRegArrival(prev => prev === val ? null : val)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                  regArrival === val
+                    ? val === 'regulated' ? 'bg-green-500 border-green-500 text-white' : 'bg-yellow-400 border-yellow-400 text-white'
+                    : val === 'regulated' ? 'border-green-400 text-green-600 hover:bg-green-50' : 'border-yellow-400 text-yellow-600 hover:bg-yellow-50'
+                }`}
+              >
+                {val.charAt(0).toUpperCase() + val.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {STATE_OPTIONS.map(s => (
+            <button key={s} type="button"
+              onClick={() => toggleState(s)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                studentStates.includes(s)
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Departed</p>
+          <div className="flex gap-2">
+            {['regulated', 'dysregulated'].map(val => (
+              <button key={val} type="button"
+                onClick={() => setRegDeparture(prev => prev === val ? null : val)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-colors ${
+                  regDeparture === val
+                    ? val === 'regulated' ? 'bg-green-500 border-green-500 text-white' : 'bg-yellow-400 border-yellow-400 text-white'
+                    : val === 'regulated' ? 'border-green-400 text-green-600 hover:bg-green-50' : 'border-yellow-400 text-yellow-600 hover:bg-yellow-50'
+                }`}
+              >
+                {val.charAt(0).toUpperCase() + val.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <textarea
+          value={sessionNotes}
+          onChange={e => setSessionNotes(e.target.value)}
+          placeholder="Session notes…"
+          rows={2}
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+        />
+
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Session Video URL</label>
+          <input
+            type="url"
+            value={sessionVideo}
+            onChange={e => setSessionVideo(e.target.value)}
+            placeholder="https://youtube.com/…"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
+      </div>
+
+      {/* Questions */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Questions & Responses</p>
+
+        {questions.map((q, idx) => {
+          const letters = q.response.replace(/\s/g, '').length
+          return (
+            <div key={q.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-400">Q{idx + 1}</span>
+                {questions.length > 1 && (
+                  <button type="button" onClick={() => removeQuestion(q.id)} className="text-gray-300 hover:text-red-400 text-xs">Remove</button>
+                )}
+              </div>
+
+              <input
+                type="text"
+                value={q.question}
+                onChange={e => updateQuestion(q.id, { question: e.target.value })}
+                placeholder="Question…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <textarea
+                value={q.response}
+                onChange={e => updateQuestion(q.id, { response: e.target.value })}
+                placeholder="Speller's response…"
+                rows={2}
+                className="w-full border border-pink-200 bg-pink-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none placeholder-pink-300"
+              />
+
+              <div className="flex items-center gap-4">
+                {letters > 0 && (
+                  <span className="text-xs font-semibold text-blue-500">{letters} letters</span>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Misspokes:</span>
+                  <MisspokeCounter value={q.misspokeCount} onChange={d => updateQuestion(q.id, { misspokeCount: Math.max(0, q.misspokeCount + d) })} />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+
+        <button
+          type="button"
+          onClick={addQuestion}
+          className="w-full border-2 border-dashed border-gray-200 text-gray-400 hover:border-blue-400 hover:text-blue-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
+        >
+          + Add Question
+        </button>
+      </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <button
+        type="submit"
+        disabled={saving}
+        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
+      >
+        {saving ? 'Saving…' : 'Save & View Transcript'}
+      </button>
+    </form>
+  )
+}
