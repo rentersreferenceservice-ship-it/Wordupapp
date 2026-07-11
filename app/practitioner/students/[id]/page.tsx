@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments } from '@/lib/practitionerStore'
+import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments, getFormSubmissions } from '@/lib/practitionerStore'
 import { listAllPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -12,6 +12,7 @@ import CrpManager from './CrpManager'
 import BoardLevelPills from './BoardLevelPills'
 import DeleteReportButton from './DeleteReportButton'
 import StudentDocumentsManager from './StudentDocumentsManager'
+import FormSubmissionsSection from './FormSubmissionsSection'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +29,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   ])
   const lessons = [...practitionerLessons, ...publicLessons]
 
-  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs] = await Promise.all([
+  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs, formSubmissions] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
     getStudentAccuracyHistory(id, userId),
     getSupabase()
@@ -40,6 +41,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     getCrps(id, userId),
     getSavedReports(id, userId),
     getStudentDocuments(id, userId).catch(() => []),
+    getFormSubmissions(id, userId).catch(() => []),
   ])
   const invoices = invoicesResult.data ?? []
   const todayStr = new Date().toISOString().split('T')[0]
@@ -165,6 +167,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           </ul>
         </div>
       )}
+
+      {/* Online Form Submissions */}
+      <FormSubmissionsSection studentId={id} initialSubmissions={formSubmissions} />
 
       {/* Assessment Forms & Documents */}
       <StudentDocumentsManager studentId={id} initialDocs={studentDocs} />

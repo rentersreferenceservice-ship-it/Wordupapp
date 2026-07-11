@@ -821,6 +821,34 @@ export interface StudentDocument {
   uploadedAt: string
 }
 
+export interface FormSubmission {
+  id: string
+  studentId: string
+  practitionerId: string
+  formType: string
+  formData: Record<string, unknown>
+  submittedBy: string
+  submittedAt: string
+}
+
+export async function getFormSubmissions(studentId: string, practitionerId: string): Promise<FormSubmission[]> {
+  const { data } = await getSupabase()
+    .from('form_submissions')
+    .select('*')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .order('submitted_at', { ascending: false })
+  return (data ?? []).map(d => ({
+    id: d.id,
+    studentId: d.student_id,
+    practitionerId: d.practitioner_id,
+    formType: d.form_type,
+    formData: (d.form_data ?? {}) as Record<string, unknown>,
+    submittedBy: d.submitted_by ?? 'family',
+    submittedAt: d.submitted_at,
+  }))
+}
+
 export async function getStudentDocuments(studentId: string, practitionerId: string): Promise<StudentDocument[]> {
   const { data } = await getSupabase()
     .from('student_documents')
