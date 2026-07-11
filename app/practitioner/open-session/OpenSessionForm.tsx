@@ -45,9 +45,13 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [invoiceLink, setInvoiceLink] = useState('')
   const [invoiceAmount, setInvoiceAmount] = useState('')
   const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
+  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [savingStatus, setSavingStatus] = useState('')
   const [error, setError] = useState('')
   const nextId = useRef(2)
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
@@ -70,6 +74,23 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     setStudentStates(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
   }
 
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+    setSelectedPhotos(prev => [...prev, ...files])
+    files.forEach(file => {
+      const url = URL.createObjectURL(file)
+      setPhotoPreviews(prev => [...prev, url])
+    })
+    if (photoInputRef.current) photoInputRef.current.value = ''
+  }
+
+  function removePhoto(index: number) {
+    URL.revokeObjectURL(photoPreviews[index])
+    setSelectedPhotos(prev => prev.filter((_, i) => i !== index))
+    setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!studentId) { setError('Please select a student.'); return }
@@ -77,6 +98,8 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     if (!filled.length) { setError('Enter at least one question.'); return }
     setSaving(true)
     setError('')
+    setSavingStatus('Saving session…')
+
     const res = await fetch('/api/practitioner/open-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -91,17 +114,43 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
       }),
     })
     const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
+    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); setSavingStatus(''); return }
 
-    if (invoiceMode === 'generate') {
-      await fetch('/api/practitioner/invoice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: data.sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
-      })
+    const sessionId: string = data.sessionId
+
+    // Upload any staged photos
+    if (selectedPhotos.length > 0) {
+      setSavingStatus('Uploading photos…')
+      for (const photo of selectedPhotos) {
+        const fd = new FormData()
+        fd.append('file', photo)
+        await fetch(`/api/practitioner/sessions/${sessionId}/notes-images`, {
+          method: 'POST',
+          body: fd,
+        })
+      }
     }
 
-    router.push(`/practitioner/transcript/${data.sessionId}`)
+    // Generate invoice and go straight to invoice page
+    if (invoiceMode === 'generate') {
+      setSavingStatus('Generating invoice…')
+      const invRes = await fetch('/api/practitioner/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, amount: invoiceAmount ? parseFloat(invoiceAmount) : undefined }),
+      })
+      const invData = await invRes.json()
+      if (!invRes.ok) {
+        setError(invData.error ?? 'Invoice creation failed — session was saved. Open the transcript to generate the invoice.')
+        setSaving(false)
+        setSavingStatus('')
+        return
+      }
+      router.push(`/practitioner/invoice/${invData.invoiceId}`)
+      return
+    }
+
+    router.push(`/practitioner/transcript/${sessionId}`)
   }
 
   return (
@@ -225,6 +274,43 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
           className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
         />
 
+        {/* Session note photos */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Session Photos</p>
+          {photoPreviews.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {photoPreviews.map((src, i) => (
+                <div key={i} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="w-20 h-20 object-cover rounded-lg border border-gray-200" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold flex items-center justify-center hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            multiple
+            className="hidden"
+            onChange={handlePhotoSelect}
+          />
+          <button
+            type="button"
+            onClick={() => photoInputRef.current?.click()}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors border border-gray-200"
+          >
+            + Add Photo
+          </button>
+        </div>
+
         <div>
           <label className="block text-xs text-gray-400 mb-1">Session Video URL</label>
           <input
@@ -258,17 +344,20 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
             />
           )}
           {invoiceMode === 'generate' && (
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-gray-600 whitespace-nowrap">Session fee ($)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={invoiceAmount}
-                onChange={e => setInvoiceAmount(e.target.value)}
-                placeholder="Use default rate"
-                className="w-36 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-gray-600 whitespace-nowrap">Session fee ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={invoiceAmount}
+                  onChange={e => setInvoiceAmount(e.target.value)}
+                  placeholder="Use default rate"
+                  className="w-36 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+              <p className="text-xs text-indigo-600">Invoice will open immediately after saving so you can print or email it.</p>
             </div>
           )}
         </div>
@@ -334,7 +423,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         disabled={saving}
         className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
       >
-        {saving ? 'Saving…' : 'Save & View Transcript'}
+        {saving ? savingStatus || 'Saving…' : invoiceMode === 'generate' ? 'Save & Open Invoice' : 'Save & View Transcript'}
       </button>
     </form>
   )
