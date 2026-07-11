@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SessionResponse } from '@/lib/practitionerStore'
 import type { Hunk } from '@/lib/types'
@@ -148,7 +148,7 @@ export default function EditTranscriptClient({
     responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
       .map(r => ({ id: r.id, questionText: r.questionText ?? '', capturedAnswer: r.capturedAnswer ?? '', misspokeCount: r.misspokeCount ?? 0 }))
   )
-  const openQNextId = { current: 1000 }
+  const openQNextId = useRef(1000)
 
   function addOpenQuestion() {
     setOpenQuestions(prev => [...prev, { id: `new-${openQNextId.current++}`, questionText: '', capturedAnswer: '', misspokeCount: 0 }])
