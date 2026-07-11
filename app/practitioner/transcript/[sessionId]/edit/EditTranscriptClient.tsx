@@ -97,6 +97,7 @@ export default function EditTranscriptClient({
   studentId,
   responses,
   lessonHunks,
+  isOpenSession = false,
   initialRegulationArrival = null,
   initialRegulationDeparture = null,
   initialNotesImages = [],
@@ -105,6 +106,7 @@ export default function EditTranscriptClient({
   studentId: string
   responses: SessionResponse[]
   lessonHunks?: Hunk[]
+  isOpenSession?: boolean
   initialRegulationArrival?: string | null
   initialRegulationDeparture?: string | null
   initialNotesImages?: string[]
@@ -140,6 +142,16 @@ export default function EditTranscriptClient({
   )
 
   const [unskippedHunks, setUnskippedHunks] = useState<Set<number>>(new Set())
+
+  // Open session: editable Q&A list
+  const [openQuestions, setOpenQuestions] = useState<{ id: string; questionText: string; capturedAnswer: string; misspokeCount: number }[]>(() =>
+    responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
+      .map(r => ({ id: r.id, questionText: r.questionText ?? '', capturedAnswer: r.capturedAnswer ?? '', misspokeCount: r.misspokeCount ?? 0 }))
+  )
+
+  function updateOpenQuestion(id: string, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number }>) {
+    setOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
+  }
 
   const [edits, setEdits] = useState<Record<string, EditState>>(() => {
     const map: Record<string, EditState> = {}
@@ -327,6 +339,19 @@ export default function EditTranscriptClient({
           })
         }
       }
+    }
+    if (isOpenSession) {
+      for (const q of openQuestions) {
+        out.push({
+          hunkNumber: 1,
+          questionType: 'OPEN',
+          questionText: q.questionText,
+          capturedAnswer: q.capturedAnswer,
+          expectedAnswer: '',
+          misspokeCount: q.misspokeCount,
+        })
+      }
+      return out
     }
     for (const [hunkNum, response] of Object.entries(writingResponses)) {
       out.push({
@@ -547,8 +572,41 @@ export default function EditTranscriptClient({
         </div>
       </div>
 
-      {/* Per-hunk */}
-      {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
+      {/* Open session: simple Q&A editor */}
+      {isOpenSession && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Questions &amp; Responses</p>
+          {openQuestions.map((q, idx) => (
+            <div key={q.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
+              <p className="text-xs font-semibold text-gray-400">Q{idx + 1}</p>
+              <input
+                type="text"
+                value={q.questionText}
+                onChange={e => updateOpenQuestion(q.id, { questionText: e.target.value })}
+                placeholder="Question…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                value={q.capturedAnswer}
+                onChange={e => updateOpenQuestion(q.id, { capturedAnswer: e.target.value })}
+                placeholder="Speller's response…"
+                rows={3}
+                className="w-full border border-pink-200 bg-pink-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-300 resize-none"
+              />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Misspokes:</span>
+                <Stepper value={q.misspokeCount} onChange={n => updateOpenQuestion(q.id, { misspokeCount: n })} />
+                {q.capturedAnswer.replace(/\s/g, '').length > 0 && (
+                  <span className="text-xs font-semibold text-blue-500 ml-2">{q.capturedAnswer.replace(/\s/g, '').length} letters</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Per-hunk + writing prompt — regular lessons only */}
+      {!isOpenSession && Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
         const hunkNumber = Number(hunkNum)
         const hasSkippedMarker = items.some(r => r.questionType === 'HUNK_SKIPPED')
         const allNotAsked = items
