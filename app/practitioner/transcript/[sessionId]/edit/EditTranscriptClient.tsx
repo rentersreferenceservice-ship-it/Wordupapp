@@ -143,23 +143,23 @@ export default function EditTranscriptClient({
 
   const [unskippedHunks, setUnskippedHunks] = useState<Set<number>>(new Set())
 
-  // Open session: editable Q&A list
-  const [openQuestions, setOpenQuestions] = useState<{ id: string; questionText: string; capturedAnswer: string; misspokeCount: number }[]>(() =>
-    responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
-      .map(r => ({ id: r.id, questionText: r.questionText ?? '', capturedAnswer: r.capturedAnswer ?? '', misspokeCount: r.misspokeCount ?? 0 }))
+  // Open session: existing responses kept for save payload, new blank entries for the form
+  const existingOpenResponses = responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
+  const openQNextId = useRef(1)
+  const [newOpenQuestions, setNewOpenQuestions] = useState<{ id: number; questionText: string; capturedAnswer: string; misspokeCount: number }[]>(
+    [{ id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0 }]
   )
-  const openQNextId = useRef(1000)
 
   function addOpenQuestion() {
-    setOpenQuestions(prev => [...prev, { id: `new-${openQNextId.current++}`, questionText: '', capturedAnswer: '', misspokeCount: 0 }])
+    setNewOpenQuestions(prev => [...prev, { id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0 }])
   }
 
-  function removeOpenQuestion(id: string) {
-    setOpenQuestions(prev => prev.filter(q => q.id !== id))
+  function removeOpenQuestion(id: number) {
+    setNewOpenQuestions(prev => prev.filter(q => q.id !== id))
   }
 
-  function updateOpenQuestion(id: string, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number }>) {
-    setOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
+  function updateOpenQuestion(id: number, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number }>) {
+    setNewOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
   }
 
   const [edits, setEdits] = useState<Record<string, EditState>>(() => {
@@ -350,15 +350,19 @@ export default function EditTranscriptClient({
       }
     }
     if (isOpenSession) {
-      for (const q of openQuestions) {
-        out.push({
-          hunkNumber: 1,
-          questionType: 'OPEN',
-          questionText: q.questionText,
-          capturedAnswer: q.capturedAnswer,
-          expectedAnswer: '',
-          misspokeCount: q.misspokeCount,
-        })
+      // Preserve existing, deduplicated by questionText+answer
+      const seen = new Set<string>()
+      for (const r of existingOpenResponses) {
+        const key = `${r.questionText}||${r.capturedAnswer}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push({ hunkNumber: 1, questionType: 'OPEN', questionText: r.questionText, capturedAnswer: r.capturedAnswer, expectedAnswer: '', misspokeCount: r.misspokeCount ?? 0 })
+      }
+      // Append new non-empty questions added in this edit
+      for (const q of newOpenQuestions) {
+        if (q.questionText.trim() || q.capturedAnswer.trim()) {
+          out.push({ hunkNumber: 1, questionType: 'OPEN', questionText: q.questionText, capturedAnswer: q.capturedAnswer, expectedAnswer: '', misspokeCount: q.misspokeCount })
+        }
       }
       return out
     }
@@ -584,12 +588,12 @@ export default function EditTranscriptClient({
       {/* Open session: simple Q&A editor */}
       {isOpenSession && (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-4">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Questions &amp; Responses</p>
-          {openQuestions.map((q, idx) => (
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Add Questions</p>
+          {newOpenQuestions.map((q, idx) => (
             <div key={q.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-400">Q{idx + 1}</p>
-                {openQuestions.length > 1 && (
+                <p className="text-xs font-semibold text-gray-400">New Q{idx + 1}</p>
+                {newOpenQuestions.length > 1 && (
                   <button type="button" onClick={() => removeOpenQuestion(q.id)} className="text-xs text-gray-300 hover:text-red-400">Remove</button>
                 )}
               </div>
