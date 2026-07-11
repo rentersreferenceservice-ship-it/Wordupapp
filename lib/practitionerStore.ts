@@ -810,3 +810,31 @@ export async function getSavedReports(studentId: string, practitionerId: string)
 export async function deleteProgressReport(id: string, practitionerId: string): Promise<void> {
   await getSupabase().from('progress_reports').delete().eq('id', id).eq('practitioner_id', practitionerId)
 }
+
+export interface StudentDocument {
+  id: string
+  studentId: string
+  practitionerId: string
+  fileUrl: string
+  label: string
+  formType: string | null
+  uploadedAt: string
+}
+
+export async function getStudentDocuments(studentId: string, practitionerId: string): Promise<StudentDocument[]> {
+  const { data } = await getSupabase()
+    .from('student_documents')
+    .select('*')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', practitionerId)
+    .order('uploaded_at', { ascending: false })
+  return (data ?? []).map(d => ({
+    id: d.id,
+    studentId: d.student_id,
+    practitionerId: d.practitioner_id,
+    fileUrl: d.file_url,
+    label: d.label ?? '',
+    formType: d.form_type ?? null,
+    uploadedAt: d.uploaded_at,
+  }))
+}

@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports } from '@/lib/practitionerStore'
+import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments } from '@/lib/practitionerStore'
 import { listAllPractitionerLessons, listLessons } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import AccuracyChart from '@/app/AccuracyChart'
 import CrpManager from './CrpManager'
 import BoardLevelPills from './BoardLevelPills'
 import DeleteReportButton from './DeleteReportButton'
+import StudentDocumentsManager from './StudentDocumentsManager'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +28,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   ])
   const lessons = [...practitionerLessons, ...publicLessons]
 
-  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports] = await Promise.all([
+  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
     getStudentAccuracyHistory(id, userId),
     getSupabase()
@@ -38,6 +39,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
       .order('invoice_date', { ascending: false }),
     getCrps(id, userId),
     getSavedReports(id, userId),
+    getStudentDocuments(id, userId).catch(() => []),
   ])
   const invoices = invoicesResult.data ?? []
   const todayStr = new Date().toISOString().split('T')[0]
@@ -163,6 +165,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           </ul>
         </div>
       )}
+
+      {/* Assessment Forms & Documents */}
+      <StudentDocumentsManager studentId={id} initialDocs={studentDocs} />
 
       {/* Session History */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
