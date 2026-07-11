@@ -56,12 +56,16 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   ])
 
   const lessonHunks = (lessonRow?.hunks ?? []) as Hunk[]
+  const isOpenSession = !session.lesson_id
 
   // Extract session-level records
   const sessionStateRecord = responses.find(r => r.questionType === 'SESSION_STATE')
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
   const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
   const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
+
+  // Open session questions
+  const openSessionQuestions = responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
 
   // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
@@ -85,14 +89,18 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   const writingLetters = responses
     .filter(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
     .reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
-  const totalLetters =
-    spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
-    spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
-    sentenceLetters +
-    writingLetters
-  const totalMisspokes = responses
-    .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
-    .reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+
+  const totalLetters = isOpenSession
+    ? openSessionQuestions.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
+    : spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
+      spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
+      sentenceLetters +
+      writingLetters
+  const totalMisspokes = isOpenSession
+    ? openSessionQuestions.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
+    : responses
+      .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
+      .reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
   const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
   const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
@@ -302,8 +310,33 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           </div>
         </div>
 
-        {/* Per-hunk detail */}
-        {Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
+        {/* Open session: plain Q&A list */}
+        {isOpenSession && openSessionQuestions.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4 print:shadow-none print:border print:rounded-lg print-card">
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Questions &amp; Responses</h2>
+            <div className="space-y-4">
+              {openSessionQuestions.map((q, i) => {
+                const letters = (q.capturedAnswer ?? '').replace(/\s/g, '').length
+                const misspokes = q.misspokeCount ?? 0
+                return (
+                  <div key={i} className="border-b border-gray-50 last:border-0 pb-4 last:pb-0">
+                    <p className="font-semibold text-gray-800 text-sm mb-1">Q{i + 1}: {q.questionText}</p>
+                    {q.capturedAnswer && (
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap bg-pink-50 border border-pink-100 rounded-lg px-3 py-2 mb-1">{q.capturedAnswer}</p>
+                    )}
+                    <div className="flex gap-3">
+                      {letters > 0 && <span className="text-xs font-semibold text-blue-500">{letters} letters</span>}
+                      {misspokes > 0 && <span className="text-xs font-semibold text-red-500">{'✗'.repeat(misspokes)} ({misspokes} misspokes)</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Per-hunk detail — regular lessons only */}
+        {!isOpenSession && Object.entries(byHunk).sort(([a], [b]) => Number(a) - Number(b)).map(([hunkNum, items]) => {
 
           const allHunkKeywords = items.filter(r => (r.questionType === 'KEYWORD' || r.questionType === 'EXTRA_SPELLING') && r.capturedAnswer !== 'SKIPPED' && (r.keyword ?? '').trim() !== '')
           const seenKeywords = new Set<string>()
@@ -410,8 +443,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           )
         })}
 
-        {/* Writing Responses — only show hunks with an actual response */}
-        {writingHunkNumbers.some(n => {
+        {!isOpenSession && writingHunkNumbers.some(n => {
           const wr = responses.find(r => r.questionType === 'WRITING_PROMPT' && r.hunkNumber === n)
           return wr && wr.capturedAnswer && wr.capturedAnswer !== 'SKIPPED'
         }) && (
