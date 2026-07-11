@@ -148,6 +148,15 @@ export default function EditTranscriptClient({
     responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
       .map(r => ({ id: r.id, questionText: r.questionText ?? '', capturedAnswer: r.capturedAnswer ?? '', misspokeCount: r.misspokeCount ?? 0 }))
   )
+  const openQNextId = { current: 1000 }
+
+  function addOpenQuestion() {
+    setOpenQuestions(prev => [...prev, { id: `new-${openQNextId.current++}`, questionText: '', capturedAnswer: '', misspokeCount: 0 }])
+  }
+
+  function removeOpenQuestion(id: string) {
+    setOpenQuestions(prev => prev.filter(q => q.id !== id))
+  }
 
   function updateOpenQuestion(id: string, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number }>) {
     setOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
@@ -578,7 +587,12 @@ export default function EditTranscriptClient({
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Questions &amp; Responses</p>
           {openQuestions.map((q, idx) => (
             <div key={q.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
-              <p className="text-xs font-semibold text-gray-400">Q{idx + 1}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-gray-400">Q{idx + 1}</p>
+                {openQuestions.length > 1 && (
+                  <button type="button" onClick={() => removeOpenQuestion(q.id)} className="text-xs text-gray-300 hover:text-red-400">Remove</button>
+                )}
+              </div>
               <input
                 type="text"
                 value={q.questionText}
@@ -602,6 +616,13 @@ export default function EditTranscriptClient({
               </div>
             </div>
           ))}
+          <button
+            type="button"
+            onClick={addOpenQuestion}
+            className="w-full border-2 border-dashed border-gray-200 text-gray-400 hover:border-blue-400 hover:text-blue-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
+          >
+            + Add Question
+          </button>
         </div>
       )}
 
