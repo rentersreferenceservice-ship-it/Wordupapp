@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
+import GenerateInvoiceButton from '../transcript/[sessionId]/GenerateInvoiceButton'
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -45,6 +46,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [savedSessionId, setSavedSessionId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const nextId = useRef(2)
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -128,32 +130,8 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
     await uploadPhotos(data.sessionId)
-    router.push(`/practitioner/transcript/${data.sessionId}`)
-  }
-
-  async function handleGenerateInvoice() {
-    if (!validate()) return
-    setSaving(true)
-    const sessionRes = await fetch('/api/practitioner/open-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildPayload()),
-    })
-    const sessionData = await sessionRes.json()
-    if (!sessionRes.ok) { alert(sessionData.error ?? 'Failed to save session'); setSaving(false); return }
-    await uploadPhotos(sessionData.sessionId)
-    const invRes = await fetch('/api/practitioner/invoice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: sessionData.sessionId }),
-    })
-    const invData = await invRes.json()
-    if (invData.invoiceId) {
-      router.push(`/practitioner/invoice/${invData.invoiceId}`)
-    } else {
-      alert(invData.error ?? 'Failed to generate invoice')
-      setSaving(false)
-    }
+    setSaving(false)
+    setSavedSessionId(data.sessionId)
   }
 
   return (
@@ -382,21 +360,28 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
-      >
-        {saving ? 'Saving…' : 'Save Session'}
-      </button>
+      {savedSessionId ? (
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 space-y-3">
+          <p className="text-sm font-semibold text-green-700">Session saved!</p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/practitioner/transcript/${savedSessionId}`}
+              className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            >
+              View Transcript
+            </Link>
+            <GenerateInvoiceButton sessionId={savedSessionId} hasInvoice={false} />
+          </div>
+        </div>
+      ) : (
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
+        >
+          {saving ? 'Saving…' : 'Save Session'}
+        </button>
+      )}
     </form>
-
-    <button
-      disabled={saving}
-      onClick={handleGenerateInvoice}
-      className="w-full mt-3 bg-green-600 text-white border-2 border-green-700 py-3 rounded-xl font-semibold hover:bg-green-700 disabled:opacity-60 transition-colors"
-    >
-      {saving ? 'Creating…' : 'Generate Invoice'}
-    </button>
   )
 }
