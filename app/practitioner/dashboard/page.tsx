@@ -72,6 +72,9 @@ export default async function PractitionerDashboard() {
           <Link href="/practitioner/open-session" className="bg-green-600 text-white border-2 border-green-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
             + Open Session
           </Link>
+          <Link href="/practitioner/tools-assessments" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            Tools &amp; Assessments
+          </Link>
           <Link href="/practitioner/finances" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Finances
           </Link>
