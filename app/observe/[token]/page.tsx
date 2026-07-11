@@ -147,6 +147,12 @@ export default function ObserveForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [showHomeScreenTip, setShowHomeScreenTip] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
+
+  useEffect(() => {
+    setIsIOS(/iphone|ipad|ipod/i.test(navigator.userAgent))
+  }, [])
 
   useEffect(() => {
     fetch(`/api/observe/${token}`)
@@ -199,12 +205,62 @@ export default function ObserveForm() {
 
   if (submitted) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <div className="text-5xl mb-4">✓</div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Observation submitted</h1>
-          <p className="text-sm text-gray-600">Your observations have been sent to {studentName}&apos;s S2C practitioner. Thank you for taking the time to document this — it helps build a clear picture for the medical team.</p>
-          <p className="text-xs text-gray-400 mt-6">You can close this window. Use the same link to submit another observation if needed.</p>
+      <main className="min-h-screen bg-gray-50 flex items-start justify-center px-4 pt-12 pb-8">
+        <div className="max-w-md w-full">
+          <div className="text-center bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-4">
+            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">Observation submitted</h1>
+            <p className="text-sm text-gray-600 mb-1">Your observations have been sent to {studentName}&apos;s S2C practitioner.</p>
+            <p className="text-sm text-gray-500">Thank you — this helps build a clear picture for the medical team.</p>
+          </div>
+
+          {/* Home screen tip */}
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">📲</span>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-blue-900 mb-1">Save this form to your home screen</p>
+                <p className="text-sm text-blue-800 mb-3">
+                  Add this page to your home screen so you can open it instantly next time — no need to find the link again.
+                </p>
+                <button
+                  onClick={() => setShowHomeScreenTip(v => !v)}
+                  className="text-sm font-semibold text-blue-700 underline"
+                >
+                  {showHomeScreenTip ? 'Hide instructions ▲' : 'Show me how ▼'}
+                </button>
+
+                {showHomeScreenTip && (
+                  <div className="mt-4">
+                    {isIOS ? (
+                      <ol className="space-y-2 text-sm text-blue-900">
+                        <li><span className="font-bold">1.</span> Make sure you&apos;re in <span className="font-bold">Safari</span> (not Chrome or another browser)</li>
+                        <li><span className="font-bold">2.</span> Tap the <span className="font-bold">Share button</span> — the box with an arrow at the bottom of the screen</li>
+                        <li><span className="font-bold">3.</span> Scroll down and tap <span className="font-bold">Add to Home Screen</span></li>
+                        <li><span className="font-bold">4.</span> Tap <span className="font-bold">Add</span> in the top right</li>
+                        <li className="text-blue-700 text-xs mt-1">A Word Up icon will appear on your home screen and open this exact form.</li>
+                      </ol>
+                    ) : (
+                      <ol className="space-y-2 text-sm text-blue-900">
+                        <li><span className="font-bold">1.</span> Tap the <span className="font-bold">three dots ⋮</span> in the top right corner of Chrome</li>
+                        <li><span className="font-bold">2.</span> Tap <span className="font-bold">Add to Home screen</span></li>
+                        <li><span className="font-bold">3.</span> Tap <span className="font-bold">Add</span></li>
+                        <li className="text-blue-700 text-xs mt-1">A Word Up icon will appear on your home screen and open this exact form.</li>
+                      </ol>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-400 text-center mt-4">
+            Use the same link to submit another observation at any time.
+          </p>
         </div>
       </main>
     )
@@ -212,6 +268,35 @@ export default function ObserveForm() {
 
   return (
     <main className="min-h-screen bg-gray-50">
+      {/* Home screen nudge — shown only once, dismissible */}
+      {!showHomeScreenTip && (
+        <div className="bg-blue-600 text-white px-4 py-2.5 flex items-center justify-between gap-3">
+          <span className="text-xs">📲 <span className="font-semibold">Tip:</span> Save this page to your home screen for quick access next time.</span>
+          <button onClick={() => setShowHomeScreenTip(true)} className="text-xs underline font-semibold whitespace-nowrap flex-shrink-0">How?</button>
+        </div>
+      )}
+
+      {showHomeScreenTip && (
+        <div className="bg-blue-50 border-b border-blue-200 px-4 py-4">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <p className="text-sm font-bold text-blue-900">Save to Home Screen</p>
+            <button onClick={() => setShowHomeScreenTip(false)} className="text-blue-500 text-lg leading-none flex-shrink-0">×</button>
+          </div>
+          {isIOS ? (
+            <ol className="space-y-1 text-xs text-blue-800">
+              <li><span className="font-bold">1.</span> Open this page in <span className="font-bold">Safari</span></li>
+              <li><span className="font-bold">2.</span> Tap the <span className="font-bold">Share ↑</span> button at the bottom</li>
+              <li><span className="font-bold">3.</span> Tap <span className="font-bold">Add to Home Screen</span> → <span className="font-bold">Add</span></li>
+            </ol>
+          ) : (
+            <ol className="space-y-1 text-xs text-blue-800">
+              <li><span className="font-bold">1.</span> Tap the <span className="font-bold">⋮ three dots</span> in Chrome</li>
+              <li><span className="font-bold">2.</span> Tap <span className="font-bold">Add to Home screen</span> → <span className="font-bold">Add</span></li>
+            </ol>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-10">
         <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Observation Form</p>
