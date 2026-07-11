@@ -45,6 +45,28 @@ export default async function ToolsAssessmentsPage() {
             </div>
           </div>
 
+          {/* Session Energy Log */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">Printable PDF Form</div>
+                <h2 className="text-base font-bold text-gray-900 mb-2">
+                  S2C Session Energy, Motor &amp; Performance Pattern Tracking Log
+                </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Tracks changes in energy, regulation, visual orientation, purposeful motor control, and spelling accuracy as a session progresses. Includes a quick-entry tracking table by time interval, break documentation, end-of-session comparison, and pattern summary. Designed for longitudinal review by medical professionals.
+                </p>
+                <Link
+                  href="/practitioner/tools-assessments/session-energy-log"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 bg-purple-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-800 transition-colors"
+                >
+                  Open &amp; Print Form →
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* Seizure Log — Family */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-start justify-between gap-4">
