@@ -87,60 +87,71 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
   }
 
-  async function createSession(): Promise<string | null> {
-    if (!studentId) { setError('Please select a student.'); return null }
+  function validate(): boolean {
+    if (!studentId) { alert('Please select a student first.'); return false }
     const filled = questions.filter(q => q.question.trim())
-    if (!filled.length) { setError('Enter at least one question.'); return null }
-    setSaving(true)
-    setError('')
+    if (!filled.length) { alert('Please enter at least one question first.'); return false }
+    return true
+  }
 
-    const res = await fetch('/api/practitioner/open-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId, sessionDate,
-        questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
-        sessionNotes, sessionVideo,
-        invoiceLink: null,
-        regulationArrival: regArrival,
-        regulationDeparture: regDeparture,
-        studentStates,
-      }),
-    })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return null }
+  function buildPayload() {
+    const filled = questions.filter(q => q.question.trim())
+    return {
+      studentId, sessionDate,
+      questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
+      sessionNotes, sessionVideo,
+      invoiceLink: null,
+      regulationArrival: regArrival,
+      regulationDeparture: regDeparture,
+      studentStates,
+    }
+  }
 
-    const sessionId: string = data.sessionId
-
+  async function uploadPhotos(sessionId: string) {
     for (const photo of selectedPhotos) {
       const fd = new FormData()
       fd.append('file', photo)
       await fetch(`/api/practitioner/sessions/${sessionId}/notes-images`, { method: 'POST', body: fd })
     }
-
-    return sessionId
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    const sessionId = await createSession()
-    if (!sessionId) return
-    router.push(`/practitioner/transcript/${sessionId}`)
+    if (!validate()) return
+    setSaving(true)
+    setError('')
+    const res = await fetch('/api/practitioner/open-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildPayload()),
+    })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
+    await uploadPhotos(data.sessionId)
+    router.push(`/practitioner/transcript/${data.sessionId}`)
   }
 
   async function handleGenerateInvoice() {
-    const sessionId = await createSession()
-    if (!sessionId) return
-    const res = await fetch('/api/practitioner/invoice', {
+    if (!validate()) return
+    setSaving(true)
+    const sessionRes = await fetch('/api/practitioner/open-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId }),
+      body: JSON.stringify(buildPayload()),
     })
-    const data = await res.json()
-    if (data.invoiceId) {
-      router.push(`/practitioner/invoice/${data.invoiceId}`)
+    const sessionData = await sessionRes.json()
+    if (!sessionRes.ok) { alert(sessionData.error ?? 'Failed to save session'); setSaving(false); return }
+    await uploadPhotos(sessionData.sessionId)
+    const invRes = await fetch('/api/practitioner/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionData.sessionId }),
+    })
+    const invData = await invRes.json()
+    if (invData.invoiceId) {
+      router.push(`/practitioner/invoice/${invData.invoiceId}`)
     } else {
-      alert(data.error ?? 'Failed to generate invoice')
+      alert(invData.error ?? 'Failed to generate invoice')
       setSaving(false)
     }
   }
@@ -314,17 +325,6 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
           />
         </div>
 
-        <div>
-          <p className="text-xs text-gray-400 mb-2">Invoice</p>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={handleGenerateInvoice}
-            className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
-          >
-            {saving ? 'Creating…' : 'Generate Invoice'}
-          </button>
-        </div>
       </div>
 
       {/* Questions */}
@@ -390,5 +390,13 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         {saving ? 'Saving…' : 'Save Session'}
       </button>
     </form>
+
+    <button
+      disabled={saving}
+      onClick={handleGenerateInvoice}
+      className="w-full mt-3 bg-green-600 text-white border-2 border-green-700 py-3 rounded-xl font-semibold hover:bg-green-700 disabled:opacity-60 transition-colors"
+    >
+      {saving ? 'Creating…' : 'Generate Invoice'}
+    </button>
   )
 }
