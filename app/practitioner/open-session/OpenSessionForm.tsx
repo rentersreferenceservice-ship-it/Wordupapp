@@ -4,7 +4,6 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
-import GenerateInvoiceButton from '../transcript/[sessionId]/GenerateInvoiceButton'
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -42,11 +41,13 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [studentStates, setStudentStates] = useState<string[]>([])
   const [sessionNotes, setSessionNotes] = useState('')
   const [sessionVideo, setSessionVideo] = useState('')
+  const [showExternalLink, setShowExternalLink] = useState(false)
+  const [invoiceLink, setInvoiceLink] = useState('')
   const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
-  const [savedSessionId, setSavedSessionId] = useState<string | null>(null)
+  const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [error, setError] = useState('')
   const nextId = useRef(2)
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -89,49 +90,71 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
   }
 
-  function validate(): boolean {
-    if (!studentId) { alert('Please select a student first.'); return false }
-    const filled = questions.filter(q => q.question.trim())
-    if (!filled.length) { alert('Please enter at least one question first.'); return false }
-    return true
+  function getFilledQuestions() {
+    return questions.filter(q => q.question.trim())
   }
 
-  function buildPayload() {
-    const filled = questions.filter(q => q.question.trim())
-    return {
-      studentId, sessionDate,
-      questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
-      sessionNotes, sessionVideo,
-      invoiceLink: null,
-      regulationArrival: regArrival,
-      regulationDeparture: regDeparture,
-      studentStates,
-    }
-  }
-
-  async function uploadPhotos(sessionId: string) {
+  async function saveNewSession(): Promise<string | null> {
+    const filled = getFilledQuestions()
+    const res = await fetch('/api/practitioner/open-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId,
+        sessionDate,
+        questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
+        sessionNotes,
+        sessionVideo,
+        invoiceLink: showExternalLink ? invoiceLink.trim() : null,
+        regulationArrival: regArrival,
+        regulationDeparture: regDeparture,
+        studentStates,
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok) return null
     for (const photo of selectedPhotos) {
       const fd = new FormData()
       fd.append('file', photo)
-      await fetch(`/api/practitioner/sessions/${sessionId}/notes-images`, { method: 'POST', body: fd })
+      await fetch(`/api/practitioner/sessions/${data.sessionId}/notes-images`, { method: 'POST', body: fd })
     }
+    return data.sessionId
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    if (!validate()) return
+    if (!studentId) { setError('Please select a student.'); return }
+    if (!getFilledQuestions().length) { setError('Enter at least one question.'); return }
     setSaving(true)
     setError('')
-    const res = await fetch('/api/practitioner/open-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildPayload()),
-    })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return }
-    await uploadPhotos(data.sessionId)
-    setSaving(false)
-    setSavedSessionId(data.sessionId)
+    const sessionId = await saveNewSession()
+    if (!sessionId) { setError('Failed to save session.'); setSaving(false); return }
+    router.push(`/practitioner/transcript/${sessionId}`)
+  }
+
+  async function handleGenerateInvoice() {
+    if (!studentId) { alert('Please select a student first.'); return }
+    if (!getFilledQuestions().length) { alert('Please enter at least one question first.'); return }
+    setGeneratingInvoice(true)
+    try {
+      const sessionId = await saveNewSession()
+      if (!sessionId) { alert('Failed to save session.'); setGeneratingInvoice(false); return }
+      const res = await fetch('/api/practitioner/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      })
+      const data = await res.json()
+      if (data.invoiceId) {
+        router.push(`/practitioner/invoice/${data.invoiceId}`)
+      } else {
+        alert(data.error ?? 'Failed to generate invoice')
+        setGeneratingInvoice(false)
+      }
+    } catch {
+      alert('An error occurred. Please try again.')
+      setGeneratingInvoice(false)
+    }
   }
 
   return (
@@ -303,6 +326,35 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
           />
         </div>
 
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Invoice</p>
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => setShowExternalLink(v => !v)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${showExternalLink ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >
+              External Link
+            </button>
+            <button
+              type="button"
+              disabled={generatingInvoice}
+              onClick={handleGenerateInvoice}
+              className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+            >
+              {generatingInvoice ? 'Creating…' : 'Generate Invoice'}
+            </button>
+          </div>
+          {showExternalLink && (
+            <input
+              type="url"
+              value={invoiceLink}
+              onChange={e => setInvoiceLink(e.target.value)}
+              placeholder="https://your-accounting-app.com/invoice/…"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          )}
+        </div>
       </div>
 
       {/* Questions */}
@@ -360,28 +412,13 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {savedSessionId ? (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 space-y-3">
-          <p className="text-sm font-semibold text-green-700">Session saved!</p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/practitioner/transcript/${savedSessionId}`}
-              className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-            >
-              View Transcript
-            </Link>
-            <GenerateInvoiceButton sessionId={savedSessionId} hasInvoice={false} />
-          </div>
-        </div>
-      ) : (
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
-        >
-          {saving ? 'Saving…' : 'Save Session'}
-        </button>
-      )}
+      <button
+        type="submit"
+        disabled={saving}
+        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
+      >
+        {saving ? 'Saving…' : 'Save Session'}
+      </button>
     </form>
   )
 }
