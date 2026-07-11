@@ -41,13 +41,10 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [studentStates, setStudentStates] = useState<string[]>([])
   const [sessionNotes, setSessionNotes] = useState('')
   const [sessionVideo, setSessionVideo] = useState('')
-  const [invoiceLink, setInvoiceLink] = useState('')
-  const [showInvoiceLink, setShowInvoiceLink] = useState(false)
   const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
-  const [savingStatus, setSavingStatus] = useState('')
   const [error, setError] = useState('')
   const nextId = useRef(2)
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -90,14 +87,12 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
     setPhotoPreviews(prev => prev.filter((_, i) => i !== index))
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    if (!studentId) { setError('Please select a student.'); return }
+  async function createSession(): Promise<string | null> {
+    if (!studentId) { setError('Please select a student.'); return null }
     const filled = questions.filter(q => q.question.trim())
-    if (!filled.length) { setError('Enter at least one question.'); return }
+    if (!filled.length) { setError('Enter at least one question.'); return null }
     setSaving(true)
     setError('')
-    setSavingStatus('Saving session…')
 
     const res = await fetch('/api/practitioner/open-session', {
       method: 'POST',
@@ -106,27 +101,48 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         studentId, sessionDate,
         questions: filled.map(q => ({ question: q.question.trim(), response: q.response.trim(), misspokeCount: q.misspokeCount })),
         sessionNotes, sessionVideo,
-        invoiceLink: showInvoiceLink ? invoiceLink.trim() : null,
+        invoiceLink: null,
         regulationArrival: regArrival,
         regulationDeparture: regDeparture,
         studentStates,
       }),
     })
     const data = await res.json()
-    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); setSavingStatus(''); return }
+    if (!res.ok) { setError(data.error ?? 'Failed to save'); setSaving(false); return null }
 
     const sessionId: string = data.sessionId
 
-    if (selectedPhotos.length > 0) {
-      setSavingStatus('Uploading photos…')
-      for (const photo of selectedPhotos) {
-        const fd = new FormData()
-        fd.append('file', photo)
-        await fetch(`/api/practitioner/sessions/${sessionId}/notes-images`, { method: 'POST', body: fd })
-      }
+    for (const photo of selectedPhotos) {
+      const fd = new FormData()
+      fd.append('file', photo)
+      await fetch(`/api/practitioner/sessions/${sessionId}/notes-images`, { method: 'POST', body: fd })
     }
 
+    return sessionId
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    const sessionId = await createSession()
+    if (!sessionId) return
     router.push(`/practitioner/transcript/${sessionId}`)
+  }
+
+  async function handleGenerateInvoice() {
+    const sessionId = await createSession()
+    if (!sessionId) return
+    const res = await fetch('/api/practitioner/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId }),
+    })
+    const data = await res.json()
+    if (data.invoiceId) {
+      router.push(`/practitioner/invoice/${data.invoiceId}`)
+    } else {
+      alert(data.error ?? 'Failed to generate invoice')
+      setSaving(false)
+    }
   }
 
   return (
@@ -299,21 +315,15 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         </div>
 
         <div>
-          <p className="text-xs text-gray-400 mb-1.5">External Invoice Link (optional)</p>
-          <button type="button" onClick={() => setShowInvoiceLink(v => !v)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors mb-2 ${showInvoiceLink ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-            External Link
+          <p className="text-xs text-gray-400 mb-2">Invoice</p>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleGenerateInvoice}
+            className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+          >
+            {saving ? 'Creating…' : 'Generate Invoice'}
           </button>
-          {showInvoiceLink && (
-            <input
-              type="url"
-              value={invoiceLink}
-              onChange={e => setInvoiceLink(e.target.value)}
-              placeholder="https://your-accounting-app.com/invoice/…"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            />
-          )}
-          <p className="text-xs text-gray-400 mt-1">To generate an invoice, save the session then use the Generate Invoice button on the transcript.</p>
         </div>
       </div>
 
@@ -377,7 +387,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         disabled={saving}
         className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
       >
-        {saving ? savingStatus || 'Saving…' : 'Save Session'}
+        {saving ? 'Saving…' : 'Save Session'}
       </button>
     </form>
   )
