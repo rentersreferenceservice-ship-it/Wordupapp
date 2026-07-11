@@ -26,8 +26,8 @@ function SubmissionDetail({ sub }: { sub: Submission }) {
     return (
       <div className="mt-4 space-y-3 text-sm">
         <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-          {[['Date', fd.date], ['Day', fd.dayOfWeek], ['Observer', fd.observer], ['Duration', fd.duration], ['Started', fd.timeStart], ['Ended', fd.timeEnd]].map(([label, val]) => (
-            <div key={label as string}><span className="font-medium text-gray-600">{label}:</span> <span>{(val as string) || '—'}</span></div>
+          {([['Date', fd.date], ['Day', fd.dayOfWeek], ['Observer', fd.observer], ['Duration', fd.duration], ['Started', fd.timeStart], ['Ended', fd.timeEnd]] as [string, unknown][]).map(([label, val]) => (
+            <div key={label}><span className="font-medium text-gray-600">{label}:</span> <span>{(val as string) || '—'}</span></div>
           ))}
         </div>
         {(fd.firstNoticed as string) && <div><p className="font-medium text-gray-600 mb-1">First thing noticed:</p><p className="bg-gray-50 rounded-lg px-3 py-2">{fd.firstNoticed as string}</p></div>}
@@ -35,8 +35,8 @@ function SubmissionDetail({ sub }: { sub: Submission }) {
         {eyes !== '—' && <div><p className="font-medium text-gray-600 mb-1">Eyes / Gaze:</p><p className="text-gray-700">{eyes}</p></div>}
         {movements !== '—' && <div><p className="font-medium text-gray-600 mb-1">Movements:</p><p className="text-gray-700">{movements}</p></div>}
         <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-          {[['Name response', fd.respondName], ['Touch response', fd.respondTouch], ['Recovery time', fd.recoveryTime], ['Happened before?', fd.happenedBefore], ['Video?', fd.videoRecorded], ['Episodes today', fd.episodesToday]].map(([label, val]) => (
-            <div key={label as string}><span className="font-medium text-gray-600">{label}:</span> <span className="capitalize">{(val as string) || '—'}</span></div>
+          {([['Name response', fd.respondName], ['Touch response', fd.respondTouch], ['Recovery time', fd.recoveryTime], ['Happened before?', fd.happenedBefore], ['Video?', fd.videoRecorded], ['Episodes today', fd.episodesToday]] as [string, unknown][]).map(([label, val]) => (
+            <div key={label}><span className="font-medium text-gray-600">{label}:</span> <span className="capitalize">{(val as string) || '—'}</span></div>
           ))}
         </div>
         {(fd.mostImportant as string) && <div><p className="font-medium text-gray-600 mb-1">Most important observation:</p><p className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{fd.mostImportant as string}</p></div>}
