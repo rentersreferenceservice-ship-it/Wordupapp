@@ -45,15 +45,119 @@ function SubmissionDetail({ sub }: { sub: Submission }) {
     )
   }
 
-  // Generic display for practitioner forms
-  const dateVal = (fd.date as string) || (fd.sessionDate as string) || ''
+  function arr(key: string) { return (fd[key] as string[] | undefined)?.join(', ') || '' }
+  function val(key: string) { return (fd[key] as string) || '' }
+
+  if (sub.formType === 'practitioner_event_log') {
+    return (
+      <div className="mt-4 space-y-4 text-sm">
+        {/* Session info */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+          {([['Date', 'date'], ['Student', 'studentName'], ['Session start', 'sessionStart'], ['Session end', 'sessionEnd'], ['Board', 'boardUsed'], ['Video recorded', 'videoRecorded']] as [string, string][]).map(([label, key]) => (
+            val(key) ? <div key={key}><span className="font-medium text-gray-600">{label}:</span> <span className="capitalize">{val(key)}</span></div> : null
+          ))}
+        </div>
+
+        {/* Baseline */}
+        {(arr('overallRegulation') || arr('visualOrientation')) && (
+          <div>
+            <p className="font-semibold text-gray-700 mb-1">Baseline</p>
+            <div className="bg-gray-50 rounded-lg px-3 py-2 space-y-1">
+              {arr('overallRegulation') && <p><span className="font-medium text-gray-600">Regulation:</span> {arr('overallRegulation')}</p>}
+              {arr('visualOrientation') && <p><span className="font-medium text-gray-600">Visual orientation:</span> {arr('visualOrientation')}</p>}
+              {arr('commonMotorPattern') && <p><span className="font-medium text-gray-600">Motor pattern:</span> {arr('commonMotorPattern')}</p>}
+              {(val('baselineWordsAttempted') || val('baselineAccuracyPct')) && (
+                <p><span className="font-medium text-gray-600">Spelling:</span> {val('baselineWordsAttempted')} words, {val('baselineAccuracyPct')}% accuracy</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Event */}
+        {(val('eventTimeStart') || val('firstObservableChange') || val('eventDescription')) && (
+          <div>
+            <p className="font-semibold text-gray-700 mb-1">Suspected Event</p>
+            <div className="bg-blue-50 rounded-lg px-3 py-2 space-y-1">
+              {(val('eventTimeStart') || val('eventDuration')) && <p><span className="font-medium text-gray-600">Time:</span> {val('eventTimeStart')}{val('eventTimeEnd') ? ` – ${val('eventTimeEnd')}` : ''}{val('eventDuration') ? ` (${val('eventDuration')})` : ''}</p>}
+              {val('activityBefore') && <p><span className="font-medium text-gray-600">Activity before:</span> {val('activityBefore')}</p>}
+              {val('firstObservableChange') && <p><span className="font-medium text-gray-600">First change noticed:</span> {val('firstObservableChange')}</p>}
+              {arr('gazeEyes') && <p><span className="font-medium text-gray-600">Gaze/eyes:</span> {arr('gazeEyes')}</p>}
+              {arr('responsiveness') && <p><span className="font-medium text-gray-600">Responsiveness:</span> {arr('responsiveness')}</p>}
+              {arr('bodyMotor') && <p><span className="font-medium text-gray-600">Body/motor:</span> {arr('bodyMotor')}</p>}
+              {val('eventDescription') && <p className="mt-1"><span className="font-medium text-gray-600">Description:</span> {val('eventDescription')}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Post-event */}
+        {(val('timeUntilReturn') || arr('afterEvent') || val('postEventAccuracyPct')) && (
+          <div>
+            <p className="font-semibold text-gray-700 mb-1">After the Event</p>
+            <div className="bg-gray-50 rounded-lg px-3 py-2 space-y-1">
+              {val('timeUntilReturn') && <p><span className="font-medium text-gray-600">Time until return to baseline:</span> {val('timeUntilReturn')}</p>}
+              {arr('afterEvent') && <p><span className="font-medium text-gray-600">Observed after:</span> {arr('afterEvent')}</p>}
+              {val('postEventAccuracyPct') && <p><span className="font-medium text-gray-600">Post-event spelling accuracy:</span> {val('postEventAccuracyPct')}%</p>}
+              {arr('comparisonObservations') && <p><span className="font-medium text-gray-600">Compared to baseline:</span> {arr('comparisonObservations')}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* KNOWN question */}
+        {val('knownQuestion') && (
+          <div>
+            <p className="font-semibold text-gray-700 mb-1">KNOWN Question</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-1">
+              <p><span className="font-medium text-gray-600">Result:</span> <span className="capitalize">{val('knownQuestion')}</span></p>
+              {val('questionAsked') && <p><span className="font-medium text-gray-600">Question:</span> {val('questionAsked')}</p>}
+              {val('questionResponse') && <p><span className="font-medium text-gray-600">Response:</span> {val('questionResponse')}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Summary */}
+        {(val('numberOfEvents') || val('additionalObservations') || val('videoTimestamps')) && (
+          <div className="space-y-1">
+            {val('numberOfEvents') && <p><span className="font-medium text-gray-600">Events this session:</span> {val('numberOfEvents')}</p>}
+            {val('videoTimestamps') && <p><span className="font-medium text-gray-600">Video timestamps:</span> {val('videoTimestamps')}</p>}
+            {val('additionalObservations') && <div><p className="font-medium text-gray-600 mb-1">Additional observations:</p><p className="bg-gray-50 rounded-lg px-3 py-2">{val('additionalObservations')}</p></div>}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (sub.formType === 'session_energy_log') {
+    return (
+      <div className="mt-4 space-y-4 text-sm">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+          {([['Date', 'sessionDate'], ['Student', 'studentName'], ['Start', 'sessionStart'], ['End', 'sessionEnd']] as [string, string][]).map(([label, key]) => (
+            val(key) ? <div key={key}><span className="font-medium text-gray-600">{label}:</span> <span>{val(key)}</span></div> : null
+          ))}
+        </div>
+        {arr('sleepHealth') && (
+          <div><p className="font-medium text-gray-600 mb-1">Sleep / health factors:</p><p className="bg-gray-50 rounded-lg px-3 py-2">{arr('sleepHealth')}</p></div>
+        )}
+        {arr('baselineEnergy') && (
+          <div>
+            <p className="font-semibold text-gray-700 mb-1">Baseline</p>
+            <div className="bg-gray-50 rounded-lg px-3 py-2 space-y-1">
+              {arr('baselineEnergy') && <p><span className="font-medium text-gray-600">Energy/arousal:</span> {arr('baselineEnergy')}</p>}
+              {arr('baselineRegulation') && <p><span className="font-medium text-gray-600">Regulation:</span> {arr('baselineRegulation')}</p>}
+              {arr('baselineVisual') && <p><span className="font-medium text-gray-600">Visual orientation:</span> {arr('baselineVisual')}</p>}
+            </div>
+          </div>
+        )}
+        {val('additionalObservations') && (
+          <div><p className="font-medium text-gray-600 mb-1">Summary:</p><p className="bg-gray-50 rounded-lg px-3 py-2">{val('additionalObservations')}</p></div>
+        )}
+        <p className="text-xs text-gray-400">Full session tracking table saved.</p>
+      </div>
+    )
+  }
+
+  // Fallback
   return (
-    <div className="mt-3 space-y-2 text-sm">
-      {dateVal && <div><span className="font-medium text-gray-600">Date:</span> {dateVal}</div>}
-      {(fd.additionalObservations as string) && <div><p className="font-medium text-gray-600 mb-1">Summary:</p><p className="bg-gray-50 rounded-lg px-3 py-2">{fd.additionalObservations as string}</p></div>}
-      {(fd.mostImportant as string) && <div><p className="font-medium text-gray-600 mb-1">Key observation:</p><p className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{fd.mostImportant as string}</p></div>}
-      <p className="text-xs text-gray-400">Full submission recorded.</p>
-    </div>
+    <div className="mt-3 text-sm text-gray-400 py-2">Full submission recorded.</div>
   )
 }
 
