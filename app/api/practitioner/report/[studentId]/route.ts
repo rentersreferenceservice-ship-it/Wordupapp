@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getStudentReportData } from '@/lib/practitionerStore'
+import { getSupabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +18,103 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
   if (!reportData) return Response.json({ error: 'Student not found' }, { status: 404 })
 
   const { student, sessions, boardMilestones, questionTypeMilestones, regulationStats, topMisspokedLetters, accuracyTrend, financials } = reportData
+
+  // Fetch observation form submissions within the reporting period
+  const { data: rawSubs } = await getSupabase()
+    .from('form_submissions')
+    .select('*')
+    .eq('student_id', studentId)
+    .eq('practitioner_id', userId)
+    .gte('submitted_at', startDate + 'T00:00:00')
+    .lte('submitted_at', endDate + 'T23:59:59')
+    .order('submitted_at', { ascending: true })
+
+  const subs = rawSubs ?? []
+  const eventLogs = subs.filter(s => s.form_type === 'practitioner_event_log')
+  const energyLogs = subs.filter(s => s.form_type === 'session_energy_log')
+  const familyLogs = subs.filter(s => s.form_type === 'family_event_log')
+
+  // Split period in half to detect progression vs regression
+  const midMs = (new Date(startDate).getTime() + new Date(endDate).getTime()) / 2
+  const midDate = new Date(midMs).toISOString().slice(0, 10)
+  const earlyEvents = eventLogs.filter(s => s.submitted_at < midDate + 'T')
+  const lateEvents  = eventLogs.filter(s => s.submitted_at >= midDate + 'T')
+  const earlyFamily = familyLogs.filter(s => s.submitted_at < midDate + 'T')
+  const lateFamily  = familyLogs.filter(s => s.submitted_at >= midDate + 'T')
+
+  // Accuracy impact: compare baseline vs post-event within each session
+  type AccComp = { date: string; diff: number }
+  const accuracyComparisons: AccComp[] = eventLogs
+    .filter(s => s.form_data.baselineAccuracyPct && s.form_data.postEventAccuracyPct)
+    .map(s => {
+      const fd = s.form_data as Record<string, string>
+      return {
+        date: fd.date || s.submitted_at.slice(0, 10),
+        diff: parseFloat(fd.postEventAccuracyPct) - parseFloat(fd.baselineAccuracyPct),
+      }
+    })
+
+  // Build structured summary text for the report section and AI prompt
+  const obsLines: string[] = []
+  const hasObs = eventLogs.length > 0 || familyLogs.length > 0 || energyLogs.length > 0
+
+  if (hasObs) {
+    if (eventLogs.length) {
+      obsLines.push(`Practitioner-documented neurological events: ${eventLogs.length} session(s)`)
+      if (earlyEvents.length !== lateEvents.length && eventLogs.length > 1) {
+        obsLines.push(`  Early period: ${earlyEvents.length} | Late period: ${lateEvents.length}`)
+        obsLines.push(lateEvents.length < earlyEvents.length
+          ? '  → Event frequency decreased over the period (positive trend)'
+          : '  → Event frequency increased — closer monitoring recommended')
+      }
+    }
+
+    if (familyLogs.length) {
+      obsLines.push(`Family-reported episodes at home: ${familyLogs.length}`)
+      if (earlyFamily.length !== lateFamily.length && familyLogs.length > 1) {
+        obsLines.push(lateFamily.length < earlyFamily.length
+          ? '  → Home episodes decreased over the period'
+          : '  → Home episodes increased over the period')
+      }
+    }
+
+    if (energyLogs.length) {
+      obsLines.push(`Session energy & motor tracking forms completed: ${energyLogs.length}`)
+    }
+
+    if (accuracyComparisons.length) {
+      const avgDiff = accuracyComparisons.reduce((sum, c) => sum + c.diff, 0) / accuracyComparisons.length
+      if (avgDiff < -5)
+        obsLines.push(`Post-event spelling accuracy: averaged ${Math.abs(avgDiff).toFixed(0)}% below baseline during events — motor impact observed`)
+      else if (avgDiff >= -5 && avgDiff <= 5)
+        obsLines.push(`Post-event spelling accuracy: remained near baseline during/after events`)
+      else
+        obsLines.push(`Post-event spelling accuracy: averaged ${avgDiff.toFixed(0)}% above baseline after events`)
+    }
+
+    // Key practitioner observations
+    const practObs = eventLogs.map(s => (s.form_data as Record<string, string>).additionalObservations).filter(Boolean)
+    if (practObs.length) {
+      obsLines.push('Key practitioner observations:')
+      practObs.forEach(o => obsLines.push(`  - ${o}`))
+    }
+
+    // Key family observations
+    const famObs = familyLogs.map(s => (s.form_data as Record<string, string>).mostImportant).filter(Boolean)
+    if (famObs.length) {
+      obsLines.push('Key family observations:')
+      famObs.forEach(o => obsLines.push(`  - ${o}`))
+    }
+
+    // Energy log summaries
+    const energyObs = energyLogs.map(s => (s.form_data as Record<string, string>).additionalObservations).filter(Boolean)
+    if (energyObs.length) {
+      obsLines.push('Session energy notes:')
+      energyObs.forEach(o => obsLines.push(`  - ${o}`))
+    }
+  }
+
+  const observationsSummary = obsLines.join('\n')
 
   // Build prompt context
   const allNotes = sessions
@@ -56,11 +154,14 @@ FINANCIALS:
 
 ${topMisspokedLetters.length ? `MOST CHALLENGING LETTERS (approximated from misspoked words):\n${topMisspokedLetters.map(l => `- Letter ${l.letter}: ${l.count} weighted misspokes`).join('\n')}` : ''}
 
+NEUROLOGICAL OBSERVATION FINDINGS:
+${observationsSummary || 'No observation forms submitted for this period.'}
+
 SESSION NOTES:
 ${allNotes || 'No session notes recorded for this period.'}
 
 ---
-Write TWO sections for a professional funding proposal:
+Write TWO sections for a professional funding proposal. Where observation data is present, weave the neurological findings and progression/regression trends naturally into the narrative — mention event frequency changes, motor impact on spelling, and whether sessions showed improvement or concern over the period.
 
 PROGRESS NARRATIVE:
 Write 2-3 paragraphs describing this student's progress. Be warm, professional, and specific. Reference accuracy numbers, milestones, and regulation patterns where relevant. Frame dysregulation that improved as a positive sign. Use language appropriate for funders and school teams.
@@ -94,5 +195,6 @@ RECOMMENDED GOALS:
     reportData,
     narrative: narrativeMatch?.[1]?.trim() ?? '',
     goals: goalsMatch?.[1]?.trim() ?? '',
+    observationsSummary,
   })
 }

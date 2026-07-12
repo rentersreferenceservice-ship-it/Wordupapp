@@ -74,6 +74,7 @@ export default function ReportClient({
   const [milestoneItems, setMilestoneItems] = useState<string[]>([])
   const [milestoneChecks, setMilestoneChecks] = useState<Record<string, boolean>>({})
   const [milestoneCustom, setMilestoneCustom] = useState('')
+  const [observationsText, setObservationsText] = useState(sc.observations ?? '')
   const [regulationText, setRegulationText] = useState(sc.regulation ?? '')
   const [lettersText, setLettersText] = useState(sc.letters ?? '')
   const [narrative, setNarrative] = useState(loadedReport?.narrative ?? '')
@@ -92,6 +93,7 @@ export default function ReportClient({
   const [show, setShow] = useState({
     stats: sv.stats !== false,
     milestones: sv.milestones !== false,
+    observations: sv.observations !== false,
     regulation: sv.regulation !== false,
     letters: sv.letters !== false,
     financials: sv.financials !== false,
@@ -115,7 +117,7 @@ export default function ReportClient({
       : milestonesText
     const payload = {
       startDate, endDate, narrative, goals,
-      sectionsContent: { milestones: currentMilestonesText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
+      sectionsContent: { milestones: currentMilestonesText, observations: observationsText, regulation: regulationText, letters: lettersText, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, reportType },
       sectionsVisible: show,
       reportData: reportDataRef.current,
       existingId: reportId ?? undefined,
@@ -201,6 +203,13 @@ export default function ReportClient({
       setFinFrequency('')
       setFinTotal('')
 
+      if (data.observationsSummary) {
+        setObservationsText(data.observationsSummary)
+        setShow(prev => ({ ...prev, observations: true }))
+      } else {
+        setShow(prev => ({ ...prev, observations: false }))
+      }
+
       setNarrative(data.narrative)
       setGoals(data.goals)
       setGenerated(true)
@@ -244,7 +253,7 @@ export default function ReportClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           startDate, endDate, emails: emailList,
-          sections: { milestonesText: currentMilestonesText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportType },
+          sections: { milestonesText: currentMilestonesText, observationsText, regulationText, lettersText, narrative, goals, finSessions, finFrequency, finRate, finTotal, statAvg, statProgress, statBest, statSessions, show, reportType },
           studentName,
           reportId: reportId ?? undefined,
         }),
@@ -430,6 +439,16 @@ export default function ReportClient({
             ) : (
               <textarea value={milestonesText} onChange={e => setMilestonesText(e.target.value)} rows={Math.max(2, milestonesText.split('\n').length + 1)} className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
             )}
+          </Section>
+
+          <Section title="Neurological Observation Findings" visible={show.observations} onDelete={() => hide('observations')}>
+            <p className="text-xs text-gray-400 mb-2 no-print">Auto-populated from observation forms submitted during this period. Edit as needed.</p>
+            <textarea
+              value={observationsText}
+              onChange={e => { setObservationsText(e.target.value); setSaveStatus('unsaved') }}
+              rows={Math.max(4, observationsText.split('\n').length + 1)}
+              className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none font-mono"
+            />
           </Section>
 
           <Section title="Regulation" visible={show.regulation} onDelete={() => hide('regulation')}>
