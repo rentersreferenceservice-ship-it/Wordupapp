@@ -346,7 +346,16 @@ export default function FormSubmissionsSection({
                         {new Date(sub.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                       </p>
                     </div>
-                    <span className="text-xs text-gray-400 flex-shrink-0 mt-0.5">{isExpanded ? '▲ Hide' : '▼ View'}</span>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <Link
+                        href={`/practitioner/students/${studentId}/forms/submissions/${sub.id}`}
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        Full report →
+                      </Link>
+                      <span className="text-xs text-gray-400">{isExpanded ? '▲ Hide' : '▼ Show'}</span>
+                    </div>
                   </button>
                   {isExpanded && (
                     <div className="px-4 pb-4 border-t border-gray-100">
