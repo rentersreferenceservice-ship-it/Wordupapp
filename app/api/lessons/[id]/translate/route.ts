@@ -29,13 +29,8 @@ export async function POST(
   }
 
   const client = new Anthropic()
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 16000,
-    system: 'You are a professional translator. You output ONLY valid JSON — no markdown, no explanation, no code fences. All string values in your JSON must use \\n for line breaks (never literal newlines inside strings). Your entire response must be a single JSON object that can be passed directly to JSON.parse().',
-    messages: [{
-      role: 'user',
-      content: `Translate this S2C (Spelling to Communicate) educational lesson from English to ${language}.
+
+  const prompt = `Translate this S2C (Spelling to Communicate) educational lesson from English to ${language}.
 
 Rules:
 - Translate all text naturally — not word-for-word literal. Sound fluent and natural in ${language}.
@@ -47,44 +42,42 @@ Rules:
 - Return ONLY the JSON object with exactly the same structure as the input. Nothing else.
 
 Input:
-${JSON.stringify(contentToTranslate, null, 2)}`,
-    }],
-  })
+${JSON.stringify(contentToTranslate, null, 2)}`
 
-  const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
-
-  // Strip markdown fences if present
-  let raw = responseText.trim()
-  raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
-
-  // Extract the outermost JSON object
-  const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    console.error('[translate] No JSON object found. Response start:', responseText.slice(0, 300))
-    return Response.json({ error: 'Could not parse translation response' }, { status: 500 })
-  }
-
-  let translated: typeof contentToTranslate
-  try {
-    translated = JSON.parse(jsonMatch[0])
-  } catch (firstErr) {
-    // Escape literal control characters that snuck into string values.
-    // Match each JSON string token (dotAll flag handles multiline content inside strings).
+  function tryParseTranslation(text: string): typeof contentToTranslate | null {
+    let raw = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return null
+    // First attempt: parse as-is
+    try { return JSON.parse(jsonMatch[0]) } catch {}
+    // Second attempt: escape stray control chars inside string tokens, remove trailing commas
     try {
       const cleaned = jsonMatch[0]
         .replace(/"(?:[^"\\]|\\.)*"/g, (token) =>
-          token
-            .replace(/\n/g, '\\n')
-            .replace(/\r/g, '\\r')
-            .replace(/\t/g, '\\t')
+          token.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
         )
-        .replace(/,(\s*[}\]])/g, '$1') // remove trailing commas
-      translated = JSON.parse(cleaned)
-    } catch {
-      console.error('[translate] Parse failed. First 1500 chars:', jsonMatch[0].slice(0, 1500))
-      console.error('[translate] Original parse error:', firstErr)
-      return Response.json({ error: 'Invalid JSON from translation' }, { status: 500 })
-    }
+        .replace(/,(\s*[}\]])/g, '$1')
+      return JSON.parse(cleaned)
+    } catch {}
+    return null
+  }
+
+  let translated: typeof contentToTranslate | null = null
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 16000,
+      system: 'You are a professional translator. You output ONLY valid JSON — no markdown, no explanation, no code fences. All string values in your JSON must use \\n for line breaks (never literal newlines inside strings). Your entire response must be a single JSON object that can be passed directly to JSON.parse().',
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
+    translated = tryParseTranslation(responseText)
+    if (translated) break
+    console.error(`[translate] Attempt ${attempt} failed to parse. Start:`, responseText.slice(0, 300))
+  }
+
+  if (!translated) {
+    return Response.json({ error: 'Translation failed after 3 attempts — please try again' }, { status: 500 })
   }
 
   // Merge translated text back into the original lesson structure
