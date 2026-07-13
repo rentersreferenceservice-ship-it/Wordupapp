@@ -32,7 +32,7 @@ export async function POST(
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 16000,
-    system: 'You are a professional translator. You output ONLY valid JSON — no markdown, no explanation, no code fences. Your entire response must be a single JSON object that can be passed directly to JSON.parse().',
+    system: 'You are a professional translator. You output ONLY valid JSON — no markdown, no explanation, no code fences. All string values in your JSON must use \\n for line breaks (never literal newlines inside strings). Your entire response must be a single JSON object that can be passed directly to JSON.parse().',
     messages: [{
       role: 'user',
       content: `Translate this S2C (Spelling to Communicate) educational lesson from English to ${language}.
@@ -43,6 +43,7 @@ Rules:
 - Keep ALL CAPS answers in ALL CAPS (translate the words but keep them uppercase).
 - Preserve fill-in-the-blank blanks — the blank indicator should remain in the same position in the question.
 - Translate hashtags to be natural for ${language} speakers (same topics, localized phrasing).
+- CRITICAL: All string values must use \\n for newlines — never put a literal newline inside a JSON string value.
 - Return ONLY the JSON object with exactly the same structure as the input. Nothing else.
 
 Input:
@@ -51,15 +52,39 @@ ${JSON.stringify(contentToTranslate, null, 2)}`,
   })
 
   const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
-  const raw = responseText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+
+  // Strip markdown fences if present
+  let raw = responseText.trim()
+  raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+
+  // Extract the outermost JSON object
   const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return Response.json({ error: 'Could not parse translation response' }, { status: 500 })
+  if (!jsonMatch) {
+    console.error('[translate] No JSON object found. Response start:', responseText.slice(0, 300))
+    return Response.json({ error: 'Could not parse translation response' }, { status: 500 })
+  }
 
   let translated: typeof contentToTranslate
   try {
     translated = JSON.parse(jsonMatch[0])
-  } catch {
-    return Response.json({ error: 'Invalid JSON from translation' }, { status: 500 })
+  } catch (firstErr) {
+    // Escape literal control characters that snuck into string values.
+    // Match each JSON string token (dotAll flag handles multiline content inside strings).
+    try {
+      const cleaned = jsonMatch[0]
+        .replace(/"(?:[^"\\]|\\.)*"/gs, (token) =>
+          token
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t')
+        )
+        .replace(/,(\s*[}\]])/g, '$1') // remove trailing commas
+      translated = JSON.parse(cleaned)
+    } catch {
+      console.error('[translate] Parse failed. First 1500 chars:', jsonMatch[0].slice(0, 1500))
+      console.error('[translate] Original parse error:', firstErr)
+      return Response.json({ error: 'Invalid JSON from translation' }, { status: 500 })
+    }
   }
 
   // Merge translated text back into the original lesson structure
