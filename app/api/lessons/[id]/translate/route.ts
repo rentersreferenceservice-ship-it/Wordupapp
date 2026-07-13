@@ -72,7 +72,7 @@ ${JSON.stringify(contentToTranslate, null, 2)}`,
     // Match each JSON string token (dotAll flag handles multiline content inside strings).
     try {
       const cleaned = jsonMatch[0]
-        .replace(/"(?:[^"\\]|\\.)*"/gs, (token) =>
+        .replace(/"(?:[^"\\]|\\.)*"/g, (token) =>
           token
             .replace(/\n/g, '\\n')
             .replace(/\r/g, '\\r')
