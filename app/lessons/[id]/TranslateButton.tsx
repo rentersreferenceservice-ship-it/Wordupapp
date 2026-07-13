@@ -7,7 +7,7 @@ import type { Lesson } from '@/lib/types'
 const LANGUAGES = [
   'Spanish', 'French', 'German', 'Portuguese', 'Italian',
   'Dutch', 'Polish', 'Russian', 'Turkish', 'Arabic',
-  'Hindi', 'Chinese (Simplified)', 'Japanese', 'Korean', 'Vietnamese',
+  'Hindi', 'Mandarin', 'Chinese (Simplified)', 'Japanese', 'Korean', 'Vietnamese',
 ]
 
 const QUESTION_COLORS: Record<string, string> = {
