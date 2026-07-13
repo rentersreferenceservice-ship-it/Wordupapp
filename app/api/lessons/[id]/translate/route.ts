@@ -31,7 +31,8 @@ export async function POST(
   const client = new Anthropic()
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 8192,
+    max_tokens: 16000,
+    system: 'You are a professional translator. You output ONLY valid JSON — no markdown, no explanation, no code fences. Your entire response must be a single JSON object that can be passed directly to JSON.parse().',
     messages: [{
       role: 'user',
       content: `Translate this S2C (Spelling to Communicate) educational lesson from English to ${language}.
@@ -42,7 +43,7 @@ Rules:
 - Keep ALL CAPS answers in ALL CAPS (translate the words but keep them uppercase).
 - Preserve fill-in-the-blank blanks — the blank indicator should remain in the same position in the question.
 - Translate hashtags to be natural for ${language} speakers (same topics, localized phrasing).
-- Return ONLY valid JSON with exactly the same structure as the input. No explanation, no markdown.
+- Return ONLY the JSON object with exactly the same structure as the input. Nothing else.
 
 Input:
 ${JSON.stringify(contentToTranslate, null, 2)}`,
