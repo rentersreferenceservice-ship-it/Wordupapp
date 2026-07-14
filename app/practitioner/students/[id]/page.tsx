@@ -73,6 +73,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           <Link href={`/practitioner/students/${id}/edit`} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Edit
           </Link>
+          <Link href={`/practitioner/students/${id}/observation-report`} className="bg-white text-indigo-700 border-2 border-indigo-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-50 transition-colors">
+            Observation Report
+          </Link>
           <Link href={`/practitioner/students/${id}/report`} className="bg-blue-600 text-white border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
             Progress Report
           </Link>
