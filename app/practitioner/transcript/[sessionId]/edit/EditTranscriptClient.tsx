@@ -303,6 +303,7 @@ export default function EditTranscriptClient({
       if (r.questionType === 'WRITING_PROMPT') continue
       if (r.questionType === 'EXTRA_SPELLING') continue
       if (r.questionType === 'HUNK_SKIPPED' && unskippedHunks.has(r.hunkNumber)) continue
+      if (isOpenSession && r.questionType === 'OPEN') continue
       const edit = edits[r.id]
       if (!edit) continue
 
