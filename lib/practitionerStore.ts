@@ -407,11 +407,14 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
     const wp = rs.filter(r => r.question_type === 'WRITING_PROMPT' && r.captured_answer && r.captured_answer !== 'SKIPPED')
+    // Open sessions store the speller's response in captured_answer (not speller_sentence)
+    const oo = rs.filter(r => r.question_type === 'OPEN' && !r.speller_sentence && r.captured_answer && r.captured_answer.trim())
     const letters =
       kw.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
       kn.reduce((sum, q) => sum + (q.expected_answer ?? '').split('/').reduce((acc: number, a: string) => acc + a.trim().replace(/\s/g, '').length, 0), 0) +
       rs.filter(r => r.speller_sentence && r.speller_sentence.trim()).reduce((sum, r) => sum + (r.speller_sentence ?? '').replace(/\s/g, '').length, 0) +
-      wp.reduce((sum, r) => sum + (r.captured_answer ?? '').replace(/\s/g, '').length, 0)
+      wp.reduce((sum, r) => sum + (r.captured_answer ?? '').replace(/\s/g, '').length, 0) +
+      oo.reduce((sum, r) => sum + (r.captured_answer ?? '').replace(/\s/g, '').length, 0)
     const misspokes = rs
       .filter(r => r.captured_answer !== 'NOT_ASKED' && r.captured_answer !== 'SKIPPED')
       .reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
