@@ -83,8 +83,10 @@ export default function FamilySeizureLog() {
   return (
     <>
       <style>{`
+        body { background: white !important; }
         @media print {
           .no-print { display: none !important; }
+          body { background: white !important; }
           @page { margin: 0.65in 0.75in; size: letter portrait; }
         }
       `}</style>
@@ -109,7 +111,7 @@ export default function FamilySeizureLog() {
       </div>
 
       {/* Form */}
-      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt' }}>
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt', background: 'white' }}>
 
         {/* Title */}
         <div style={{ textAlign: 'center', borderBottom: '3px solid #000', paddingBottom: '14px', marginBottom: '16px' }}>

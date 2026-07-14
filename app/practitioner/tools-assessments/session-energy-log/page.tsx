@@ -136,8 +136,10 @@ export default function SessionEnergyLog() {
   return (
     <>
       <style>{`
+        body { background: white !important; }
         @media print {
           .no-print { display: none !important; }
+          body { background: white !important; }
           @page { margin: 0.6in 0.7in; size: letter portrait; }
           .page-break { page-break-before: always; break-before: page; margin-top: 0; padding-top: 0; }
         }
@@ -165,7 +167,7 @@ export default function SessionEnergyLog() {
       {/* ══════════════════════════════════════════════════
           PAGE 1 — Student Info, Health, Baseline
       ══════════════════════════════════════════════════ */}
-      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt' }}>
+      <div style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt', background: 'white' }}>
 
         {/* Title */}
         <div style={{ textAlign: 'center', borderBottom: '3px solid #000', paddingBottom: '14px', marginBottom: '16px' }}>
@@ -275,7 +277,7 @@ export default function SessionEnergyLog() {
       {/* ══════════════════════════════════════════════════
           PAGE 2 — Performance Tracking Table
       ══════════════════════════════════════════════════ */}
-      <div className="page-break" style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt' }}>
+      <div className="page-break" style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt', background: 'white' }}>
 
         {/* Page 2 header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1.5px solid #000', paddingBottom: '6px', marginBottom: '14px' }}>
@@ -405,7 +407,7 @@ export default function SessionEnergyLog() {
       {/* ══════════════════════════════════════════════════
           PAGE 3 — Events, End-of-Session, Summary
       ══════════════════════════════════════════════════ */}
-      <div className="page-break" style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt' }}>
+      <div className="page-break" style={{ maxWidth: '780px', margin: '0 auto', padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#000', fontSize: '10pt', background: 'white' }}>
 
         {/* Page 3 header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1.5px solid #000', paddingBottom: '6px', marginBottom: '14px' }}>
