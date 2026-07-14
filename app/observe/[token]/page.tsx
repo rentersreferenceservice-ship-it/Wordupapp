@@ -190,7 +190,7 @@ export default function ObserveForm() {
 
   if (invalid) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <main className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-lg font-semibold text-gray-800 mb-2">This link is not valid.</p>
           <p className="text-sm text-gray-500">Please ask your S2C practitioner to send you the current link.</p>
@@ -200,12 +200,12 @@ export default function ObserveForm() {
   }
 
   if (!studentName) {
-    return <main className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500 text-sm">Loading…</p></main>
+    return <main className="min-h-screen bg-white flex items-center justify-center"><p className="text-gray-500 text-sm">Loading…</p></main>
   }
 
   if (submitted) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-start justify-center px-4 pt-12 pb-8">
+      <main className="min-h-screen bg-white flex items-start justify-center px-4 pt-12 pb-8">
         <div className="max-w-md w-full">
           <div className="text-center bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-4">
             <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -267,7 +267,7 @@ export default function ObserveForm() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-white">
       {/* Home screen nudge — shown only once, dismissible */}
       {!showHomeScreenTip && (
         <div className="bg-blue-600 text-white px-4 py-2.5 flex items-center justify-between gap-3">
