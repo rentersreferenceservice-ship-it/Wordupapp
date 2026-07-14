@@ -5,7 +5,6 @@ import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
-import BackfillButton from './BackfillButton'
 import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
 import InvoiceLookup from './InvoiceLookup'
 import GettingStarted from './GettingStarted'
@@ -104,12 +103,6 @@ export default async function PractitionerDashboard() {
       <div className="mb-6">
         <AccessCodeManager />
       </div>
-
-      {userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p' && (
-        <div className="mb-6">
-          <BackfillButton />
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Caseload */}
