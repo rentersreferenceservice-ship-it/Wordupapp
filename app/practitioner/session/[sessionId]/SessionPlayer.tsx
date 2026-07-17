@@ -467,6 +467,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     ]
   }
 
+  function autoSave() {
+    fetch(`/api/practitioner/sessions/${sessionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ responses: buildResponses(false) }),
+    }).catch(() => {})
+  }
+
   async function handleSaveAndExit() {
     setSaving(true)
     setSaveError('')
@@ -1088,7 +1096,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             </button>
           )}
           {!isLast ? (
-            <button onClick={() => setCurrentHunk(h => h + 1)} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
+            <button onClick={() => { autoSave(); setCurrentHunk(h => h + 1) }} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
               Next Hunk →
             </button>
           ) : (
