@@ -199,9 +199,14 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Your original</p>
                 <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{value}</p>
               </div>
-              <div className="p-5 bg-indigo-50">
-                <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">AI version ✨</p>
-                <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed font-medium">{aiDraft}</p>
+              <div className="p-5 bg-indigo-50 flex flex-col">
+                <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">AI version ✨ — edit before approving</p>
+                <textarea
+                  value={aiDraft}
+                  onChange={e => setAiDraft(e.target.value)}
+                  rows={8}
+                  className="w-full flex-1 text-sm text-gray-800 leading-relaxed font-medium bg-white border border-indigo-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                />
               </div>
             </div>
 
