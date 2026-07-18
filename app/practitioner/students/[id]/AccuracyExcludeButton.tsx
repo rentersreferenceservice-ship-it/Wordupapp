@@ -1,23 +1,38 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function AccuracyExcludeButton({ studentId, sessionCount }: { studentId: string; sessionCount: number }) {
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const router = useRouter()
+  const [result, setResult] = useState<string | null>(null)
 
   async function handleExclude() {
     setLoading(true)
-    await fetch(`/api/practitioner/students/${studentId}/exclude-accuracy`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    })
+    try {
+      const res = await fetch(`/api/practitioner/students/${studentId}/exclude-accuracy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setResult(`Error: ${data.error ?? 'Unknown error'}`)
+        setLoading(false)
+        return
+      }
+      setResult(`Done — ${data.updated ?? 0} sessions cleared`)
+    } catch (e) {
+      setResult(`Network error`)
+    }
     setLoading(false)
     setShowConfirm(false)
-    router.refresh()
+    // Hard reload to guarantee fresh server data
+    window.location.reload()
+  }
+
+  if (result) {
+    return <span className="text-xs text-green-600 font-medium">{result}</span>
   }
 
   if (showConfirm) {
