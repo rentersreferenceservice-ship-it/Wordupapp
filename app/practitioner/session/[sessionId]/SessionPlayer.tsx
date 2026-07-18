@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lesson, QuestionType } from '@/lib/types'
 import type { SessionResponse, CRP } from '@/lib/practitionerStore'
@@ -55,6 +55,48 @@ interface HunkCapture {
   writingMisspokes: number
   writingSkipped: boolean
   skipped: boolean
+}
+
+function playBell() {
+  try {
+    const ctx = new AudioContext()
+    // Three-note ascending chime: C5 E5 G5
+    ;[523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      const t = ctx.currentTime + i * 0.18
+      gain.gain.setValueAtTime(0.28 - i * 0.04, t)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 2.8)
+      osc.start(t)
+      osc.stop(t + 2.8)
+    })
+  } catch {}
+}
+
+function playWarningBell() {
+  try {
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.value = 440
+    gain.gain.setValueAtTime(0.12, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 1.4)
+  } catch {}
+}
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 export default function SessionPlayer({ sessionId, studentName, sessionDate, lesson, lessonId, studentId, initialResponses = [], initialRegulationArrival = null, initialRegulationDeparture = null, crps = [], initialCrpId = null }: {
@@ -149,6 +191,45 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   )
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
+
+  // Timer
+  const [timeLeft, setTimeLeft] = useState<number | null>(null)
+  const [timerActive, setTimerActive] = useState(false)
+  const warningPlayedRef = useRef(false)
+  const endPlayedRef = useRef(false)
+
+  function startTimer(minutes: 50 | 100) {
+    warningPlayedRef.current = false
+    endPlayedRef.current = false
+    setTimeLeft(minutes * 60)
+    setTimerActive(true)
+  }
+
+  useEffect(() => {
+    if (!timerActive) return
+    const id = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev === null || prev <= 0) return 0
+        const next = prev - 1
+        if (next === 300 && !warningPlayedRef.current) {
+          warningPlayedRef.current = true
+          playWarningBell()
+        }
+        return next
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [timerActive])
+
+  useEffect(() => {
+    if (timeLeft === 0 && timerActive) {
+      setTimerActive(false)
+      if (!endPlayedRef.current) {
+        endPlayedRef.current = true
+        playBell()
+      }
+    }
+  }, [timeLeft, timerActive])
 
   // Inline question/writing-prompt editing (saved to session.custom_hunks)
   const [questionEdits, setQuestionEdits] = useState<Record<string, string>>({})
@@ -541,6 +622,30 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
               <p className="text-3xl font-bold text-blue-600">{currentHunk + 1}</p>
               <p className="text-xs text-gray-400">of {lesson.hunks.length}</p>
             </div>
+            {/* Timer */}
+            {timeLeft === null ? (
+              <div className="flex gap-1.5">
+                <button onClick={() => startTimer(50)} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">50 min</button>
+                <button onClick={() => startTimer(100)} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">100 min</button>
+              </div>
+            ) : (
+              <div className={`text-center ${timeLeft === 0 ? 'animate-pulse' : timeLeft <= 300 ? 'animate-pulse' : ''}`}>
+                <p className="text-xs text-gray-400">Time Left</p>
+                <p className={`text-2xl font-bold tabular-nums ${
+                  timeLeft === 0 ? 'text-red-600' :
+                  timeLeft <= 300 ? 'text-amber-500' :
+                  'text-green-600'
+                }`}>
+                  {formatTime(timeLeft)}
+                </p>
+                <button
+                  onClick={() => setTimerActive(v => !v)}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {timerActive ? 'Pause' : timeLeft === 0 ? 'Done' : 'Resume'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
