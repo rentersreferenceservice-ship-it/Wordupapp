@@ -91,6 +91,7 @@ export default function CalendarClient({ students, initialAppointments, initialY
   const [form, setForm] = useState({ ...EMPTY_FORM })
   const [studentSearch, setStudentSearch] = useState('')
   const [saving, setSaving] = useState(false)
+  const [scopeModal, setScopeModal] = useState<null | { pendingForm: typeof EMPTY_FORM; apt: Appointment }>(null)
   const [deleteModal, setDeleteModal] = useState<Appointment | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
@@ -182,9 +183,10 @@ export default function CalendarClient({ students, initialAppointments, initialY
 
   async function handleSave() {
     if (!form.studentName.trim()) { setError('Enter a student name.'); return }
-    setSaving(true); setError('')
-    try {
-      if (modal!.mode === 'create') {
+
+    if (modal!.mode === 'create') {
+      setSaving(true); setError('')
+      try {
         const res = await fetch('/api/practitioner/appointments', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -198,29 +200,52 @@ export default function CalendarClient({ students, initialAppointments, initialY
         const data = await res.json()
         if (!res.ok) throw new Error(data.error)
         await fetchMonth(year, month)
-      } else {
-        const apt = modal!.appointment!
-        const res = await fetch(`/api/practitioner/appointments/${apt.id}`, {
-          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            studentName: form.studentName, studentId: form.studentId || null,
-            time: form.time, durationMinutes: form.durationMinutes,
-            travelBefore: form.travelBefore, travelAfter: form.travelAfter,
-            notes: form.notes, skipped: form.skipped, skipNotes: form.skipNotes,
-          }),
-        })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error)
-        setAppointments(prev => prev.map(a => a.id === apt.id ? data.appointment : a))
-        // Refresh skipped totals
-        if (form.skipped !== apt.skipped) {
-          if (form.skipped) {
-            setSkippedAll(prev => [{ id: apt.id, student_name: form.studentName, appointment_date: apt.appointment_date, appointment_time: apt.appointment_time, skip_notes: form.skipNotes || null }, ...prev])
-          } else {
-            setSkippedAll(prev => prev.filter(s => s.id !== apt.id))
-          }
+        setModal(null)
+      } catch (e) {
+        setError((e as Error).message)
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
+
+    // Edit — if this appointment belongs to a series, ask scope first
+    const apt = modal!.appointment!
+    if (apt.series_id) {
+      setScopeModal({ pendingForm: { ...form }, apt })
+      return
+    }
+    await applyEdit(apt, { ...form }, 'single')
+  }
+
+  async function applyEdit(apt: Appointment, pendingForm: typeof EMPTY_FORM, scope: 'single' | 'series' | 'future') {
+    setSaving(true); setError('')
+    try {
+      const res = await fetch(`/api/practitioner/appointments/${apt.id}?scope=${scope}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: pendingForm.studentName, studentId: pendingForm.studentId || null,
+          time: pendingForm.time, durationMinutes: pendingForm.durationMinutes,
+          travelBefore: pendingForm.travelBefore, travelAfter: pendingForm.travelAfter,
+          notes: pendingForm.notes, skipped: pendingForm.skipped, skipNotes: pendingForm.skipNotes,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+
+      // Refresh the visible month so all updated rows are reflected
+      await fetchMonth(year, month)
+
+      // Skipped toggle tracking (single only — series skipping done per-occurrence)
+      if (scope === 'single' && pendingForm.skipped !== apt.skipped) {
+        if (pendingForm.skipped) {
+          setSkippedAll(prev => [{ id: apt.id, student_name: pendingForm.studentName, appointment_date: apt.appointment_date, appointment_time: apt.appointment_time, skip_notes: pendingForm.skipNotes || null }, ...prev])
+        } else {
+          setSkippedAll(prev => prev.filter(s => s.id !== apt.id))
         }
       }
+
+      setScopeModal(null)
       setModal(null)
     } catch (e) {
       setError((e as Error).message)
@@ -505,6 +530,36 @@ export default function CalendarClient({ students, initialAppointments, initialY
               <button type="button" onClick={handleSave} disabled={saving}
                 className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
                 {saving ? 'Saving…' : modal.mode === 'create' ? 'Add Appointment' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scope picker — shown when saving an edit to a recurring appointment */}
+      {scopeModal && (
+        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4" onClick={() => setScopeModal(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-bold text-gray-900 mb-1">Apply changes to…</h3>
+            <p className="text-sm text-gray-500 mb-5">
+              {scopeModal.apt.student_name} — recurring appointment
+            </p>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => applyEdit(scopeModal.apt, scopeModal.pendingForm, 'single')} disabled={saving}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                {saving ? 'Saving…' : 'Just this occurrence'}
+              </button>
+              <button onClick={() => applyEdit(scopeModal.apt, scopeModal.pendingForm, 'future')} disabled={saving}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                {saving ? 'Saving…' : 'This and all future occurrences'}
+              </button>
+              <button onClick={() => applyEdit(scopeModal.apt, scopeModal.pendingForm, 'series')} disabled={saving}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 transition-colors">
+                {saving ? 'Saving…' : 'All occurrences in series'}
+              </button>
+              <button onClick={() => setScopeModal(null)} disabled={saving}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors">
+                Cancel
               </button>
             </div>
           </div>
