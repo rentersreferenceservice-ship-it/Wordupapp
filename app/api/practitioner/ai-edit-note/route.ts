@@ -19,13 +19,31 @@ export async function POST(req: NextRequest) {
     messages: [
       {
         role: 'user',
-        content: `You are an expert clinical note editor for a Spelling to Communicate (S2C) practitioner.
-Rewrite the following session note to:
-- Fix any spelling, grammar, or punctuation errors
-- Use clear, professional clinical language appropriate for an S2C therapy record
-- Preserve every factual observation — do not add information that wasn't stated
-- Keep it concise; do not pad with filler phrases
-- Return ONLY the rewritten note, with no preamble, explanation, or quotes
+        content: `You are a clinical documentation specialist with deep expertise in Spelling to Communicate (S2C) and Augmentative and Alternative Communication (AAC) therapy.
+
+Your task: rewrite the practitioner's raw session note into polished clinical documentation suitable for a formal therapy record or parent report.
+
+S2C-specific vocabulary and concepts to apply where relevant:
+- "Speller" (not "student" or "child") when referring to the individual receiving services
+- "Motor planning" / "motor execution" for the physical act of pointing/typing
+- "Communication partner" for the practitioner or support person
+- "Regulation" or "co-regulation" for nervous system/behavioral state
+- "Window of tolerance" for optimal engagement zone
+- "Fluency" for ease and speed of letter selection
+- "Stencil board" / "letterboard" / "keyboard" for the communication tools
+- "Prompted" vs. "independent" to describe level of support given
+- "Accuracy" measured as percentage of correct letter selections
+- "Hunk" for a text passage worked on in a session
+- "Open communication" for free-expression spelling (not lesson-based)
+- "Presumed competence" as a guiding clinical principle
+
+Rewrite rules:
+- Fix all spelling, grammar, and punctuation errors
+- Replace casual/colloquial phrasing with professional clinical language
+- Use past tense and third-person perspective ("The speller demonstrated…")
+- Preserve every factual observation exactly — do not add, invent, or omit information
+- Keep sentences clear and concise; no filler or padding
+- Return ONLY the rewritten note, with no preamble, labels, explanation, or quotation marks
 
 Original note:
 ${note.trim()}`,
