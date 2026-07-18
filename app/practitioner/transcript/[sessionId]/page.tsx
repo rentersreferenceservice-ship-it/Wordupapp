@@ -63,9 +63,10 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
   const sessionNotesRecord = responses.find(r => r.questionType === 'SESSION_NOTES')
   const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
   const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
+  const accuracyExcluded = responses.some(r => r.questionType === 'ACCURACY_EXCLUDED' && r.capturedAnswer === 'true')
 
-  // Open session questions
-  const openSessionQuestions = responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
+  // Open session questions — strip EXCLUDED: prefix, skip per-question excluded ones
+  const openSessionQuestions = responses.filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0 && !(r.capturedAnswer ?? '').startsWith('EXCLUDED:'))
 
   // Group by hunk — skip hunk 0 special records
   const byHunk: Record<number, typeof responses> = {}
@@ -90,20 +91,20 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
     .filter(r => r.questionType === 'WRITING_PROMPT' && r.capturedAnswer && r.capturedAnswer !== 'SKIPPED' && r.hunkNumber != null && r.hunkNumber > 0)
     .reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
 
-  const totalLetters = isOpenSession
+  const totalLetters = accuracyExcluded ? 0 : isOpenSession
     ? openSessionQuestions.reduce((sum, r) => sum + (r.capturedAnswer ?? '').replace(/\s/g, '').length, 0)
     : spellKeywords.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
       spellKnown.reduce((sum, q) => sum + (q.expectedAnswer ?? '').split('/').reduce((s, a) => s + a.trim().replace(/\s/g, '').length, 0), 0) +
       sentenceLetters +
       writingLetters
-  const totalMisspokes = isOpenSession
+  const totalMisspokes = accuracyExcluded ? 0 : isOpenSession
     ? openSessionQuestions.reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
     : responses
       .filter(r => r.hunkNumber != null && r.hunkNumber > 0 && r.capturedAnswer !== 'NOT_ASKED' && r.capturedAnswer !== 'SKIPPED')
       .reduce((sum, r) => sum + (r.misspokeCount ?? 0), 0)
   const totalPokes = totalLetters + totalMisspokes
-  const correctPct = totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
-  const misspokePct = totalPokes > 0 ? 100 - correctPct : 0
+  const correctPct = accuracyExcluded ? 0 : totalPokes > 0 ? Math.round((totalLetters / totalPokes) * 100) : 0
+  const misspokePct = accuracyExcluded ? 0 : totalPokes > 0 ? 100 - correctPct : 0
 
   const mathAsked = responses.filter(r => r.questionType === 'MATH' && r.capturedAnswer !== 'NOT_ASKED' && r.hunkNumber != null && r.hunkNumber > 0)
   const mathAnswered = mathAsked.filter(r => r.capturedAnswer === 'correct' || r.capturedAnswer === 'incorrect')
@@ -262,19 +263,24 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
           </div>
 
           {/* Summary stats */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200">
+          {accuracyExcluded && (
+            <div className="mt-4 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-amber-700">
+              ⚠ This session is excluded from accuracy tracking — not counted in the accuracy graph
+            </div>
+          )}
+          <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
             <div className="text-center bg-blue-50 rounded-xl py-3">
-              <p className="text-3xl font-bold text-blue-600">{totalLetters}</p>
+              <p className="text-3xl font-bold text-blue-600">{accuracyExcluded ? '—' : totalLetters}</p>
               <p className="text-xs font-semibold text-blue-500 mt-1">Letters to Poke</p>
             </div>
             <div className="text-center bg-red-50 rounded-xl py-3">
-              <p className="text-3xl font-bold text-red-500">{totalMisspokes}</p>
+              <p className="text-3xl font-bold text-red-500">{accuracyExcluded ? '—' : totalMisspokes}</p>
               <p className="text-xs font-semibold text-red-400 mt-1">Misspokes</p>
             </div>
-            <div className="text-center bg-green-50 rounded-xl py-3">
-              <p className="text-3xl font-bold text-green-600">{correctPct}%</p>
-              <p className="text-xs font-semibold text-green-500 mt-1">Accuracy</p>
-              <p className="text-xs text-gray-400 mt-0.5">{totalPokes} total pokes</p>
+            <div className={`text-center rounded-xl py-3 ${accuracyExcluded ? 'bg-gray-50' : 'bg-green-50'}`}>
+              <p className={`text-3xl font-bold ${accuracyExcluded ? 'text-gray-400' : 'text-green-600'}`}>{accuracyExcluded ? 'N/A' : `${correctPct}%`}</p>
+              <p className={`text-xs font-semibold mt-1 ${accuracyExcluded ? 'text-gray-400' : 'text-green-500'}`}>Accuracy</p>
+              {!accuracyExcluded && <p className="text-xs text-gray-400 mt-0.5">{totalPokes} total pokes</p>}
             </div>
           </div>
           {(mathAnswered.length > 0 || openAsked.length > 0 || priorAsked.length > 0) && (
