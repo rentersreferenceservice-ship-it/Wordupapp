@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface Props {
   value: string
@@ -10,87 +10,122 @@ interface Props {
   className?: string
 }
 
+type SpeechRecognitionCtor = new () => SpeechRecognition
+function getSR(): SpeechRecognitionCtor | null {
+  if (typeof window === 'undefined') return null
+  return (
+    (window as Window & { SpeechRecognition?: SpeechRecognitionCtor }).SpeechRecognition ??
+    (window as Window & { webkitSpeechRecognition?: SpeechRecognitionCtor }).webkitSpeechRecognition ??
+    null
+  )
+}
+
 export default function SmartNotesField({ value, onChange, placeholder = 'Session notes…', rows = 3, className = '' }: Props) {
   const [listening, setListening] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiDraft, setAiDraft] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [speechSupported, setSpeechSupported] = useState(false)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+
+  // Refs that survive across recognition restarts (iOS kills the instance after each pause)
+  const userStoppedRef = useRef(false)   // true = user tapped Stop; false = iOS auto-killed it
+  const listeningRef = useRef(false)
+  const baseRef = useRef(value)          // confirmed final text, updated from parent onChange
   const interimRef = useRef('')
-  const baseRef = useRef(value)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
+  useEffect(() => { setSpeechSupported(!!getSR()) }, [])
+
+  // Keep baseRef in sync when the user types manually (not via speech)
+  // Only update baseRef when not listening (to avoid clobbering speech session)
   useEffect(() => {
-    const SR = (window as typeof window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
-      ?? (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
-    setSpeechSupported(!!SR)
-  }, [])
+    if (!listeningRef.current) baseRef.current = value
+  }, [value])
 
-  const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
-    recognitionRef.current = null
-    setListening(false)
-    interimRef.current = ''
-  }, [])
-
-  function startListening() {
-    setError('')
-    const SR = (window as typeof window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
-      ?? (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
-    if (!SR) { setError('Voice input not supported in this browser.'); return }
+  function buildRecognition(): SpeechRecognition | null {
+    const SR = getSR()
+    if (!SR) return null
 
     const rec = new SR()
-    rec.continuous = true
+    rec.continuous = true      // Chrome honours this; iOS Safari ignores it — we handle via onend restart
     rec.interimResults = true
     rec.lang = 'en-US'
-    recognitionRef.current = rec
-    baseRef.current = value
 
     rec.onresult = (e: SpeechRecognitionEvent) => {
-      let interim = ''
       let finalChunk = ''
+      let interim = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const t = e.results[i][0].transcript
         if (e.results[i].isFinal) finalChunk += t
         else interim += t
       }
       if (finalChunk) {
-        const joined = baseRef.current
-          ? baseRef.current.trimEnd() + ' ' + finalChunk.trimStart()
-          : finalChunk
-        baseRef.current = joined
-        onChange(joined + (interim ? ' ' + interim : ''))
-        interimRef.current = interim
-      } else {
-        onChange(baseRef.current + (interim ? (baseRef.current ? ' ' : '') + interim : ''))
-        interimRef.current = interim
+        const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
+        baseRef.current = baseRef.current + sep + finalChunk.trimStart()
       }
+      interimRef.current = interim
+      const display = baseRef.current + (interim ? (baseRef.current ? ' ' : '') + interim : '')
+      onChange(display)
     }
 
     rec.onerror = (e: SpeechRecognitionErrorEvent) => {
-      if (e.error !== 'aborted') setError(`Mic error: ${e.error}`)
-      stopListening()
-    }
-    rec.onend = () => {
-      // Flush any leftover interim text as final
-      if (interimRef.current) {
-        const joined = baseRef.current
-          ? baseRef.current.trimEnd() + ' ' + interimRef.current.trimStart()
-          : interimRef.current
-        baseRef.current = joined
-        onChange(joined)
-        interimRef.current = ''
+      // 'no-speech' and 'aborted' are normal on iOS — just let onend handle the restart
+      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        setError(`Mic error: ${e.error}`)
+        userStoppedRef.current = true
+        setListening(false)
+        listeningRef.current = false
       }
-      setListening(false)
     }
 
+    rec.onend = () => {
+      // Flush interim on any end
+      if (interimRef.current) {
+        const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
+        baseRef.current = baseRef.current + sep + interimRef.current.trimStart()
+        onChange(baseRef.current)
+        interimRef.current = ''
+      }
+
+      if (!userStoppedRef.current && listeningRef.current) {
+        // iOS killed the session mid-dictation — silently restart
+        try {
+          const next = buildRecognition()
+          if (next) { recognitionRef.current = next; next.start() }
+        } catch {
+          // start() can throw if mic permission was revoked; give up gracefully
+          setListening(false)
+          listeningRef.current = false
+        }
+      } else {
+        setListening(false)
+        listeningRef.current = false
+      }
+    }
+
+    return rec
+  }
+
+  function startListening() {
+    setError('')
+    const rec = buildRecognition()
+    if (!rec) { setError('Voice input is not supported in this browser.'); return }
+    userStoppedRef.current = false
+    listeningRef.current = true
+    recognitionRef.current = rec
+    baseRef.current = value
+    interimRef.current = ''
     rec.start()
     setListening(true)
   }
 
-  function toggleListening() {
-    if (listening) stopListening()
-    else startListening()
+  function stopListening() {
+    userStoppedRef.current = true
+    listeningRef.current = false
+    recognitionRef.current?.stop()
+    recognitionRef.current = null
+    interimRef.current = ''
+    setListening(false)
   }
 
   async function handleAiEdit() {
@@ -112,11 +147,6 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     }
   }
 
-  function approveAiDraft() {
-    onChange(aiDraft!)
-    setAiDraft(null)
-  }
-
   return (
     <div className="relative">
       <textarea
@@ -131,13 +161,12 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         } ${className}`}
       />
 
-      {/* Controls row */}
-      <div className="flex items-center gap-2 mt-2">
+      {/* Controls */}
+      <div className="flex items-center gap-2 mt-2 flex-wrap">
         {speechSupported && (
           <button
             type="button"
-            onClick={toggleListening}
-            title={listening ? 'Stop dictating' : 'Dictate note'}
+            onClick={listening ? stopListening : startListening}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-colors ${
               listening
                 ? 'bg-red-500 border-red-500 text-white animate-pulse'
@@ -152,28 +181,27 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
           type="button"
           onClick={handleAiEdit}
           disabled={aiLoading || !value.trim()}
-          title="AI — fix errors and reword clinically"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border-2 bg-white border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {aiLoading ? '⏳ Editing…' : '✨ Polish with AI'}
         </button>
 
-        {error && <span className="text-xs text-red-600 flex-1">{error}</span>}
+        {error && <span className="text-xs text-red-600">{error}</span>}
       </div>
 
-      {/* AI Approval modal */}
+      {/* AI approval modal */}
       {aiDraft !== null && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setAiDraft(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-bold text-gray-900">AI-Polished Note</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Review the reworded version. Approve to replace your note, or discard to keep your original.</p>
+                <p className="text-xs text-gray-400 mt-0.5">Approve to replace your note, or discard to keep your original.</p>
               </div>
               <button onClick={() => setAiDraft(null)} className="text-gray-400 hover:text-gray-600 text-xl ml-4">×</button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 sm:divide-x divide-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x divide-gray-100">
               <div className="p-5">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Your original</p>
                 <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{value}</p>
@@ -189,7 +217,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
                 className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 border-2 border-gray-200 hover:bg-gray-50 transition-colors">
                 Keep original
               </button>
-              <button onClick={approveAiDraft}
+              <button onClick={() => { onChange(aiDraft!); setAiDraft(null) }}
                 className="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
                 Use AI version
               </button>
