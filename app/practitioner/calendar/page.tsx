@@ -17,7 +17,7 @@ export default async function CalendarPage() {
   const lastDay = new Date(year, month, 0).getDate()
   const end = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
 
-  const [students, { data: appointments }] = await Promise.all([
+  const [students, { data: appointments }, { data: allSkipped }] = await Promise.all([
     getStudents(userId),
     getSupabase()
       .from('appointments')
@@ -27,6 +27,13 @@ export default async function CalendarPage() {
       .lte('appointment_date', end)
       .order('appointment_date')
       .order('appointment_time'),
+    // All skipped/missed appointments across all time for running totals
+    getSupabase()
+      .from('appointments')
+      .select('id, student_name, appointment_date, appointment_time, skip_notes')
+      .eq('practitioner_id', userId)
+      .eq('skipped', true)
+      .order('appointment_date', { ascending: false }),
   ])
 
   return (
@@ -35,6 +42,7 @@ export default async function CalendarPage() {
       initialAppointments={appointments ?? []}
       initialYear={year}
       initialMonth={month}
+      allSkipped={allSkipped ?? []}
     />
   )
 }

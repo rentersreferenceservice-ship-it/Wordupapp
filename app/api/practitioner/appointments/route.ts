@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const {
     studentId, studentName, date, time,
     durationMinutes, travelBefore, travelAfter,
-    notes, recurrence, occurrences,
+    notes, recurrence,
   } = await req.json()
 
   if (!studentName?.trim() || !date || !time)
@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
   const isRecurring = recurrence === 'weekly' || recurrence === 'biweekly'
   const seriesId = isRecurring ? crypto.randomUUID() : null
   const stepDays = recurrence === 'biweekly' ? 14 : 7
-  const count = isRecurring ? (occurrences ?? 26) : 1
+
+  // Generate 2 years of occurrences — user ends the series by deleting future entries
+  const count = isRecurring ? (recurrence === 'biweekly' ? 52 : 104) : 1
 
   const rows = []
   const base = new Date(date + 'T00:00:00')
@@ -66,6 +68,8 @@ export async function POST(req: NextRequest) {
       travel_after: travelAfter ?? 0,
       notes: notes?.trim() || null,
       series_id: seriesId,
+      skipped: false,
+      skip_notes: null,
     })
   }
 
