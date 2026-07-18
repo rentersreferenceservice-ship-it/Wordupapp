@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { SessionResponse } from '@/lib/practitionerStore'
 import type { Hunk } from '@/lib/types'
 import SessionNotesImages from '../SessionNotesImages'
+import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 
 function extractKeywords(text: string): string[] {
   const matches = text.match(/\b[A-Z][A-Z\s\-']{1,}[A-Z]\b/g) ?? []
@@ -482,12 +483,11 @@ export default function EditTranscriptClient({
       {/* Session Notes */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Session Notes</p>
-        <textarea
+        <SmartNotesField
           value={sessionNotes}
-          onChange={e => setSessionNotes(e.target.value)}
+          onChange={setSessionNotes}
+          placeholder="Add notes…"
           rows={3}
-          placeholder="Add notes..."
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
         <SessionNotesImages sessionId={sessionId} initialImages={initialNotesImages} />
       </div>

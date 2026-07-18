@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Lesson, QuestionType } from '@/lib/types'
 import type { SessionResponse, CRP } from '@/lib/practitionerStore'
+import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -760,13 +761,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           </div>
 
           {/* Session notes */}
-          <textarea
-            value={sessionNotes}
-            onChange={e => setSessionNotes(e.target.value)}
-            placeholder="Session notes…"
-            rows={2}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none mb-3"
-          />
+          <div className="mb-3">
+            <SmartNotesField
+              value={sessionNotes}
+              onChange={setSessionNotes}
+              placeholder="Session notes…"
+              rows={2}
+            />
+          </div>
 
           {/* Video & Invoice */}
           <div className="flex flex-col gap-2 mb-3">
