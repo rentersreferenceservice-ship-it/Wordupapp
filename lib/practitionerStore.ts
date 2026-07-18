@@ -408,7 +408,8 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
     const wp = rs.filter(r => r.question_type === 'WRITING_PROMPT' && r.captured_answer && r.captured_answer !== 'SKIPPED')
     // Open sessions store the speller's response in captured_answer (not speller_sentence)
-    const oo = rs.filter(r => r.question_type === 'OPEN' && !r.speller_sentence && r.captured_answer && r.captured_answer.trim())
+    // Responses prefixed with "EXCLUDED:" are intentionally excluded from accuracy by the practitioner
+    const oo = rs.filter(r => r.question_type === 'OPEN' && !r.speller_sentence && r.captured_answer && r.captured_answer.trim() && !r.captured_answer.startsWith('EXCLUDED:'))
     const letters =
       kw.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
       kn.reduce((sum, q) => sum + (q.expected_answer ?? '').split('/').reduce((acc: number, a: string) => acc + a.trim().replace(/\s/g, '').length, 0), 0) +

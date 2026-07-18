@@ -146,24 +146,31 @@ export default function EditTranscriptClient({
 
   // Open session: unified editable list of all questions (existing + any new ones)
   const openQNextId = useRef(1)
-  const [openQuestions, setOpenQuestions] = useState<{ id: number; questionText: string; capturedAnswer: string; misspokeCount: number }[]>(() => {
+  const [openQuestions, setOpenQuestions] = useState<{ id: number; questionText: string; capturedAnswer: string; misspokeCount: number; excludeFromAccuracy: boolean }[]>(() => {
     const existing = responses
       .filter(r => r.questionType === 'OPEN' && r.hunkNumber != null && r.hunkNumber > 0)
-      .map(r => ({ id: openQNextId.current++, questionText: r.questionText ?? '', capturedAnswer: r.capturedAnswer ?? '', misspokeCount: r.misspokeCount ?? 0 }))
+      .map(r => ({
+        id: openQNextId.current++,
+        questionText: r.questionText ?? '',
+        capturedAnswer: r.capturedAnswer ?? '',
+        misspokeCount: r.misspokeCount ?? 0,
+        // EXCLUDED marker: stored as captured_answer prefix "EXCLUDED:" so the accuracy calc can skip it
+        excludeFromAccuracy: (r.capturedAnswer ?? '').startsWith('EXCLUDED:'),
+      }))
     return existing.length > 0
       ? existing
-      : [{ id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0 }]
+      : [{ id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0, excludeFromAccuracy: false }]
   })
 
   function addOpenQuestion() {
-    setOpenQuestions(prev => [...prev, { id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0 }])
+    setOpenQuestions(prev => [...prev, { id: openQNextId.current++, questionText: '', capturedAnswer: '', misspokeCount: 0, excludeFromAccuracy: false }])
   }
 
   function removeOpenQuestion(id: number) {
     setOpenQuestions(prev => prev.filter(q => q.id !== id))
   }
 
-  function updateOpenQuestion(id: number, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number }>) {
+  function updateOpenQuestion(id: number, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number; excludeFromAccuracy: boolean }>) {
     setOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
   }
 
@@ -358,7 +365,11 @@ export default function EditTranscriptClient({
     if (isOpenSession) {
       for (const q of openQuestions) {
         if (q.questionText.trim() || q.capturedAnswer.trim()) {
-          out.push({ hunkNumber: 1, questionType: 'OPEN', questionText: q.questionText, capturedAnswer: q.capturedAnswer, expectedAnswer: '', misspokeCount: q.misspokeCount })
+          // Prefix capturedAnswer with "EXCLUDED:" when excluded from accuracy so the calc can skip it
+          const storedAnswer = q.excludeFromAccuracy
+            ? `EXCLUDED:${q.capturedAnswer.replace(/^EXCLUDED:/, '')}`
+            : q.capturedAnswer.replace(/^EXCLUDED:/, '')
+          out.push({ hunkNumber: 1, questionType: 'OPEN', questionText: q.questionText, capturedAnswer: storedAnswer, expectedAnswer: '', misspokeCount: q.excludeFromAccuracy ? 0 : q.misspokeCount })
         }
       }
       return out
@@ -600,19 +611,35 @@ export default function EditTranscriptClient({
                 placeholder="Question…"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <textarea
-                value={q.capturedAnswer}
-                onChange={e => updateOpenQuestion(q.id, { capturedAnswer: e.target.value })}
-                placeholder="Speller's response…"
-                rows={3}
-                className="w-full border border-pink-200 bg-pink-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-300 resize-none"
-              />
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">Misspokes:</span>
-                <Stepper value={q.misspokeCount} onChange={n => updateOpenQuestion(q.id, { misspokeCount: n })} />
-                {q.capturedAnswer.replace(/\s/g, '').length > 0 && (
-                  <span className="text-xs font-semibold text-blue-500 ml-2">{q.capturedAnswer.replace(/\s/g, '').length} letters</span>
+              <div>
+                <p className="text-[10px] font-semibold text-pink-500 uppercase tracking-wide mb-1">
+                  Speller&apos;s response <span className="text-gray-400 normal-case font-normal">(letters here count toward accuracy graph)</span>
+                </p>
+                <textarea
+                  value={q.capturedAnswer.replace(/^EXCLUDED:/, '')}
+                  onChange={e => updateOpenQuestion(q.id, { capturedAnswer: e.target.value })}
+                  placeholder="Speller's response…"
+                  rows={3}
+                  className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 resize-none ${q.excludeFromAccuracy ? 'border-gray-200 bg-gray-50 text-gray-400 line-through' : 'border-pink-200 bg-pink-50 focus:ring-pink-300'}`}
+                />
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                {!q.excludeFromAccuracy && (
+                  <>
+                    <span className="text-xs text-gray-500">Misspokes:</span>
+                    <Stepper value={q.misspokeCount} onChange={n => updateOpenQuestion(q.id, { misspokeCount: n })} />
+                    {q.capturedAnswer.replace(/^EXCLUDED:/, '').replace(/\s/g, '').length > 0 && (
+                      <span className="text-xs font-semibold text-blue-500">{q.capturedAnswer.replace(/^EXCLUDED:/, '').replace(/\s/g, '').length} letters → accuracy</span>
+                    )}
+                  </>
                 )}
+                <button
+                  type="button"
+                  onClick={() => updateOpenQuestion(q.id, { excludeFromAccuracy: !q.excludeFromAccuracy, misspokeCount: 0 })}
+                  className={`ml-auto text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors ${q.excludeFromAccuracy ? 'bg-amber-50 border-amber-300 text-amber-700' : 'bg-white border-gray-200 text-gray-500 hover:border-amber-400 hover:text-amber-600'}`}
+                >
+                  {q.excludeFromAccuracy ? '⚠ Excluded from accuracy' : 'Exclude from accuracy'}
+                </button>
               </div>
             </div>
           ))}
