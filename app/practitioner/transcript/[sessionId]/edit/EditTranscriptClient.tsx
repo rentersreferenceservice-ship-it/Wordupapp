@@ -130,12 +130,14 @@ export default function EditTranscriptClient({
   const sessionCompleteRecord = responses.find(r => r.questionType === 'SESSION_COMPLETE')
   const sessionVideoRecord = responses.find(r => r.questionType === 'SESSION_VIDEO')
   const sessionInvoiceRecord = responses.find(r => r.questionType === 'SESSION_INVOICE')
+  const accuracyExcludedRecord = responses.find(r => r.questionType === 'ACCURACY_EXCLUDED')
 
   const [studentStates, setStudentStates] = useState<string[]>(
     sessionStateRecord?.capturedAnswer ? sessionStateRecord.capturedAnswer.split(', ').filter(Boolean) : []
   )
   const [sessionNotes, setSessionNotes] = useState(sessionNotesRecord?.capturedAnswer ?? '')
   const [sessionVideo, setSessionVideo] = useState(sessionVideoRecord?.capturedAnswer ?? '')
+  const [excludeFromAccuracy, setExcludeFromAccuracy] = useState(!!accuracyExcludedRecord)
   const initialInvoice = sessionInvoiceRecord?.capturedAnswer ?? ''
   const [sessionInvoice, setSessionInvoice] = useState(initialInvoice)
   const [invoiceMode, setInvoiceMode] = useState<'link' | 'generate'>(
@@ -307,6 +309,9 @@ export default function EditTranscriptClient({
       { hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 },
       { hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: (invoiceOverride ?? sessionInvoice).trim(), expectedAnswer: '', misspokeCount: 0 },
     ]
+    if (excludeFromAccuracy) {
+      out.push({ hunkNumber: 0, questionType: 'ACCURACY_EXCLUDED', questionText: 'Accuracy Excluded', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 })
+    }
     if (sessionCompleteRecord) {
       out.push({ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 })
     }
@@ -434,6 +439,29 @@ export default function EditTranscriptClient({
         </button>
         <h1 className="text-xl font-bold text-gray-900">Edit Transcript</h1>
       </div>
+
+      {/* Accuracy exclusion — session level */}
+      <button
+        type="button"
+        onClick={() => setExcludeFromAccuracy(v => !v)}
+        className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border-2 mb-4 transition-colors ${
+          excludeFromAccuracy
+            ? 'bg-amber-50 border-amber-400'
+            : 'bg-white border-gray-200 hover:border-amber-300'
+        }`}
+      >
+        <div className="text-left">
+          <p className={`text-sm font-bold ${excludeFromAccuracy ? 'text-amber-800' : 'text-gray-700'}`}>
+            {excludeFromAccuracy ? '⚠ This session is excluded from accuracy tracking' : 'Exclude this session from accuracy tracking'}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {excludeFromAccuracy ? 'Session will appear as 0% in the accuracy graph' : 'Use when session data should not count toward the speller\'s accuracy graph'}
+          </p>
+        </div>
+        <div className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ml-4 ${excludeFromAccuracy ? 'bg-amber-400' : 'bg-gray-200'}`}>
+          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${excludeFromAccuracy ? 'left-6' : 'left-0.5'}`} />
+        </div>
+      </button>
 
       {/* Regulation + Student State */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-4">

@@ -404,11 +404,18 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
 
   return sessions!.flatMap(s => {
     const rs = bySession[s.id] ?? []
+    const crp = s.crp_id ? crpMap[s.crp_id] : null
+    const base = { sessionId: s.id, date: s.session_date, lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null, crpId: s.crp_id ?? null, crpName: crp?.name ?? null, crpColor: crp?.color ?? null }
+
+    // Practitioner explicitly excluded this session from accuracy tracking
+    if (rs.some(r => r.question_type === 'ACCURACY_EXCLUDED' && r.captured_answer === 'true')) {
+      return [{ ...base, accuracy: 0 }]
+    }
+
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
     const kn = rs.filter(r => r.question_type === 'KNOWN' && r.captured_answer !== 'NOT_ASKED')
     const wp = rs.filter(r => r.question_type === 'WRITING_PROMPT' && r.captured_answer && r.captured_answer !== 'SKIPPED')
-    // Open sessions store the speller's response in captured_answer (not speller_sentence)
-    // Responses prefixed with "EXCLUDED:" are intentionally excluded from accuracy by the practitioner
+    // Open sessions: response stored in captured_answer; EXCLUDED: prefix = practitioner excluded that question
     const oo = rs.filter(r => r.question_type === 'OPEN' && !r.speller_sentence && r.captured_answer && r.captured_answer.trim() && !r.captured_answer.startsWith('EXCLUDED:'))
     const letters =
       kw.reduce((sum, k) => sum + (k.keyword ?? '').replace(/\s/g, '').length, 0) +
@@ -421,8 +428,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
       .reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
     const pokes = letters + misspokes
     if (pokes === 0) return []
-    const crp = s.crp_id ? crpMap[s.crp_id] : null
-    return [{ sessionId: s.id, date: s.session_date, accuracy: Math.round((letters / pokes) * 100), lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null, crpId: s.crp_id ?? null, crpName: crp?.name ?? null, crpColor: crp?.color ?? null }]
+    return [{ ...base, accuracy: Math.round((letters / pokes) * 100) }]
   })
 }
 
