@@ -12,6 +12,7 @@ import AccuracyExcludeButton from './AccuracyExcludeButton'
 import CrpManager from './CrpManager'
 import BoardLevelPills from './BoardLevelPills'
 import DeleteReportButton from './DeleteReportButton'
+import InvoicesCollapsible from './InvoicesCollapsible'
 import StudentDocumentsManager from './StudentDocumentsManager'
 import FormSubmissionsSection from './FormSubmissionsSection'
 
@@ -140,39 +141,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
 
       {/* Invoices */}
       {invoices.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Invoices</h2>
-          <ul className="space-y-2">
-            {invoices.map(inv => {
-              const amount = parseFloat(inv.amount)
-              const paid = parseFloat(inv.amount_paid ?? '0')
-              const balance = Math.max(0, amount - paid)
-              const overdue = !inv.is_paid && inv.due_date && inv.due_date < todayStr
-              const statusLabel = inv.is_paid ? 'Paid' : overdue ? 'Overdue' : paid > 0 ? 'Partial' : 'Unpaid'
-              const statusColor = inv.is_paid
-                ? 'bg-green-100 text-green-700'
-                : overdue
-                ? 'bg-red-600 text-white'
-                : paid > 0
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-red-100 text-red-600'
-              return (
-                <li key={inv.id}>
-                  <Link href={`/practitioner/invoice/${inv.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">Invoice #{inv.invoice_number}</p>
-                      <p className="text-xs text-gray-400">{new Date(inv.invoice_date + 'T00:00:00').toLocaleDateString()}{inv.due_date ? ` · Due ${new Date(inv.due_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold text-gray-700">${balance.toFixed(2)} due</span>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColor}`}>{statusLabel}</span>
-                    </div>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+        <InvoicesCollapsible invoices={invoices} todayStr={todayStr} />
       )}
 
       {/* Online Form Submissions */}
