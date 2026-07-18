@@ -50,7 +50,7 @@ export default async function PractitionerDashboard() {
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-5xl mx-auto">
-      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 mb-8">
         <div className="flex items-center gap-4">
           <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100 }} />
           <h1 className="text-2xl font-bold text-gray-900">Practitioner Dashboard</h1>
