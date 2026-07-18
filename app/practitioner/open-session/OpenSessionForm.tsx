@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
+import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -270,12 +271,11 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
           </div>
         </div>
 
-        <textarea
+        <SmartNotesField
           value={sessionNotes}
-          onChange={e => setSessionNotes(e.target.value)}
+          onChange={setSessionNotes}
           placeholder="Session notes…"
           rows={2}
-          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
         />
 
         {/* Session note photos */}
