@@ -182,18 +182,20 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       </div>
 
       {aiDraft !== null && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setAiDraft(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setAiDraft(null)}>
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[92dvh]" onClick={e => e.stopPropagation()}>
+            {/* Fixed header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-sm font-bold text-gray-900">AI-Polished Note</h2>
                 <p className="text-xs text-gray-400 mt-0.5">Approve to replace your note, or discard to keep your original.</p>
               </div>
-              <button onClick={() => setAiDraft(null)} className="text-gray-400 hover:text-gray-600 text-xl ml-4">×</button>
+              <button onClick={() => setAiDraft(null)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none ml-4">×</button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x divide-gray-100">
-              <div className="p-5">
+            {/* Scrollable content */}
+            <div className="overflow-y-auto flex-1 grid grid-cols-1 sm:grid-cols-2 sm:divide-x divide-gray-100">
+              <div className="p-5 border-b sm:border-b-0 border-gray-100">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Your original</p>
                 <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{value}</p>
               </div>
@@ -203,13 +205,14 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
               </div>
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 flex gap-3 justify-end">
+            {/* Fixed footer */}
+            <div className="px-5 py-4 border-t border-gray-100 flex gap-3 justify-end flex-shrink-0">
               <button onClick={() => setAiDraft(null)}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 border-2 border-gray-200 hover:bg-gray-50 transition-colors">
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border-2 border-gray-200 hover:bg-gray-50 transition-colors">
                 Keep original
               </button>
               <button onClick={() => { onChange(aiDraft!); setAiDraft(null) }}
-                className="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
                 Use AI version
               </button>
             </div>

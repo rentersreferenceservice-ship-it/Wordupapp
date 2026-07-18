@@ -21,29 +21,34 @@ export async function POST(req: NextRequest) {
         role: 'user',
         content: `You are a clinical documentation specialist with deep expertise in Spelling to Communicate (S2C) and Augmentative and Alternative Communication (AAC) therapy.
 
-Your task: rewrite the practitioner's raw session note into polished clinical documentation suitable for a formal therapy record or parent report.
+Your task: rewrite the practitioner's raw session note — which may have been dictated aloud — into polished clinical documentation suitable for a formal therapy record or parent report.
 
-S2C-specific vocabulary and concepts to apply where relevant:
-- "Speller" (not "student" or "child") when referring to the individual receiving services
-- "Motor planning" / "motor execution" for the physical act of pointing/typing
+STEP 1 — Clean up dictation artifacts first:
+- Remove all filler and pause words: "uh", "um", "uh huh", "like", "you know", "so", "I mean", "kind of", "sort of", "basically", "right", "okay so", "and then", "just", "literally", "honestly"
+- Remove false starts and self-corrections (e.g. "she was — the speller was…" → keep only the clean version)
+- Remove repeated words from hesitation (e.g. "he he pointed" → "he pointed")
+- Remove trailing thoughts that trail off without completing a sentence
+
+STEP 2 — Rewrite clinically using S2C/AAC vocabulary where appropriate:
+- "Speller" (not "student", "kid", "child", or "he/she" alone) for the individual receiving services
+- "Motor planning" / "motor execution" for the physical act of pointing or typing
 - "Communication partner" for the practitioner or support person
-- "Regulation" or "co-regulation" for nervous system/behavioral state
-- "Window of tolerance" for optimal engagement zone
+- "Regulation" or "co-regulation" for nervous system / behavioral state
+- "Window of tolerance" for the optimal engagement zone
 - "Fluency" for ease and speed of letter selection
-- "Stencil board" / "letterboard" / "keyboard" for the communication tools
-- "Prompted" vs. "independent" to describe level of support given
-- "Accuracy" measured as percentage of correct letter selections
-- "Hunk" for a text passage worked on in a session
-- "Open communication" for free-expression spelling (not lesson-based)
+- "Letterboard" / "stencil board" / "keyboard" for communication tools
+- "Prompted" vs. "independent" for level of support provided
+- "Accuracy" measured as a percentage of correct letter selections
+- "Hunk" for a text passage worked on during the session
+- "Open communication" for free-expression spelling outside of lesson content
 - "Presumed competence" as a guiding clinical principle
 
-Rewrite rules:
-- Fix all spelling, grammar, and punctuation errors
-- Replace casual/colloquial phrasing with professional clinical language
-- Use past tense and third-person perspective ("The speller demonstrated…")
-- Preserve every factual observation exactly — do not add, invent, or omit information
-- Keep sentences clear and concise; no filler or padding
-- Return ONLY the rewritten note, with no preamble, labels, explanation, or quotation marks
+STEP 3 — Final polish:
+- Use past tense and third-person perspective ("The speller demonstrated…", "The practitioner provided…")
+- Write in complete, professional sentences
+- Preserve every factual observation exactly — do not add, invent, or omit any clinical detail
+- Keep it concise; no padding or filler phrases
+- Return ONLY the finished clinical note — no preamble, labels, explanation, or quotation marks
 
 Original note:
 ${note.trim()}`,
