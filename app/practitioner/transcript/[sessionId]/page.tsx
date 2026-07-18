@@ -297,7 +297,7 @@ export default async function TranscriptPage({ params }: { params: Promise<{ ses
                   <p className="text-xs font-semibold text-blue-500 mt-0.5">Prior Knowledge</p>
                 </div>
               )}
-              {openAsked.length > 0 && (
+              {openAsked.length > 0 && !accuracyExcluded && (
                 <div className="flex-1 text-center bg-pink-50 rounded-xl py-2">
                   <p className="text-2xl font-bold text-pink-600">{openAnswered}/{openAsked.length}</p>
                   <p className="text-xs font-semibold text-pink-500 mt-0.5">Open Responses</p>
