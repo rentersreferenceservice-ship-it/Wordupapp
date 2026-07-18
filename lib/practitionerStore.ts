@@ -372,6 +372,15 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
   const sessionIds = sessions.map(s => s.id)
 
   type RawResponse = { session_id: string; question_type: string; keyword: string | null; misspoke_count: number | null; expected_answer: string | null; captured_answer: string | null; speller_sentence: string | null }
+  // Fetch ACCURACY_EXCLUDED flags (stored at hunk_number -1, excluded from main query)
+  const { data: excludeRows } = await getSupabase()
+    .from('session_responses')
+    .select('session_id')
+    .in('session_id', sessionIds)
+    .eq('question_type', 'ACCURACY_EXCLUDED')
+    .eq('captured_answer', 'true')
+  const excludedSessionIds = new Set((excludeRows ?? []).map(r => r.session_id as string))
+
   const responses: RawResponse[] = []
   const PAGE = 1000
   let from = 0
@@ -408,7 +417,7 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const base = { sessionId: s.id, date: s.session_date, lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null, crpId: s.crp_id ?? null, crpName: crp?.name ?? null, crpColor: crp?.color ?? null }
 
     // Practitioner excluded this session — hide it from the chart entirely
-    if (rs.some(r => r.question_type === 'ACCURACY_EXCLUDED' && r.captured_answer === 'true')) {
+    if (excludedSessionIds.has(s.id)) {
       return []
     }
 
