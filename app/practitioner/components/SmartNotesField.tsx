@@ -175,7 +175,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
           disabled={aiLoading || !value.trim()}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border-2 bg-white border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {aiLoading ? '⏳ Editing…' : '✨ Polish with AI'}
+          {aiLoading ? '⏳ Converting…' : '📋 Convert to Clinical Note'}
         </button>
 
         {error && <span className="text-xs text-red-600">{error}</span>}
@@ -187,8 +187,8 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
             {/* Fixed header */}
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-bold text-gray-900">AI-Polished Note</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Approve to replace your note, or discard to keep your original.</p>
+                <h2 className="text-sm font-bold text-gray-900">Clinical Note</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Edit the AI version if needed, then approve — or discard to keep your original.</p>
               </div>
               <button onClick={() => setAiDraft(null)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none ml-4">×</button>
             </div>
