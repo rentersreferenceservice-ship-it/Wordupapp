@@ -407,9 +407,9 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
     const crp = s.crp_id ? crpMap[s.crp_id] : null
     const base = { sessionId: s.id, date: s.session_date, lessonTitle: s.lesson_title, regulationArrival: s.regulation_arrival ?? null, regulationDeparture: s.regulation_departure ?? null, crpId: s.crp_id ?? null, crpName: crp?.name ?? null, crpColor: crp?.color ?? null }
 
-    // Practitioner explicitly excluded this session from accuracy tracking
+    // Practitioner excluded this session — hide it from the chart entirely
     if (rs.some(r => r.question_type === 'ACCURACY_EXCLUDED' && r.captured_answer === 'true')) {
-      return [{ ...base, accuracy: 0 }]
+      return []
     }
 
     const kw = rs.filter(r => r.question_type === 'KEYWORD' && r.captured_answer !== 'SKIPPED')
