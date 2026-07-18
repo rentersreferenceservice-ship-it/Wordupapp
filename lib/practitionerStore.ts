@@ -427,7 +427,9 @@ export async function getStudentAccuracyHistory(studentId: string, practitionerI
       .filter(r => r.captured_answer !== 'NOT_ASKED' && r.captured_answer !== 'SKIPPED')
       .reduce((sum, r) => sum + (r.misspoke_count ?? 0), 0)
     const pokes = letters + misspokes
-    if (pokes === 0) return []
+    // Session had no spellable content — still show it as 0% if any session data was saved
+    // (rs.length > 0 means the session was real, not an empty placeholder)
+    if (pokes === 0) return rs.length > 0 ? [{ ...base, accuracy: 0 }] : []
     return [{ ...base, accuracy: Math.round((letters / pokes) * 100) }]
   })
 }
