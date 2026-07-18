@@ -10,14 +10,14 @@ interface Props {
   className?: string
 }
 
-type SpeechRecognitionCtor = new () => SpeechRecognition
-function getSR(): SpeechRecognitionCtor | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySpeechRecognition = any
+
+function getSR(): AnySpeechRecognition | null {
   if (typeof window === 'undefined') return null
-  return (
-    (window as Window & { SpeechRecognition?: SpeechRecognitionCtor }).SpeechRecognition ??
-    (window as Window & { webkitSpeechRecognition?: SpeechRecognitionCtor }).webkitSpeechRecognition ??
-    null
-  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const w = window as any
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
 }
 
 export default function SmartNotesField({ value, onChange, placeholder = 'Session notes…', rows = 3, className = '' }: Props) {
@@ -27,31 +27,28 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   const [error, setError] = useState('')
   const [speechSupported, setSpeechSupported] = useState(false)
 
-  // Refs that survive across recognition restarts (iOS kills the instance after each pause)
-  const userStoppedRef = useRef(false)   // true = user tapped Stop; false = iOS auto-killed it
+  const userStoppedRef = useRef(false)
   const listeningRef = useRef(false)
-  const baseRef = useRef(value)          // confirmed final text, updated from parent onChange
+  const baseRef = useRef(value)
   const interimRef = useRef('')
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<AnySpeechRecognition>(null)
 
   useEffect(() => { setSpeechSupported(!!getSR()) }, [])
 
-  // Keep baseRef in sync when the user types manually (not via speech)
-  // Only update baseRef when not listening (to avoid clobbering speech session)
   useEffect(() => {
     if (!listeningRef.current) baseRef.current = value
   }, [value])
 
-  function buildRecognition(): SpeechRecognition | null {
+  function buildRecognition(): AnySpeechRecognition | null {
     const SR = getSR()
     if (!SR) return null
 
     const rec = new SR()
-    rec.continuous = true      // Chrome honours this; iOS Safari ignores it — we handle via onend restart
+    rec.continuous = true
     rec.interimResults = true
     rec.lang = 'en-US'
 
-    rec.onresult = (e: SpeechRecognitionEvent) => {
+    rec.onresult = (e: AnySpeechRecognition) => {
       let finalChunk = ''
       let interim = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -68,8 +65,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       onChange(display)
     }
 
-    rec.onerror = (e: SpeechRecognitionErrorEvent) => {
-      // 'no-speech' and 'aborted' are normal on iOS — just let onend handle the restart
+    rec.onerror = (e: AnySpeechRecognition) => {
       if (e.error !== 'no-speech' && e.error !== 'aborted') {
         setError(`Mic error: ${e.error}`)
         userStoppedRef.current = true
@@ -79,21 +75,18 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     }
 
     rec.onend = () => {
-      // Flush interim on any end
       if (interimRef.current) {
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
         baseRef.current = baseRef.current + sep + interimRef.current.trimStart()
         onChange(baseRef.current)
         interimRef.current = ''
       }
-
       if (!userStoppedRef.current && listeningRef.current) {
-        // iOS killed the session mid-dictation — silently restart
+        // iOS killed the session — silently restart
         try {
           const next = buildRecognition()
           if (next) { recognitionRef.current = next; next.start() }
         } catch {
-          // start() can throw if mic permission was revoked; give up gracefully
           setListening(false)
           listeningRef.current = false
         }
@@ -161,7 +154,6 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         } ${className}`}
       />
 
-      {/* Controls */}
       <div className="flex items-center gap-2 mt-2 flex-wrap">
         {speechSupported && (
           <button
@@ -189,7 +181,6 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         {error && <span className="text-xs text-red-600">{error}</span>}
       </div>
 
-      {/* AI approval modal */}
       {aiDraft !== null && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setAiDraft(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
