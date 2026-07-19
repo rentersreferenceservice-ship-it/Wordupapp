@@ -7,8 +7,6 @@ export const metadata = {
   description: 'A Spelling to Communicate practice rooted in presence, connection, and the belief that every student has something to say.',
 }
 
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
 export default function HomePage() {
   return (
     <>
@@ -73,22 +71,16 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
 
-            {/* Letterboard — treated as a sacred object, not a product screenshot */}
+            {/* The real letterboard */}
             <div className="flex flex-col items-center md:items-start">
-              <div className="rounded-3xl p-7 shadow-2xl mb-6 inline-block" style={{ background: '#2a1f17' }}>
-                <div className="grid grid-cols-7 gap-2">
-                  {LETTERS.map(l => (
-                    <div key={l}
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold"
-                      style={{ background: '#3d2e22', color: '#e8ddd0', border: '1px solid #4d3d2e' }}>
-                      {l}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-center mt-5 text-xs tracking-widest uppercase font-medium" style={{ color: '#8a7060' }}>
-                  Every poke is an intention.
-                </p>
-              </div>
+              <img
+                src="/letterboard-az.jpg"
+                alt="The black A-Z letterboard used in Spelling to Communicate sessions"
+                className="w-full max-w-sm rounded-3xl shadow-2xl"
+              />
+              <p className="text-center mt-5 text-xs tracking-widest uppercase font-medium w-full max-w-sm" style={{ color: '#8a7060' }}>
+                Every poke is an intention.
+              </p>
             </div>
 
             <div>

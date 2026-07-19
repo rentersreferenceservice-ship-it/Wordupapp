@@ -7,31 +7,6 @@ export const metadata = {
   description: 'Inside a Spelling to Communicate session — the letterboard, the structure, the data, and what it means for your student.',
 }
 
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
-function Letterboard() {
-  return (
-    <div className="rounded-2xl p-5 shadow-xl inline-block" style={{ background: '#1d1d1d' }}>
-      <div className="grid grid-cols-7 gap-1.5">
-        {LETTERS.map(l => (
-          <div key={l} className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold"
-            style={{ background: '#2d2d2d', color: '#e8e8e8', border: '1px solid #404040' }}>
-            {l}
-          </div>
-        ))}
-      </div>
-      <div className="mt-1.5 grid grid-cols-7 gap-1.5">
-        {['1','2','3','4','5','6','7'].map(n => (
-          <div key={n} className="w-9 h-9 rounded-md flex items-center justify-center text-xs font-bold"
-            style={{ background: '#252525', color: '#666', border: '1px solid #353535' }}>
-            {n}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 export default function OurPracticePage() {
   return (
     <>
@@ -64,7 +39,11 @@ export default function OurPracticePage() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-14 items-center">
             <div className="flex justify-center">
-              <Letterboard />
+              <img
+                src="/letterboard-az.jpg"
+                alt="The black A-Z letterboard used in Spelling to Communicate sessions"
+                className="w-full max-w-sm rounded-3xl shadow-2xl"
+              />
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>The Letterboard</p>
