@@ -20,13 +20,19 @@ export default function PublicNav() {
 
   return (
     <header className="sticky top-0 z-50" style={{ background: '#fdf9f4', boxShadow: '0 1px 0 rgba(90,60,30,0.08)' }}>
-      {/* Logo row — centered and prominent */}
-      <div className="flex items-center justify-center py-5" style={{ borderBottom: '1px solid rgba(160,128,96,0.15)' }}>
-        <Link href="/" className="flex flex-col items-center gap-1.5">
-          <img src="/word_up_clean.jpeg" alt="Word Up" className="h-20 w-auto rounded-2xl shadow-md" />
-          <div className="text-center">
-            <p className="text-sm font-black tracking-[0.25em] leading-none" style={{ color: '#2a1f17' }}>WORD UP</p>
-            <p className="text-[9px] font-semibold tracking-[0.3em] mt-1 uppercase" style={{ color: '#C9A435' }}>Spelling to Communicate</p>
+      {/* Masthead — logo + name side by side */}
+      <div className="flex items-center justify-center py-6 relative" style={{ borderBottom: '1px solid rgba(160,128,96,0.15)' }}>
+        <Link href="/" className="flex items-center gap-5">
+          <img src="/word_up_clean.jpeg" alt="Word Up" className="h-24 w-auto rounded-2xl shadow-lg" />
+          <div>
+            <p className="font-black leading-none tracking-[0.18em]"
+              style={{ color: '#2a1f17', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
+              WORD UP
+            </p>
+            <p className="font-semibold tracking-[0.35em] mt-2 uppercase"
+              style={{ color: '#C9A435', fontSize: 'clamp(0.6rem, 1.2vw, 0.8rem)' }}>
+              Spelling to Communicate
+            </p>
           </div>
         </Link>
 
