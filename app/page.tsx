@@ -1,332 +1,192 @@
-'use client'
+import Link from 'next/link'
+import PublicNav from './components/PublicNav'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useUser, SignUpButton } from '@clerk/nextjs'
-import SubscribeButton from './SubscribeButton'
-import ManageSubscriptionButton from './ManageSubscriptionButton'
-import type { Lesson } from '@/lib/types'
-
-const AGE_GROUPS = [
-  'Young Children (ages 6–8)',
-  'Children (ages 9–11)',
-  'Tweens (ages 12–14)',
-  'Teens (ages 15–17)',
-  'Adults (18+)',
-]
-
-const TONES = [
-  { value: 'conversational', label: 'Conversational' },
-  { value: 'humor', label: 'Humor & Playful' },
-  { value: 'story', label: 'Narrative Story' },
-  { value: 'science', label: 'Science & Discovery' },
-  { value: 'realworld', label: 'Real-World' },
-]
-
-const GENRES = [
-  { value: '', label: 'General' },
-  { value: 'science', label: 'Science & Nature' },
-  { value: 'history', label: 'History' },
-  { value: 'math', label: 'Mathematics' },
-  { value: 'geography', label: 'Geography & Culture' },
-  { value: 'literature', label: 'Language Arts' },
-  { value: 'health', label: 'Health & Wellness' },
-  { value: 'arts', label: 'Arts & Music' },
-  { value: 'technology', label: 'Technology' },
-  { value: 'sel', label: 'Social-Emotional' },
-]
-
-function Chip({ label, selected, onClick, disabled }: { label: string; selected: boolean; onClick: () => void; disabled: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-        selected
-          ? 'bg-blue-600 text-white border-blue-600'
-          : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-      } disabled:opacity-50 disabled:cursor-not-allowed`}
-    >
-      {label}
-    </button>
-  )
+export const metadata = {
+  title: 'Word Up — Practice Tools for S2C Practitioners',
+  description: 'Spend less time managing your practice. More time supporting your students. Word Up provides practical tools created by a practitioner for Spelling to Communicate practitioners.',
 }
 
 export default function HomePage() {
-  const router = useRouter()
-  const { isSignedIn } = useUser()
-
-  const [topic, setTopic] = useState('')
-  const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
-  const [styles, setStyles] = useState<string[]>(['conversational'])
-  const [genre, setGenre] = useState('')
-  const [email, setEmail] = useState('')
-  const [referral, setReferral] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [showSubscribe, setShowSubscribe] = useState(false)
-  const [showLimitReached, setShowLimitReached] = useState(false)
-
-  useEffect(() => {
-    const saved = sessionStorage.getItem('wordupEmail')
-    if (saved) setEmail(saved)
-  }, [])
-
-  function toggleStyle(value: string) {
-    setStyles(prev =>
-      prev.includes(value)
-        ? prev.length === 1 ? prev : prev.filter(s => s !== value)
-        : [...prev, value]
-    )
-  }
-
-  async function handleGenerate() {
-    if (!topic.trim()) {
-      setError('Please enter a topic.')
-      return
-    }
-    if (!isSignedIn) {
-      if (!email.trim()) {
-        setError('Please enter your email address to generate a free lesson.')
-        return
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-        setError('Please enter a valid email address.')
-        return
-      }
-    }
-
-    setError('')
-    setLoading(true)
-    try {
-      const body: Record<string, unknown> = { topic, ageGroup, style: styles, genre }
-      if (!isSignedIn) body.email = email.trim().toLowerCase()
-
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        if (data.error === 'SUBSCRIBE_REQUIRED') {
-          router.push('/subscribe')
-          return
-        }
-        if (data.error === 'LESSON_LIMIT_REACHED') {
-          setShowLimitReached(true)
-          return
-        }
-        throw new Error(data.error || 'Generation failed')
-      }
-
-      const lesson: Lesson = await res.json()
-      if (!isSignedIn) sessionStorage.setItem('wordupEmail', email.trim().toLowerCase())
-      router.push(`/lessons/${lesson.id}`)
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4">
-      {isSignedIn && (
-        <div className="w-full max-w-lg mb-3 bg-blue-600 text-white text-sm rounded-xl px-4 py-2.5 flex items-center justify-between">
-          <ManageSubscriptionButton className="text-white/80 hover:text-white text-xs underline underline-offset-2" />
-          <a href="/practitioner/dashboard" className="font-semibold underline hover:no-underline">Go to Dashboard →</a>
-        </div>
-      )}
-      <div className="w-full max-w-lg bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8">
-        {loading ? (
-          <div className="text-center py-10">
-            <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-6" style={{ width: 160 }} />
-            <div className="flex justify-center mb-4">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-            </div>
-            <p className="text-gray-700 font-semibold text-sm">Generating your lesson…</p>
-            <p className="text-gray-400 text-xs mt-1">This usually takes about a minute. Please wait.</p>
-          </div>
-        ) : (
-        <>
-        <div className="text-center mb-6">
-          <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-1" style={{ width: 220 }} />
-          <p className="text-gray-500 text-sm">S2C Lesson Generator</p>
-          <p className="text-gray-500 text-sm mt-0.5 font-medium">worduplessongenerator.com</p>
-          <p className="text-gray-500 text-sm font-medium">wordups2c@gmail.com</p>
-        </div>
+    <>
+      <PublicNav />
 
-        <div className="mb-6 text-center">
-          <p className="text-gray-700 text-sm leading-relaxed mb-3">
-            Generate professional, I-ASC Gold Standard Spelling to Communicate (S2C) lessons in minutes. Built by Word Up, LLC — designed for S2C practitioners, CRPs, and families everywhere.
-          </p>
-          <p className="text-gray-700 text-sm leading-relaxed mb-3">
-            Each lesson includes 8 scaffolded hunks, age-appropriate vocabulary, color-coded question types, and a print-ready PDF — all aligned to the I-ASC Gold Standard.
-          </p>
-          <div className="text-left bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 text-sm text-gray-700 space-y-1">
-            <p><span className="font-semibold">1.</span> Enter a topic — frogs, the American Revolution, managing emotions</p>
-            <p><span className="font-semibold">2.</span> Select an age group — lessons are fully tailored to your student</p>
-            <p><span className="font-semibold">3.</span> Generate — your lesson is ready in about a minute</p>
-            <p><span className="font-semibold">4.</span> Print — a clean, formatted PDF ready for your session</p>
+      {/* Hero */}
+      <section className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #1a0540 0%, #3b0f82 60%, #4c1d95 100%)' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)' }} />
+        <div className="max-w-5xl mx-auto px-6 py-24 md:py-40 relative z-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-amber-300 text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-8">
+              Built by a Certified S2C Practitioner
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4 tracking-tight">
+              Spend Less Time<br />Managing Your Practice.
+            </h1>
+            <h2 className="text-2xl md:text-3xl font-light mb-8" style={{ color: '#F0C84A' }}>
+              More Time Supporting Your Students.
+            </h2>
+            <p className="text-lg text-purple-200 mb-10 max-w-2xl leading-relaxed">
+              Word Up provides practical tools created by a practitioner to simplify lesson planning, documentation, communication, and practice management for Spelling to Communicate practitioners.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/practice-tools"
+                className="font-bold px-8 py-4 rounded-xl text-base transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                style={{ background: '#D4AF37', color: '#1a0540' }}>
+                Explore Practice Tools
+              </Link>
+              <Link href="/practitioner-services"
+                className="border-2 border-white/30 hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-base transition-all">
+                Learn About Practitioner Services
+              </Link>
+            </div>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16" style={{ background: 'linear-gradient(to bottom, transparent, #fffbf0)' }} />
+      </section>
 
-        {!isSignedIn && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 text-center mb-3">
-            <p className="text-sm font-semibold text-blue-800">2 free lessons — no account needed</p>
-            <p className="text-xs text-blue-600 mt-0.5">Try 1 month free — no risk. Your card won&apos;t be charged until after your 30-day trial. Just $9.99/month after that, cancel anytime.</p>
+      {/* Built by a Practitioner */}
+      <section className="py-20" style={{ background: '#fffbf0' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold mb-5" style={{ color: '#1a0540' }}>Built by a Practitioner</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg leading-relaxed">
+              Word Up wasn&apos;t created by software developers looking for a market. It was built one tool at a time while supporting students and families. Every feature exists because it solved a real problem encountered in practice.
+            </p>
           </div>
-        )}
-        <div className="text-center mb-5">
-          <a
-            href="/lessons"
-            className="inline-block bg-yellow-200 text-gray-800 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-300 transition-colors shadow-sm"
-          >
-            📚 View Lesson Library
-          </a>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: '🧩',
+                title: 'Created in Practice',
+                body: 'Every tool began as a solution to a real challenge — from lesson prep to progress tracking to family communication.',
+              },
+              {
+                icon: '📊',
+                title: 'Objective Data',
+                body: 'Automatic accuracy calculations, visual graphs, and shareable transcripts replace guesswork with evidence.',
+              },
+              {
+                icon: '💛',
+                title: 'Designed for Your Students',
+                body: 'Less administrative burden means more energy for what matters — the student sitting in front of you.',
+              },
+            ].map(card => (
+              <div key={card.title} className="bg-white rounded-2xl p-8 shadow-sm border border-purple-100 hover:shadow-md transition-shadow">
+                <div className="text-4xl mb-5">{card.icon}</div>
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#1a0540' }}>{card.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{card.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {showSubscribe && (
-          <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-5 mb-4">
-            <p className="font-semibold text-gray-800 mb-1 text-center">Try 1 month free</p>
-            <p className="text-sm text-gray-600 mb-4 text-center">Try 1 month free — no risk. Your card won&apos;t be charged until after your 30-day trial. Just $9.99/month after that, cancel anytime.</p>
-            <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-600 mb-1">How did you hear about us? <span className="text-gray-400">(optional)</span></label>
-              <input
-                type="text"
-                value={referral}
-                onChange={e => setReferral(e.target.value)}
-                placeholder="e.g. a practitioner's name, community room, social media…"
-                className="w-full border border-yellow-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white"
-              />
+      {/* From Heavy to Lighter */}
+      <section className="bg-white py-20">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: '#1a0540' }}>From Heavy to Lighter.</h2>
+            <p className="text-2xl font-semibold" style={{ color: '#B8860B' }}>From Chaos to Clarity.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 items-stretch">
+            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
+              <div className="text-center mb-8">
+                <div className="text-5xl mb-3">🎒</div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Before</p>
+                <p className="text-gray-700 font-semibold mt-1">Walking into every session carrying…</p>
+              </div>
+              <ul className="space-y-3">
+                {['Lessons', 'Student files', 'Clipboards', 'Transcripts', 'Boards', 'Pens', 'Cameras', 'Endless paperwork'].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-gray-500 text-sm">
+                    <span className="text-red-400 font-bold">✗</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-center">
-              {isSignedIn ? (
-                <SubscribeButton referral={referral} />
-              ) : (
-                <SignUpButton>
-                  <button className="bg-yellow-200 text-gray-800 px-5 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
-                    Create Account to Subscribe
-                  </button>
-                </SignUpButton>
-              )}
-            </div>
-          </div>
-        )}
 
-        {showLimitReached && (
-          <div className="bg-red-50 border border-red-300 rounded-xl p-5 text-center mb-4">
-            <p className="font-semibold text-gray-800 mb-1">Monthly limit reached</p>
-            <p className="text-sm text-gray-600">You&apos;ve reached your 20 lesson limit this month. Your limit resets next month.</p>
-          </div>
-        )}
-
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Topic</label>
-            <input
-              type="text"
-              value={topic}
-              onChange={e => setTopic(e.target.value)}
-              placeholder="e.g. Photosynthesis, The American Revolution, Emotions"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={loading}
-              onKeyDown={e => e.key === 'Enter' && handleGenerate()}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Age Group</label>
-            <select
-              value={ageGroup}
-              onChange={e => setAgeGroup(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              disabled={loading}
-            >
-              {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Genre</label>
-            <div className="flex flex-wrap gap-2">
-              {GENRES.map(g => (
-                <Chip
-                  key={g.value}
-                  label={g.label}
-                  selected={genre === g.value}
-                  onClick={() => setGenre(g.value)}
-                  disabled={loading}
-                />
-              ))}
+            <div className="rounded-2xl p-8 text-white" style={{ background: 'linear-gradient(135deg, #1a0540 0%, #3b0f82 100%)' }}>
+              <div className="text-center mb-8">
+                <div className="text-5xl mb-3">✨</div>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#D4AF37' }}>Now</p>
+                <p className="text-white font-semibold mt-1">Walking in with confidence carrying…</p>
+              </div>
+              <ul className="space-y-3 mb-8">
+                {['A tablet', 'A tripod', 'A camera'].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm">
+                    <span className="font-bold" style={{ color: '#D4AF37' }}>✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-purple-200 text-sm leading-relaxed border-t border-purple-700 pt-6">
+                The story isn&apos;t about replacing teaching. It&apos;s about eliminating unnecessary administrative work — so you can show up fully present for every student, every session.
+              </p>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tone <span className="text-gray-400 font-normal text-xs">(pick one or more)</span></label>
-            <div className="flex flex-wrap gap-2">
-              {TONES.map(t => (
-                <Chip
-                  key={t.value}
-                  label={t.label}
-                  selected={styles.includes(t.value)}
-                  onClick={() => toggleStyle(t.value)}
-                  disabled={loading}
-                />
-              ))}
-            </div>
-          </div>
-
-          {!isSignedIn && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Your Email <span className="text-gray-400 font-normal">(required for free access)</span>
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={loading}
-              />
-            </div>
-          )}
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <button
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
-            Generate Lesson
-          </button>
         </div>
+      </section>
 
-        <div className="mt-8 border-t border-gray-100 pt-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4">
-            <p className="text-sm font-bold text-blue-900 mb-1">Are you an S2C Practitioner?</p>
-            <p className="text-xs text-blue-800 mb-1">The <span className="font-semibold">Word Up Practitioner Dashboard</span> lets you manage your caseload, run sessions with live scoring, generate invoices, embed session recordings, and track student progress — all in one place.</p>
-            <p className="text-xs text-blue-700 font-semibold mb-3">Start your 30-day free trial today — no charge until your trial ends.</p>
-            <a
-              href="/practitioner/get-started"
-              className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
-            >
+      {/* Dashboard Highlight */}
+      <section className="py-20 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a0540 0%, #3b0f82 100%)' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#D4AF37' }}>The Practitioner Dashboard</p>
+            <h2 className="text-2xl md:text-3xl font-bold leading-relaxed text-white">
+              &ldquo;The Practitioner Dashboard is a practice management system built specifically for Spelling to Communicate practitioners.&rdquo;
+            </h2>
+          </div>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 mb-12">
+            {[
+              'Manage every student',
+              'Track accuracy automatically',
+              'Store transcripts and videos',
+              'Communicate with families',
+              'Invoice in seconds',
+              'Run your practice with confidence',
+            ].map(f => (
+              <div key={f} className="flex items-center gap-3 bg-white/10 border border-white/15 rounded-xl px-5 py-4">
+                <span className="text-lg shrink-0" style={{ color: '#D4AF37' }}>✦</span>
+                <span className="text-sm font-medium text-white">{f}</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <a href="/practitioner/get-started"
+              className="inline-block font-bold px-10 py-4 rounded-xl text-base transition-all shadow-lg hover:shadow-xl hover:scale-105"
+              style={{ background: '#D4AF37', color: '#1a0540' }}>
               Explore the Practitioner Dashboard →
             </a>
           </div>
         </div>
+      </section>
 
-        <div className="text-center mt-4">
-          <a href="/submit" className="text-sm text-blue-600 hover:underline">Submit a lesson</a>
+      {/* Footer */}
+      <footer className="text-white py-14" style={{ background: '#0f0226' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-8">
+            <div>
+              <img src="/word_up_clean.jpeg" alt="Word Up" className="h-12 w-auto mb-3 rounded-lg" />
+              <p className="text-sm" style={{ color: '#9b87c8' }}>Built by a practitioner. Designed for your practice.</p>
+              <p className="text-sm mt-1" style={{ color: '#9b87c8' }}>Created for your students.</p>
+            </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm" style={{ color: '#9b87c8' }}>
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <Link href="/practitioner-services" className="hover:text-white transition-colors">Practitioner Services</Link>
+              <Link href="/parent-resources" className="hover:text-white transition-colors">Parent Resources</Link>
+              <Link href="/practice-tools" className="hover:text-white transition-colors">Practice Tools</Link>
+              <Link href="/practitioner-minute" className="hover:text-white transition-colors">Practitioner Minute</Link>
+              <Link href="/about" className="hover:text-white transition-colors">About</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+            </div>
+          </div>
+          <div className="border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs" style={{ borderColor: '#2d1a5c', color: '#6b5a9a' }}>
+            <p>© {new Date().getFullYear()} Word Up, LLC. All rights reserved.</p>
+            <a href="mailto:wordups2c@gmail.com" className="transition-colors hover:text-amber-400">wordups2c@gmail.com</a>
+          </div>
         </div>
-        </>
-        )}
-      </div>
-    </main>
+      </footer>
+    </>
   )
 }
