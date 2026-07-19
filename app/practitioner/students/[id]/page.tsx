@@ -92,14 +92,35 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         <StartSessionButton studentId={id} studentName={student.name} lessons={lessons} />
       </div>
 
-      {/* Accuracy trend */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-        <div className="flex items-start justify-between gap-4 mb-1">
-          <h2 className="text-base font-semibold text-gray-900">Accuracy History</h2>
-          <AccuracyExcludeButton studentId={id} sessionCount={sessions.length} />
+      {/* Accuracy trend — featured */}
+      <div className="rounded-2xl overflow-hidden shadow-xl mb-6" style={{ background: '#1a1410' }}>
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] font-bold mb-2" style={{ color: '#C9A435' }}>
+                Objective Data · Real Progress
+              </p>
+              <h2 className="text-lg font-bold text-white leading-tight">Accuracy History</h2>
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                Spelling accuracy across completed sessions
+              </p>
+            </div>
+            <AccuracyExcludeButton studentId={id} sessionCount={sessions.length} />
+          </div>
         </div>
-        <p className="text-xs text-gray-400 mb-4">Spelling accuracy across completed sessions</p>
-        <AccuracyChart data={accuracyHistory} />
+
+        {/* Chart — clean white panel */}
+        <div className="mx-4 rounded-xl bg-white px-4 pt-4 pb-2">
+          <AccuracyChart data={accuracyHistory} />
+        </div>
+
+        {/* Annotation */}
+        <div className="px-6 py-4">
+          <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            <span style={{ color: '#C9A435' }}>✦</span> Dips in accuracy often reflect dysregulation events — not regression. The climb back up is what we watch for.
+          </p>
+        </div>
       </div>
 
       {/* Saved Progress Reports — always visible under the graph */}

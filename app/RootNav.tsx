@@ -20,6 +20,7 @@ export default function RootNav() {
   if (pathname.startsWith('/parent-resources')) return null
   if (pathname.startsWith('/practitioner-minute')) return null
   if (pathname.startsWith('/lesson-generator')) return null
+  if (pathname.startsWith('/our-practice')) return null
 
   return (
     <div className="relative z-20 flex flex-wrap justify-end items-center gap-2 px-4 py-3 print:hidden">

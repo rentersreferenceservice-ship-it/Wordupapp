@@ -3,291 +3,246 @@ import PublicNav from './components/PublicNav'
 import PublicFooter from './components/PublicFooter'
 
 export const metadata = {
-  title: 'Word Up — Spelling to Communicate Practice Tools',
-  description: 'Every student deserves the opportunity to communicate. Every practitioner deserves tools that make that work easier.',
+  title: 'Word Up — Spelling to Communicate',
+  description: 'A Spelling to Communicate practice rooted in presence, connection, and the belief that every student has something to say.',
 }
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
-function Letterboard() {
-  return (
-    <div className="rounded-2xl p-5 shadow-lg" style={{ background: '#1d1d1d' }}>
-      <div className="grid grid-cols-7 gap-1.5">
-        {LETTERS.map(l => (
-          <div key={l} className="aspect-square rounded-md flex items-center justify-center text-sm font-bold"
-            style={{ background: '#2d2d2d', color: '#e8e8e8', border: '1px solid #404040' }}>
-            {l}
-          </div>
-        ))}
-        {['1','2','3','4','5','6','7'].map(n => (
-          <div key={n} className="aspect-square rounded-md flex items-center justify-center text-xs font-bold"
-            style={{ background: '#252525', color: '#777', border: '1px solid #353535' }}>
-            {n}
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 flex gap-1.5">
-        {['8','9','0'].map(n => (
-          <div key={n} className="flex-1 h-7 rounded-md flex items-center justify-center text-xs font-bold"
-            style={{ background: '#252525', color: '#777', border: '1px solid #353535' }}>
-            {n}
-          </div>
-        ))}
-        <div className="flex-[3] h-7 rounded-md flex items-center justify-center text-xs font-bold"
-          style={{ background: '#C9A435', color: '#1d1d1d' }}>
-          SPACE
-        </div>
-      </div>
-      <p className="text-center mt-3 text-xs italic" style={{ color: '#888' }}>Every student has something to say.</p>
-    </div>
-  )
-}
 
 export default function HomePage() {
   return (
     <>
       <PublicNav />
 
-      {/* Hero */}
-      <section style={{ background: '#faf8f3' }}>
-        <div className="max-w-6xl mx-auto px-6 py-14 md:py-24">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: '#1d1d1d', lineHeight: '1.15' }}>
-                Every student deserves the opportunity to communicate.
-              </h1>
-              <p className="text-xl leading-relaxed mb-4" style={{ color: '#444' }}>
-                Every practitioner deserves tools that make that work easier.
-              </p>
-              <p className="text-gray-500 leading-relaxed mb-3">
-                I built Word Up because I needed it — not to start a software company, but because I wanted to spend less time managing my practice and more time with my students.
-              </p>
-              <p className="text-sm font-semibold mb-10" style={{ color: '#8b7355' }}>
-                — Melody, Certified S2C Practitioner &amp; Founder
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/practice-tools"
-                  className="font-bold px-8 py-4 rounded-xl text-base transition-all hover:opacity-90 shadow-md"
-                  style={{ background: '#1d1d1d', color: 'white' }}>
-                  Explore the Tools
-                </Link>
-                <Link href="/about"
-                  className="font-semibold px-8 py-4 rounded-xl text-base border-2 transition-all hover:bg-white"
-                  style={{ borderColor: '#c4b49a', color: '#444' }}>
-                  Our Story
-                </Link>
-              </div>
-            </div>
+      {/* Hero — full bleed, meditative */}
+      <section className="relative overflow-hidden" style={{ minHeight: '92vh' }}>
+        <img
+          src="/s2c-adult-session.png"
+          alt="An adult speller and practitioner work together at the letterboard in a warm, peaceful space"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        {/* Soft gradient — warm, not harsh */}
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, rgba(42,31,23,0.82) 0%, rgba(42,31,23,0.55) 55%, rgba(42,31,23,0.15) 100%)' }} />
 
-            {/* Real session photo */}
-            <div className="relative">
-              <img
-                src="/527790770_122182871402367665_1240767429979072490_n.jpg"
-                alt="Student spelling on a letterboard during a Spelling to Communicate session"
-                className="w-full rounded-2xl shadow-xl object-cover"
-              />
-              <div className="absolute bottom-4 left-4 right-4 rounded-xl px-4 py-3"
-                style={{ background: 'rgba(29,29,29,0.88)' }}>
-                <p className="text-white text-sm font-medium">Spelling to Communicate in practice</p>
-                <p className="text-xs mt-0.5" style={{ color: '#C9A435' }}>Every student has something to say.</p>
-              </div>
+        <div className="relative flex flex-col justify-end max-w-6xl mx-auto px-8 pb-20 md:pb-28" style={{ minHeight: '92vh' }}>
+          <div className="max-w-lg">
+            <p className="text-xs uppercase tracking-[0.35em] mb-6 font-medium" style={{ color: '#C9A435' }}>
+              Spelling to Communicate
+            </p>
+            <h1 className="font-bold text-white mb-6"
+              style={{ fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', lineHeight: '1.12', letterSpacing: '-0.01em' }}>
+              Every student has something to say.
+            </h1>
+            <p className="text-lg leading-relaxed mb-10" style={{ color: 'rgba(255,255,255,0.72)', maxWidth: '38ch' }}>
+              We hold space for that truth — one letterboard, one session, one student at a time.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/practitioner-services"
+                className="font-semibold px-7 py-3.5 rounded-full transition-all hover:opacity-90"
+                style={{ background: '#C9A435', color: '#2a1f17' }}>
+                Learn About Sessions
+              </Link>
+              <Link href="/about"
+                className="font-medium px-7 py-3.5 rounded-full border transition-all hover:bg-white/10"
+                style={{ borderColor: 'rgba(255,255,255,0.35)', color: 'rgba(255,255,255,0.85)' }}>
+                Our Philosophy
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* The Story */}
-      <section className="bg-white py-20">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="max-w-2xl mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#C9A435' }}>The Story</p>
-            <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#1d1d1d' }}>It started with a very heavy bag.</h2>
-          </div>
+      {/* Breath — opening quote */}
+      <section style={{ background: '#fdf9f4' }}>
+        <div className="max-w-3xl mx-auto px-8 py-24 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] mb-8 font-medium" style={{ color: '#a08060' }}>
+            Our Belief
+          </p>
+          <blockquote
+            className="font-semibold leading-relaxed mb-8"
+            style={{ color: '#2a1f17', fontSize: 'clamp(1.4rem, 3vw, 2rem)', lineHeight: '1.55' }}>
+            &ldquo;Motor differences are not intellectual differences. Every person is presumed competent — not eventually, not potentially, but right now, exactly as they are.&rdquo;
+          </blockquote>
+          <p className="text-sm font-medium" style={{ color: '#a08060' }}>— Melody, Certified S2C Practitioner</p>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div className="space-y-5 text-gray-600 leading-relaxed">
-              <p>For years, I arrived at every session carrying a bag so heavy it had become part of my identity as a practitioner. Lesson plans. Student binders. Clipboards. Transcripts. Cameras. Extra pens. Paperwork. Always more paperwork.</p>
-              <p>Every lesson I taught generated more to organize. Every student I supported added more to carry. Every evening ended with documentation.</p>
-              <p>I wasn&apos;t looking for software. I was looking for a better way to support my students.</p>
-              <p>So I started building tools. One tool became two. Two became ten. And those tools, built one at a time to solve real problems I was actually facing, became Word Up.</p>
-              <p className="text-base font-semibold" style={{ color: '#1d1d1d' }}>Today I walk into sessions carrying little more than a tablet, my camera, and a tripod.</p>
-              <p>Not because technology replaced my practice. Because it removed the barriers that kept me from being fully present for my students.</p>
-            </div>
+      {/* The Practice — organic, asymmetric */}
+      <section className="py-24" style={{ background: '#f0ede8' }}>
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
 
-            <div className="space-y-4">
-              <div className="rounded-2xl p-6 border border-gray-100" style={{ background: '#faf8f3' }}>
-                <p className="text-xs font-bold uppercase tracking-widest mb-4 text-gray-400">Before</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { icon: '📁', label: 'Student binders' },
-                    { icon: '📋', label: 'Lesson plans' },
-                    { icon: '📷', label: 'Camera' },
-                    { icon: '✏️', label: 'Clipboards' },
-                    { icon: '📄', label: 'Transcripts' },
-                    { icon: '🗂️', label: 'Paperwork' },
-                  ].map(i => (
-                    <div key={i.label} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs text-gray-500 border border-gray-100">
-                      <span>{i.icon}</span>{i.label}
+            {/* Letterboard — treated as a sacred object, not a product screenshot */}
+            <div className="flex flex-col items-center md:items-start">
+              <div className="rounded-3xl p-7 shadow-2xl mb-6 inline-block" style={{ background: '#2a1f17' }}>
+                <div className="grid grid-cols-7 gap-2">
+                  {LETTERS.map(l => (
+                    <div key={l}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold"
+                      style={{ background: '#3d2e22', color: '#e8ddd0', border: '1px solid #4d3d2e' }}>
+                      {l}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="rounded-2xl p-6" style={{ background: '#1d1d1d' }}>
-                <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>Now</p>
-                <div className="space-y-3">
-                  {[
-                    { icon: '📱', label: 'A tablet' },
-                    { icon: '🎬', label: 'A tripod' },
-                    { icon: '📷', label: 'A camera' },
-                  ].map(i => (
-                    <div key={i.label} className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: '#2d2d2d' }}>
-                      <span className="text-xl">{i.icon}</span>
-                      <span className="text-sm font-medium text-white">{i.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs mt-5 leading-relaxed text-gray-500">
-                  Not because technology replaced the practice. Because it got out of the way of it.
+                <p className="text-center mt-5 text-xs tracking-widest uppercase font-medium" style={{ color: '#8a7060' }}>
+                  Every poke is an intention.
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Letterboard + beliefs */}
-      <section className="py-20" style={{ background: '#faf8f3' }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="grid md:grid-cols-5 gap-12 items-center">
-            <div className="md:col-span-2">
-              <Letterboard />
-            </div>
-            <div className="md:col-span-3">
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#C9A435' }}>Our Beliefs. Our Promise.</p>
-              <h2 className="text-3xl font-bold mb-6" style={{ color: '#1d1d1d' }}>The software is never the hero.</h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed mb-8">
-                <p>Every person is presumed competent. Every session is structured, intentional, and built on evidence. Every transcript is shared honestly with families.</p>
-                <p>Word Up was built around one belief: every minute spent searching for paperwork is one less minute spent supporting a student.</p>
-                <p className="font-medium" style={{ color: '#333' }}>The students are the story. The practitioners are the story. The communication journey is the story. Word Up simply makes that journey a little lighter.</p>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { icon: '📊', label: 'Objective Data', sub: 'Real progress, honestly measured' },
-                  { icon: '🎯', label: 'Real Progress', sub: 'Every session documented' },
-                  { icon: '💛', label: 'More Time', sub: 'For the student in front of you' },
-                ].map(v => (
-                  <div key={v.label} className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
-                    <div className="text-2xl mb-2">{v.icon}</div>
-                    <p className="text-xs font-bold mb-1" style={{ color: '#1d1d1d' }}>{v.label}</p>
-                    <p className="text-xs text-gray-400 leading-tight">{v.sub}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Dashboard */}
-      <section className="py-20 text-white" style={{ background: '#1d1d1d' }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>The Practitioner Dashboard</p>
-              <blockquote className="text-xl md:text-2xl font-semibold leading-relaxed mb-8">
-                &ldquo;A practice management system built specifically for Spelling to Communicate practitioners.&rdquo;
-              </blockquote>
-              <div className="space-y-3 mb-10">
-                {[
-                  { icon: '📋', text: 'Prepares lessons' },
-                  { icon: '🎯', text: 'Documents sessions' },
-                  { icon: '📈', text: 'Measures objective progress' },
-                  { icon: '📁', text: 'Stores transcripts and videos' },
-                  { icon: '💬', text: 'Communicates with families' },
-                  { icon: '⚙️', text: 'Manages the business of practice' },
-                ].map(item => (
-                  <div key={item.text} className="flex items-center gap-3">
-                    <span>{item.icon}</span>
-                    <span className="text-sm text-gray-300">{item.text}</span>
+              <p className="text-xs uppercase tracking-[0.3em] mb-5 font-medium" style={{ color: '#a08060' }}>The Letterboard</p>
+              <h2 className="font-bold mb-6" style={{ color: '#2a1f17', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.25' }}>
+                A simple tool.<br />An extraordinary bridge.
+              </h2>
+              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  The letterboard holds no agenda. It does not rush. It does not assume. It simply waits — for the student&apos;s hand, their intention, their thought made visible for the very first time.
+                </p>
+                <p>
+                  We begin with presence. With regulation. With the understanding that a nervous system needs to feel safe before it can express itself fully.
+                </p>
+                <p className="font-semibold" style={{ color: '#2a1f17' }}>
+                  And when the conditions are right — when the room is calm and the practitioner is patient — students show us exactly who they are and what they know.
+                </p>
+              </div>
+              <div className="mt-8">
+                <Link href="/our-practice"
+                  className="font-medium text-sm inline-flex items-center gap-2 transition-all hover:gap-3"
+                  style={{ color: '#C9A435' }}>
+                  Inside a session →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The journey — fullwidth warmth */}
+      <section className="py-24 bg-white">
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-20 items-start">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] mb-5 font-medium" style={{ color: '#a08060' }}>The Story</p>
+              <h2 className="font-bold mb-8" style={{ color: '#2a1f17', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.3' }}>
+                It started with a very heavy bag.
+              </h2>
+              <div className="space-y-5 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  For years, I arrived at every session carrying a bag so heavy it had become part of my identity. Lesson plans. Student binders. Clipboards. Transcripts. Cameras. Always more paperwork.
+                </p>
+                <p>
+                  I wasn&apos;t looking for software. I was looking for a better way to be present with my students.
+                </p>
+                <p>
+                  So I started building tools — not to start a company, but because every minute spent managing paperwork was one less minute holding space for the person sitting across from me.
+                </p>
+                <p className="font-semibold text-base" style={{ color: '#2a1f17' }}>
+                  Today I walk into sessions carrying little more than a tablet, my camera, and a tripod. Not because technology replaced my practice. Because it got out of the way of it.
+                </p>
+              </div>
+              <div className="mt-10 pt-8 border-t" style={{ borderColor: '#e8ddd0' }}>
+                <div className="flex items-center gap-4">
+                  <img
+                    src="/481072609_122154518738367665_7170235168370591795_n.jpg"
+                    alt="Melody"
+                    className="w-14 h-14 rounded-full object-cover object-top shadow"
+                  />
+                  <div>
+                    <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
+                    <p className="text-sm" style={{ color: '#a08060' }}>Certified S2C Practitioner · Founder</p>
                   </div>
-                ))}
+                </div>
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed mb-8 italic">So practitioners can focus on what matters most. Their students.</p>
-              <div className="flex flex-wrap gap-4">
-                <a href="/practitioner/get-started"
-                  className="inline-block font-bold px-8 py-4 rounded-xl text-sm transition-all hover:opacity-90"
-                  style={{ background: '#C9A435', color: '#1d1d1d' }}>
-                  Start Your Free Trial →
-                </a>
-                <a href="https://www.worduplessongenerator.com" target="_blank" rel="noopener noreferrer"
-                  className="inline-block font-bold px-8 py-4 rounded-xl text-sm border border-gray-600 hover:border-gray-400 transition-all text-white">
-                  Lesson Generator →
-                </a>
-              </div>
-              <p className="text-xs mt-3 text-gray-600">30-day free trial · No charge until your trial ends</p>
             </div>
 
-            {/* Mock dashboard */}
-            <div className="rounded-2xl overflow-hidden border border-gray-700">
-              <div className="px-5 py-4 flex items-center gap-3" style={{ background: '#111' }}>
-                <img src="/word_up_clean.jpeg" alt="Word Up" className="h-8 w-auto rounded" />
-                <span className="text-sm font-semibold text-white">Practitioner Dashboard</span>
-              </div>
-              <div className="p-5 space-y-3" style={{ background: '#161616' }}>
-                <div className="grid grid-cols-2 gap-3">
+            {/* Visual aside — beliefs as organic list, not cards */}
+            <div className="md:pt-16">
+              <div className="rounded-3xl p-10" style={{ background: '#fdf9f4' }}>
+                <p className="text-xs uppercase tracking-[0.3em] mb-8 font-medium" style={{ color: '#a08060' }}>What We Hold Sacred</p>
+                <div className="space-y-6">
                   {[
-                    { label: 'Students', value: '12', color: '#3b82f6' },
-                    { label: 'Sessions', value: '84', color: '#10b981' },
-                  ].map(s => (
-                    <div key={s.label} className="rounded-xl p-4 text-center" style={{ background: '#222' }}>
-                      <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                      <p className="text-xs mt-1 text-gray-400">{s.label}</p>
+                    'Every person is presumed competent.',
+                    'Presence before performance.',
+                    'The body carries wisdom the voice cannot always access.',
+                    'Data tells a story — it never tells the whole story.',
+                    'Families are partners, not passengers.',
+                    'Progress is measured. But a student is never reduced to a number.',
+                  ].map(belief => (
+                    <div key={belief} className="flex items-start gap-4">
+                      <span className="shrink-0 mt-1 text-xs" style={{ color: '#C9A435' }}>✦</span>
+                      <p className="leading-relaxed" style={{ color: '#5a4a3a', fontSize: '0.97rem' }}>{belief}</p>
                     </div>
                   ))}
                 </div>
-                <div className="rounded-xl p-4" style={{ background: '#222' }}>
-                  <p className="text-xs font-semibold mb-3" style={{ color: '#C9A435' }}>Accuracy History</p>
-                  <div className="flex items-end gap-1 h-16">
-                    {[60,72,68,80,85,88,94,91,96,94].map((v, i) => (
-                      <div key={i} className="flex-1 rounded-t-sm"
-                        style={{ height: `${v}%`, background: `rgba(201,164,53,${0.3 + v/200})` }} />
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-xl p-4" style={{ background: '#222' }}>
-                  <p className="text-xs font-semibold mb-2 text-gray-400">Recent Sessions</p>
-                  {['Open Session · Jul 18','Photosynthesis · Jul 15','American Revolution · Jul 11'].map(s => (
-                    <div key={s} className="py-1.5 border-b text-xs text-gray-500" style={{ borderColor: '#2d2d2d' }}>{s}</div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Closing */}
-      <section className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="text-6xl mb-8">💛</div>
-          <h2 className="text-3xl font-bold mb-6" style={{ color: '#1d1d1d' }}>Every minute matters.</h2>
-          <p className="text-gray-600 text-lg leading-relaxed mb-4">
-            Every minute spent searching for paperwork is one less minute supporting a student. Every feature in Word Up exists for one reason: to give that minute back.
+      {/* The tracking — warm, not clinical */}
+      <section className="relative overflow-hidden py-24 text-white" style={{ background: '#2a1f17' }}>
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] mb-5 font-medium" style={{ color: '#C9A435' }}>The Accuracy Chart</p>
+              <h2 className="font-bold mb-6" style={{ fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.3' }}>
+                Not a report card.<br />A map of a journey.
+              </h2>
+              <div className="space-y-5 leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                <p>
+                  When you look at a student&apos;s accuracy chart over time, you are not looking at grades. You are looking at a nervous system learning to trust itself.
+                </p>
+                <p>
+                  A dip in accuracy is not failure. It is often a dysregulation event — a hard day, a change in routine, something sensory. And the climb back up tells you something beautiful: the student did not give up.
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.9)' }}>
+                  We share this with every family. We explain what it means together. We celebrate the climb, not just the peak.
+                </p>
+              </div>
+              <div className="mt-8">
+                <Link href="/practice-tools"
+                  className="font-medium text-sm inline-flex items-center gap-2 transition-all hover:gap-3"
+                  style={{ color: '#C9A435' }}>
+                  The tools we use →
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden shadow-2xl">
+              <img
+                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
+                alt="A student's accuracy chart showing progress over time"
+                className="w-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Closing — invitation, not CTA */}
+      <section className="py-28" style={{ background: '#fdf9f4' }}>
+        <div className="max-w-2xl mx-auto px-8 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] mb-8 font-medium" style={{ color: '#a08060' }}>An Invitation</p>
+          <h2 className="font-bold mb-7"
+            style={{ color: '#2a1f17', fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: '1.3' }}>
+            If this resonates with you —<br />we&apos;d love to connect.
+          </h2>
+          <p className="leading-relaxed mb-12" style={{ color: '#7a6a5a', fontSize: '1.05rem' }}>
+            Whether you&apos;re a family just beginning to explore Spelling to Communicate, or someone who has been searching for a practitioner who sees your child the way you do — this work is for you.
           </p>
-          <p className="text-gray-600 text-lg leading-relaxed mb-10">
-            Not to be impressive. Not to win awards. Because the student sitting across from you deserves a practitioner who is fully there.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/practice-tools"
-              className="font-bold px-8 py-4 rounded-xl text-base transition-all hover:opacity-90 shadow-md"
-              style={{ background: '#1d1d1d', color: 'white' }}>
-              Explore the Tools
-            </Link>
-            <Link href="/contact"
-              className="font-semibold px-8 py-4 rounded-xl text-base border-2 transition-all hover:bg-gray-50"
-              style={{ borderColor: '#d4c5a9', color: '#444' }}>
-              Get in Touch
+          <div className="flex flex-wrap justify-center gap-5">
+            <a href="mailto:wordups2c@gmail.com"
+              className="font-semibold px-8 py-4 rounded-full transition-all hover:opacity-90 shadow-lg"
+              style={{ background: '#C9A435', color: '#2a1f17' }}>
+              Reach Out
+            </a>
+            <Link href="/parent-resources"
+              className="font-medium px-8 py-4 rounded-full border-2 transition-all hover:bg-white"
+              style={{ borderColor: '#d4c0a8', color: '#7a6a5a' }}>
+              Resources for Families
             </Link>
           </div>
         </div>
