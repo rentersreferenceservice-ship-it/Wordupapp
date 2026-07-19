@@ -78,8 +78,8 @@ export default function OurPracticePage() {
             {[
               {
                 step: '01',
-                title: 'Regulation & Motor Warm-Up',
-                body: 'Every session begins with the student\'s nervous system, not the lesson. We use movement, breathing, and sensory tools to help the student arrive in their body and feel safe enough to do focused work. A regulated student is a student who can learn.',
+                title: 'Regulation & Motor Readiness',
+                body: 'Every session begins with the practitioner observing the student\'s regulation and motor readiness for learning. When needed, movement, breathing, sensory strategies, or other regulation supports are incorporated to help the student achieve an optimal state for purposeful engagement. A regulated student is better able to participate in focused learning and purposeful communication.',
               },
               {
                 step: '02',
