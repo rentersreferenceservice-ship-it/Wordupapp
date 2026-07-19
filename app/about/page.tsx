@@ -15,9 +15,9 @@ export default function PhilosophyPage() {
       {/* Hero — Melody's photo full bleed */}
       <section className="relative overflow-hidden" style={{ minHeight: '60vh' }}>
         <img
-          src="/481072609_122154518738367665_7170235168370591795_n.jpg"
-          alt="Melody — Certified S2C Practitioner"
-          className="absolute inset-0 w-full h-full object-cover object-top"
+          src="/nature-family-mountains.jpg"
+          alt="Two people hiking toward mountain peaks — the journey forward"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0"
           style={{ background: 'linear-gradient(to right, rgba(29,29,29,0.85) 0%, rgba(29,29,29,0.6) 50%, rgba(29,29,29,0.2) 100%)' }} />

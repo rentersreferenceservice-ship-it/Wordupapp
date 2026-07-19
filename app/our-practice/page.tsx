@@ -154,14 +154,14 @@ export default function OurPracticePage() {
           <h2 className="text-2xl font-bold text-center mb-10" style={{ color: '#1d1d1d' }}>What Families Can Expect</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '📊', title: 'Transparent Data', body: 'After every session, accuracy data is recorded. Families can see exactly how their student performed and how that has changed over time.' },
-              { icon: '📋', title: 'Session Transcripts', body: 'Full transcripts of what was asked and how the student responded are documented and available to share with families, educators, and support teams.' },
-              { icon: '🤝', title: 'Partnership', body: 'Families are not waiting-room bystanders. They are partners. We explain what we see, what it means, and how to support the work between sessions.' },
+              { title: 'Transparent Data', body: 'After every session, accuracy data is recorded. Families can see exactly how their student performed and how that has changed over time.' },
+              { title: 'Session Transcripts', body: 'Full transcripts of what was asked and how the student responded are documented and available to share with families, educators, and support teams.' },
+              { title: 'Partnership', body: 'Families are not waiting-room bystanders. They are partners. We explain what we see, what it means, and how to support the work between sessions.' },
             ].map(c => (
               <div key={c.title} className="rounded-2xl p-7 border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-5">{c.icon}</div>
-                <h3 className="font-bold mb-3" style={{ color: '#1d1d1d' }}>{c.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{c.body}</p>
+                <p className="text-xl mb-4 font-bold" style={{ color: '#C9A435' }}>✦</p>
+                <h3 className="font-bold mb-3" style={{ color: '#2a1f17' }}>{c.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#5a4a3a' }}>{c.body}</p>
               </div>
             ))}
           </div>

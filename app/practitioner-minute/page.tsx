@@ -38,17 +38,17 @@ export default function PractitionerMinutePage() {
           <h2 className="text-2xl font-bold text-center mb-10" style={{ color: '#1d1d1d' }}>What We Cover</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: '📊', title: 'Objective Data', body: 'How to use accuracy data to tell a clear, honest story of student progress.' },
-              { icon: '🎯', title: 'Session Strategy', body: 'Practical techniques for regulation, motor warm-up, and scaffolding spelling success.' },
-              { icon: '💬', title: 'Family Communication', body: 'How to communicate progress, set expectations, and partner with families effectively.' },
-              { icon: '📋', title: 'Documentation', body: 'Clinical documentation that is clear, accurate, and useful — not just paperwork.' },
-              { icon: '🧠', title: 'Evidence & Research', body: 'Staying current with the research that supports S2C and presumed competence.' },
-              { icon: '💛', title: 'Practitioner Wellbeing', body: 'How to sustain a meaningful, organized practice without burning out.' },
+              { title: 'Objective Data', body: 'How to use accuracy data to tell a clear, honest story of student progress.' },
+              { title: 'Session Strategy', body: 'Practical techniques for regulation, motor warm-up, and scaffolding spelling success.' },
+              { title: 'Family Communication', body: 'How to communicate progress, set expectations, and partner with families effectively.' },
+              { title: 'Documentation', body: 'Clinical documentation that is clear, accurate, and useful — not just paperwork.' },
+              { title: 'Evidence & Research', body: 'Staying current with the research that supports S2C and presumed competence.' },
+              { title: 'Practitioner Wellbeing', body: 'How to sustain a meaningful, organized practice without burning out.' },
             ].map(p => (
-              <div key={p.title} className="rounded-2xl p-6 border border-gray-100" style={{ background: '#faf8f3' }}>
-                <div className="text-3xl mb-4">{p.icon}</div>
-                <h3 className="font-bold mb-2 text-sm" style={{ color: '#1d1d1d' }}>{p.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{p.body}</p>
+              <div key={p.title} className="rounded-2xl p-6 border border-gray-100" style={{ background: '#fdf9f4' }}>
+                <p className="text-lg mb-3 font-bold" style={{ color: '#C9A435' }}>✦</p>
+                <h3 className="font-bold mb-2 text-sm" style={{ color: '#2a1f17' }}>{p.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#5a4a3a' }}>{p.body}</p>
               </div>
             ))}
           </div>
@@ -57,7 +57,7 @@ export default function PractitionerMinutePage() {
 
       <section className="py-16 text-white" style={{ background: '#1d1d1d' }}>
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="text-5xl mb-6">📬</div>
+          <p className="text-3xl mb-6 font-bold" style={{ color: '#C9A435' }}>✦</p>
           <h2 className="text-2xl font-bold mb-4">Articles Coming Soon</h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
             The Practitioner Minute is actively being built. Check back soon — or get in touch to suggest a topic you&apos;d love to see covered.
