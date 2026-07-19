@@ -114,7 +114,7 @@ export default function HomePage() {
               <h2 className="font-bold mb-8" style={{ color: '#2a1f17', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.3' }}>
                 It started with a very heavy bag.
               </h2>
-              <div className="space-y-5 leading-relaxed" style={{ color: '#5a4a3a' }}>
+              <div className="space-y-5 leading-relaxed" style={{ color: '#5a4a3a', fontSize: '1.05rem' }}>
                 <p>
                   For years, I arrived at every session carrying a bag so heavy it had become part of my identity. Lesson plans. Student binders. Clipboards. Transcripts. Cameras. Always more paperwork.
                 </p>
@@ -124,7 +124,7 @@ export default function HomePage() {
                 <p>
                   So I started building tools — not to start a company, but because every minute spent managing paperwork was one less minute holding space for the person sitting across from me.
                 </p>
-                <p className="font-semibold text-base" style={{ color: '#2a1f17' }}>
+                <p style={{ color: '#2a1f17', fontWeight: '600' }}>
                   Today I walk into sessions carrying little more than a tablet, my camera, and a tripod. Not because technology replaced my practice. Because it got out of the way of it.
                 </p>
               </div>
