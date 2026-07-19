@@ -1,5 +1,6 @@
 import PublicNav from '../components/PublicNav'
 import PublicFooter from '../components/PublicFooter'
+import Link from 'next/link'
 
 export const metadata = {
   title: 'Practitioner Services — Word Up',
@@ -11,58 +12,160 @@ export default function PractitionerServicesPage() {
     <>
       <PublicNav />
 
-      <section className="py-16 text-white" style={{ background: '#1d1d1d' }}>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>Practitioner Services</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Supporting Students &amp; Families</h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Experienced, evidence-based Spelling to Communicate services — delivered with warmth, structure, and genuine care for every student.
-          </p>
-        </div>
-      </section>
-
-      <section className="py-20" style={{ background: '#faf8f3' }}>
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: '🎯', title: 'One-on-One S2C Sessions', body: 'Individualized Spelling to Communicate sessions tailored to each student\'s unique needs, pace, and communication goals. Every session is structured, purposeful, and student-centered.' },
-              { icon: '📈', title: 'Progress Tracking', body: 'Objective accuracy data collected every session. Families receive clear, evidence-based documentation of their student\'s growth over time.' },
-              { icon: '👨‍👩‍👧', title: 'Family Support & Guidance', body: 'Parents and communication partners receive training, resources, and ongoing support to reinforce skills between sessions and strengthen the student\'s communication journey at home.' },
-              { icon: '🤝', title: 'Practitioner Consultation', body: 'Consultations available for practitioners, educators, and teams working alongside S2C spellers. Collaborative, respectful, and grounded in best practice.' },
-            ].map(s => (
-              <div key={s.title} className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-5">{s.icon}</div>
-                <h3 className="text-lg font-bold mb-3" style={{ color: '#1d1d1d' }}>{s.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{s.body}</p>
-              </div>
-            ))}
+      {/* Hero — full bleed, adult session */}
+      <section className="relative overflow-hidden" style={{ minHeight: '60vh' }}>
+        <img
+          src="/s2c-adult-session.png"
+          alt="A Spelling to Communicate session in a warm, intentional space"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(to right, rgba(42,31,23,0.88) 0%, rgba(42,31,23,0.6) 55%, rgba(42,31,23,0.15) 100%)' }} />
+        <div className="relative max-w-5xl mx-auto px-8 flex items-end" style={{ minHeight: '60vh' }}>
+          <div className="max-w-lg pb-12">
+            <p className="text-xs uppercase tracking-[0.3em] font-medium mb-4" style={{ color: '#C9A435' }}>Practitioner Services</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+              Supporting students &amp; families.
+            </h1>
+            <p className="text-lg leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Evidence-based Spelling to Communicate services delivered with warmth, structure, and genuine care for every student.
+            </p>
           </div>
         </div>
       </section>
 
-      <section className="py-16 text-white" style={{ background: '#1d1d1d' }}>
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6">Our Approach</h2>
-          <div className="grid sm:grid-cols-3 gap-4 mb-10">
-            {[
-              { icon: '📊', label: 'Objective Data' },
-              { icon: '🧡', label: 'Real Progress' },
-              { icon: '✅', label: 'Evidence Over Assumption' },
-            ].map(p => (
-              <div key={p.label} className="rounded-xl px-5 py-5" style={{ background: '#2d2d2d' }}>
-                <div className="text-3xl mb-3">{p.icon}</div>
-                <p className="text-sm font-semibold">{p.label}</p>
+      {/* Service 1 — One-on-One Sessions */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] font-medium mb-4" style={{ color: '#C9A435' }}>One-on-One Sessions</p>
+              <h2 className="text-3xl font-bold mb-6" style={{ color: '#2a1f17', lineHeight: '1.25' }}>
+                Every session is built for one student.
+              </h2>
+              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  Individualized Spelling to Communicate sessions tailored to each student&apos;s unique needs, pace, and communication goals. Every session is structured, purposeful, and student-centered.
+                </p>
+                <p>
+                  We begin with regulation. We move through a carefully scaffolded lesson. We close with reflection. And we track every response — objectively, honestly, and without judgment.
+                </p>
               </div>
-            ))}
+            </div>
+            <div>
+              <img
+                src="/s2c-session-hero.png"
+                alt="A student pointing to the letterboard during a one-on-one S2C session"
+                className="w-full rounded-3xl shadow-xl object-cover"
+              />
+            </div>
           </div>
-          <p className="text-gray-400 leading-relaxed mb-8">
-            Every session is grounded in the principles of Spelling to Communicate — structured, evidence-based, respectful, and hopeful. Students are presumed competent. Families are treated as partners. Progress is documented and shared with transparency.
-          </p>
-          <a href="/contact"
-            className="inline-block font-bold px-10 py-4 rounded-xl text-base transition-all hover:opacity-90"
-            style={{ background: '#C9A435', color: '#1d1d1d' }}>
-            Get in Touch →
-          </a>
+        </div>
+      </section>
+
+      {/* Service 2 — Progress Tracking */}
+      <section className="py-20" style={{ background: '#fdf9f4' }}>
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="md:order-2">
+              <p className="text-xs uppercase tracking-[0.3em] font-medium mb-4" style={{ color: '#C9A435' }}>Progress Tracking</p>
+              <h2 className="text-3xl font-bold mb-6" style={{ color: '#2a1f17', lineHeight: '1.25' }}>
+                Objective data. Honest documentation.
+              </h2>
+              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  Accuracy data is collected every session and shared transparently with families. Not as a report card — as a map. A map of regulation, of motor development, of a nervous system learning to trust itself.
+                </p>
+                <p>
+                  Dips tell one part of the story. The climb back up tells another. We read both together, with families, and we never reduce a student to a number.
+                </p>
+              </div>
+            </div>
+            <div className="md:order-1 rounded-3xl overflow-hidden shadow-xl">
+              <img
+                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
+                alt="Accuracy history chart showing a student's S2C progress over time"
+                className="w-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Service 3 — Family Support */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] font-medium mb-4" style={{ color: '#C9A435' }}>Family Support &amp; Guidance</p>
+              <h2 className="text-3xl font-bold mb-6" style={{ color: '#2a1f17', lineHeight: '1.25' }}>
+                Families are partners — not passengers.
+              </h2>
+              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  Parents and communication partners receive training, resources, and ongoing support to reinforce skills between sessions and strengthen the student&apos;s communication journey at home.
+                </p>
+                <p>
+                  We share session transcripts, explain what the data means, and make sure every family feels informed, included, and confident in the work we&apos;re doing together.
+                </p>
+              </div>
+            </div>
+            <div>
+              <img
+                src="/481072609_122154518738367665_7170235168370591795_n.jpg"
+                alt="Melody — Certified S2C Practitioner"
+                className="w-full rounded-3xl shadow-xl object-cover object-top"
+                style={{ maxHeight: '420px' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Service 4 — Practitioner Consultation */}
+      <section className="py-20" style={{ background: '#f0ede8' }}>
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="md:order-2">
+              <p className="text-xs uppercase tracking-[0.3em] font-medium mb-4" style={{ color: '#C9A435' }}>Practitioner Consultation</p>
+              <h2 className="text-3xl font-bold mb-6" style={{ color: '#2a1f17', lineHeight: '1.25' }}>
+                Collaborative, grounded, respectful.
+              </h2>
+              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
+                <p>
+                  Consultations available for practitioners, educators, and support teams working alongside S2C spellers. The tone is always collegial. The foundation is always evidence.
+                </p>
+                <p>
+                  Whether you are new to Spelling to Communicate or experienced and looking for a thought partner — we welcome the conversation.
+                </p>
+              </div>
+            </div>
+            <div className="md:order-1">
+              <img
+                src="/letterboard-az.jpg"
+                alt="The A-Z letterboard — the tool at the center of every S2C session"
+                className="w-full rounded-3xl shadow-xl"
+                style={{ maxHeight: '380px', objectFit: 'cover' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Approach — text only, no icons */}
+      <section className="py-20 text-white" style={{ background: '#2a1f17' }}>
+        <div className="max-w-3xl mx-auto px-8 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] font-medium mb-8" style={{ color: '#C9A435' }}>Our Approach</p>
+          <div className="space-y-5 leading-relaxed mb-12" style={{ color: 'rgba(255,255,255,0.72)', fontSize: '1.05rem' }}>
+            <p>Every session is grounded in the principles of Spelling to Communicate — structured, evidence-based, respectful, and hopeful.</p>
+            <p>Students are presumed competent. Families are treated as partners. Progress is documented and shared with transparency.</p>
+            <p className="font-semibold" style={{ color: 'rgba(255,255,255,0.9)' }}>Evidence over assumption. Always.</p>
+          </div>
+          <Link href="/contact"
+            className="inline-block font-semibold px-8 py-4 rounded-full transition-all hover:opacity-90"
+            style={{ background: '#C9A435', color: '#2a1f17' }}>
+            Get in Touch
+          </Link>
         </div>
       </section>
 
