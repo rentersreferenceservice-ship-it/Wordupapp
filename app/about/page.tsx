@@ -41,7 +41,7 @@ export default function PhilosophyPage() {
 
           <div className="space-y-7 text-gray-700 leading-relaxed text-lg">
             <p>
-              I became a Spelling to Communicate practitioner because I believe — without reservation — that every person has the capacity to think, to learn, and to communicate. Not potentially. Not eventually. Right now, as they are today.
+              I became a Spelling to Communicate practitioner because I believe — without reservation — that every person has the capacity to think, to learn, and to communicate.
             </p>
             <p>
               What gets in the way is not intelligence. What gets in the way is motor. Many of the students I work with have spent years being misunderstood — not because they didn&apos;t understand the world around them, but because their bodies couldn&apos;t yet show it.
