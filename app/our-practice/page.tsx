@@ -94,7 +94,7 @@ export default function OurPracticePage() {
               {
                 step: '04',
                 title: 'Letterboard Spelling',
-                body: 'The student points. We wait. We support the motor system without leading or prompting the answer. This is one of the most important things we do — getting out of the way so the student can show us what they actually think.',
+                body: 'The practitioner uses gestural and verbal prompting to support purposeful motor responses toward the letterboard. As the speller\'s motor abilities and independence increase over time, these supports are systematically faded — allowing the student to demonstrate increasingly independent and reliable communication through spelling.',
               },
               {
                 step: '05',
