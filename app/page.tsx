@@ -83,23 +83,17 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] mb-5 font-medium" style={{ color: '#a08060' }}>The Letterboard</p>
-              <h2 className="font-bold mb-6" style={{ color: '#2a1f17', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.25' }}>
-                A simple tool.<br />An extraordinary bridge.
-              </h2>
-              <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
-                <p>
-                  The letterboard holds no agenda. It does not rush. It does not assume. It simply waits — for the student&apos;s hand, their intention, their thought made visible for the very first time.
-                </p>
-                <p>
-                  We begin with presence. With regulation. With the understanding that a nervous system needs to feel safe before it can express itself fully.
-                </p>
-                <p className="font-semibold" style={{ color: '#2a1f17' }}>
-                  And when the conditions are right — when the room is calm and the practitioner is patient — students show us exactly who they are and what they know.
-                </p>
-              </div>
-              <div className="mt-8">
+            <div className="space-y-6" style={{ color: '#5a4a3a', fontSize: '1.08rem', lineHeight: '1.8' }}>
+              <p>
+                The letterboard holds no agenda. It does not rush. It does not assume. It simply waits — for the student&apos;s hand, their intention, their thought made visible for the very first time.
+              </p>
+              <p>
+                We begin with presence. With regulation. With the understanding that a nervous system needs to feel safe before it can express itself fully.
+              </p>
+              <p style={{ color: '#2a1f17', fontWeight: '600' }}>
+                And when the conditions are right — when the room is calm and the practitioner is patient — students show us exactly who they are and what they know.
+              </p>
+              <div className="pt-2">
                 <Link href="/our-practice"
                   className="font-medium text-sm inline-flex items-center gap-2 transition-all hover:gap-3"
                   style={{ color: '#C9A435' }}>
