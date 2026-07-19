@@ -2,8 +2,6 @@ import PublicNav from '../components/PublicNav'
 import PublicFooter from '../components/PublicFooter'
 
 function PractitionerDashboardMockup() {
-  const accuracyBars = [58, 70, 65, 78, 82, 76, 88, 91, 85, 94]
-
   return (
     <div className="rounded-2xl overflow-hidden shadow-2xl border" style={{ borderColor: '#d1d5db' }}>
       {/* Browser chrome */}
@@ -64,18 +62,13 @@ function PractitionerDashboardMockup() {
               <p className="text-xs font-bold text-white">Accuracy History</p>
               <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Spelling accuracy across completed sessions</p>
             </div>
-            {/* Mini chart — white panel */}
-            <div className="mx-3 rounded-lg bg-white p-2.5">
-              <div className="flex items-end gap-0.5 h-12">
-                {accuracyBars.map((v, i) => (
-                  <div key={i} className="flex-1 rounded-t-sm transition-all"
-                    style={{ height: `${v}%`, background: `rgba(37,99,235,${0.35 + v / 200})` }} />
-                ))}
-              </div>
-              <div className="flex justify-between mt-1">
-                <p className="text-[8px]" style={{ color: '#9ca3af' }}>Oct</p>
-                <p className="text-[8px]" style={{ color: '#9ca3af' }}>Jul</p>
-              </div>
+            {/* Real accuracy graph */}
+            <div className="mx-3 rounded-lg overflow-hidden">
+              <img
+                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
+                alt="Real student accuracy history graph"
+                className="w-full object-cover"
+              />
             </div>
             <div className="px-3 pb-3 pt-2">
               <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.38)' }}>
