@@ -1,5 +1,6 @@
 import PublicNav from '../components/PublicNav'
 import PublicFooter from '../components/PublicFooter'
+import MockDashboardChart from './MockDashboardChart'
 
 function PractitionerDashboardMockup() {
   return (
@@ -62,13 +63,9 @@ function PractitionerDashboardMockup() {
               <p className="text-xs font-bold text-white">Accuracy History</p>
               <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Spelling accuracy across completed sessions</p>
             </div>
-            {/* Real accuracy graph */}
-            <div className="mx-3 rounded-lg overflow-hidden">
-              <img
-                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
-                alt="Real student accuracy history graph"
-                className="w-full object-cover"
-              />
+            {/* Live accuracy chart — crisp SVG, no identifying info */}
+            <div className="mx-3 rounded-lg bg-white px-3 pt-3 pb-1">
+              <MockDashboardChart />
             </div>
             <div className="px-3 pb-3 pt-2">
               <p className="text-[9px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.38)' }}>
