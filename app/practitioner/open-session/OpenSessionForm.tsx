@@ -1,10 +1,74 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
+
+function SessionTimer() {
+  const [seconds, setSeconds] = useState(0)
+  const [running, setRunning] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const start = useCallback(() => {
+    if (intervalRef.current) return
+    intervalRef.current = setInterval(() => setSeconds(s => s + 1), 1000)
+    setRunning(true)
+  }, [])
+
+  const pause = useCallback(() => {
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
+    setRunning(false)
+  }, [])
+
+  const reset = useCallback(() => {
+    pause()
+    setSeconds(0)
+  }, [pause])
+
+  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current) }, [])
+
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  const display = h > 0
+    ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4">
+      <div>
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Session Timer</p>
+        <p className="font-mono font-black text-4xl leading-none" style={{ color: running ? '#2563eb' : '#111827', letterSpacing: '0.05em' }}>
+          {display}
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={running ? pause : start}
+          className="px-5 py-2.5 rounded-xl font-bold text-sm transition-all"
+          style={running
+            ? { background: '#fef2f2', color: '#dc2626', border: '2px solid #fecaca' }
+            : { background: '#eff6ff', color: '#2563eb', border: '2px solid #bfdbfe' }
+          }
+        >
+          {running ? 'Pause' : seconds > 0 ? 'Resume' : 'Start'}
+        </button>
+        {seconds > 0 && !running && (
+          <button
+            type="button"
+            onClick={reset}
+            className="px-4 py-2.5 rounded-xl font-semibold text-sm bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -164,6 +228,8 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         <Link href="/practitioner/dashboard" className="text-sm text-blue-600 hover:underline">← Dashboard</Link>
       </div>
       <h1 className="text-2xl font-bold text-gray-900">Open Session</h1>
+
+      <SessionTimer />
 
       {/* Student + Date */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
