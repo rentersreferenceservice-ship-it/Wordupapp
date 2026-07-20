@@ -290,7 +290,7 @@ export default function PracticeToolsPage() {
                   Every lesson follows the S2C structure: KNOWN, SEMI-OPEN, MATH, PRIOR KNOWLEDGE, OPEN, and VAKT questions — color-coded and sequenced correctly every time.
                 </p>
                 <p className="text-sm rounded-xl px-5 py-4" style={{ background: '#faf5eb', borderLeft: '3px solid #C9A435', color: '#4a3a2a' }}>
-                  <span className="font-semibold">Practitioner subscribers</span> also get access to a private lesson library — a growing curated collection of pre-built S2C lessons available directly inside the Practitioner Dashboard.
+                  <span className="font-semibold">Practitioner subscribers</span> also get access to a private lesson library inside the Dashboard — and can share lessons directly with spellers, CRPs, and families.
                 </p>
               </div>
               <div className="space-y-2 mb-8">
@@ -347,7 +347,7 @@ export default function PracticeToolsPage() {
 
               <div className="grid grid-cols-2 gap-4 mb-10">
                 {[
-                  { phase: 'Prepare', items: ['Choose or generate lessons', 'Build your session plan'] },
+                  { phase: 'Prepare', items: ['Choose or generate lessons', 'Share lessons with spellers, CRPs & families', 'Build your session plan'] },
                   { phase: 'Teach', items: ['Run session timer', 'Record pokes in real time'] },
                   { phase: 'Measure', items: ['Automatic accuracy calculations', 'Accuracy history graph'] },
                   { phase: 'Document', items: ['Transcripts', 'Videos', 'Clinical notes', 'Invoices'] },
