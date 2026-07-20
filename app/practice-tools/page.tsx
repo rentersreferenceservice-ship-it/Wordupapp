@@ -230,7 +230,7 @@ export default function PracticeToolsPage() {
       <section className="py-20 text-white" style={{ background: '#2a1f17' }}>
         <div className="max-w-4xl mx-auto px-8 text-center">
           <p className="text-xs uppercase tracking-[0.3em] font-medium mb-5" style={{ color: '#C9A435' }}>Practice Tools</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-5" style={{ lineHeight: '1.15' }}>The tools that got out of the way.</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-5" style={{ lineHeight: '1.15' }}>Built for the session. Not the paperwork.</h1>
           <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Built one at a time, to solve real problems in real sessions — so practitioners can spend more time with the student in front of them.
           </p>
@@ -270,6 +270,9 @@ export default function PracticeToolsPage() {
                 </p>
                 <p>
                   Every lesson follows the S2C structure: KNOWN, SEMI-OPEN, MATH, PRIOR KNOWLEDGE, OPEN, and VAKT questions — color-coded and sequenced correctly every time.
+                </p>
+                <p className="text-sm rounded-xl px-5 py-4" style={{ background: '#faf5eb', borderLeft: '3px solid #C9A435', color: '#4a3a2a' }}>
+                  <span className="font-semibold">Practitioner subscribers</span> also get access to a private lesson library — a growing curated collection of pre-built S2C lessons available directly inside the Practitioner Dashboard.
                 </p>
               </div>
               <div className="space-y-2 mb-8">

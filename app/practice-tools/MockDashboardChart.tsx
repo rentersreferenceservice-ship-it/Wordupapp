@@ -3,21 +3,21 @@
 import AccuracyChart from '@/app/AccuracyChart'
 import type { SessionAccuracy } from '@/lib/practitionerStore'
 
-const SAMPLE_DATA: SessionAccuracy[] = [
-  { sessionId: 's1',  date: '2024-09-05', accuracy: 58, lessonTitle: 'The Water Cycle',           regulationArrival: 'dysregulated', regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's2',  date: '2024-09-12', accuracy: 62, lessonTitle: 'Photosynthesis',             regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's3',  date: '2024-09-19', accuracy: 71, lessonTitle: 'The Solar System',           regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's4',  date: '2024-10-03', accuracy: 48, lessonTitle: 'American Revolution',        regulationArrival: 'dysregulated', regulationDeparture: 'dysregulated', crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's5',  date: '2024-10-10', accuracy: 55, lessonTitle: 'The Human Brain',            regulationArrival: 'dysregulated', regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's6',  date: '2024-10-17', accuracy: 74, lessonTitle: 'Ancient Egypt',              regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's7',  date: '2024-10-31', accuracy: 79, lessonTitle: 'Ecosystems',                 regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's8',  date: '2024-11-07', accuracy: 83, lessonTitle: 'The Civil Rights Movement',  regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's9',  date: '2024-11-14', accuracy: 65, lessonTitle: 'Volcanoes',                  regulationArrival: 'dysregulated', regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's10', date: '2024-11-21', accuracy: 88, lessonTitle: 'World War II',               regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's11', date: '2024-12-05', accuracy: 91, lessonTitle: 'The James Webb Telescope',   regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
-  { sessionId: 's12', date: '2024-12-12', accuracy: 94, lessonTitle: 'Emotions and the Brain',     regulationArrival: 'regulated',    regulationDeparture: 'regulated',    crpId: null, crpName: null, crpColor: null },
+// Real accuracy data from an anonymized adult speller — 11 sessions, Apr–Jun 2026
+const CRAIG_DATA: SessionAccuracy[] = [
+  { sessionId: '781ded62', date: '2026-04-28', accuracy: 79,  lessonTitle: 'Lesson 1',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: 'e4c55f69', date: '2026-04-28', accuracy: 82,  lessonTitle: 'Lesson 2',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: '8b85daaa', date: '2026-04-30', accuracy: 71,  lessonTitle: 'Lesson 3',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: '7fd2207e', date: '2026-04-30', accuracy: 91,  lessonTitle: 'Lesson 4',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: 'ca5a94f3', date: '2026-05-06', accuracy: 74,  lessonTitle: 'Lesson 5',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: '3edf6fbf', date: '2026-05-06', accuracy: 83,  lessonTitle: 'Lesson 6',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: 'e0787b2b', date: '2026-05-12', accuracy: 83,  lessonTitle: 'Lesson 7',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: 'ca62aa19', date: '2026-05-18', accuracy: 86,  lessonTitle: 'Lesson 8',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: '2c673259', date: '2026-05-19', accuracy: 76,  lessonTitle: 'Lesson 9',  regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: 'af0d9ef8', date: '2026-05-22', accuracy: 86,  lessonTitle: 'Lesson 10', regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
+  { sessionId: '312a50a0', date: '2026-06-06', accuracy: 99,  lessonTitle: 'Lesson 11', regulationArrival: null, regulationDeparture: null, crpId: null, crpName: null, crpColor: null },
 ]
 
 export default function MockDashboardChart() {
-  return <AccuracyChart data={SAMPLE_DATA} />
+  return <AccuracyChart data={CRAIG_DATA} />
 }
