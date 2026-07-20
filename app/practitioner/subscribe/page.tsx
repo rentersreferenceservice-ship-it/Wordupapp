@@ -13,9 +13,7 @@ export default function PractitionerSubscribePage() {
 
   async function subscribe(billing: 'monthly' | 'annual', skipTrial = false) {
     setLoading(billing)
-    const source = document.referrer
-      ? new URL(document.referrer).pathname
-      : 'direct'
+    const source = document.referrer ? new URL(document.referrer).pathname : 'direct'
     const res = await fetch('/api/practitioner/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -47,94 +45,117 @@ export default function PractitionerSubscribePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-      <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100 }} className="mb-6" />
-      <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Welcome to the Practitioner Dashboard</h1>
-      <p className="text-gray-500 mb-2 text-center max-w-md">
-        Manage your students, run sessions, generate invoices, and track progress — all in one place.
-      </p>
-      <p className="text-blue-700 font-semibold mb-8 text-center">
-        Start your 30-day free trial today. Your card will not be charged until after your trial ends.
-      </p>
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-14"
+      style={{ background: '#fdf9f4' }}>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+      {/* Masthead */}
+      <a href="/" className="flex items-center gap-4 mb-10">
+        <img src="/word_up_clean.jpeg" alt="Word Up" className="h-16 w-auto rounded-xl shadow" />
+        <div>
+          <p className="font-black leading-none tracking-[0.18em]"
+            style={{ color: '#2a1f17', fontSize: '1.6rem' }}>WORD UP</p>
+          <p className="font-semibold tracking-[0.3em] mt-1 uppercase text-xs"
+            style={{ color: '#C9A435' }}>Spelling to Communicate</p>
+        </div>
+      </a>
+
+      <div className="text-center mb-10 max-w-md">
+        <p className="text-xs font-bold uppercase tracking-[0.3em] mb-3" style={{ color: '#C9A435' }}>Start Your Trial</p>
+        <h1 className="text-3xl font-bold mb-3" style={{ color: '#2a1f17' }}>Welcome to the Practitioner Dashboard</h1>
+        <p className="leading-relaxed" style={{ color: '#7a6a5a' }}>
+          Choose your plan below. Your 30-day free trial begins today — no charge until it ends.
+        </p>
+      </div>
+
+      {/* Plan cards */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mb-6">
+
+        {/* Monthly */}
         <button
           onClick={() => subscribe('monthly')}
           disabled={loading !== null}
-          className="flex-1 border-2 border-blue-600 rounded-xl p-6 text-center hover:bg-blue-50 transition-colors disabled:opacity-50 cursor-pointer"
-        >
-          <div className="text-xl font-bold text-gray-900">Monthly</div>
-          <div className="text-3xl font-bold text-blue-600 my-2">$29.99<span className="text-base font-normal text-gray-500">/mo</span></div>
-          <div className="text-sm text-gray-500">Billed monthly after trial</div>
-          {loading === 'monthly' && <div className="text-blue-600 text-sm mt-2">Redirecting...</div>}
+          className="flex-1 rounded-2xl p-6 text-center transition-all disabled:opacity-50 border-2"
+          style={{ borderColor: '#c4b49a', background: 'white' }}>
+          <p className="text-sm font-semibold mb-1" style={{ color: '#7a6a5a' }}>Monthly</p>
+          <p className="text-3xl font-black mb-1" style={{ color: '#2a1f17' }}>
+            $29.99<span className="text-base font-normal" style={{ color: '#a08060' }}>/mo</span>
+          </p>
+          <p className="text-xs mb-3" style={{ color: '#a08060' }}>Billed monthly after trial</p>
+          {loading === 'monthly'
+            ? <p className="text-sm font-semibold" style={{ color: '#C9A435' }}>Redirecting…</p>
+            : <p className="text-sm font-bold py-2 rounded-full" style={{ background: '#f5efe6', color: '#2a1f17' }}>Select</p>
+          }
         </button>
 
+        {/* Annual — featured */}
         <button
           onClick={() => subscribe('annual')}
           disabled={loading !== null}
-          className="flex-1 border-2 border-green-600 rounded-xl p-6 text-center hover:bg-green-50 transition-colors disabled:opacity-50 cursor-pointer relative"
-        >
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">SAVE 15%</div>
-          <div className="text-xl font-bold text-gray-900">Annual</div>
-          <div className="text-3xl font-bold text-green-600 my-2">$305.89<span className="text-base font-normal text-gray-500">/yr</span></div>
-          <div className="text-sm text-gray-500">~$25.49/mo, billed yearly after trial</div>
-          {loading === 'annual' && <div className="text-green-600 text-sm mt-2">Redirecting...</div>}
+          className="flex-1 rounded-2xl p-6 text-center transition-all disabled:opacity-50 relative border-2"
+          style={{ borderColor: '#C9A435', background: '#2a1f17' }}>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold"
+            style={{ background: '#C9A435', color: '#2a1f17' }}>SAVE 15%</div>
+          <p className="text-sm font-semibold mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Annual</p>
+          <p className="text-3xl font-black mb-1 text-white">
+            $305.89<span className="text-base font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>/yr</span>
+          </p>
+          <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>~$25.49/mo, billed yearly after trial</p>
+          {loading === 'annual'
+            ? <p className="text-sm font-semibold" style={{ color: '#C9A435' }}>Redirecting…</p>
+            : <p className="text-sm font-bold py-2 rounded-full" style={{ background: '#C9A435', color: '#2a1f17' }}>Select</p>
+          }
         </button>
       </div>
 
-      <p className="text-xs text-gray-400 mt-6 text-center max-w-sm">
+      <p className="text-xs text-center max-w-sm mb-6" style={{ color: '#a08060' }}>
         Cancel anytime before your trial ends and you will not be charged. After the trial, your chosen plan renews automatically.
       </p>
 
-      <div className="mt-4 text-center">
-        <p className="text-xs text-gray-400 mb-1">Want to skip the trial and subscribe now?</p>
-        <div className="flex gap-3 justify-center">
-          <button
-            onClick={() => subscribe('monthly', true)}
-            disabled={loading !== null}
-            className="text-xs text-blue-600 hover:text-blue-800 underline underline-offset-2 disabled:opacity-50"
-          >
+      {/* Skip trial */}
+      <div className="text-center mb-8">
+        <p className="text-xs mb-2" style={{ color: '#c4b49a' }}>Want to skip the trial and subscribe now?</p>
+        <div className="flex gap-4 justify-center">
+          <button onClick={() => subscribe('monthly', true)} disabled={loading !== null}
+            className="text-xs underline underline-offset-2 disabled:opacity-50" style={{ color: '#a08060' }}>
             Monthly — pay now
           </button>
-          <span className="text-xs text-gray-300">|</span>
-          <button
-            onClick={() => subscribe('annual', true)}
-            disabled={loading !== null}
-            className="text-xs text-green-600 hover:text-green-800 underline underline-offset-2 disabled:opacity-50"
-          >
+          <span style={{ color: '#d4c5a9' }}>|</span>
+          <button onClick={() => subscribe('annual', true)} disabled={loading !== null}
+            className="text-xs underline underline-offset-2 disabled:opacity-50" style={{ color: '#a08060' }}>
             Annual — pay now
           </button>
         </div>
       </div>
 
-      <div className="mt-6">
-        {!showCode ? (
-          <button onClick={() => setShowCode(true)} className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2">
-            Have an access code?
-          </button>
-        ) : (
-          <form onSubmit={redeemCode} className="flex flex-col items-center gap-2">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter access code"
-                value={code}
-                onChange={e => setCode(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-48"
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={redeeming || !code.trim()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
-              >
-                {redeeming ? 'Checking...' : 'Redeem'}
-              </button>
-            </div>
-            {codeError && <p className="text-xs text-red-500">{codeError}</p>}
-          </form>
-        )}
-      </div>
+      {/* Access code */}
+      {!showCode ? (
+        <button onClick={() => setShowCode(true)}
+          className="text-xs underline underline-offset-2" style={{ color: '#c4b49a' }}>
+          Have an access code?
+        </button>
+      ) : (
+        <form onSubmit={redeemCode} className="flex flex-col items-center gap-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter access code"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              autoFocus
+              className="rounded-xl px-4 py-2.5 text-sm outline-none w-48"
+              style={{ border: '1.5px solid #ddd3c4', background: 'white', color: '#2a1f17' }}
+            />
+            <button
+              type="submit"
+              disabled={redeeming || !code.trim()}
+              className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+              style={{ background: '#2a1f17', color: '#f5efe6' }}>
+              {redeeming ? 'Checking…' : 'Redeem'}
+            </button>
+          </div>
+          {codeError && <p className="text-xs" style={{ color: '#c0392b' }}>{codeError}</p>}
+        </form>
+      )}
     </main>
   )
 }
