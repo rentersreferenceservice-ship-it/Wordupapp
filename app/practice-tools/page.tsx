@@ -237,19 +237,37 @@ export default function PracticeToolsPage() {
         </div>
       </section>
 
-      {/* Intro */}
-      <section className="py-16" style={{ background: '#fdf9f4' }}>
+      {/* Intro — The Story */}
+      <section className="py-20" style={{ background: '#fdf9f4' }}>
         <div className="max-w-3xl mx-auto px-8">
+          <p className="text-xs uppercase tracking-[0.3em] mb-6 font-medium" style={{ color: '#a08060' }}>The Story</p>
+          <h2 className="font-bold mb-8" style={{ color: '#2a1f17', fontSize: 'clamp(1.6rem, 2.8vw, 2.2rem)', lineHeight: '1.3' }}>
+            It started with a very heavy bag.
+          </h2>
           <div className="space-y-5 leading-relaxed" style={{ color: '#5a4a3a', fontSize: '1.05rem' }}>
             <p>
-              As my practice grew, I found myself creating tools to solve real challenges I encountered while supporting students and families.
+              For years, I arrived at every session carrying a bag so heavy it had become part of my identity. Lesson plans. Student binders. Clipboards. Transcripts. Cameras. Always more paperwork.
             </p>
             <p>
-              What started as simple resources gradually became an integrated system — one that helps me document progress objectively, organize lessons efficiently, communicate more clearly with families, and spend more time fully present in my sessions.
+              I wasn&apos;t looking for software. I was looking for a better way to be present with my students.
+            </p>
+            <p>
+              So I started building tools — not to start a company, but because every minute spent managing paperwork was one less minute holding space for the person sitting across from me.
             </p>
             <p className="font-semibold" style={{ color: '#2a1f17' }}>
-              Today I&apos;m honored to share these tools with other practitioners.
+              Today I walk into sessions carrying little more than a tablet, my camera, and a tripod. Not because technology replaced my practice. Because it got out of the way of it.
             </p>
+          </div>
+          <div className="mt-10 pt-8 border-t flex items-center gap-4" style={{ borderColor: '#e8ddd0' }}>
+            <img
+              src="/481072609_122154518738367665_7170235168370591795_n.jpg"
+              alt="Melody"
+              className="w-14 h-14 rounded-full object-cover object-top shadow"
+            />
+            <div>
+              <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
+              <p className="text-sm" style={{ color: '#a08060' }}>Certified S2C Practitioner · Founder</p>
+            </div>
           </div>
         </div>
       </section>
