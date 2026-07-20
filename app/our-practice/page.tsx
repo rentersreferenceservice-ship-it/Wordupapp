@@ -136,11 +136,10 @@ export default function OurPracticePage() {
               </div>
             </div>
 
-            {/* Accuracy graph from the flyer */}
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
-                alt="Accuracy tracking over time — a student's S2C progress chart"
+                src="/2_20260717_200122_0001.png"
+                alt="Accuracy history chart showing S2C progress over time, annotated"
                 className="w-full object-cover"
               />
             </div>

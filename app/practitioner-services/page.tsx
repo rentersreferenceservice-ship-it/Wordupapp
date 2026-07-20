@@ -81,53 +81,12 @@ export default function PractitionerServicesPage() {
                 </p>
               </div>
             </div>
-            <div className="md:order-1 space-y-4">
-              {[
-                {
-                  label: 'Speller A',
-                  points: [62, 55, 70, 68, 80, 77, 85, 91],
-                },
-                {
-                  label: 'Speller B',
-                  points: [48, 60, 72, 65, 78, 83, 89, 95],
-                },
-                {
-                  label: 'Speller C',
-                  points: [71, 74, 68, 80, 82, 88, 92, 97],
-                },
-              ].map(({ label, points }) => {
-                const w = 260, h = 64, pad = 8
-                const minV = 40, maxV = 100
-                const xs = points.map((_, i) => pad + (i / (points.length - 1)) * (w - pad * 2))
-                const ys = points.map(v => h - pad - ((v - minV) / (maxV - minV)) * (h - pad * 2))
-                const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ')
-                const last = points[points.length - 1]
-                return (
-                  <div key={label} className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold" style={{ color: '#2a1f17' }}>{label}</p>
-                      <p className="text-xs font-bold" style={{ color: '#C9A435' }}>{last}%</p>
-                    </div>
-                    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height: 56 }}>
-                      <defs>
-                        <linearGradient id={`g-${label}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#C9A435" stopOpacity="0.18" />
-                          <stop offset="100%" stopColor="#C9A435" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                      <path
-                        d={`${d} L${xs[xs.length - 1].toFixed(1)},${h} L${xs[0].toFixed(1)},${h} Z`}
-                        fill={`url(#g-${label})`}
-                      />
-                      <path d={d} fill="none" stroke="#C9A435" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="3.5" fill="#C9A435" />
-                    </svg>
-                  </div>
-                )
-              })}
-              <p className="text-xs text-center" style={{ color: '#a08060' }}>
-                Anonymized · Real student data
-              </p>
+            <div className="md:order-1">
+              <img
+                src="/2_20260717_200122_0001.png"
+                alt="Accuracy history chart showing two students' S2C progress over time, annotated"
+                className="w-full rounded-3xl shadow-xl"
+              />
             </div>
           </div>
         </div>

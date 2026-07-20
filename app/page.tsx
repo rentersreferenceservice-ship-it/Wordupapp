@@ -199,8 +199,8 @@ export default function HomePage() {
 
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/751113119_122228981102367665_2704634927348127284_n.jpg"
-                alt="A student's accuracy chart showing progress over time"
+                src="/2_20260717_200122_0001.png"
+                alt="Accuracy history chart showing S2C progress over time, annotated"
                 className="w-full object-cover"
               />
             </div>
