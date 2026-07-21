@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 
-export default function ReflectionForm({ onSubmitted }: { onSubmitted?: () => void } = {}) {
+export default function ReflectionForm({ onSubmitted }: { onSubmitted?: () => void }) {
   const [nameType, setNameType] = useState<'initials' | 'full'>('initials')
   const [nameDisplay, setNameDisplay] = useState('')
   const [roleDescription, setRoleDescription] = useState('')
