@@ -4,6 +4,17 @@ import { NextResponse } from 'next/server'
 const isProtected = createRouteMatcher(['/practitioner/((?!get-started).*)'])
 
 export default clerkMiddleware(async (auth, req) => {
+  const hostname = req.headers.get('host') ?? ''
+  const { pathname } = req.nextUrl
+
+  if (
+    (hostname === 'worduplessongenerator.com' || hostname === 'www.worduplessongenerator.com') &&
+    !pathname.startsWith('/practitioner') &&
+    !pathname.startsWith('/api')
+  ) {
+    return NextResponse.redirect(new URL('/practitioner/get-started', req.url))
+  }
+
   if (isProtected(req)) {
     const { userId } = await auth()
     if (!userId) {
