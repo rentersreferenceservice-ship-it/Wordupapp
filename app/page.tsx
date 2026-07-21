@@ -105,8 +105,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <TestimonialsSection />
-
       {/* The journey — fullwidth warmth */}
       <section className="py-24 bg-white">
         <div className="max-w-5xl mx-auto px-8">
