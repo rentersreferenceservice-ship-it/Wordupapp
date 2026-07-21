@@ -19,6 +19,7 @@ export default function BackgroundText() {
   if (pathname.startsWith('/practitioner-minute')) return null
   if (pathname.startsWith('/lesson-generator')) return null
   if (pathname.startsWith('/our-practice')) return null
+  if (pathname.startsWith('/testimonials')) return null
   const content = [
     { color: 'rgba(21,128,61,0.55)', text: 'What is the telescope that looks at space called? When did the James Webb Telescope launch into space? What does the MIRROR collect from far away stars and galaxies?' },
     { color: 'rgba(0,0,0,0.32)', text: 'THE JAMES WEBB SPACE TELESCOPE / JWST · DECEMBER 25, 2021 / CHRISTMAS DAY · LIGHT FROM BILLIONS OF YEARS AGO ·' },
