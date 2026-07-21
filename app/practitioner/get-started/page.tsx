@@ -5,7 +5,7 @@ import { SignUpButton, SignInButton, useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 export default function PractitionerAccessPage() {
-  const { isSignedIn } = useUser()
+  const { isSignedIn, isLoaded } = useUser()
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', organization: '', role: '' })
@@ -15,6 +15,12 @@ export default function PractitionerAccessPage() {
   useEffect(() => {
     if (isSignedIn) router.replace('/practitioner/dashboard')
   }, [isSignedIn, router])
+
+  if (!isLoaded || isSignedIn) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#fdf9f4' }}>
+      <p className="text-sm" style={{ color: '#a08060' }}>Loading…</p>
+    </div>
+  )
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
