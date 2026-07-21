@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 
-export default function ReflectionForm() {
+export default function ReflectionForm({ onSubmitted }: { onSubmitted?: () => void } = {}) {
   const [nameType, setNameType] = useState<'initials' | 'full'>('initials')
   const [nameDisplay, setNameDisplay] = useState('')
   const [roleDescription, setRoleDescription] = useState('')
@@ -36,7 +36,7 @@ export default function ReflectionForm() {
 
     const res = await fetch('/api/testimonials/submit', { method: 'POST', body: formData })
     setSubmitting(false)
-    if (res.ok) setSubmitted(true)
+    if (res.ok) { setSubmitted(true); onSubmitted?.() }
     else setError('Something went wrong — please try again.')
   }
 
