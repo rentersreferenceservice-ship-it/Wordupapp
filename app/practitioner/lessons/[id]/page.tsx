@@ -87,6 +87,8 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           initialHunks={lesson.hunks}
           qrMap={qrMap}
           students={students}
+          isAdmin={isAdmin}
+          fullLesson={lesson}
         />
 
         <section className="mt-10 pt-6 border-t border-gray-200">

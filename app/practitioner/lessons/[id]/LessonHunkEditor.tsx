@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Hunk, QuestionType } from '@/lib/types'
+import type { Hunk, Lesson, QuestionType } from '@/lib/types'
 import type { Student } from '@/lib/practitionerStore'
 import StartSessionFromLesson from './StartSessionFromLesson'
 
@@ -29,17 +29,57 @@ export default function LessonHunkEditor({
   initialHunks,
   qrMap,
   students,
+  isAdmin = false,
+  fullLesson,
 }: {
   lessonId: string
   lessonTitle: string
   initialHunks: Hunk[]
   qrMap: Record<string, string>
   students: Student[]
+  isAdmin?: boolean
+  fullLesson?: Lesson
 }) {
   const [hunks, setHunks] = useState<Hunk[]>(initialHunks)
   const [editing, setEditing] = useState<EditingKey | null>(null)
   const [draft, setDraft] = useState('')
   const hasEdits = JSON.stringify(hunks) !== JSON.stringify(initialHunks)
+
+  // Admin-only: hunk body text editing
+  const [editingHunkIdx, setEditingHunkIdx] = useState<number | null>(null)
+  const [hunkDraft, setHunkDraft] = useState('')
+  const [hunkSaving, setHunkSaving] = useState(false)
+  const [hunkSaveSuccess, setHunkSaveSuccess] = useState<number | null>(null)
+  const [hunkSaveError, setHunkSaveError] = useState<string | null>(null)
+
+  function startHunkEdit(idx: number) {
+    setEditingHunkIdx(idx)
+    setHunkDraft(hunks[idx].text)
+    setHunkSaveError(null)
+  }
+
+  async function saveHunkText() {
+    if (editingHunkIdx === null || !fullLesson) return
+    setHunkSaving(true)
+    setHunkSaveError(null)
+    const updatedHunks = hunks.map((h, i) =>
+      i === editingHunkIdx ? { ...h, text: hunkDraft } : h
+    )
+    const res = await fetch(`/api/lessons/${lessonId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...fullLesson, hunks: updatedHunks }),
+    })
+    setHunkSaving(false)
+    if (res.ok) {
+      setHunks(updatedHunks)
+      setEditingHunkIdx(null)
+      setHunkSaveSuccess(editingHunkIdx)
+      setTimeout(() => setHunkSaveSuccess(null), 3000)
+    } else {
+      setHunkSaveError('Save failed — please try again.')
+    }
+  }
 
   function startEdit(key: EditingKey) {
     if (key.type === 'question') {
@@ -108,7 +148,51 @@ export default function LessonHunkEditor({
                 className="w-full max-h-48 object-contain rounded-xl mb-3 bg-gray-50"
               />
             )}
-            <p className="mb-3 text-gray-900 leading-relaxed">{hunk.text}</p>
+
+            {isAdmin && editingHunkIdx === hunkIdx ? (
+              <div className="mb-3 print:hidden">
+                <textarea
+                  value={hunkDraft}
+                  onChange={e => setHunkDraft(e.target.value)}
+                  rows={6}
+                  autoFocus
+                  className="w-full border border-amber-400 rounded-lg px-3 py-2 text-sm text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
+                />
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    onClick={saveHunkText}
+                    disabled={hunkSaving || hunkDraft.trim() === ''}
+                    className="text-xs bg-amber-600 text-white px-4 py-1.5 rounded-lg hover:bg-amber-700 disabled:opacity-50 font-semibold"
+                  >
+                    {hunkSaving ? 'Saving…' : 'Save to Lesson'}
+                  </button>
+                  <button
+                    onClick={() => setEditingHunkIdx(null)}
+                    disabled={hunkSaving}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  {hunkSaveError && <span className="text-xs text-red-600">{hunkSaveError}</span>}
+                </div>
+              </div>
+            ) : (
+              <div className="group relative mb-3">
+                <p className="text-gray-900 leading-relaxed">{hunk.text}</p>
+                {isAdmin && (
+                  <button
+                    onClick={() => startHunkEdit(hunkIdx)}
+                    title="Edit lesson content"
+                    className="print:hidden absolute top-0 right-0 opacity-0 group-hover:opacity-100 text-gray-300 hover:text-amber-600 transition-opacity"
+                  >
+                    ✏
+                  </button>
+                )}
+                {hunkSaveSuccess === hunkIdx && (
+                  <span className="print:hidden text-xs text-green-600 ml-2">✓ Saved</span>
+                )}
+              </div>
+            )}
 
             {hunkEdited && (
               <button
