@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: '/practitioner-services', label: 'Services' },
   { href: '/parent-resources', label: 'Parent Resources' },
   { href: '/practice-tools', label: 'Practice Tools' },
+  { href: '/reflections', label: 'Reflections' },
   { href: '/contact', label: 'Contact' },
 ]
 

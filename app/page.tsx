@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import PublicNav from './components/PublicNav'
 import PublicFooter from './components/PublicFooter'
-import TestimonialsSection from './components/TestimonialsSection'
 
 export const metadata = {
   title: 'Word Up — Spelling to Communicate',
