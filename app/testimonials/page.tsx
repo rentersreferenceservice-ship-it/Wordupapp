@@ -46,7 +46,7 @@ export default function TestimonialsSubmitPage() {
   if (submitted) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-6 py-20"
-        style={{ background: '#fdf9f4' }}>
+        style={{ background: 'white' }}>
         <a href="/" className="flex items-center gap-4 mb-12">
           <img src="/word_up_clean.jpeg" alt="Word Up" className="h-14 w-auto rounded-xl shadow" />
           <div>
@@ -68,7 +68,7 @@ export default function TestimonialsSubmitPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-16" style={{ background: '#fdf9f4' }}>
+    <main className="min-h-screen px-6 py-16" style={{ background: 'white' }}>
       <div className="max-w-lg mx-auto">
         <a href="/" className="flex items-center gap-4 mb-12">
           <img src="/word_up_clean.jpeg" alt="Word Up" className="h-14 w-auto rounded-xl shadow" />
