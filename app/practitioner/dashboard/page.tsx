@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic'
 export default async function PractitionerDashboard() {
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/get-started')
+  const isAdmin = userId === 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
   const subscription = await getPractitionerSubscription(userId)
   if (!subscription?.isActive) redirect('/practitioner/subscribe')
@@ -85,6 +86,11 @@ export default async function PractitionerDashboard() {
           </Link>
           <SuggestEditButton lessonId="" lessonTitle="(General Feedback)" variant="button" />
           <AddToHomeScreen variant="button" />
+          {isAdmin && (
+            <Link href="/practitioner/testimonials" className="bg-amber-100 border-2 border-amber-400 text-amber-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-200 transition-colors">
+              ✦ Testimonials
+            </Link>
+          )}
         </div>
       </div>
 
