@@ -11,7 +11,7 @@ export default clerkMiddleware(async (auth, req) => {
     (hostname === 'worduplessongenerator.com' || hostname === 'www.worduplessongenerator.com') &&
     pathname === '/'
   ) {
-    return NextResponse.redirect(new URL('/practitioner/get-started', req.url))
+    return NextResponse.redirect(new URL('/lessons', req.url))
   }
 
   if (isProtected(req)) {
