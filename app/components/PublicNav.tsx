@@ -57,7 +57,7 @@ export default function PublicNav() {
             {l.label}
           </Link>
         ))}
-        <a href="/practitioner/get-started"
+        <a href="https://worduplessongenerator.com/practitioner/get-started"
           className="text-xs font-semibold px-5 py-2.5 rounded-full transition-all hover:opacity-90 ml-3"
           style={{ background: '#2a1f17', color: '#f5efe6', letterSpacing: '0.05em' }}>
           Practitioner Dashboard
@@ -80,7 +80,7 @@ export default function PublicNav() {
             ))}
           </div>
           <div className="px-5 pb-5 pt-2" style={{ borderTop: '1px solid rgba(160,128,96,0.12)' }}>
-            <a href="/practitioner/get-started"
+            <a href="https://worduplessongenerator.com/practitioner/get-started"
               className="block text-center text-sm font-semibold px-5 py-3.5 rounded-full"
               style={{ background: '#2a1f17', color: '#f5efe6' }}>
               Practitioner Dashboard

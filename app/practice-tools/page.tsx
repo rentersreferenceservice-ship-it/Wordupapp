@@ -368,7 +368,7 @@ export default function PracticeToolsPage() {
                 ))}
               </div>
 
-              <a href="/practitioner/get-started"
+              <a href="https://worduplessongenerator.com/practitioner/get-started"
                 className="inline-block font-semibold px-8 py-4 rounded-full transition-all hover:opacity-90 shadow-lg"
                 style={{ background: '#2a1f17', color: '#f5efe6' }}>
                 Start Your Free Trial
