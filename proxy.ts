@@ -9,8 +9,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (
     (hostname === 'worduplessongenerator.com' || hostname === 'www.worduplessongenerator.com') &&
-    !pathname.startsWith('/practitioner') &&
-    !pathname.startsWith('/api')
+    pathname === '/'
   ) {
     return NextResponse.redirect(new URL('/practitioner/get-started', req.url))
   }
