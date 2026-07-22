@@ -324,13 +324,13 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
 
       <div className="flex items-center justify-between mb-6 bg-white border-4 border-gray-300 rounded-xl px-5 py-4">
         <div>
-          <Link href="/" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mb-3">← Generate Lesson</Link>
+          <Link href="/practitioner/generate" className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mb-3">← Generate Lesson</Link>
           <h1 className="text-2xl font-bold text-gray-900">Saved Lessons</h1>
           <p className="text-sm text-gray-500 mt-0.5">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} saved</p>
           <p className="text-sm text-gray-500 font-medium mt-1">worduplessongenerator.com &nbsp;·&nbsp; wordups2c@gmail.com</p>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
-          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center">
+          <Link href="/practitioner/generate" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center">
             + New Lesson
           </Link>
           <Link href="/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
@@ -374,7 +374,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
       {lessons.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="text-lg">No lessons yet.</p>
-          <Link href="/" className="text-blue-600 text-sm hover:underline mt-2 inline-block">Generate your first lesson</Link>
+          <Link href="/practitioner/generate" className="text-blue-600 text-sm hover:underline mt-2 inline-block">Generate your first lesson</Link>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
