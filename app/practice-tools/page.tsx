@@ -284,7 +284,7 @@ export default function PracticeToolsPage() {
               <p className="text-sm font-medium mb-6" style={{ color: '#a08060' }}>Subscription service · Sold separately</p>
               <div className="space-y-4 leading-relaxed mb-8" style={{ color: '#5a4a3a' }}>
                 <p>
-                  Generate professional, I-ASC Gold Standard Spelling to Communicate lessons in minutes. Each lesson is fully scaffolded, age-appropriate, and print-ready.
+                  Generate professional, Gold Standard lessons in minutes. Each lesson is fully scaffolded, age-appropriate, and print-ready.
                 </p>
                 <p>
                   Every lesson follows the S2C structure: KNOWN, SEMI-OPEN, MATH, PRIOR KNOWLEDGE, OPEN, and VAKT questions — color-coded and sequenced correctly every time.
