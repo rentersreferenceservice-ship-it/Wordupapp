@@ -193,46 +193,106 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
 
-  // Timer
+  // Timer — persisted to localStorage against a wall-clock end time, so
+  // an accidental screen-off/lock (or the tab getting reloaded) restores
+  // the true remaining time instead of losing it or resetting to zero.
+  const timerStorageKey = `wordup-session-timer-${sessionId}`
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [timerActive, setTimerActive] = useState(false)
   const [timerMinutesInput, setTimerMinutesInput] = useState('')
+  const timerEndAtRef = useRef<number | null>(null)
   const warningPlayedRef = useRef(false)
   const endPlayedRef = useRef(false)
+
+  function persistTimer(data: { endAt: number } | { remaining: number } | null) {
+    try {
+      if (data === null) localStorage.removeItem(timerStorageKey)
+      else localStorage.setItem(timerStorageKey, JSON.stringify(data))
+    } catch {}
+  }
+
+  // Restore any in-progress timer on mount (screen-off, tab reload, etc.)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(timerStorageKey)
+      if (!raw) return
+      const saved = JSON.parse(raw) as { endAt?: number; remaining?: number }
+      if (typeof saved.endAt === 'number') {
+        const remaining = Math.max(0, Math.round((saved.endAt - Date.now()) / 1000))
+        if (remaining <= 300) warningPlayedRef.current = true
+        if (remaining === 0) {
+          endPlayedRef.current = true
+          persistTimer(null)
+        } else {
+          timerEndAtRef.current = saved.endAt
+        }
+        setTimeLeft(remaining)
+        setTimerActive(remaining > 0)
+      } else if (typeof saved.remaining === 'number') {
+        if (saved.remaining <= 300) warningPlayedRef.current = true
+        setTimeLeft(saved.remaining)
+        setTimerActive(false)
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function startTimer(minutes: number) {
     if (!minutes || minutes <= 0) return
     warningPlayedRef.current = false
     endPlayedRef.current = false
+    const endAt = Date.now() + minutes * 60000
+    timerEndAtRef.current = endAt
+    persistTimer({ endAt })
     setTimeLeft(minutes * 60)
     setTimerActive(true)
   }
 
   function stopTimer() {
+    timerEndAtRef.current = null
     setTimerActive(false)
     setTimeLeft(null)
     setTimerMinutesInput('')
+    persistTimer(null)
+  }
+
+  function toggleTimer() {
+    if (timerActive) {
+      // Pausing — freeze the remaining seconds; wall clock no longer applies.
+      if (timeLeft !== null) persistTimer({ remaining: timeLeft })
+      timerEndAtRef.current = null
+      setTimerActive(false)
+    } else if (timeLeft !== null && timeLeft > 0) {
+      // Resuming — re-anchor to a fresh end time from here.
+      const endAt = Date.now() + timeLeft * 1000
+      timerEndAtRef.current = endAt
+      persistTimer({ endAt })
+      setTimerActive(true)
+    }
   }
 
   useEffect(() => {
     if (!timerActive) return
-    const id = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev === null || prev <= 0) return 0
-        const next = prev - 1
-        if (next === 300 && !warningPlayedRef.current) {
-          warningPlayedRef.current = true
-          playWarningBell()
-        }
-        return next
-      })
-    }, 1000)
+    const tick = () => {
+      const endAt = timerEndAtRef.current
+      if (endAt === null) return
+      const remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000))
+      setTimeLeft(remaining)
+      if (remaining <= 300 && !warningPlayedRef.current) {
+        warningPlayedRef.current = true
+        playWarningBell()
+      }
+    }
+    tick()
+    const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [timerActive])
 
   useEffect(() => {
     if (timeLeft === 0 && timerActive) {
       setTimerActive(false)
+      timerEndAtRef.current = null
+      persistTimer(null)
       if (!endPlayedRef.current) {
         endPlayedRef.current = true
         playBell()
@@ -658,7 +718,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                 </p>
                 <div className="flex items-center justify-center gap-2">
                   <button
-                    onClick={() => setTimerActive(v => !v)}
+                    onClick={toggleTimer}
                     className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {timerActive ? 'Pause' : timeLeft === 0 ? 'Done' : 'Resume'}
