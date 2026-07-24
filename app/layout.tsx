@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "Word Up — Spelling to Communicate | S2C Practitioner · New Hampshire",
   description: "Word Up LLC offers Spelling to Communicate (S2C) sessions, family support, and practitioner tools in New Hampshire. Certified S2C practitioner Melody presumes competence and tracks real progress.",
   keywords: ["Spelling to Communicate", "S2C", "S2C practitioner", "AAC", "non-speaking", "nonspeaker", "autism communication", "spelling to communicate New Hampshire", "S2C lesson generator", "presuming competence"],
-  manifest: '/manifest.json',
   icons: {
     icon: '/word_up_clean.jpeg',
     apple: '/word_up_clean.jpeg',
