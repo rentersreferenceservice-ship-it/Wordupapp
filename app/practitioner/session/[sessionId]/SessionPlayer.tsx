@@ -196,14 +196,22 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   // Timer
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [timerActive, setTimerActive] = useState(false)
+  const [timerMinutesInput, setTimerMinutesInput] = useState('')
   const warningPlayedRef = useRef(false)
   const endPlayedRef = useRef(false)
 
-  function startTimer(minutes: 50 | 100) {
+  function startTimer(minutes: number) {
+    if (!minutes || minutes <= 0) return
     warningPlayedRef.current = false
     endPlayedRef.current = false
     setTimeLeft(minutes * 60)
     setTimerActive(true)
+  }
+
+  function stopTimer() {
+    setTimerActive(false)
+    setTimeLeft(null)
+    setTimerMinutesInput('')
   }
 
   useEffect(() => {
@@ -625,9 +633,18 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             </div>
             {/* Timer */}
             {timeLeft === null ? (
-              <div className="flex gap-1.5">
-                <button onClick={() => startTimer(50)} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">50 min</button>
-                <button onClick={() => startTimer(100)} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">100 min</button>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  min={1}
+                  value={timerMinutesInput}
+                  onChange={e => setTimerMinutesInput(e.target.value)}
+                  placeholder="min"
+                  className="w-14 px-2 py-1 rounded-lg text-xs font-semibold bg-white border border-gray-300 text-center focus:outline-none focus:ring-2 focus:ring-green-400"
+                  aria-label="Timer minutes"
+                />
+                <span className="text-xs text-gray-400">min</span>
+                <button onClick={() => startTimer(Number(timerMinutesInput))} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">Start</button>
               </div>
             ) : (
               <div className={`text-center ${timeLeft === 0 ? 'animate-pulse' : timeLeft <= 300 ? 'animate-pulse' : ''}`}>
@@ -639,12 +656,20 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                 }`}>
                   {formatTime(timeLeft)}
                 </p>
-                <button
-                  onClick={() => setTimerActive(v => !v)}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {timerActive ? 'Pause' : timeLeft === 0 ? 'Done' : 'Resume'}
-                </button>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => setTimerActive(v => !v)}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {timerActive ? 'Pause' : timeLeft === 0 ? 'Done' : 'Resume'}
+                  </button>
+                  <button
+                    onClick={stopTimer}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Stop
+                  </button>
+                </div>
               </div>
             )}
           </div>
