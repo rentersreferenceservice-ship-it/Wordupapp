@@ -79,6 +79,19 @@ export default function ObservationReportClient({
     router.push(`/practitioner/students/${studentId}/observation-report?start=${startDate}&end=${endDate}`)
   }, [router, studentId, startDate, endDate])
 
+  const [showEmailPanel, setShowEmailPanel] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
+  const [emailList, setEmailList] = useState<string[]>([])
+  const [sending, setSending] = useState(false)
+  const [sendStatus, setSendStatus] = useState('')
+
+  function addEmail() {
+    const e = emailInput.trim().toLowerCase()
+    if (!e.includes('@')) return
+    if (!emailList.includes(e)) setEmailList(prev => [...prev, e])
+    setEmailInput('')
+  }
+
   const eventLogs = submissions.filter(s => s.form_type === 'practitioner_event_log')
   const energyLogs = submissions.filter(s => s.form_type === 'session_energy_log')
   const familyLogs = submissions.filter(s => s.form_type === 'family_event_log')
@@ -128,6 +141,47 @@ export default function ObservationReportClient({
       : `Increased: ${early} in first half → ${late} in second half`
   }
 
+  async function handleSend() {
+    if (!emailList.length) return
+    setSending(true)
+    setSendStatus('Sending…')
+    try {
+      const res = await fetch(`/api/practitioner/observation-report/${studentId}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          start, end, studentName,
+          emails: emailList,
+          summary: {
+            eventCount: eventLogs.length,
+            familyCount: familyLogs.length,
+            energyCount: energyLogs.length,
+            totalObservations: totalEvents + energyLogs.length,
+            eventTrend: eventLogs.length > 1 ? trendLabel(earlyEvents.length, lateEvents.length) : null,
+            eventTrendPositive: lateEvents.length < earlyEvents.length,
+            eventTrendNegative: lateEvents.length > earlyEvents.length,
+            familyTrend: familyLogs.length > 1 ? trendLabel(earlyFamily.length, lateFamily.length) : null,
+            familyTrendPositive: lateFamily.length < earlyFamily.length,
+            familyTrendNegative: lateFamily.length > earlyFamily.length,
+            accuracyBlurb: avgAccDiff !== null
+              ? (Math.abs(avgAccDiff) <= 5
+                ? 'Post-event accuracy remained near baseline — minimal motor impact observed'
+                : avgAccDiff < 0
+                ? `Post-event accuracy averaged ${Math.abs(avgAccDiff).toFixed(0)}% below baseline — motor impact on spelling output observed`
+                : `Post-event accuracy averaged ${avgAccDiff.toFixed(0)}% above baseline`)
+              : null,
+          },
+        }),
+      })
+      const d = await res.json()
+      setSendStatus(res.ok ? 'Sent ✓' : ('Error: ' + (d.error ?? 'Send failed')))
+    } catch {
+      setSendStatus('Error sending')
+    } finally {
+      setSending(false)
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -149,10 +203,47 @@ export default function ObservationReportClient({
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ padding: '4px 8px', borderRadius: '6px', border: 'none', fontSize: '12px' }} />
           <button onClick={handleApply} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '5px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Apply</button>
         </div>
+        <button onClick={() => setShowEmailPanel(v => !v)} style={{ background: showEmailPanel ? '#3b82f6' : 'white', color: showEmailPanel ? 'white' : '#1e3a5f', border: 'none', padding: '6px 18px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          ✉ Email to Family
+        </button>
         <button onClick={() => window.print()} style={{ background: 'white', color: '#1e3a5f', border: 'none', padding: '6px 18px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}>
           Print / Save as PDF
         </button>
       </div>
+
+      {showEmailPanel && (
+        <div className="no-print" style={{ maxWidth: '780px', margin: '16px auto 0', padding: '20px 24px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '10px', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+          <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: '#374151', marginBottom: '10px' }}>Email Summary to Family</h2>
+          <p style={{ fontSize: '11px', color: '#6b7280', marginBottom: '10px' }}>
+            Sends a summary (counts, trends, accuracy impact) — not the full record of individual entries.
+          </p>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+            <input
+              type="email"
+              placeholder="recipient@example.com"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addEmail() } }}
+              style={{ flex: 1, border: '1px solid #d1d5db', borderRadius: '8px', padding: '8px 12px', fontSize: '13px' }}
+            />
+            <button onClick={addEmail} style={{ background: '#f3f4f6', border: '1px solid #d1d5db', color: '#374151', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}>Add</button>
+          </div>
+          {emailList.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+              {emailList.map(e => (
+                <span key={e} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 'bold', color: '#1d4ed8' }}>
+                  {e}
+                  <button onClick={() => setEmailList(prev => prev.filter(x => x !== e))} style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', lineHeight: 1, fontSize: '14px' }}>×</button>
+                </span>
+              ))}
+            </div>
+          )}
+          <button onClick={handleSend} disabled={sending || !emailList.length} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '8px 22px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: sending || !emailList.length ? 'default' : 'pointer', opacity: sending || !emailList.length ? 0.5 : 1 }}>
+            {sending ? 'Sending…' : `Send to ${emailList.length || 0} recipient${emailList.length !== 1 ? 's' : ''}`}
+          </button>
+          {sendStatus && <p style={{ fontSize: '13px', marginTop: '8px', color: sendStatus.startsWith('Error') ? '#dc2626' : '#16a34a', fontWeight: 'bold' }}>{sendStatus}</p>}
+        </div>
+      )}
 
       {/* Report body */}
       <div style={{ maxWidth: '780px', margin: '0 auto', padding: '32px 36px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#111827', fontSize: '10pt', background: 'white' }}>
