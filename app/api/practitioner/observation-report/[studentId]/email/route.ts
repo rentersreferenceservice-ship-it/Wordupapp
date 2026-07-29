@@ -116,7 +116,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
     </div>
 
     <div style="margin-top:12px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center">
-      Prepared by ${practitionerName} · Word Up S2C · worduplessongenerator.com<br />
+      Prepared by ${practitionerName} · Word Up · worduplessongenerator.com<br />
       This document is not a medical diagnosis.
     </div>
   </div>

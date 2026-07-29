@@ -65,7 +65,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
         <img src="/word_up_clean.jpeg" alt="Word Up" className="mx-auto mb-5" style={{ width: 140 }} />
         <h1 className="text-2xl font-bold text-gray-900 mb-2">You&apos;ve been invited!</h1>
         <p className="text-gray-600 mb-2 text-sm leading-relaxed">
-          Your practitioner has given you access to the Word Up S2C Lesson Generator.
+          Your practitioner has given you access to the Word Up Letterboard Lesson Generator.
           Create a free account to get started.
         </p>
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2 mb-6 inline-block">

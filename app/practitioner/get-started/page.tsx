@@ -45,7 +45,7 @@ export default function PractitionerAccessPage() {
           <p className="font-black leading-none tracking-[0.18em]"
             style={{ color: '#2a1f17', fontSize: '1.6rem' }}>WORD UP</p>
           <p className="font-semibold tracking-[0.3em] mt-1 uppercase text-xs"
-            style={{ color: '#C9A435' }}>Spelling to Communicate</p>
+            style={{ color: '#C9A435' }}>Letterboard Communication</p>
         </div>
       </a>
 

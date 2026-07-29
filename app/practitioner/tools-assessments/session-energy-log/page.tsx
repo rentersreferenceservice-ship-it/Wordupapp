@@ -152,7 +152,7 @@ export default function SessionEnergyLog() {
         padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '16px'
       }}>
         <a href="/practitioner/tools-assessments" style={{ color: '#93c5fd', textDecoration: 'none', fontSize: '13px', whiteSpace: 'nowrap' }}>← Back</a>
-        <span style={{ fontSize: '13px', flex: 1 }}>S2C Session Energy, Motor &amp; Performance Pattern Tracking Log</span>
+        <span style={{ fontSize: '13px', flex: 1 }}>Letterboard Session Energy, Motor &amp; Performance Pattern Tracking Log</span>
         <button
           onClick={() => window.print()}
           style={{ background: 'white', color: '#1e3a5f', border: 'none', padding: '8px 22px', borderRadius: '5px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -172,16 +172,16 @@ export default function SessionEnergyLog() {
         {/* Title */}
         <div style={{ textAlign: 'center', borderBottom: '3px solid #000', paddingBottom: '14px', marginBottom: '16px' }}>
           <div style={{ fontSize: '8pt', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '6px', color: '#555' }}>
-            Spelling to Communicate (S2C) &nbsp;|&nbsp; Clinical Observation Documentation
+            Letterboard Communication &nbsp;|&nbsp; Clinical Observation Documentation
           </div>
           <div style={{ fontSize: '16pt', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: '1.35' }}>
-            S2C Session Energy, Motor<br />&amp; Performance Pattern Tracking Log
+            Letterboard Session Energy, Motor<br />&amp; Performance Pattern Tracking Log
           </div>
           <div style={{ fontSize: '11pt', fontStyle: 'italic', marginTop: '6px', letterSpacing: '0.02em' }}>
             Longitudinal Observation of Performance Across the Session
           </div>
           <div style={{ fontSize: '9pt', marginTop: '8px', color: '#333', fontStyle: 'italic' }}>
-            For use by the child&apos;s Spelling to Communicate practitioner<br />
+            For use by the child&apos;s letterboard communication practitioner<br />
             Completed forms may be shared with treating medical professionals for clinical evaluation
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function SessionEnergyLog() {
         {/* Page 2 header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1.5px solid #000', paddingBottom: '6px', marginBottom: '14px' }}>
           <div style={{ fontWeight: 'bold', fontSize: '10pt', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            S2C Session Energy, Motor &amp; Performance Pattern Tracking Log
+            Letterboard Session Energy, Motor &amp; Performance Pattern Tracking Log
           </div>
           <div style={{ fontSize: '9pt', color: '#444' }}>
             Student: <span style={{ display: 'inline-block', width: '160px', borderBottom: '1px solid #555', verticalAlign: 'bottom' }} /> &nbsp; Date: <span style={{ display: 'inline-block', width: '90px', borderBottom: '1px solid #555', verticalAlign: 'bottom' }} />
@@ -412,7 +412,7 @@ export default function SessionEnergyLog() {
         {/* Page 3 header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1.5px solid #000', paddingBottom: '6px', marginBottom: '14px' }}>
           <div style={{ fontWeight: 'bold', fontSize: '10pt', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            S2C Session Energy, Motor &amp; Performance Pattern Tracking Log
+            Letterboard Session Energy, Motor &amp; Performance Pattern Tracking Log
           </div>
           <div style={{ fontSize: '9pt', color: '#444' }}>
             Student: <span style={{ display: 'inline-block', width: '160px', borderBottom: '1px solid #555', verticalAlign: 'bottom' }} /> &nbsp; Date: <span style={{ display: 'inline-block', width: '90px', borderBottom: '1px solid #555', verticalAlign: 'bottom' }} />
@@ -502,7 +502,7 @@ export default function SessionEnergyLog() {
 
         {/* Disclaimer */}
         <div style={{ marginTop: '22px', padding: '12px 14px', border: '2px solid #333', fontSize: '9pt' }}>
-          <strong>IMPORTANT:</strong> This form is intended to document observable changes in energy, regulation, visual orientation, purposeful motor control, and spelling performance across an S2C session. It is not intended to diagnose mitochondrial dysfunction, seizure activity, visual-processing disorders, or any other medical condition. Completed forms and relevant video recordings may be shared with the student&apos;s family and treating medical professionals for clinical evaluation.
+          <strong>IMPORTANT:</strong> This form is intended to document observable changes in energy, regulation, visual orientation, purposeful motor control, and spelling performance across a letterboard session. It is not intended to diagnose mitochondrial dysfunction, seizure activity, visual-processing disorders, or any other medical condition. Completed forms and relevant video recordings may be shared with the student&apos;s family and treating medical professionals for clinical evaluation.
         </div>
 
       </div>

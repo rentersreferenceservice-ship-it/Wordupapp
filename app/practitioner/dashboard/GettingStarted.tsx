@@ -7,7 +7,7 @@ const STEPS = [
   {
     n: 2,
     title: 'Choose or generate a lesson',
-    body: 'Use the Lesson Generator to create a new S2C lesson on any topic, or browse the Lesson Library for an existing one.',
+    body: 'Use the Lesson Generator to create a new lesson on any topic, or browse the Lesson Library for an existing one.',
   },
   {
     n: 3,

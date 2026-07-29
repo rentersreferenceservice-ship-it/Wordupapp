@@ -71,7 +71,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
         </div>
         <p className="print:hidden text-center text-[10pt] text-gray-500">worduplessongenerator.com</p>
         <p className="text-center text-[10pt] text-gray-500">wordups2c@gmail.com</p>
-        <p className="text-center text-[10pt] text-gray-500 mb-3">{lesson.isAiGenerated === false ? 'S2C Lesson' : 'AI Generated S2C Lesson'}</p>
+        <p className="text-center text-[10pt] text-gray-500 mb-3">{lesson.isAiGenerated === false ? 'Letterboard Lesson' : 'AI Generated Letterboard Lesson'}</p>
         <h1 className="text-2xl font-bold text-center mb-1">{lesson.title}</h1>
         {lesson.author && <p className="text-center text-[9pt] text-gray-500 mb-1">By {lesson.author}</p>}
 

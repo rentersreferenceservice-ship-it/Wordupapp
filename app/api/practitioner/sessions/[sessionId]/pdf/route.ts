@@ -178,7 +178,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       // Header
       React.createElement(View, { style: s.header },
         React.createElement(View, {},
-          React.createElement(Text, { style: s.title }, 'Word Up S2C — Session Transcript'),
+          React.createElement(Text, { style: s.title }, 'Word Up — Session Transcript'),
           React.createElement(Text, { style: s.subtitle }, session.lesson_title),
         ),
         React.createElement(View, { style: s.headerRight },
@@ -338,7 +338,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
       }),
 
       // Footer
-      React.createElement(Text, { style: s.footer }, 'Word Up S2C Lesson Generator — worduplessongenerator.com'),
+      React.createElement(Text, { style: s.footer }, 'Word Up Letterboard Lesson Generator — worduplessongenerator.com'),
     )
   )
 

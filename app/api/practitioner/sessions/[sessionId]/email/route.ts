@@ -364,7 +364,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
           )
         }),
 
-        React.createElement(Text, { style: s.footer }, 'Word Up S2C · worduplessongenerator.com'),
+        React.createElement(Text, { style: s.footer }, 'Word Up · worduplessongenerator.com'),
       )
     )
 
@@ -425,7 +425,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     <a href="${invoiceUrl}" target="_blank" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:13px;padding:10px 20px;border-radius:8px">View Invoice →</a>
   </div>` : ''}
   <p style="margin:0 0 6px 0;color:#374151">Please find the full session transcript attached as a PDF.</p>
-  <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com</p>
+  <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up · worduplessongenerator.com</p>
 </div>`,
       attachments: [
         {

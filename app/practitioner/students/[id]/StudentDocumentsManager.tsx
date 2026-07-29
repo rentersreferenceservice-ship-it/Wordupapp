@@ -4,9 +4,9 @@ import { useState, useRef } from 'react'
 import type { StudentDocument } from '@/lib/practitionerStore'
 
 const FORM_TYPES = [
-  'S2C Session Neurological Event & Motor Performance Log',
+  'Letterboard Session Neurological Event & Motor Performance Log',
   'Suspected Neurological Event Log (Family)',
-  'S2C Session Energy, Motor & Performance Pattern Log',
+  'Letterboard Session Energy, Motor & Performance Pattern Log',
   'Other Assessment Form',
   'Other Document',
 ]

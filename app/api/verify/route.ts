@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       subject: 'Your Word Up verification code',
       html: `
         <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:24px;">
-          <h2 style="color:#1e40af;">Word Up S2C Lesson Generator</h2>
+          <h2 style="color:#1e40af;">Word Up Letterboard Lesson Generator</h2>
           <p>Your verification code is:</p>
           <div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#1e40af;margin:16px 0;">${code}</div>
           <p style="color:#6b7280;font-size:13px;">This code expires in 10 minutes.</p>

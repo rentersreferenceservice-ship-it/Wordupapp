@@ -94,7 +94,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
       spacing: { after: 120 },
-      children: [new TextRun({ text: 'Word Up S2C — Session Transcript', bold: true, size: 36 })],
+      children: [new TextRun({ text: 'Word Up — Session Transcript', bold: true, size: 36 })],
     }),
     para(`${session.lesson_title}`, { size: 24, color: '555555', spacing: 40 }),
     para(`Student: ${studentData?.name ?? ''}   |   Age Group: ${studentData?.age_group ?? ''}   |   Date: ${dateStr}`, { size: 20, color: '777777', spacing: 160 }),
@@ -213,7 +213,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
     new Paragraph({
       spacing: { before: 400 },
       alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: 'Word Up S2C Lesson Generator — worduplessongenerator.com', size: 18, color: 'aaaaaa' })],
+      children: [new TextRun({ text: 'Word Up Letterboard Lesson Generator — worduplessongenerator.com', size: 18, color: 'aaaaaa' })],
     })
   )
 

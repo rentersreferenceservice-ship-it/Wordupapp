@@ -30,7 +30,7 @@ export async function POST(
 
   const client = new Anthropic()
 
-  const prompt = `Translate this S2C (Spelling to Communicate) educational lesson from English to ${language}.
+  const prompt = `Translate this letterboard lesson from English to ${language}.
 
 Rules:
 - Translate all text naturally — not word-for-word literal. Sound fluent and natural in ${language}.

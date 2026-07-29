@@ -84,7 +84,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   <div class="header">
     ${logoBase64 ? `<img src="${logoBase64}" class="logo" />` : ''}
     <div class="site">worduplessongenerator.com</div>
-    <div class="credit">AI Generated S2C Lesson</div>
+    <div class="credit">AI Generated Letterboard Lesson</div>
     <div class="title">${lesson.title}</div>
     ${lesson.hashtags?.length ? `<div class="hashtags">${lesson.hashtags.join(' ')}</div>` : ''}
   </div>

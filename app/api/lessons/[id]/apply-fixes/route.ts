@@ -79,7 +79,7 @@ export async function POST(
     citations: lesson.citations.map((c, i) => ({ index: i, citation: c })),
   }
 
-  const prompt = `You are editing an S2C (Spelling to Communicate) educational lesson to correct specific factual issues found by a fact-checker. The lesson is titled "${lesson.title}" for age group: ${lesson.ageGroup}.
+  const prompt = `You are editing a letterboard educational lesson to correct specific factual issues found by a fact-checker. The lesson is titled "${lesson.title}" for age group: ${lesson.ageGroup}.
 
 ISSUES TO CORRECT:
 ${issues}

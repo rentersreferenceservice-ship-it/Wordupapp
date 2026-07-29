@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     messages: [
       {
         role: 'user',
-        content: `You are a clinical documentation specialist with deep expertise in Spelling to Communicate (S2C) and Augmentative and Alternative Communication (AAC) therapy.
+        content: `You are a clinical documentation specialist with deep expertise in letterboard-based communication and Augmentative and Alternative Communication (AAC) therapy.
 
 Your task: rewrite the practitioner's raw session note — which may have been dictated aloud — into polished clinical documentation suitable for a formal therapy record or parent report.
 
@@ -29,7 +29,7 @@ STEP 1 — Clean up dictation artifacts first:
 - Remove repeated words from hesitation (e.g. "he he pointed" → "he pointed")
 - Remove trailing thoughts that trail off without completing a sentence
 
-STEP 2 — Rewrite clinically using S2C/AAC vocabulary where appropriate:
+STEP 2 — Rewrite clinically using letterboard/AAC vocabulary where appropriate:
 - "Speller" (not "student", "kid", "child", or "he/she" alone) for the individual receiving services
 - "Motor planning" / "motor execution" for the physical act of pointing or typing
 - "Communication partner" for the practitioner or support person

@@ -14,7 +14,7 @@ function buildPrompt(lesson: Lesson): string {
     return `Section ${h.number}:\n${h.text}\n${questions}`
   }).join('\n\n')
 
-  return `You are a fact-checker reviewing an educational lesson for children and teens with complex communication needs (Spelling to Communicate / AAC users).
+  return `You are a fact-checker reviewing an educational lesson for children and teens with complex communication needs (letterboard communication / AAC users).
 
 Review the lesson titled "${lesson.title}" for factual accuracy.
 

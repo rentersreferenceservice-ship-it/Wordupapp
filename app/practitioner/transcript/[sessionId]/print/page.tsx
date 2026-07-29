@@ -313,7 +313,7 @@ export default async function TranscriptPrintPage({ params }: { params: Promise<
         })}
 
         <div style={{marginTop:14,textAlign:'center',fontSize:'9pt',color:'#aaa',borderTop:'1px solid #eee',paddingTop:6}}>
-          Word Up S2C Lesson Generator — worduplessongenerator.com
+          Word Up Letterboard Lesson Generator — worduplessongenerator.com
         </div>
       </body>
     </html>

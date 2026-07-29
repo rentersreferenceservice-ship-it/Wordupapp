@@ -62,7 +62,7 @@ export default function HomePage() {
             style={{ color: '#2a1f17', fontSize: 'clamp(1.4rem, 3vw, 2rem)', lineHeight: '1.55' }}>
             &ldquo;Motor differences are not intellectual differences. Every person is presumed competent — not eventually, not potentially, but right now, exactly as they are.&rdquo;
           </blockquote>
-          <p className="text-sm font-medium" style={{ color: '#a08060' }}>— Melody, Certified S2C Practitioner</p>
+          <p className="text-sm font-medium" style={{ color: '#a08060' }}>— Melody, Certified Spelling to Communicate Practitioner</p>
         </div>
       </section>
 
@@ -137,7 +137,7 @@ export default function HomePage() {
                   />
                   <div>
                     <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
-                    <p className="text-sm" style={{ color: '#a08060' }}>Certified S2C Practitioner · Founder</p>
+                    <p className="text-sm" style={{ color: '#a08060' }}>Certified Spelling to Communicate Practitioner · Founder</p>
                   </div>
                 </div>
               </div>

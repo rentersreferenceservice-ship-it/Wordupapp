@@ -137,7 +137,7 @@ export default async function PrintPage({ params }: { params: Promise<{ id: stri
                 <div style={{ textAlign: 'center', marginBottom: 16 }}>
                   {logoBase64 && <img src={logoBase64} style={{ width: 140, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} alt="Word Up Logo" />}
                   <div style={{ fontSize: '9pt', color: '#666', marginBottom: 2 }}>worduplessongenerator.com &nbsp;|&nbsp; wordups2c@gmail.com</div>
-                  <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated S2C Lesson</div>
+                  <div style={{ fontSize: '9pt', color: '#666', marginBottom: 4 }}>AI Generated Letterboard Lesson</div>
                   <div style={{ fontSize: '16pt', fontWeight: 'bold', marginBottom: 4 }}>{lesson.title}</div>
                   {lesson.hashtags?.length ? <div style={{ fontSize: '8pt', color: '#3b82f6', marginBottom: 16 }}>{lesson.hashtags.join(' ')}</div> : null}
                 </div>

@@ -16,9 +16,9 @@ function isoDurationSeconds(iso: string): number {
   return parseInt(m[1] ?? '0') * 3600 + parseInt(m[2] ?? '0') * 60 + parseInt(m[3] ?? '0')
 }
 
-const SYSTEM_PROMPT = `You are an expert Spelling to Communicate (S2C) lesson writer following the January 2026 Gold Standard for Word Up, LLC.
+const SYSTEM_PROMPT = `You are an expert letterboard lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
-You generate complete, clinically consistent S2C lessons with exactly 8 HUNKS.
+You generate complete, clinically consistent letterboard lessons with exactly 8 HUNKS.
 
 CONTENT RULES (non-negotiable):
 - All facts must be accurate and verifiable. Never invent statistics, dates, names, or claims. If you are not certain a fact is true, do not include it. When in doubt, leave it out.
@@ -79,7 +79,7 @@ KNOWN (3 required per hunk):
   - Children (ages 9–11): 1 to 2 words maximum
   - Tweens (ages 12–14): 1 to 3 words maximum
   - Teens (ages 15–17): 1 to 4 words maximum
-  - Adults (18+): up to 5 words — adults may have years of S2C practice and greater motor control
+  - Adults (18+): up to 5 words — adults may have years of letterboard practice and greater motor control
 - Answer must be a word or short phrase taken directly from the hunk text — never a full sentence
 - NOT yes/no. NOT opinion. NOT a number or date (those are MATH).
 - CRITICAL: There must be only ONE possible correct answer. If more than one answer could be correct, it is SEMI-OPEN not KNOWN. Do not use slashes in KNOWN answers. A KNOWN answer NEVER contains a slash — if you find yourself writing a slash, stop and change the type.
@@ -236,7 +236,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
 }
 
 Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson. Every hunk must include a "writingPrompt" field.
-For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #S2C.`
+For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #LetterboardLessons.`
 
 function applyAnnotations(
   text: string,
@@ -286,7 +286,7 @@ async function annotateKeywords(lesson: Lesson, client: Anthropic): Promise<Less
     max_tokens: 2048,
     messages: [{
       role: 'user',
-      content: `You are annotating keywords for an S2C lesson. For each keyword, apply a HIGH bar — most words should return null. Only annotate when clearly necessary:
+      content: `You are annotating keywords for a letterboard lesson. For each keyword, apply a HIGH bar — most words should return null. Only annotate when clearly necessary:
 
 1. PRONUNCIATION: Only if the word would genuinely trip up a fluent English reader — foreign language terms, Latin/Greek scientific names, Indigenous names, medical terminology, or unusual letter combinations. Do NOT add pronunciation for any word a typical English speaker reads naturally (SACRED, ANCIENT, SYMBOL, SPIRIT, BLEND, etc.).
 2. SYNONYMS: Only if the word is genuinely obscure or technical and a reader likely would not know its meaning. Do NOT add synonyms for words that are common in everyday English or easily understood in context (WISDOM, TABLET, TRADITION, ANCIENT, SACRED, BLEND, SPIRITUAL, KNOWLEDGE, etc.).
@@ -487,7 +487,7 @@ export async function generateLesson(topic: string, ageGroup: string, style?: st
     messages: [
       {
         role: 'user',
-        content: `Generate a complete S2C lesson about "${topic}" written for ${ageGroup}.${styleInstruction}${genreInstruction}`,
+        content: `Generate a complete letterboard lesson about "${topic}" written for ${ageGroup}.${styleInstruction}${genreInstruction}`,
       },
     ],
   })

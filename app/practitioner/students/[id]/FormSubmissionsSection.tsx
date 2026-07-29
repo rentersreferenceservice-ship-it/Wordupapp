@@ -13,8 +13,8 @@ interface Submission {
 
 const FORM_TYPE_LABELS: Record<string, string> = {
   family_event_log: 'Suspected Neurological Event Log (Family)',
-  practitioner_event_log: 'S2C Session Neurological Event & Motor Performance Log',
-  session_energy_log: 'S2C Session Energy, Motor & Performance Pattern Log',
+  practitioner_event_log: 'Letterboard Session Neurological Event & Motor Performance Log',
+  session_energy_log: 'Letterboard Session Energy, Motor & Performance Pattern Log',
 }
 
 function SubmissionDetail({ sub }: { sub: Submission }) {
@@ -182,7 +182,7 @@ const FORMS: FormCard[] = [
   },
   {
     formType: 'practitioner_event_log',
-    label: 'S2C Session Neurological Event & Motor Performance Log',
+    label: 'Letterboard Session Neurological Event & Motor Performance Log',
     description: 'Fill out during or after a session when a suspected event occurred. Tracks gaze, responsiveness, motor control, and spelling before and after the event.',
     who: 'Practitioner',
     whoColor: 'bg-blue-100 text-blue-700',

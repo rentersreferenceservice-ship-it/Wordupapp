@@ -140,7 +140,7 @@ export default async function SharedReportPage({ params }: { params: Promise<{ i
           </div>
         )}
 
-        <p className="text-center text-xs text-gray-300 mt-4">Word Up S2C · worduplessongenerator.com</p>
+        <p className="text-center text-xs text-gray-300 mt-4">Word Up · worduplessongenerator.com</p>
       </div>
     </main>
   )

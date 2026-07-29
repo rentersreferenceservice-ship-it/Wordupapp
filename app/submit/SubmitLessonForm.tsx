@@ -403,7 +403,7 @@ export default function SubmitLessonForm({ practitionerMode, backHref }: Props) 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Upload a Lesson</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Upload your completed S2C lesson as a Word document or PDF. We'll extract the content and take you to a review step before saving.
+          Upload your completed lesson as a Word document or PDF. We'll extract the content and take you to a review step before saving.
         </p>
 
         <div className="space-y-5">

@@ -98,7 +98,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid #e5e7eb">
-          <td style="padding:12px;font-size:13px">S2C Session${session?.lesson_title ? ` — ${session.lesson_title}` : ''}${sessionDate ? ` (${sessionDate})` : ''}</td>
+          <td style="padding:12px;font-size:13px">Letterboard Session${session?.lesson_title ? ` — ${session.lesson_title}` : ''}${sessionDate ? ` (${sessionDate})` : ''}</td>
           <td style="padding:12px;text-align:right;font-size:13px;font-weight:600">${fmt(amount)}</td>
         </tr>
         ${extraItems.map(item => `
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
     </div>
 
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;text-align:center">
-      Sent by ${practitionerName} via Word Up S2C · worduplessongenerator.com
+      Sent by ${practitionerName} via Word Up · worduplessongenerator.com
     </div>
   </div>
 </div>`

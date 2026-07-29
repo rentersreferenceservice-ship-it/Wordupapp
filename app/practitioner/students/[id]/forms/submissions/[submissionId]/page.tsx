@@ -82,7 +82,7 @@ export default async function SubmissionDetailPage({
 
         <div className="mb-6">
           <h1 className="text-xl font-bold text-gray-900 mb-1">
-            {sub.form_type === 'practitioner_event_log' && 'S2C Session Neurological Event & Motor Performance Log'}
+            {sub.form_type === 'practitioner_event_log' && 'Letterboard Session Neurological Event & Motor Performance Log'}
             {sub.form_type === 'session_energy_log' && 'Session Energy, Motor & Performance Pattern Log'}
             {sub.form_type === 'family_event_log' && 'Suspected Neurological Event Log'}
           </h1>

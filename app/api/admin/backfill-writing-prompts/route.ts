@@ -23,7 +23,7 @@ async function generateWritingPrompt(hunkText: string, ageGroup: string, client:
     max_tokens: 150,
     messages: [{
       role: 'user',
-      content: `You are writing a short writing prompt for an S2C (Spelling to Communicate) lesson for ${ageGroup}.
+      content: `You are writing a short writing prompt for a letterboard lesson for ${ageGroup}.
 
 The hunk text is:
 """

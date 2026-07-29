@@ -6,7 +6,7 @@ import { getSupabase } from '@/lib/supabase'
 
 export const maxDuration = 60
 
-const CLASSIFY_PROMPT = `You are parsing an S2C (Spelling to Communicate) lesson following the Word Up 2025 SOP.
+const CLASSIFY_PROMPT = `You are parsing a letterboard lesson following the Word Up 2025 SOP.
 Return ONLY valid JSON — no markdown, no explanation.
 
 JSON format:
@@ -227,7 +227,7 @@ export async function POST(request: Request) {
     if (isPdf && fileData) {
       const result = await askClaude([
         { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileData } } as never,
-        { type: 'text', text: 'Parse this S2C lesson document per the instructions.' },
+        { type: 'text', text: 'Parse this letterboard lesson document per the instructions.' },
       ])
       return NextResponse.json(result)
     }
@@ -252,7 +252,7 @@ export async function POST(request: Request) {
     const result = await askClaude([
       {
         type: 'text',
-        text: `Parse this S2C lesson. Lines prefixed with [color:#XXXXXX] are colored questions. Lines that say [IMAGE:N] indicate an image immediately precedes the next hunk — include "imageIndex": N in that hunk. All other lines are body text or answers.\n\n${annotatedText}`,
+        text: `Parse this letterboard lesson. Lines prefixed with [color:#XXXXXX] are colored questions. Lines that say [IMAGE:N] indicate an image immediately precedes the next hunk — include "imageIndex": N in that hunk. All other lines are body text or answers.\n\n${annotatedText}`,
       },
     ])
 

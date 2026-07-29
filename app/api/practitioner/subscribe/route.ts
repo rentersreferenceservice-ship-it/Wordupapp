@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: 'usd',
         recurring: { interval },
-        product_data: { name: 'Word Up S2C — Practitioner Portal' },
+        product_data: { name: 'Word Up — Practitioner Portal' },
         unit_amount: unitAmount,
       },
       quantity: 1,

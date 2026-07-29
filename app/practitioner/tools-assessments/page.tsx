@@ -19,7 +19,7 @@ export default async function ToolsAssessmentsPage() {
           <Link href="/practitioner/dashboard" className="text-sm text-blue-600 hover:underline">← Dashboard</Link>
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Tools &amp; Assessments</h1>
-        <p className="text-sm text-gray-500 mb-8">Printable forms and clinical observation tools for S2C practitioners and families.</p>
+        <p className="text-sm text-gray-500 mb-8">Printable forms and clinical observation tools for letterboard practitioners and families.</p>
 
         <div className="space-y-6">
 
@@ -29,10 +29,10 @@ export default async function ToolsAssessmentsPage() {
               <div className="flex-1">
                 <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Printable PDF Form</div>
                 <h2 className="text-base font-bold text-gray-900 mb-2">
-                  S2C Session Neurological Event &amp; Motor Performance Observation Log
+                  Letterboard Session Neurological Event &amp; Motor Performance Observation Log
                 </h2>
                 <p className="text-sm text-gray-600 mb-4">
-                  For the child&apos;s S2C practitioner. Tracks suspected neurological events during spelling sessions — gaze, responsiveness, motor control, spelling accuracy before and after each observed episode. Designed for clinical review by a neurologist.
+                  For the child&apos;s letterboard practitioner. Tracks suspected neurological events during spelling sessions — gaze, responsiveness, motor control, spelling accuracy before and after each observed episode. Designed for clinical review by a neurologist.
                 </p>
                 <Link
                   href="/practitioner/tools-assessments/seizure-log-practitioner"
@@ -51,7 +51,7 @@ export default async function ToolsAssessmentsPage() {
               <div className="flex-1">
                 <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">Printable PDF Form</div>
                 <h2 className="text-base font-bold text-gray-900 mb-2">
-                  S2C Session Energy, Motor &amp; Performance Pattern Tracking Log
+                  Letterboard Session Energy, Motor &amp; Performance Pattern Tracking Log
                 </h2>
                 <p className="text-sm text-gray-600 mb-4">
                   Tracks changes in energy, regulation, visual orientation, purposeful motor control, and spelling accuracy as a session progresses. Includes a quick-entry tracking table by time interval, break documentation, end-of-session comparison, and pattern summary. Designed for longitudinal review by medical professionals.

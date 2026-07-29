@@ -122,7 +122,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ stu
     .map(s => `[${s.date}] ${s.notes}`)
     .join('\n')
 
-  const prompt = `You are helping an S2C (Spelling to Communicate) practitioner write a progress report for a funding proposal.
+  const prompt = `You are helping a letterboard communication practitioner write a progress report for a funding proposal.
 
 Student: ${student.name} (${student.ageGroup})
 Reporting period: ${startDate} to ${endDate}
@@ -167,11 +167,11 @@ PROGRESS NARRATIVE:
 Write 2-3 paragraphs describing this student's progress. Be warm, professional, and specific. Reference accuracy numbers, milestones, and regulation patterns where relevant. Frame dysregulation that improved as a positive sign. Use language appropriate for funders and school teams.
 
 RECOMMENDED GOALS:
-Write 3-5 specific, measurable goals for the next reporting period. Base goals on the S2C progression framework:
+Write 3-5 specific, measurable goals for the next reporting period. Base goals on the letterboard progression framework:
 - If accuracy is below 90%, goal should be to reach 90% for 4 consecutive sessions
 - If consistently at 90%+, goal should be to advance to the next board or question type
 - If dysregulation on arrival is a pattern, include a regulation goal
-- Reference specific next steps in the S2C sequence (board progression, question type advancement)
+- Reference specific next steps in the letterboard sequence (board progression, question type advancement)
 
 Format exactly as:
 PROGRESS NARRATIVE:

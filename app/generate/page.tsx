@@ -154,7 +154,7 @@ export default function GeneratePage() {
         <>
         <div className="text-center mb-6">
           <img src="/word_up_clean.jpeg" alt="Word Up Logo" className="mx-auto mb-1" style={{ width: 220 }} />
-          <p className="text-gray-500 text-sm">S2C Lesson Generator</p>
+          <p className="text-gray-500 text-sm">Letterboard Lesson Generator</p>
           <p className="text-gray-500 text-sm mt-0.5 font-medium">worduplessongenerator.com</p>
           <p className="text-gray-500 text-sm font-medium">wordups2c@gmail.com</p>
         </div>

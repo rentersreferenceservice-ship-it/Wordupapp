@@ -98,7 +98,7 @@ export default function PractitionerSeizureLog() {
         padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '16px'
       }}>
         <a href="/practitioner/tools-assessments" style={{ color: '#93c5fd', textDecoration: 'none', fontSize: '13px', whiteSpace: 'nowrap' }}>← Back</a>
-        <span style={{ fontSize: '13px', flex: 1 }}>S2C Session Neurological Event &amp; Motor Performance Observation Log</span>
+        <span style={{ fontSize: '13px', flex: 1 }}>Letterboard Session Neurological Event &amp; Motor Performance Observation Log</span>
         <button
           onClick={() => window.print()}
           style={{ background: 'white', color: '#1e3a5f', border: 'none', padding: '8px 22px', borderRadius: '5px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -116,14 +116,14 @@ export default function PractitionerSeizureLog() {
         {/* Title */}
         <div style={{ textAlign: 'center', borderBottom: '3px solid #000', paddingBottom: '14px', marginBottom: '16px' }}>
           <div style={{ fontSize: '8pt', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '6px', color: '#555' }}>
-            Spelling to Communicate (S2C) &nbsp;|&nbsp; Medical Observation Documentation
+            Letterboard Communication &nbsp;|&nbsp; Medical Observation Documentation
           </div>
           <div style={{ fontSize: '16pt', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: '1.35' }}>
-            S2C Session Neurological Event<br />
+            Letterboard Session Neurological Event<br />
             &amp; Motor Performance Observation Log
           </div>
           <div style={{ fontSize: '9pt', marginTop: '8px', fontStyle: 'italic', color: '#333' }}>
-            For use by the child's Spelling to Communicate practitioner<br />
+            For use by the child's letterboard communication practitioner<br />
             Completed forms may be provided to treating medical professionals for clinical evaluation
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function PractitionerSeizureLog() {
         </div>
 
         {/* ── SECTION 5 ── */}
-        <Section>Post-Event S2C Motor and Spelling Performance</Section>
+        <Section>Post-Event Letterboard Motor and Spelling Performance</Section>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 28px', marginBottom: '8px' }}>
           <div>

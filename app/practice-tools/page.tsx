@@ -102,7 +102,7 @@ function PractitionerDashboardMockup() {
 
 export const metadata = {
   title: 'Practice Tools — Word Up',
-  description: 'Word Up practice tools: the Lesson Generator and the Practitioner Dashboard — one integrated workflow for S2C practitioners.',
+  description: 'Word Up practice tools: the Lesson Generator and the Practitioner Dashboard — one integrated workflow for letterboard practitioners.',
 }
 
 function LessonGeneratorMockup() {
@@ -266,7 +266,7 @@ export default function PracticeToolsPage() {
             />
             <div>
               <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
-              <p className="text-sm" style={{ color: '#a08060' }}>Certified S2C Practitioner · Founder</p>
+              <p className="text-sm" style={{ color: '#a08060' }}>Certified Spelling to Communicate Practitioner · Founder</p>
             </div>
           </div>
         </div>
@@ -287,7 +287,7 @@ export default function PracticeToolsPage() {
                   Generate professional, Gold Standard lessons in minutes. Each lesson is fully scaffolded, age-appropriate, and print-ready.
                 </p>
                 <p>
-                  Every lesson follows the S2C structure: KNOWN, SEMI-OPEN, MATH, PRIOR KNOWLEDGE, OPEN, and VAKT questions — color-coded and sequenced correctly every time.
+                  Every lesson follows the letterboard lesson structure: KNOWN, SEMI-OPEN, MATH, PRIOR KNOWLEDGE, OPEN, and VAKT questions — color-coded and sequenced correctly every time.
                 </p>
                 <p className="text-sm rounded-xl px-5 py-4" style={{ background: '#faf5eb', borderLeft: '3px solid #C9A435', color: '#4a3a2a' }}>
                   <span className="font-semibold">Practitioner subscribers</span> also get access to a private lesson library inside the Dashboard — and can share lessons directly with spellers, CRPs, and families.

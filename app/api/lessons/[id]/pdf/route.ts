@@ -32,7 +32,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   // Credit + title
   doc.fontSize(9).font('Helvetica').fillColor([100, 100, 100])
-    .text('AI Generated S2C Lesson', { align: 'center' })
+    .text('AI Generated Letterboard Lesson', { align: 'center' })
   doc.moveDown(0.3)
   doc.fontSize(16).font('Helvetica-Bold').fillColor([0, 0, 0])
     .text(lesson.title, { align: 'center' })

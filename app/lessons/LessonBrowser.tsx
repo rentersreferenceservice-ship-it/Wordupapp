@@ -272,7 +272,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
 
       {/* Practitioner callout */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between gap-4">
-        <p className="text-xs text-blue-800"><span className="font-semibold">S2C Practitioner?</span> Manage sessions, invoices & student progress.</p>
+        <p className="text-xs text-blue-800"><span className="font-semibold">Practitioner?</span> Manage sessions, invoices & student progress.</p>
         <a href="/practitioner/get-started" className="shrink-0 text-xs font-bold text-blue-600 hover:underline whitespace-nowrap">
           Try free →
         </a>

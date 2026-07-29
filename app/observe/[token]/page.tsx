@@ -193,7 +193,7 @@ export default function ObserveForm() {
       <main className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-lg font-semibold text-gray-800 mb-2">This link is not valid.</p>
-          <p className="text-sm text-gray-500">Please ask your S2C practitioner to send you the current link.</p>
+          <p className="text-sm text-gray-500">Please ask your letterboard practitioner to send you the current link.</p>
         </div>
       </main>
     )
@@ -214,7 +214,7 @@ export default function ObserveForm() {
               </svg>
             </div>
             <h1 className="text-xl font-bold text-gray-900 mb-2">Observation submitted</h1>
-            <p className="text-sm text-gray-600 mb-1">Your observations have been sent to {studentName}&apos;s S2C practitioner.</p>
+            <p className="text-sm text-gray-600 mb-1">Your observations have been sent to {studentName}&apos;s letterboard practitioner.</p>
             <p className="text-sm text-gray-500">Thank you — this helps build a clear picture for the medical team.</p>
           </div>
 
@@ -511,7 +511,7 @@ export default function ObserveForm() {
         </div>
 
         <p className="text-xs text-gray-400 text-center mt-6">
-          This form documents observable behavior only. It is not intended to diagnose any medical condition. Information will be shared with your child&apos;s S2C practitioner and may be provided to treating medical professionals.
+          This form documents observable behavior only. It is not intended to diagnose any medical condition. Information will be shared with your child&apos;s letterboard practitioner and may be provided to treating medical professionals.
         </p>
       </div>
     </main>
