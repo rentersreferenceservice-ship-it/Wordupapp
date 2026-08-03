@@ -71,9 +71,8 @@ export async function POST(req: NextRequest) {
 
   const today = new Date()
   const invoiceDate = today.toISOString().split('T')[0]
-  const dueDate = new Date(today)
-  dueDate.setDate(dueDate.getDate() + 30)
-  const dueDateStr = dueDate.toISOString().split('T')[0]
+  // Due upon receipt — due date matches the invoice date.
+  const dueDateStr = invoiceDate
 
   const { data: invoice, error } = await supabase
     .from('invoices')
