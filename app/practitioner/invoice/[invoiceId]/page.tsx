@@ -4,6 +4,7 @@ import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import InvoiceActions from './InvoiceActions'
 import InvoiceSessionFee from './InvoiceSessionFee'
+import { showDueDateChangeNotice, DUE_DATE_CHANGE_NOTICE } from '@/lib/invoiceNotice'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,6 +84,12 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
 
       {/* Invoice document */}
       <article className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8 print:rounded-none print:shadow-none print:border-0 print:p-0" style={{ fontFamily: 'Arial, sans-serif' }}>
+
+        {showDueDateChangeNotice(invoice.invoice_date) && (
+          <div className="mb-6 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-3 text-sm text-yellow-800">
+            {DUE_DATE_CHANGE_NOTICE}
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-start justify-between mb-6 pb-6 border-b-2 border-gray-900">

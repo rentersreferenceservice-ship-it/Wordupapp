@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
 import { Resend } from 'resend'
+import { showDueDateChangeNotice, DUE_DATE_CHANGE_NOTICE } from '@/lib/invoiceNotice'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +59,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
   <div style="background:white;border-radius:10px;padding:28px;border:1px solid #e5e7eb">
 
     ${settings?.logo_url ? `<img src="${settings.logo_url}" alt="Logo" style="height:48px;object-fit:contain;margin-bottom:16px;display:block" />` : ''}
+
+    ${showDueDateChangeNotice(invoice.invoice_date) ? `
+    <div style="margin-bottom:20px;padding:12px 16px;background:#fffbeb;border:2px solid #fde68a;border-radius:10px;font-size:13px;color:#92400e">
+      ${DUE_DATE_CHANGE_NOTICE}
+    </div>` : ''}
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #111">
       <div>
