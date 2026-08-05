@@ -32,7 +32,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   const baseRef = useRef(value)
   const interimRef = useRef('')
   const recognitionRef = useRef<AnySpeechRecognition>(null)
-  const finalizedCountRef = useRef(0)
+  const rapidRestartsRef = useRef(0)
 
   useEffect(() => { setSpeechSupported(!!getSR()) }, [])
 
@@ -49,10 +49,14 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     rec.interimResults = true
     rec.lang = 'en-US'
 
-    // Fresh recognition session — its results array starts back at index 0.
-    finalizedCountRef.current = 0
+    // Tracked per-instance (closured, not a shared ref) so a late/stale event
+    // from a previous instance can never corrupt a newer instance's count.
+    let finalizedCount = 0
+    const startedAt = Date.now()
 
     rec.onresult = (e: AnySpeechRecognition) => {
+      if (recognitionRef.current !== rec) return // stale instance — ignore
+
       // Some browsers (notably Android Chrome) report e.resultIndex unreliably,
       // sometimes re-pointing at results already marked final. Trusting it caused
       // the same finalized phrase to be appended repeatedly on later onresult
@@ -64,15 +68,16 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         const result = e.results[i]
         const t = result[0].transcript
         if (result.isFinal) {
-          if (i >= finalizedCountRef.current) {
+          if (i >= finalizedCount) {
             finalChunk += t
-            finalizedCountRef.current = i + 1
+            finalizedCount = i + 1
           }
         } else {
           interim += t
         }
       }
       if (finalChunk) {
+        rapidRestartsRef.current = 0
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
         baseRef.current = baseRef.current + sep + finalChunk.trimStart()
       }
@@ -82,6 +87,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     }
 
     rec.onerror = (e: AnySpeechRecognition) => {
+      if (recognitionRef.current !== rec) return // stale instance — ignore
       if (e.error !== 'no-speech' && e.error !== 'aborted') {
         setError(`Mic error: ${e.error}`)
         userStoppedRef.current = true
@@ -91,6 +97,8 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     }
 
     rec.onend = () => {
+      if (recognitionRef.current !== rec) return // stale instance — ignore
+
       if (interimRef.current) {
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
         baseRef.current = baseRef.current + sep + interimRef.current.trimStart()
@@ -98,7 +106,21 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         interimRef.current = ''
       }
       if (!userStoppedRef.current && listeningRef.current) {
-        // iOS killed the session — silently restart
+        // Android/iOS end the session on their own (often after a short pause) —
+        // silently restart. But if it keeps ending near-instantly with nothing
+        // recognized, restarting in a tight loop just replays the mic-start
+        // sound over and over — stop instead of spinning forever.
+        if (Date.now() - startedAt < 400) {
+          rapidRestartsRef.current += 1
+        } else {
+          rapidRestartsRef.current = 0
+        }
+        if (rapidRestartsRef.current > 5) {
+          setError('Mic kept disconnecting — tap Dictate to try again.')
+          setListening(false)
+          listeningRef.current = false
+          return
+        }
         try {
           const next = buildRecognition()
           if (next) { recognitionRef.current = next; next.start() }
@@ -121,6 +143,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     if (!rec) { setError('Voice input is not supported in this browser.'); return }
     userStoppedRef.current = false
     listeningRef.current = true
+    rapidRestartsRef.current = 0
     recognitionRef.current = rec
     baseRef.current = value
     interimRef.current = ''

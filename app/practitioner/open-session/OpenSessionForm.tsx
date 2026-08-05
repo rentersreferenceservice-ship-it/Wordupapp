@@ -384,7 +384,8 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         <div>
           <label className="block text-xs text-gray-400 mb-1">Session Video URL</label>
           <input
-            type="url"
+            type="text"
+            inputMode="url"
             value={sessionVideo}
             onChange={e => setSessionVideo(e.target.value)}
             placeholder="https://youtube.com/…"
