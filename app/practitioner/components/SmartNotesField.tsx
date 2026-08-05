@@ -27,12 +27,10 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   const [error, setError] = useState('')
   const [speechSupported, setSpeechSupported] = useState(false)
 
-  const userStoppedRef = useRef(false)
   const listeningRef = useRef(false)
   const baseRef = useRef(value)
   const interimRef = useRef('')
   const recognitionRef = useRef<AnySpeechRecognition>(null)
-  const rapidRestartsRef = useRef(0)
 
   useEffect(() => { setSpeechSupported(!!getSR()) }, [])
 
@@ -52,7 +50,6 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     // Tracked per-instance (closured, not a shared ref) so a late/stale event
     // from a previous instance can never corrupt a newer instance's count.
     let finalizedCount = 0
-    const startedAt = Date.now()
 
     rec.onresult = (e: AnySpeechRecognition) => {
       if (recognitionRef.current !== rec) return // stale instance — ignore
@@ -77,7 +74,6 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         }
       }
       if (finalChunk) {
-        rapidRestartsRef.current = 0
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
         baseRef.current = baseRef.current + sep + finalChunk.trimStart()
       }
@@ -90,12 +86,16 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       if (recognitionRef.current !== rec) return // stale instance — ignore
       if (e.error !== 'no-speech' && e.error !== 'aborted') {
         setError(`Mic error: ${e.error}`)
-        userStoppedRef.current = true
-        setListening(false)
-        listeningRef.current = false
       }
     }
 
+    // Deliberately no auto-restart here. Android in particular ends the
+    // recognition session on its own (often after a short pause) and restarting
+    // it behind the scenes caused a runaway loop: each restart replayed
+    // Android's mic-start tone (heard as continuous beeping) and, because two
+    // recognition instances could briefly overlap, the same phrase got written
+    // into the note repeatedly. Ending cleanly and requiring a tap to resume is
+    // far more reliable than trying to paper over that with restart logic.
     rec.onend = () => {
       if (recognitionRef.current !== rec) return // stale instance — ignore
 
@@ -105,45 +105,20 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         onChange(baseRef.current)
         interimRef.current = ''
       }
-      if (!userStoppedRef.current && listeningRef.current) {
-        // Android/iOS end the session on their own (often after a short pause) —
-        // silently restart. But if it keeps ending near-instantly with nothing
-        // recognized, restarting in a tight loop just replays the mic-start
-        // sound over and over — stop instead of spinning forever.
-        if (Date.now() - startedAt < 400) {
-          rapidRestartsRef.current += 1
-        } else {
-          rapidRestartsRef.current = 0
-        }
-        if (rapidRestartsRef.current > 5) {
-          setError('Mic kept disconnecting — tap Dictate to try again.')
-          setListening(false)
-          listeningRef.current = false
-          return
-        }
-        try {
-          const next = buildRecognition()
-          if (next) { recognitionRef.current = next; next.start() }
-        } catch {
-          setListening(false)
-          listeningRef.current = false
-        }
-      } else {
-        setListening(false)
-        listeningRef.current = false
-      }
+      recognitionRef.current = null
+      listeningRef.current = false
+      setListening(false)
     }
 
     return rec
   }
 
   function startListening() {
+    if (listeningRef.current) return // already listening — never start a second overlapping instance
     setError('')
     const rec = buildRecognition()
     if (!rec) { setError('Voice input is not supported in this browser.'); return }
-    userStoppedRef.current = false
     listeningRef.current = true
-    rapidRestartsRef.current = 0
     recognitionRef.current = rec
     baseRef.current = value
     interimRef.current = ''
@@ -152,9 +127,8 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   }
 
   function stopListening() {
-    userStoppedRef.current = true
     listeningRef.current = false
-    recognitionRef.current?.stop()
+    try { recognitionRef.current?.abort() } catch {}
     recognitionRef.current = null
     interimRef.current = ''
     setListening(false)
