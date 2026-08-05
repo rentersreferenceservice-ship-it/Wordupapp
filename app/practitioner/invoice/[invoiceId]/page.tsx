@@ -136,16 +136,18 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-gray-100">
-              <td className="px-4 py-3 text-sm text-gray-800">
-                Letterboard Session{session?.lesson_title ? ` — ${session.lesson_title}` : ''}
-                {sessionDate && <span className="text-gray-400 text-xs ml-2">({sessionDate})</span>}
-              </td>
-              <td className="px-4 py-3 text-right print:hidden">
-                <InvoiceSessionFee invoiceId={invoiceId} studentId={invoice.student_id} initialAmount={amount} />
-              </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right hidden print:table-cell">{fmt(amount)}</td>
-            </tr>
+            {(session || amount !== 0) && (
+              <tr className="border-b border-gray-100">
+                <td className="px-4 py-3 text-sm text-gray-800">
+                  Letterboard Session{session?.lesson_title ? ` — ${session.lesson_title}` : ''}
+                  {sessionDate && <span className="text-gray-400 text-xs ml-2">({sessionDate})</span>}
+                </td>
+                <td className="px-4 py-3 text-right print:hidden">
+                  <InvoiceSessionFee invoiceId={invoiceId} studentId={invoice.student_id} initialAmount={amount} />
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right hidden print:table-cell">{fmt(amount)}</td>
+              </tr>
+            )}
             {extraItems.map((item, i) => (
               <tr key={i} className="border-b border-gray-100">
                 <td className="px-4 py-3 text-sm text-gray-800">{item.description || <span className="text-gray-400 italic">Unnamed item</span>}</td>

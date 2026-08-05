@@ -46,28 +46,49 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  const { sessionId, amount: amountOverride } = await req.json()
-  if (!sessionId) return Response.json({ error: 'sessionId required' }, { status: 400 })
+  const { sessionId, amount: amountOverride, studentId: studentIdInput, description } = await req.json()
+  if (!sessionId && !studentIdInput) {
+    return Response.json({ error: 'sessionId or studentId required' }, { status: 400 })
+  }
 
   const supabase = getSupabase()
 
-  const { data: session } = await supabase
-    .from('sessions')
-    .select('*')
-    .eq('id', sessionId)
-    .eq('practitioner_id', userId)
-    .single()
-  if (!session) return Response.json({ error: 'Session not found' }, { status: 404 })
+  let session: { student_id: string; session_date?: string } | null = null
+  let studentId: string = studentIdInput
+
+  if (sessionId) {
+    const { data } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .eq('practitioner_id', userId)
+      .single()
+    if (!data) return Response.json({ error: 'Session not found' }, { status: 404 })
+    session = data
+    studentId = data.student_id
+  }
 
   const [{ data: student }, { data: settings }] = await Promise.all([
-    supabase.from('students').select('name, guardian_email, funder_name, funder_email, session_rate, default_mileage').eq('id', session.student_id).single(),
+    supabase.from('students').select('name, guardian_email, funder_name, funder_email, session_rate, default_mileage').eq('id', studentId).eq('practitioner_id', userId).single(),
     supabase.from('practitioner_settings').select('*').eq('practitioner_id', userId).single(),
   ])
+  if (!student) return Response.json({ error: 'Student not found' }, { status: 404 })
 
   const invoiceNumber = settings?.next_invoice_number ?? 101
-  const amount = amountOverride != null
-    ? parseFloat(String(amountOverride))
-    : (student?.session_rate != null ? parseFloat(String(student.session_rate)) : parseFloat(String(settings?.session_rate ?? 0)))
+
+  // Session-based invoices charge the base session-fee line item; standalone
+  // invoices (no lesson/session attached) instead charge a single named
+  // extra-item line, since there's no session fee to attach the amount to.
+  let amount: number
+  let extraItems: Array<{ description: string; amount: number }> = []
+  if (session) {
+    amount = amountOverride != null
+      ? parseFloat(String(amountOverride))
+      : (student?.session_rate != null ? parseFloat(String(student.session_rate)) : parseFloat(String(settings?.session_rate ?? 0)))
+  } else {
+    amount = 0
+    extraItems = [{ description: description?.trim() || 'Charge', amount: parseFloat(String(amountOverride ?? 0)) }]
+  }
 
   const today = new Date()
   const invoiceDate = today.toISOString().split('T')[0]
@@ -78,10 +99,11 @@ export async function POST(req: NextRequest) {
     .from('invoices')
     .insert({
       practitioner_id: userId,
-      student_id: session.student_id,
-      session_id: sessionId,
+      student_id: studentId,
+      session_id: sessionId ?? null,
       invoice_number: invoiceNumber,
       amount,
+      extra_items: extraItems,
       amount_paid: 0,
       is_paid: false,
       invoice_date: invoiceDate,
@@ -95,28 +117,30 @@ export async function POST(req: NextRequest) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
-  // Update SESSION_INVOICE record in session_responses so transcript "View Invoice" link stays current
-  await supabase.from('session_responses')
-    .delete()
-    .eq('session_id', sessionId)
-    .eq('question_type', 'SESSION_INVOICE')
-  await supabase.from('session_responses').insert({
-    session_id: sessionId,
-    hunk_number: -1,
-    question_type: 'SESSION_INVOICE',
-    question_text: 'Invoice',
-    captured_answer: `/practitioner/invoice/${invoice.id}`,
-  })
-
-  // Auto-log mileage if student has a default trip mileage set
-  if (student?.default_mileage) {
-    await supabase.from('mileage_log').insert({
-      practitioner_id: userId,
-      student_id: session.student_id,
-      invoice_id: invoice.id,
-      miles: parseFloat(String(student.default_mileage)),
-      trip_date: session.session_date ?? invoiceDate,
+  if (session) {
+    // Update SESSION_INVOICE record in session_responses so transcript "View Invoice" link stays current
+    await supabase.from('session_responses')
+      .delete()
+      .eq('session_id', sessionId)
+      .eq('question_type', 'SESSION_INVOICE')
+    await supabase.from('session_responses').insert({
+      session_id: sessionId,
+      hunk_number: -1,
+      question_type: 'SESSION_INVOICE',
+      question_text: 'Invoice',
+      captured_answer: `/practitioner/invoice/${invoice.id}`,
     })
+
+    // Auto-log mileage if student has a default trip mileage set
+    if (student?.default_mileage) {
+      await supabase.from('mileage_log').insert({
+        practitioner_id: userId,
+        student_id: studentId,
+        invoice_id: invoice.id,
+        miles: parseFloat(String(student.default_mileage)),
+        trip_date: session.session_date ?? invoiceDate,
+      })
+    }
   }
 
   // Increment invoice number

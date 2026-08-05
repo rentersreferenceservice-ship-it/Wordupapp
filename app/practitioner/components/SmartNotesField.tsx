@@ -32,6 +32,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   const baseRef = useRef(value)
   const interimRef = useRef('')
   const recognitionRef = useRef<AnySpeechRecognition>(null)
+  const finalizedCountRef = useRef(0)
 
   useEffect(() => { setSpeechSupported(!!getSR()) }, [])
 
@@ -48,13 +49,28 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     rec.interimResults = true
     rec.lang = 'en-US'
 
+    // Fresh recognition session — its results array starts back at index 0.
+    finalizedCountRef.current = 0
+
     rec.onresult = (e: AnySpeechRecognition) => {
+      // Some browsers (notably Android Chrome) report e.resultIndex unreliably,
+      // sometimes re-pointing at results already marked final. Trusting it caused
+      // the same finalized phrase to be appended repeatedly on later onresult
+      // events. Instead, track our own watermark of how many results (by index)
+      // have already been committed, and only ever commit each index once.
       let finalChunk = ''
       let interim = ''
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript
-        if (e.results[i].isFinal) finalChunk += t
-        else interim += t
+      for (let i = 0; i < e.results.length; i++) {
+        const result = e.results[i]
+        const t = result[0].transcript
+        if (result.isFinal) {
+          if (i >= finalizedCountRef.current) {
+            finalChunk += t
+            finalizedCountRef.current = i + 1
+          }
+        } else {
+          interim += t
+        }
       }
       if (finalChunk) {
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''

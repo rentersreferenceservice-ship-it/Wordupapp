@@ -103,10 +103,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ inv
         </tr>
       </thead>
       <tbody>
+        ${(session || amount !== 0) ? `
         <tr style="border-bottom:1px solid #e5e7eb">
           <td style="padding:12px;font-size:13px">Letterboard Session${session?.lesson_title ? ` — ${session.lesson_title}` : ''}${sessionDate ? ` (${sessionDate})` : ''}</td>
           <td style="padding:12px;text-align:right;font-size:13px;font-weight:600">${fmt(amount)}</td>
-        </tr>
+        </tr>` : ''}
         ${extraItems.map(item => `
         <tr style="border-bottom:1px solid #e5e7eb">
           <td style="padding:12px;font-size:13px">${item.description}</td>

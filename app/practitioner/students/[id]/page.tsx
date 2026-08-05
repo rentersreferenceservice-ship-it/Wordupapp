@@ -161,9 +161,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
       <CrpManager studentId={id} initialCrps={crps} />
 
       {/* Invoices */}
-      {invoices.length > 0 && (
-        <InvoicesCollapsible invoices={invoices} todayStr={todayStr} />
-      )}
+      <InvoicesCollapsible invoices={invoices} todayStr={todayStr} studentId={id} />
 
       {/* Online Form Submissions */}
       <FormSubmissionsSection studentId={id} initialSubmissions={formSubmissions} />

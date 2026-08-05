@@ -101,13 +101,15 @@ export default async function PublicInvoicePage({ params }: { params: Promise<{ 
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-gray-100">
-              <td className="px-4 py-3 text-sm text-gray-800">
-                Letterboard Session{session?.lesson_title ? ` — ${session.lesson_title}` : ''}
-                {sessionDate && <span className="text-gray-400 text-xs ml-2">({sessionDate})</span>}
-              </td>
-              <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(amount)}</td>
-            </tr>
+            {(session || amount !== 0) && (
+              <tr className="border-b border-gray-100">
+                <td className="px-4 py-3 text-sm text-gray-800">
+                  Letterboard Session{session?.lesson_title ? ` — ${session.lesson_title}` : ''}
+                  {sessionDate && <span className="text-gray-400 text-xs ml-2">({sessionDate})</span>}
+                </td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">{fmt(amount)}</td>
+              </tr>
+            )}
             {extraItems.map((item, i) => (
               <tr key={i} className="border-b border-gray-100">
                 <td className="px-4 py-3 text-sm text-gray-800">{item.description}</td>
