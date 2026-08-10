@@ -109,6 +109,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
   const [showExternalLink, setShowExternalLink] = useState(false)
   const [invoiceLink, setInvoiceLink] = useState('')
   const [questions, setQuestions] = useState<QuestionRow[]>([{ id: 1, question: '', response: '', misspokeCount: 0 }])
+  const [excludeFromAccuracy, setExcludeFromAccuracy] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
@@ -174,6 +175,7 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
         regulationArrival: regArrival,
         regulationDeparture: regDeparture,
         studentStates,
+        excludeFromAccuracy,
       }),
     })
     const data = await res.json()
@@ -230,6 +232,29 @@ export default function OpenSessionForm({ students }: { students: Student[] }) {
       <h1 className="text-2xl font-bold text-gray-900">Open Session</h1>
 
       <SessionTimer />
+
+      {/* Accuracy exclusion — session level */}
+      <button
+        type="button"
+        onClick={() => setExcludeFromAccuracy(v => !v)}
+        className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border-2 transition-colors ${
+          excludeFromAccuracy
+            ? 'bg-amber-50 border-amber-400'
+            : 'bg-white border-gray-200 hover:border-amber-300'
+        }`}
+      >
+        <div className="text-left">
+          <p className={`text-sm font-bold ${excludeFromAccuracy ? 'text-amber-800' : 'text-gray-700'}`}>
+            {excludeFromAccuracy ? '⚠ This session is excluded from accuracy tracking' : 'Exclude this session from accuracy tracking'}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {excludeFromAccuracy ? 'Session will appear as 0% in the accuracy graph' : 'Use when session data should not count toward the speller\'s accuracy graph'}
+          </p>
+        </div>
+        <div className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ml-4 ${excludeFromAccuracy ? 'bg-amber-400' : 'bg-gray-200'}`}>
+          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${excludeFromAccuracy ? 'left-6' : 'left-0.5'}`} />
+        </div>
+      </button>
 
       {/* Student + Date */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">

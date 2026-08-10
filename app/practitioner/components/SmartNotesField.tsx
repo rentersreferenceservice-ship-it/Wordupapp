@@ -28,9 +28,11 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
   const [speechSupported, setSpeechSupported] = useState(false)
 
   const listeningRef = useRef(false)
+  const userStoppedRef = useRef(false)
   const baseRef = useRef(value)
   const interimRef = useRef('')
   const recognitionRef = useRef<AnySpeechRecognition>(null)
+  const rapidEndsRef = useRef(0)
 
   useEffect(() => { setSpeechSupported(!!getSR()) }, [])
 
@@ -43,9 +45,16 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     if (!SR) return null
 
     const rec = new SR()
-    rec.continuous = true
+    // Single utterance per session, not continuous — continuous mode is the
+    // flaky one on Android (internal restarts, repeated mic-start tones,
+    // duplicated text). We get the reliability of single-utterance mode but
+    // keep the "just talk, don't touch anything" feel by automatically
+    // chaining a new one-utterance session onto the end of the last, below.
+    rec.continuous = false
     rec.interimResults = true
     rec.lang = 'en-US'
+
+    const startedAt = Date.now()
 
     // Tracked per-instance (closured, not a shared ref) so a late/stale event
     // from a previous instance can never corrupt a newer instance's count.
@@ -86,16 +95,17 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       if (recognitionRef.current !== rec) return // stale instance — ignore
       if (e.error !== 'no-speech' && e.error !== 'aborted') {
         setError(`Mic error: ${e.error}`)
+        userStoppedRef.current = true
       }
     }
 
-    // Deliberately no auto-restart here. Android in particular ends the
-    // recognition session on its own (often after a short pause) and restarting
-    // it behind the scenes caused a runaway loop: each restart replayed
-    // Android's mic-start tone (heard as continuous beeping) and, because two
-    // recognition instances could briefly overlap, the same phrase got written
-    // into the note repeatedly. Ending cleanly and requiring a tap to resume is
-    // far more reliable than trying to paper over that with restart logic.
+    // Single-utterance mode always ends after each phrase/pause, even while
+    // the practitioner is still talking — so to feel continuous (no tapping
+    // between sentences), we chain a fresh one-utterance session onto the end
+    // of the last one automatically. Each session is short and clean, which
+    // sidesteps the flakiness of asking the browser for one long continuous
+    // session. If it somehow ends near-instantly over and over (a real error,
+    // not a natural speech pause), stop instead of looping/beeping forever.
     rec.onend = () => {
       if (recognitionRef.current !== rec) return // stale instance — ignore
 
@@ -105,9 +115,32 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
         onChange(baseRef.current)
         interimRef.current = ''
       }
-      recognitionRef.current = null
-      listeningRef.current = false
-      setListening(false)
+
+      if (userStoppedRef.current || !listeningRef.current) {
+        recognitionRef.current = null
+        listeningRef.current = false
+        setListening(false)
+        return
+      }
+
+      rapidEndsRef.current = Date.now() - startedAt < 300 ? rapidEndsRef.current + 1 : 0
+      if (rapidEndsRef.current > 6) {
+        setError('Mic kept disconnecting — tap Dictate to try again.')
+        recognitionRef.current = null
+        listeningRef.current = false
+        setListening(false)
+        return
+      }
+
+      try {
+        const next = buildRecognition()
+        if (next) { recognitionRef.current = next; next.start() }
+        else { listeningRef.current = false; setListening(false) }
+      } catch {
+        recognitionRef.current = null
+        listeningRef.current = false
+        setListening(false)
+      }
     }
 
     return rec
@@ -118,19 +151,27 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
     setError('')
     const rec = buildRecognition()
     if (!rec) { setError('Voice input is not supported in this browser.'); return }
+    userStoppedRef.current = false
     listeningRef.current = true
+    rapidEndsRef.current = 0
     recognitionRef.current = rec
     baseRef.current = value
     interimRef.current = ''
-    rec.start()
-    setListening(true)
+    try {
+      rec.start()
+      setListening(true)
+    } catch {
+      listeningRef.current = false
+      recognitionRef.current = null
+    }
   }
 
   function stopListening() {
+    userStoppedRef.current = true
     listeningRef.current = false
-    try { recognitionRef.current?.abort() } catch {}
-    recognitionRef.current = null
-    interimRef.current = ''
+    // .stop() (not .abort()) so it still delivers a final result for
+    // whatever was captured before stopping — onend does the actual cleanup.
+    try { recognitionRef.current?.stop() } catch {}
     setListening(false)
   }
 
