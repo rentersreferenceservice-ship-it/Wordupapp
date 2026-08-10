@@ -58,7 +58,18 @@ export default function PractitionerAccessPage() {
         </p>
       </div>
 
-      {/* Synthesia video — hidden pending re-record */}
+      {/* Synthesia video */}
+      <div className="w-full max-w-lg mb-8 rounded-2xl overflow-hidden shadow-xl"
+        style={{ position: 'relative', aspectRatio: '1920/1080' }}>
+        <iframe
+          src="https://share.synthesia.io/embeds/videos/72ceac1f-a07e-46c8-b2ed-ae3dae6fee7e"
+          loading="lazy"
+          title="Synthesia video player - Manage Sessions with Word Up Practitioner Dashboard"
+          allowFullScreen
+          allow="encrypted-media; fullscreen; microphone; screen-wake-lock;"
+          style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, border: 'none' }}
+        />
+      </div>
 
       {/* Trial callout */}
       <div className="rounded-2xl px-6 py-4 text-center mb-6 max-w-sm w-full"
