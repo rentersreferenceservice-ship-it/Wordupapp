@@ -6,6 +6,7 @@ import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
 import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
+import NoLessonSessionForm from '../NoLessonSessionForm'
 import InvoiceLookup from './InvoiceLookup'
 import GettingStarted from './GettingStarted'
 
@@ -75,6 +76,7 @@ export default async function PractitionerDashboard() {
           <Link href="/practitioner/open-session" className="bg-green-600 text-white border-2 border-green-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
             + Open Session
           </Link>
+          <NoLessonSessionForm />
           <Link href="/practitioner/tools-assessments" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Tools &amp; Assessments
           </Link>
