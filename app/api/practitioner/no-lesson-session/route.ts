@@ -34,7 +34,12 @@ export async function POST(req: NextRequest) {
     const now = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
     const normalizedVideo = video?.trim() || null
-    const normalizedInvoice = invoice?.trim() || null
+    const rawInvoice = invoice?.trim() || null
+    const normalizedInvoice = rawInvoice
+      ? rawInvoice.startsWith('/practitioner/invoice/')
+        ? `https://worduplessongenerator.com/invoice/${rawInvoice.split('/').pop()}`
+        : rawInvoice
+      : null
     const ytMatch = normalizedVideo?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
     const ytId = ytMatch?.[1] ?? null
     const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null
