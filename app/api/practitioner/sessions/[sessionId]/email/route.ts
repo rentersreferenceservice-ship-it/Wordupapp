@@ -43,6 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
     if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
     const body = await req.json()
+    const includeTranscript = body.includeTranscript !== false
     const toRaw: unknown = body.to
     const to: string[] = Array.isArray(toRaw) ? toRaw : (typeof toRaw === 'string' ? [toRaw] : [])
     if (to.length === 0 || to.some(e => !e.includes('@'))) return Response.json({ error: 'Invalid recipient email' }, { status: 400 })
@@ -199,9 +200,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       byHunk[r.hunkNumber].push(r)
     }
 
-    // Build PDF
-    const doc = React.createElement(Document, {},
-      React.createElement(Page, { style: s.page },
+    let pdfBuffer: Buffer | null = null
+    let filename: string | null = null
+
+    if (includeTranscript) {
+      // Build PDF
+      const doc = React.createElement(Document, {},
+        React.createElement(Page, { style: s.page },
 
         // Header
         React.createElement(View, { style: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottomWidth: 2, borderBottomColor: '#111' } },
@@ -368,18 +373,38 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       )
     )
 
-    const pdfBuffer = await renderToBuffer(doc) as unknown as Buffer
-    const filename = `transcript-${(student?.name ?? 'student').replace(/[^a-zA-Z0-9]/g, '-')}-${session.session_date}.pdf`
+      pdfBuffer = await renderToBuffer(doc) as unknown as Buffer
+      filename = `transcript-${(student?.name ?? 'student').replace(/[^a-zA-Z0-9]/g, '-')}-${session.session_date}.pdf`
+    }
 
-    // Send email with PDF attached
-    const resend = new Resend(process.env.RESEND_API_KEY)
-    const { data: resendData, error: resendError } = await resend.emails.send({
-      from: 'Word Up <noreply@worduplessongenerator.com>',
-      replyTo: practitionerEmail || undefined,
-      to,
-      bcc: 'Wordups2c@gmail.com',
-      subject: `Session Transcript — ${student?.name ?? 'Student'} — ${sessionDate}`,
-      html: `
+    const emailSubject = includeTranscript
+      ? `Session Transcript — ${student?.name ?? 'Student'} — ${sessionDate}`
+      : `Session Update — ${student?.name ?? 'Student'} — ${sessionDate}`
+
+    const summaryHtml = `
+<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#374151">
+  <h2 style="margin:0 0 8px 0;font-size:20px">Session Update</h2>
+  <p style="margin:0 0 2px 0;font-size:15px;font-weight:600">${student?.name ?? 'Student'}</p>
+  <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280">${sessionDate}</p>
+  ${sessionNotesRecord?.capturedAnswer ? `<div style="margin-bottom:18px;padding:14px 16px;border-radius:10px;background:#f8fafc;border:1px solid #e5e7eb"><p style="margin:0 0 8px 0;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Session Notes</p><p style="margin:0;white-space:pre-wrap;line-height:1.6;color:#374151">${sessionNotesRecord.capturedAnswer}</p></div>` : ''}
+  ${videoUrl ? `
+  <div style="margin-bottom:18px">
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Session Video</p>
+    ${ytThumb
+      ? `<a href="${videoUrl}" target="_blank" style="display:block"><img src="${ytThumb}" alt="Session video" style="width:100%;max-width:480px;border-radius:8px;display:block" /></a>`
+      : `<a href="${videoUrl}" style="color:#2563eb;font-size:13px">${videoUrl}</a>`
+    }
+  </div>` : ''}
+  ${invoiceUrl ? `
+  <div style="margin-bottom:18px">
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em">Invoice</p>
+    <a href="${invoiceUrl}" target="_blank" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:13px;padding:10px 20px;border-radius:8px">View Invoice →</a>
+  </div>` : ''}
+  ${!sessionNotesRecord?.capturedAnswer && !videoUrl && !invoiceUrl ? '<p style="margin:0;color:#6b7280">No session note, video, or invoice was attached for this update.</p>' : ''}
+  <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up · worduplessongenerator.com</p>
+</div>`
+
+    const transcriptHtml = `
 <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;color:#374151">
   <h2 style="margin:0 0 4px 0;font-size:20px">Session Transcript</h2>
   <p style="margin:0 0 2px 0;font-size:15px;font-weight:600">${student?.name ?? 'Student'}</p>
@@ -426,13 +451,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
   </div>` : ''}
   <p style="margin:0 0 6px 0;color:#374151">Please find the full session transcript attached as a PDF.</p>
   <p style="margin:0;font-size:12px;color:#9ca3af">Sent by ${practitionerName} via Word Up · worduplessongenerator.com</p>
-</div>`,
-      attachments: [
-        {
-          filename,
-          content: Buffer.from(pdfBuffer).toString('base64'),
-        },
-      ],
+</div>`
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const { data: resendData, error: resendError } = await resend.emails.send({
+      from: 'Word Up <noreply@worduplessongenerator.com>',
+      replyTo: practitionerEmail || undefined,
+      to,
+      bcc: 'Wordups2c@gmail.com',
+      subject: emailSubject,
+      html: includeTranscript ? transcriptHtml : summaryHtml,
+      ...(includeTranscript && pdfBuffer && filename ? {
+        attachments: [{ filename, content: Buffer.from(pdfBuffer).toString('base64') }],
+      } : {}),
     })
 
     if (resendError) {
@@ -440,7 +471,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ses
       return Response.json({ error: resendError.message }, { status: 500 })
     }
 
-    console.log('Resend accepted:', resendData?.id, '→ to:', to)
+    console.log('Resend accepted:', resendData?.id, '→ to:', to, 'includeTranscript:', includeTranscript)
     return Response.json({ ok: true, messageId: resendData?.id })
   } catch (e) {
     console.error('Email route error:', e)

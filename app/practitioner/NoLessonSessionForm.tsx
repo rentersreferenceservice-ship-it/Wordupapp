@@ -127,7 +127,7 @@ export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string 
     return (
       <button
         onClick={() => setOpen(true)}
-        className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+        className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
       >
         No Lesson Session
       </button>
@@ -137,26 +137,40 @@ export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string 
   return (
     <div className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm w-[360px] max-w-[90vw]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold">No Lesson Session</h3>
+        <div>
+          <h3 className="text-sm font-semibold">No Lesson Session</h3>
+          <p className="text-[11px] text-gray-500">Session update without a lesson</p>
+        </div>
         <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-sm">✕</button>
       </div>
 
       <div className="space-y-2">
+        <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Recipient email</label>
         <input value={to} onChange={e => setTo(e.target.value)} placeholder="Email" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
 
         <div className="relative">
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={4} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm pr-10" placeholder="Note" />
+          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">No lesson note</label>
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={5} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm pr-10" placeholder="Write the session update or note here..." />
           <button
             onClick={toggleRecognition}
             title={recognizing ? 'Stop dictation' : 'Start dictation'}
-            className={`absolute right-2 top-2 p-1 rounded-md ${recognizing ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-700'}`}
+            className={`absolute right-2 top-9 p-1 rounded-md ${recognizing ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-700'}`}
           >
             {recognizing ? '●' : '🎤'}
           </button>
         </div>
 
-        <input value={invoice} onChange={e => setInvoice(e.target.value)} placeholder="Invoice link (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
-        <input value={video} onChange={e => setVideo(e.target.value)} placeholder="Video link (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">Invoice link</label>
+          <input value={invoice} onChange={e => setInvoice(e.target.value)} placeholder="Paste invoice URL (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">Video link</label>
+          <input value={video} onChange={e => setVideo(e.target.value)} placeholder="Paste YouTube or video URL (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
+        </div>
+
+        <p className="text-[11px] text-gray-500">This email will include the practice branding, note, optional invoice, and optional video link in a transcript-style layout.</p>
 
         <div className="flex items-center gap-2 pt-1">
           <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>

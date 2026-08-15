@@ -72,6 +72,7 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [history, setHistory] = useState<string[]>([])
+  const [includeTranscript, setIncludeTranscript] = useState(true)
 
   useEffect(() => { setHistory(loadHistory()) }, [])
 
@@ -96,7 +97,7 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
       const res = await fetch(`/api/practitioner/sessions/${sessionId}/email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: trimmed }),
+        body: JSON.stringify({ to: trimmed, includeTranscript }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -154,6 +155,15 @@ export default function SendTranscriptButton({ sessionId, defaultTo }: { session
           )}
         </div>
       ))}
+      <label className="flex items-center gap-2 text-sm text-gray-700">
+        <input
+          type="checkbox"
+          checked={includeTranscript}
+          onChange={e => setIncludeTranscript(e.target.checked)}
+          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        Include full transcript PDF
+      </label>
       <div className="flex items-center gap-2 flex-wrap">
         <button onClick={addEmail} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
           + Add another email
