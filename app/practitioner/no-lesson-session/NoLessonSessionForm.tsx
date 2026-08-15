@@ -137,7 +137,7 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
       const res = await fetch('/api/practitioner/no-lesson-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: recipients, note, invoice, video }),
+        body: JSON.stringify({ to: recipients, note, invoice, video, studentId: studentId || null }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -194,8 +194,8 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
         <div className="flex items-start justify-between">
           <div>
             <img src="/word_up_clean.jpeg" alt="Word Up" style={{ width: 100, marginBottom: 8 }} />
-            <h1 className="text-2xl font-bold text-gray-900">No Lesson Session</h1>
-            <p className="text-gray-600 mt-1">Session update without a lesson</p>
+            <h1 className="text-2xl font-bold text-gray-900">Session Note</h1>
+            <p className="text-gray-600 mt-1">No lesson conducted</p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-gray-900">{selectedStudent?.name ?? practitionerName}</p>
@@ -290,8 +290,6 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
             )
           )}
         </div>
-
-        <p className="text-xs text-gray-500">This email will include the practice branding, note, optional invoice, and optional video link in a transcript-style layout.</p>
 
         <div className="flex items-center gap-2 pt-1">
           <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>

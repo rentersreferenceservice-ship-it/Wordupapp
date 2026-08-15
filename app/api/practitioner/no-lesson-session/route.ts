@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     const note: string | null = body.note ?? null
     const video: string | null = body.video ?? null
     const invoice: string | null = body.invoice ?? null
+    const studentId: string | null = body.studentId ?? null
 
     const clerk = await clerkClient()
     const user = await clerk.users.getUser(userId)
@@ -25,11 +26,17 @@ export async function POST(req: NextRequest) {
     const practitionerName = [user.firstName, user.lastName].filter(Boolean).join(' ') || practitionerEmail
 
     const supabase = getSupabase()
-    const { data: settings } = await supabase
-      .from('practitioner_settings')
-      .select('*')
-      .eq('practitioner_id', userId)
-      .single()
+    const [{ data: settings }, { data: student }] = await Promise.all([
+      supabase
+        .from('practitioner_settings')
+        .select('*')
+        .eq('practitioner_id', userId)
+        .single(),
+      studentId
+        ? supabase.from('students').select('name').eq('id', studentId).eq('practitioner_id', userId).single()
+        : Promise.resolve({ data: null }),
+    ])
+    const studentName = student?.name ?? null
 
     const now = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -75,7 +82,8 @@ export async function POST(req: NextRequest) {
     </div>
 
     <div style="margin-bottom:18px">
-      <p style="margin:0 0 2px 0;font-size:15px;font-weight:600;color:#111827">${practitionerName}</p>
+      ${studentName ? `<p style="margin:0 0 2px 0;font-size:18px;font-weight:700;color:#111827">${studentName}</p>` : ''}
+      <p style="margin:0 0 2px 0;font-size:${studentName ? '13px' : '15px'};font-weight:${studentName ? '400' : '600'};color:${studentName ? '#6b7280' : '#111827'}">${practitionerName}</p>
       <p style="margin:0;font-size:13px;color:#6b7280">${now}</p>
     </div>
 
@@ -116,7 +124,7 @@ export async function POST(req: NextRequest) {
   </div>
 </div>`
 
-    const subject = `No Lesson Session — ${practitionerName} — ${now}`
+    const subject = `No Lesson Session — ${studentName ?? practitionerName} — ${now}`
 
     const resend = new Resend(process.env.RESEND_API_KEY)
     const { data: resendData, error: resendError } = await resend.emails.send({
