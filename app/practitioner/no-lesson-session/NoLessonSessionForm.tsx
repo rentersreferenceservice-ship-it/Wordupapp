@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string }) {
-  const [open, setOpen] = useState(false)
-  const [to, setTo] = useState(defaultTo ?? '')
+export default function NoLessonSessionForm() {
+  const router = useRouter()
+  const [to, setTo] = useState('')
   const [note, setNote] = useState('')
   const [invoice, setInvoice] = useState('')
   const [video, setVideo] = useState('')
@@ -17,19 +18,9 @@ export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string 
   const baseNoteRef = useRef('')
 
   useEffect(() => {
-    if (!open) {
-      setNote('')
-      setInvoice('')
-      setVideo('')
-      setTo(defaultTo ?? '')
-      setError(null)
-      setSent(false)
-      stopRecognition()
-    }
-    // cleanup on unmount
     return () => stopRecognition()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, defaultTo])
+  }, [])
 
   function stopRecognition() {
     try {
@@ -64,7 +55,6 @@ export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string 
         setNote(baseNoteRef.current + final + interim)
       }
       r.onend = () => {
-        // when finished, advance base note
         baseNoteRef.current = note
         setRecognizing(false)
         recognitionRef.current = null
@@ -119,62 +109,54 @@ export default function NoLessonSessionForm({ defaultTo }: { defaultTo?: string 
 
   if (sent) {
     return (
-      <span className="text-sm text-green-600 font-medium px-3 py-2">✓ Sent</span>
-    )
-  }
-
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-      >
-        No Lesson Session
-      </button>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+        <p className="text-green-600 font-semibold text-lg mb-1">✓ Sent</p>
+        <p className="text-sm text-gray-500 mb-4">The update was emailed to {to}.</p>
+        <button
+          onClick={() => router.push('/practitioner/dashboard')}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Back to Dashboard
+        </button>
+      </div>
     )
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm w-[360px] max-w-[90vw]">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold">No Lesson Session</h3>
-          <p className="text-[11px] text-gray-500">Session update without a lesson</p>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Recipient email</label>
+          <input value={to} onChange={e => setTo(e.target.value)} placeholder="Email" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
         </div>
-        <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600 text-sm">✕</button>
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500">Recipient email</label>
-        <input value={to} onChange={e => setTo(e.target.value)} placeholder="Email" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
 
         <div className="relative">
-          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">No lesson note</label>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={5} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm pr-10" placeholder="Write the session update or note here..." />
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">No lesson note</label>
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={6} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm pr-10" placeholder="Write the session update or note here..." />
           <button
             onClick={toggleRecognition}
             title={recognizing ? 'Stop dictation' : 'Start dictation'}
-            className={`absolute right-2 top-9 p-1 rounded-md ${recognizing ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-700'}`}
+            className={`absolute right-2 top-8 p-1 rounded-md ${recognizing ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-700'}`}
           >
             {recognizing ? '●' : '🎤'}
           </button>
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">Invoice link</label>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Invoice link</label>
           <input value={invoice} onChange={e => setInvoice(e.target.value)} placeholder="Paste invoice URL (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-1">Video link</label>
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Video link</label>
           <input value={video} onChange={e => setVideo(e.target.value)} placeholder="Paste YouTube or video URL (optional)" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
         </div>
 
-        <p className="text-[11px] text-gray-500">This email will include the practice branding, note, optional invoice, and optional video link in a transcript-style layout.</p>
+        <p className="text-xs text-gray-500">This email will include the practice branding, note, optional invoice, and optional video link in a transcript-style layout.</p>
 
         <div className="flex items-center gap-2 pt-1">
-          <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>
-          <button onClick={() => setOpen(false)} className="text-gray-500 text-sm">Cancel</button>
+          <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>
+          <button onClick={() => router.push('/practitioner/dashboard')} className="text-gray-500 text-sm">Cancel</button>
           {error && <span className="text-red-500 text-xs">{error}</span>}
         </div>
       </div>
