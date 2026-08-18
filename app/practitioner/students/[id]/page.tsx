@@ -36,7 +36,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     getStudentAccuracyHistory(id, userId),
     getSupabase()
       .from('invoices')
-      .select('id, invoice_number, invoice_date, due_date, amount, amount_paid, is_paid')
+      .select('id, invoice_number, invoice_date, due_date, amount, amount_paid, is_paid, extra_items')
       .eq('student_id', id)
       .eq('practitioner_id', userId)
       .order('invoice_date', { ascending: false }),

@@ -12,6 +12,7 @@ interface Invoice {
   amount: string
   amount_paid: string | null
   is_paid: boolean
+  extra_items?: Array<{ description: string; amount: number }> | null
 }
 
 export default function InvoicesCollapsible({ invoices, todayStr, studentId }: { invoices: Invoice[]; todayStr: string; studentId: string }) {
@@ -65,7 +66,8 @@ export default function InvoicesCollapsible({ invoices, todayStr, studentId }: {
       {open && (
         <ul className="border-t border-gray-100 divide-y divide-gray-50 px-2 pb-2">
           {invoices.map(inv => {
-            const amount = parseFloat(inv.amount)
+            const extraTotal = (inv.extra_items ?? []).reduce((sum, item) => sum + (item.amount || 0), 0)
+            const amount = parseFloat(inv.amount) + extraTotal
             const paid = parseFloat(inv.amount_paid ?? '0')
             const balance = Math.max(0, amount - paid)
             const overdue = !inv.is_paid && inv.due_date && inv.due_date < todayStr

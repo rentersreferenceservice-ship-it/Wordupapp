@@ -26,9 +26,6 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [showInvoiceForm, setShowInvoiceForm] = useState(false)
-  const [invoiceDescription, setInvoiceDescription] = useState('')
-  const [invoiceAmount, setInvoiceAmount] = useState('')
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
 
@@ -40,19 +37,17 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
 
   async function handleGenerateInvoice() {
     if (!studentId) { setInvoiceError('Select a student first'); return }
-    if (!invoiceAmount.trim() || isNaN(parseFloat(invoiceAmount))) { setInvoiceError('Enter a valid amount'); return }
     setGeneratingInvoice(true)
     setInvoiceError('')
     try {
       const res = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, description: invoiceDescription, amount: parseFloat(invoiceAmount) }),
+        body: JSON.stringify({ studentId, asSessionFee: true }),
       })
       const data = await res.json()
       if (!res.ok || !data.invoiceId) { setInvoiceError(data.error ?? 'Failed to create invoice'); setGeneratingInvoice(false); return }
       setInvoice(`/practitioner/invoice/${data.invoiceId}`)
-      setShowInvoiceForm(false)
     } catch (e) {
       setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
     } finally {
@@ -164,43 +159,17 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
               <a href={`/practitioner/invoice/${generatedInvoiceId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">View</a>
               <button onClick={() => setInvoice('')} className="text-xs text-gray-400 hover:text-red-500">Remove</button>
             </div>
-          ) : showInvoiceForm ? (
-            <div className="border border-gray-200 rounded-md p-3 space-y-2">
-              {!studentId && <p className="text-xs text-amber-600">Select a student above to generate an invoice.</p>}
-              <input
-                value={invoiceDescription}
-                onChange={e => setInvoiceDescription(e.target.value)}
-                placeholder="Description (e.g. Materials fee, Makeup session)"
-                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
-              />
-              <div className="flex items-center gap-2">
-                <span className="text-gray-500 text-sm">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={invoiceAmount}
-                  onChange={e => setInvoiceAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-32 border border-gray-200 rounded-md px-3 py-2 text-sm"
-                />
-              </div>
-              {invoiceError && <p className="text-xs text-red-600">{invoiceError}</p>}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleGenerateInvoice}
-                  disabled={generatingInvoice || !studentId}
-                  className="bg-green-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-                >
-                  {generatingInvoice ? 'Creating…' : 'Create Invoice'}
-                </button>
-                <button onClick={() => { setShowInvoiceForm(false); setInvoiceError('') }} className="text-gray-500 text-sm">Cancel</button>
-              </div>
-            </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <input value={invoice} onChange={e => setInvoice(e.target.value)} placeholder="Paste invoice URL (optional)" className="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm" />
-              <button onClick={() => setShowInvoiceForm(true)} className="text-xs font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">+ Generate</button>
+            <div>
+              <button
+                onClick={handleGenerateInvoice}
+                disabled={generatingInvoice || !studentId}
+                className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+              >
+                {generatingInvoice ? 'Creating…' : 'Generate Invoice'}
+              </button>
+              {!studentId && <p className="text-xs text-amber-600 mt-1">Select a student above to generate an invoice.</p>}
+              {invoiceError && <p className="text-xs text-red-600 mt-1">{invoiceError}</p>}
             </div>
           )}
         </div>

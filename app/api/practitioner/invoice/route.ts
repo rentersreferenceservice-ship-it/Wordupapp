@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth()
   if (!userId) return Response.json({ error: 'Not logged in' }, { status: 401 })
 
-  const { sessionId, amount: amountOverride, studentId: studentIdInput, description } = await req.json()
+  const { sessionId, amount: amountOverride, studentId: studentIdInput, description, asSessionFee } = await req.json()
   if (!sessionId && !studentIdInput) {
     return Response.json({ error: 'sessionId or studentId required' }, { status: 400 })
   }
@@ -76,12 +76,13 @@ export async function POST(req: NextRequest) {
 
   const invoiceNumber = settings?.next_invoice_number ?? 101
 
-  // Session-based invoices charge the base session-fee line item; standalone
-  // invoices (no lesson/session attached) instead charge a single named
+  // Session-based invoices (and standalone invoices explicitly billed as a
+  // session fee, e.g. from No Lesson Session) charge the base session-fee
+  // line item; other standalone invoices instead charge a single named
   // extra-item line, since there's no session fee to attach the amount to.
   let amount: number
   let extraItems: Array<{ description: string; amount: number }> = []
-  if (session) {
+  if (session || asSessionFee) {
     amount = amountOverride != null
       ? parseFloat(String(amountOverride))
       : (student?.session_rate != null ? parseFloat(String(student.session_rate)) : parseFloat(String(settings?.session_rate ?? 0)))

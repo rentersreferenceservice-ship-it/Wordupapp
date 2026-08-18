@@ -142,6 +142,48 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('No-lesson resend accepted:', resendData?.id, '→ to:', to)
+
+    // Record this in the student's file the same way an Open Session does —
+    // a sessions row plus session_responses — so it shows up in Session
+    // History and is viewable via the existing transcript page.
+    if (studentId && student) {
+      try {
+        const sessionDate = new Date().toISOString().split('T')[0]
+        const { data: newSession, error: sessionError } = await supabase
+          .from('sessions')
+          .insert({
+            practitioner_id: userId,
+            student_id: studentId,
+            lesson_id: null,
+            lesson_title: 'No Lesson Session',
+            session_date: sessionDate,
+          })
+          .select()
+          .single()
+
+        if (sessionError || !newSession) {
+          console.error('No-lesson session record error:', sessionError)
+        } else {
+          const responses = [
+            { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
+            ...(normalizedVideo ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
+            ...(rawInvoice ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+            { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
+          ]
+          await supabase.from('session_responses').insert(responses)
+
+          if (rawInvoice?.startsWith('/practitioner/invoice/')) {
+            const invoiceId = rawInvoice.split('/').pop()
+            if (invoiceId) {
+              await supabase.from('invoices').update({ session_id: newSession.id }).eq('id', invoiceId).eq('practitioner_id', userId)
+            }
+          }
+        }
+      } catch (e) {
+        console.error('No-lesson session record error:', e)
+      }
+    }
+
     return Response.json({ ok: true, messageId: resendData?.id })
   } catch (e) {
     console.error('No-lesson email route error:', e)
