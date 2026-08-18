@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 
 interface StudentOption {
   id: string
@@ -24,78 +25,12 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [recognizing, setRecognizing] = useState(false)
 
   const [showInvoiceForm, setShowInvoiceForm] = useState(false)
   const [invoiceDescription, setInvoiceDescription] = useState('')
   const [invoiceAmount, setInvoiceAmount] = useState('')
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
-
-  const recognitionRef = useRef<any | null>(null)
-  const baseNoteRef = useRef('')
-
-  useEffect(() => {
-    return () => stopRecognition()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  function stopRecognition() {
-    try {
-      const r = recognitionRef.current
-      if (r && typeof r.stop === 'function') r.stop()
-    } catch {}
-    recognitionRef.current = null
-    setRecognizing(false)
-  }
-
-  function startRecognition() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      setError('Speech recognition not supported in this browser')
-      return
-    }
-    try {
-      baseNoteRef.current = note
-      const r = new SpeechRecognition()
-      r.lang = 'en-US'
-      r.interimResults = true
-      r.maxAlternatives = 1
-      r.continuous = false
-      r.onresult = (ev: any) => {
-        let interim = ''
-        let final = ''
-        for (let i = ev.resultIndex; i < ev.results.length; i++) {
-          const res = ev.results[i]
-          if (res.isFinal) final += res[0].transcript
-          else interim += res[0].transcript
-        }
-        setNote(baseNoteRef.current + final + interim)
-      }
-      r.onend = () => {
-        baseNoteRef.current = note
-        setRecognizing(false)
-        recognitionRef.current = null
-      }
-      r.onerror = (ev: any) => {
-        console.error('Speech recognition error', ev)
-        setError('Speech recognition error')
-        stopRecognition()
-      }
-      recognitionRef.current = r
-      r.start()
-      setRecognizing(true)
-      setError(null)
-    } catch (e) {
-      console.error(e)
-      setError('Could not start speech recognition')
-    }
-  }
-
-  function toggleRecognition() {
-    if (recognizing) stopRecognition()
-    else startRecognition()
-  }
 
   function handleStudentChange(id: string) {
     setStudentId(id)
@@ -211,16 +146,14 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
           <input value={to} onChange={e => setTo(e.target.value)} placeholder="Email" className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm" />
         </div>
 
-        <div className="relative">
+        <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">No lesson note</label>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={6} className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm pr-10" placeholder="Write the session update or note here..." />
-          <button
-            onClick={toggleRecognition}
-            title={recognizing ? 'Stop dictation' : 'Start dictation'}
-            className={`absolute right-2 top-8 p-1 rounded-md ${recognizing ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-700'}`}
-          >
-            {recognizing ? '●' : '🎤'}
-          </button>
+          <SmartNotesField
+            value={note}
+            onChange={setNote}
+            placeholder="Write the session update or note here..."
+            rows={6}
+          />
         </div>
 
         <div>
