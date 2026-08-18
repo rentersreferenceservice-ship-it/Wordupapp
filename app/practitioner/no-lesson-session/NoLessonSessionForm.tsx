@@ -48,6 +48,10 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
       const data = await res.json()
       if (!res.ok || !data.invoiceId) { setInvoiceError(data.error ?? 'Failed to create invoice'); setGeneratingInvoice(false); return }
       setInvoice(`/practitioner/invoice/${data.invoiceId}`)
+      // Land straight on the invoice page, same as the transcript's Generate Invoice
+      // button — that's where the fee amount is click-to-edit for a partial/reduced
+      // session. Opened in a new tab so the in-progress note here isn't lost.
+      window.open(`/practitioner/invoice/${data.invoiceId}`, '_blank')
     } catch (e) {
       setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
     } finally {
@@ -154,10 +158,13 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Invoice</label>
           {generatedInvoiceId ? (
-            <div className="flex items-center gap-2 border border-green-200 bg-green-50 rounded-md px-3 py-2">
-              <span className="text-sm text-green-700 font-medium flex-1">Invoice generated</span>
-              <a href={`/practitioner/invoice/${generatedInvoiceId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">View</a>
-              <button onClick={() => setInvoice('')} className="text-xs text-gray-400 hover:text-red-500">Remove</button>
+            <div className="border border-green-200 bg-green-50 rounded-md px-3 py-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-green-700 font-medium flex-1">Invoice generated</span>
+                <a href={`/practitioner/invoice/${generatedInvoiceId}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">View</a>
+                <button onClick={() => setInvoice('')} className="text-xs text-gray-400 hover:text-red-500">Remove</button>
+              </div>
+              <p className="text-xs text-green-700 mt-1">Opened in a new tab — click the fee amount there to bill a partial or reduced session.</p>
             </div>
           ) : (
             <div>

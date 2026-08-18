@@ -29,7 +29,7 @@ export default async function NoLessonSessionPage() {
         </div>
 
         <NoLessonSessionForm
-          students={students.map(s => ({ id: s.id, name: s.name, guardianEmail: s.guardianEmail }))}
+          students={students.map(s => ({ id: s.id, name: s.name, guardianEmail: s.guardianEmail, sessionRate: s.sessionRate }))}
           practitionerName={practitionerName}
           today={today}
         />

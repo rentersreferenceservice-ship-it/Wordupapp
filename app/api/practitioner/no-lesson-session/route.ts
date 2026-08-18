@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const practitionerName = [user.firstName, user.lastName].filter(Boolean).join(' ') || practitionerEmail
 
     const supabase = getSupabase()
-    const [{ data: settings }, { data: student }] = await Promise.all([
+    const [{ data: settings }, { data: student, error: studentError }] = await Promise.all([
       supabase
         .from('practitioner_settings')
         .select('*')
@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
         .single(),
       studentId
         ? supabase.from('students').select('name').eq('id', studentId).eq('practitioner_id', userId).single()
-        : Promise.resolve({ data: null }),
+        : Promise.resolve({ data: null, error: null }),
     ])
     const studentName = student?.name ?? null
+    console.log('No-lesson-session: studentId=', studentId, 'student found=', !!student, 'studentError=', studentError)
 
     const now = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
@@ -146,6 +147,7 @@ export async function POST(req: NextRequest) {
     // Record this in the student's file the same way an Open Session does —
     // a sessions row plus session_responses — so it shows up in Session
     // History and is viewable via the existing transcript page.
+    console.log('No-lesson-session: entering persistence block?', !!(studentId && student))
     if (studentId && student) {
       try {
         const sessionDate = new Date().toISOString().split('T')[0]
@@ -161,6 +163,8 @@ export async function POST(req: NextRequest) {
           .select()
           .single()
 
+        console.log('No-lesson-session: session insert result=', newSession, 'sessionError=', sessionError)
+
         if (sessionError || !newSession) {
           console.error('No-lesson session record error:', sessionError)
         } else {
@@ -170,12 +174,14 @@ export async function POST(req: NextRequest) {
             ...(rawInvoice ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
             { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
           ]
-          await supabase.from('session_responses').insert(responses)
+          const { error: responsesError } = await supabase.from('session_responses').insert(responses)
+          console.log('No-lesson-session: responses insert error=', responsesError)
 
           if (rawInvoice?.startsWith('/practitioner/invoice/')) {
             const invoiceId = rawInvoice.split('/').pop()
             if (invoiceId) {
-              await supabase.from('invoices').update({ session_id: newSession.id }).eq('id', invoiceId).eq('practitioner_id', userId)
+              const { error: invoiceUpdateError } = await supabase.from('invoices').update({ session_id: newSession.id }).eq('id', invoiceId).eq('practitioner_id', userId)
+              console.log('No-lesson-session: invoice link update error=', invoiceUpdateError)
             }
           }
         }
