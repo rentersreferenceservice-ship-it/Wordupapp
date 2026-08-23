@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
     ...(invoiceLink?.trim() ? [{ session_id: session.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: invoiceLink.trim(), expected_answer: '', misspoke_count: 0 }] : []),
     ...(excludeFromAccuracy ? [{ session_id: session.id, hunk_number: 0, question_type: 'ACCURACY_EXCLUDED', question_text: 'Accuracy Excluded', captured_answer: 'true', expected_answer: '', misspoke_count: 0 }] : []),
     { session_id: session.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
-    ...questions.map((q: { question: string; response: string; misspokeCount: number }) => ({
+    ...questions.map((q: { question: string; response: string; misspokeCount: number }, i: number) => ({
       session_id: session.id,
-      hunk_number: 1,
+      hunk_number: i + 1,
       question_type: 'OPEN',
       question_text: q.question,
       captured_answer: q.response,

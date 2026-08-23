@@ -172,6 +172,17 @@ export default function EditTranscriptClient({
     setOpenQuestions(prev => prev.filter(q => q.id !== id))
   }
 
+  function moveOpenQuestion(id: number, direction: -1 | 1) {
+    setOpenQuestions(prev => {
+      const index = prev.findIndex(q => q.id === id)
+      const target = index + direction
+      if (index === -1 || target < 0 || target >= prev.length) return prev
+      const next = [...prev]
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next
+    })
+  }
+
   function updateOpenQuestion(id: number, changes: Partial<{ questionText: string; capturedAnswer: string; misspokeCount: number; excludeFromAccuracy: boolean }>) {
     setOpenQuestions(prev => prev.map(q => q.id === id ? { ...q, ...changes } : q))
   }
@@ -368,13 +379,14 @@ export default function EditTranscriptClient({
       }
     }
     if (isOpenSession) {
+      let openHunkNumber = 1
       for (const q of openQuestions) {
         if (q.questionText.trim() || q.capturedAnswer.trim()) {
           // Prefix capturedAnswer with "EXCLUDED:" when excluded from accuracy so the calc can skip it
           const storedAnswer = q.excludeFromAccuracy
             ? `EXCLUDED:${q.capturedAnswer.replace(/^EXCLUDED:/, '')}`
             : q.capturedAnswer.replace(/^EXCLUDED:/, '')
-          out.push({ hunkNumber: 1, questionType: 'OPEN', questionText: q.questionText, capturedAnswer: storedAnswer, expectedAnswer: '', misspokeCount: q.excludeFromAccuracy ? 0 : q.misspokeCount })
+          out.push({ hunkNumber: openHunkNumber++, questionType: 'OPEN', questionText: q.questionText, capturedAnswer: storedAnswer, expectedAnswer: '', misspokeCount: q.excludeFromAccuracy ? 0 : q.misspokeCount })
         }
       }
       return out
@@ -628,9 +640,29 @@ export default function EditTranscriptClient({
             <div key={q.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-gray-400">Q{idx + 1}</p>
-                {openQuestions.length > 1 && (
-                  <button type="button" onClick={() => removeOpenQuestion(q.id)} className="text-xs text-gray-300 hover:text-red-400">Remove</button>
-                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => moveOpenQuestion(q.id, -1)}
+                    disabled={idx === 0}
+                    className="text-xs text-gray-300 hover:text-blue-500 disabled:opacity-30 disabled:hover:text-gray-300"
+                    aria-label="Move question up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveOpenQuestion(q.id, 1)}
+                    disabled={idx === openQuestions.length - 1}
+                    className="text-xs text-gray-300 hover:text-blue-500 disabled:opacity-30 disabled:hover:text-gray-300"
+                    aria-label="Move question down"
+                  >
+                    ↓
+                  </button>
+                  {openQuestions.length > 1 && (
+                    <button type="button" onClick={() => removeOpenQuestion(q.id)} className="text-xs text-gray-300 hover:text-red-400">Remove</button>
+                  )}
+                </div>
               </div>
               <input
                 type="text"
