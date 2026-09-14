@@ -78,6 +78,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
           </div>
           <div className="flex gap-3">
+            <Link href={`/type-to-talk?lesson=${id}`} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+              Type to Talk
+            </Link>
             <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
             <a href="/subscribe" className="bg-yellow-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors">
               Subscribe $9.99/mo
@@ -172,6 +175,9 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <Link href="/lessons" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">← All Lessons</Link>
         </div>
         <div className="flex gap-3 flex-wrap justify-end">
+          <Link href={`/type-to-talk?lesson=${id}`} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+            Type to Talk
+          </Link>
           <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
           <PrintButton />
           <TranslateButton lessonId={id} />

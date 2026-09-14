@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef, type ChangeEvent } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
+import TypeToTalkSurface, { type TypeToTalkSurfaceHandle } from '@/app/components/TypeToTalkSurface'
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -14,23 +15,6 @@ const STATE_OPTIONS = [
   'Distracted', 'Transition difficulty',
   'Hungry', 'Tired', 'Sick', 'Pain',
 ]
-
-const SENTENCE_ENDERS = ['.', '!', '?']
-
-interface FinishedParagraph {
-  text: string
-  misspokeCount: number
-}
-
-const SPEECH_RATE = 1.4
-
-function speak(text: string) {
-  const trimmed = text.trim()
-  if (!trimmed || typeof window === 'undefined' || !window.speechSynthesis) return
-  const utterance = new SpeechSynthesisUtterance(trimmed)
-  utterance.rate = SPEECH_RATE
-  window.speechSynthesis.speak(utterance)
-}
 
 export default function TypeToTalkSessionForm({ students }: { students: Student[] }) {
   const router = useRouter()
@@ -49,84 +33,19 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [error, setError] = useState('')
 
-  // The writing surface
-  const [text, setText] = useState('')
-  const [misspokeCount, setMisspokeCount] = useState(0)
-  const [finishedParagraphs, setFinishedParagraphs] = useState<FinishedParagraph[]>([])
-  const paragraphStartRef = useRef(0)
-  const wordStartRef = useRef(0)
-  const sentenceStartRef = useRef(0)
-  const speechUnlockedRef = useRef(false)
+  const surfaceRef = useRef<TypeToTalkSurfaceHandle>(null)
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   )
   const selectedStudent = students.find(s => s.id === studentId)
 
-  function unlockSpeech() {
-    if (speechUnlockedRef.current || typeof window === 'undefined' || !window.speechSynthesis) return
-    speechUnlockedRef.current = true
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(''))
-  }
-
   function toggleState(s: string) {
     setStudentStates(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
   }
 
-  function finishParagraph(newValue: string, cursor: number) {
-    const paragraph = newValue.slice(paragraphStartRef.current, cursor - 2).trim()
-    paragraphStartRef.current = cursor
-    wordStartRef.current = cursor
-    sentenceStartRef.current = cursor
-    if (paragraph) {
-      speak(paragraph)
-      setFinishedParagraphs(prev => [...prev, { text: paragraph, misspokeCount }])
-    }
-    setMisspokeCount(0)
-  }
-
-  function handleTextChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    const newValue = e.target.value
-    const oldValue = text
-    const cursor = e.target.selectionStart ?? newValue.length
-
-    if (newValue.length > oldValue.length) {
-      const insertedLength = newValue.length - oldValue.length
-      setText(newValue)
-      if (insertedLength !== 1) return // paste / autocomplete block insert — skip letter-by-letter speech
-      const char = newValue[cursor - 1]
-
-      if (/[a-zA-Z]/.test(char)) {
-        speak(char)
-      } else if (char === ' ') {
-        // Word boundary — everything since the last word/sentence/paragraph boundary, excluding this space.
-        const word = newValue.slice(wordStartRef.current, cursor - 1)
-        wordStartRef.current = cursor
-        speak(word)
-      } else if (SENTENCE_ENDERS.includes(char)) {
-        // Sentence boundary — everything since the last sentence/paragraph boundary, including this punctuation.
-        const sentence = newValue.slice(sentenceStartRef.current, cursor)
-        sentenceStartRef.current = cursor
-        wordStartRef.current = cursor // the sentence just spoken already covered its trailing word
-        speak(sentence)
-      } else if (char === '\n' && newValue[cursor - 2] === '\n') {
-        finishParagraph(newValue, cursor)
-      }
-    } else if (newValue.length < oldValue.length) {
-      setMisspokeCount(m => m + (oldValue.length - newValue.length))
-      setText(newValue)
-    } else {
-      setText(newValue)
-    }
-  }
-
-  function getAllParagraphs(): FinishedParagraph[] {
-    const trailing = text.slice(paragraphStartRef.current).trim()
-    return trailing ? [...finishedParagraphs, { text: trailing, misspokeCount }] : finishedParagraphs
-  }
-
   async function saveSession(): Promise<string | null> {
-    const paragraphs = getAllParagraphs()
+    const paragraphs = surfaceRef.current?.getAllParagraphs() ?? []
     const res = await fetch('/api/practitioner/type-to-talk-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -150,7 +69,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
 
   async function handleFinishSession() {
     if (!studentId) { setError('Please select a student.'); return }
-    if (!getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
+    if (!surfaceRef.current?.getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
     setSaving(true)
     setError('')
     try {
@@ -165,7 +84,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
 
   async function handleGenerateInvoice() {
     if (!studentId) { setError('Please select a student.'); return }
-    if (!getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
+    if (!surfaceRef.current?.getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
     setGeneratingInvoice(true)
     setError('')
     try {
@@ -246,7 +165,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => { setStudentId(s.id); setSearch(''); unlockSpeech() }}
+                        onClick={() => { setStudentId(s.id); setSearch('') }}
                         className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0"
                       >
                         {s.name} <span className="text-gray-400 text-xs">{s.ageGroup}</span>
@@ -377,27 +296,8 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
       </div>
 
       {/* Writing surface */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Type to Talk</p>
-          <div className="flex items-center gap-3 text-xs text-gray-400">
-            <span>{finishedParagraphs.length} paragraph{finishedParagraphs.length === 1 ? '' : 's'} saved</span>
-            <span className={misspokeCount > 0 ? 'text-red-500 font-semibold' : ''}>{misspokeCount} misspoke{misspokeCount === 1 ? '' : 's'}</span>
-          </div>
-        </div>
-        <textarea
-          value={text}
-          onChange={handleTextChange}
-          onFocus={unlockSpeech}
-          placeholder="Type here — letters are spoken as they're poked, words on space, sentences on a period, and paragraphs on a double Enter…"
-          rows={10}
-          autoCorrect="off"
-          autoCapitalize="off"
-          autoComplete="off"
-          spellCheck={false}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base leading-relaxed font-serif focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-        />
-        <p className="text-xs text-gray-400">Press Enter twice to finish a paragraph — it will be read aloud and saved.</p>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <TypeToTalkSurface ref={surfaceRef} />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

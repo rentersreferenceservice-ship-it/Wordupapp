@@ -336,6 +336,9 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
           <Link href="/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
             Submit a Lesson
           </Link>
+          <Link href="/type-to-talk" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors text-center">
+            Type to Talk — Free
+          </Link>
           <button
             onClick={() => setShowSuggest(true)}
             className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors text-center"
