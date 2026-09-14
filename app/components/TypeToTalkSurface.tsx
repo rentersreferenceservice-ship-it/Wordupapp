@@ -1,9 +1,9 @@
 'use client'
 
-import { forwardRef, useImperativeHandle, useRef, useState, type ChangeEvent } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ChangeEvent } from 'react'
 
 const SENTENCE_ENDERS = ['.', '!', '?']
-const SPEECH_RATE = 1.4
+const SPEECH_RATE = 1.15
 
 export interface FinishedParagraph {
   text: string
@@ -23,8 +23,15 @@ function speak(text: string) {
   window.speechSynthesis.speak(utterance)
 }
 
-const TypeToTalkSurface = forwardRef<TypeToTalkSurfaceHandle, { placeholder?: string; rows?: number }>(
-  function TypeToTalkSurface({ placeholder, rows = 10 }, ref) {
+interface TypeToTalkSurfaceProps {
+  placeholder?: string
+  rows?: number
+  currentQuestion?: string
+  onLiveChange?: (info: { combinedText: string; totalMisspokeCount: number }) => void
+}
+
+const TypeToTalkSurface = forwardRef<TypeToTalkSurfaceHandle, TypeToTalkSurfaceProps>(
+  function TypeToTalkSurface({ placeholder, rows = 10, currentQuestion, onLiveChange }, ref) {
     const [text, setText] = useState('')
     const [misspokeCount, setMisspokeCount] = useState(0)
     const [finishedParagraphs, setFinishedParagraphs] = useState<FinishedParagraph[]>([])
@@ -91,6 +98,14 @@ const TypeToTalkSurface = forwardRef<TypeToTalkSurfaceHandle, { placeholder?: st
       return trailing ? [...finishedParagraphs, { text: trailing, misspokeCount }] : finishedParagraphs
     }
 
+    useEffect(() => {
+      if (!onLiveChange) return
+      const combinedText = getAllParagraphs().map(p => p.text).join('\n\n')
+      const totalMisspokeCount = finishedParagraphs.reduce((sum, p) => sum + p.misspokeCount, 0) + misspokeCount
+      onLiveChange({ combinedText, totalMisspokeCount })
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [text, misspokeCount, finishedParagraphs])
+
     useImperativeHandle(ref, () => ({
       getAllParagraphs,
       reset() {
@@ -105,6 +120,12 @@ const TypeToTalkSurface = forwardRef<TypeToTalkSurfaceHandle, { placeholder?: st
 
     return (
       <div className="space-y-3">
+        {currentQuestion && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+            <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide mb-1">Question</p>
+            <p className="text-sm font-medium text-purple-900">{currentQuestion}</p>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Type to Talk</p>
           <div className="flex items-center gap-3 text-xs text-gray-400">
