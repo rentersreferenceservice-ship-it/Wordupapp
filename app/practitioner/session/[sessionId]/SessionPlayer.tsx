@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import type { Lesson, QuestionType } from '@/lib/types'
 import type { SessionResponse, CRP } from '@/lib/practitionerStore'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
+import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
+import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
   KNOWN: '#15803d',
@@ -192,6 +195,99 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   )
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
+
+  // Type to Talk live sync — a paired tablet the student types answers into
+  const [ttPanelOpen, setTtPanelOpen] = useState(false)
+  const [ttCode, setTtCode] = useState<string | null>(null)
+  const [ttQrDataUrl, setTtQrDataUrl] = useState<string | null>(null)
+  const [ttConnecting, setTtConnecting] = useState(false)
+  const [activeTtQuestion, setActiveTtQuestionState] = useState<{ hunkIdx: number; questionIdx: number; sequence: number } | null>(null)
+  const ttChannelRef = useRef<RealtimeChannel | null>(null)
+  const ttConnectingRef = useRef(false)
+  const activeTtQuestionRef = useRef<{ hunkIdx: number; questionIdx: number; sequence: number } | null>(null)
+  const ttSequenceRef = useRef(0)
+
+  function setActiveTtQuestion(value: { hunkIdx: number; questionIdx: number; sequence: number } | null) {
+    activeTtQuestionRef.current = value
+    setActiveTtQuestionState(value)
+  }
+
+  // A question is only ever "sent" for the hunk on screen when it's sent, so
+  // navigating away must end the live link — otherwise a late-arriving answer
+  // could land in the wrong hunk's data (setCaptures below always writes by
+  // explicit hunk index, not the closed-over currentHunk, precisely so this
+  // stays correct even if it arrives after navigation).
+  useEffect(() => {
+    setActiveTtQuestion(null)
+  }, [currentHunk])
+
+  useEffect(() => {
+    return () => {
+      if (ttChannelRef.current) getSupabaseBrowserClient().removeChannel(ttChannelRef.current)
+    }
+  }, [])
+
+  function setCapturedAnswerForHunk(hunkIdx: number, questionIdx: number, answer: string) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[hunkIdx].questions]
+      qs[questionIdx] = { ...qs[questionIdx], capturedAnswer: answer, asked: true }
+      next[hunkIdx] = { ...next[hunkIdx], questions: qs }
+      return next
+    })
+  }
+
+  function setMisspokeCountForHunk(hunkIdx: number, questionIdx: number, count: number) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[hunkIdx].questions]
+      qs[questionIdx] = { ...qs[questionIdx], misspokeCount: count }
+      next[hunkIdx] = { ...next[hunkIdx], questions: qs }
+      return next
+    })
+  }
+
+  async function ensureTtChannel() {
+    if (ttChannelRef.current || ttConnectingRef.current) return
+    ttConnectingRef.current = true
+    setTtConnecting(true)
+    try {
+      const res = await fetch(`/api/practitioner/sessions/${sessionId}/tt-pairing`)
+      const data = await res.json()
+      if (!data.code) return
+      setTtCode(data.code)
+      const shareUrl = `${window.location.origin}/type-to-talk/live/${data.code}`
+      generateQRDataUrlFromUrl(shareUrl).then(setTtQrDataUrl).catch(() => {})
+
+      const supabase = getSupabaseBrowserClient()
+      const channel = supabase.channel(`tt:${sessionId}`, { config: { broadcast: { self: false } } })
+      channel
+        .on('broadcast', { event: 'answer' }, (payload) => {
+          const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
+          const active = activeTtQuestionRef.current
+          if (!active || active.sequence !== answer.sequence) return
+          setCapturedAnswerForHunk(active.hunkIdx, active.questionIdx, answer.combinedText)
+          setMisspokeCountForHunk(active.hunkIdx, active.questionIdx, answer.totalMisspokeCount)
+        })
+        .subscribe()
+      ttChannelRef.current = channel
+    } finally {
+      ttConnectingRef.current = false
+      setTtConnecting(false)
+    }
+  }
+
+  async function handleSendToTt(hunkIdx: number, questionIdx: number, questionText: string) {
+    await ensureTtChannel()
+    if (!ttChannelRef.current) return
+    const sequence = ++ttSequenceRef.current
+    setActiveTtQuestion({ hunkIdx, questionIdx, sequence })
+    ttChannelRef.current.send({
+      type: 'broadcast',
+      event: 'question',
+      payload: { sequence, questionText, hunkNumber: hunkIdx + 1 },
+    })
+  }
 
   // Timer — persisted to localStorage against a wall-clock end time, so
   // an accidental screen-off/lock (or the tab getting reloaded) restores
@@ -735,6 +831,33 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           </div>
         </div>
 
+        {/* Type to Talk — connect a tablet */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => { setTtPanelOpen(o => !o); if (!ttPanelOpen) ensureTtChannel() }}
+            className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <span>📱 Connect a tablet {ttCode ? '· Connected' : ''}</span>
+            <span className="text-gray-400">{ttPanelOpen ? '▲' : '▼'}</span>
+          </button>
+          {ttPanelOpen && (
+            <div className="px-5 pb-5 border-t border-gray-100 pt-4 flex items-center gap-4 flex-wrap">
+              {ttConnecting && !ttCode && <p className="text-sm text-gray-400">Connecting…</p>}
+              {ttQrDataUrl && (
+                <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/type-to-talk/live/${ttCode}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
+                </a>
+              )}
+              <div className="flex-1 min-w-[200px]">
+                {ttCode && <p className="text-sm text-gray-700">Code: <span className="font-mono font-bold tracking-wider">{ttCode}</span></p>}
+                <p className="text-xs text-gray-400 mt-0.5">Scan or enter this code on the student&apos;s tablet, then use &quot;Send to TT&quot; on any question to send it there.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Progress bar */}
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div className="bg-blue-600 h-2 rounded-full transition-all" style={{ width: `${((currentHunk + 1) / lesson.hunks.length) * 100}%` }} />
@@ -1091,6 +1214,18 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                           title="Edit question"
                         >✏</button>
                       </div>
+                    )}
+                    {isOpen && (
+                      <button
+                        onClick={() => handleSendToTt(currentHunk, i, q.questionText)}
+                        className={`text-xs px-2 py-0.5 rounded border shrink-0 transition-colors font-medium ${
+                          activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === i
+                            ? 'text-purple-700 bg-purple-100 border-purple-300'
+                            : 'text-purple-600 border-purple-200 hover:bg-purple-50'
+                        }`}
+                      >
+                        {activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === i ? '✓ Sent to TT' : 'Send to TT'}
+                      </button>
                     )}
                     <button
                       onClick={() => toggleQuestionAsked(i)}
