@@ -759,6 +759,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         setSaving(false)
         return
       }
+      if (ttChannelRef.current) {
+        ttChannelRef.current.send({ type: 'broadcast', event: 'session-end', payload: {} })
+      }
       router.push(`/practitioner/transcript/${sessionId}`)
     } catch (e) {
       setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
@@ -1224,7 +1227,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                             : 'text-purple-600 border-purple-200 hover:bg-purple-50'
                         }`}
                       >
-                        {activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === i ? '✓ Sent to TT' : 'Send to TT'}
+                        {activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === i ? '✓ Sent to Speller’s Tablet' : 'Send to Speller’s Tablet'}
                       </button>
                     )}
                     <button
