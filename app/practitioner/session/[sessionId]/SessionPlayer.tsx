@@ -201,13 +201,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [ttCode, setTtCode] = useState<string | null>(null)
   const [ttQrDataUrl, setTtQrDataUrl] = useState<string | null>(null)
   const [ttConnecting, setTtConnecting] = useState(false)
-  const [activeTtQuestion, setActiveTtQuestionState] = useState<{ hunkIdx: number; questionIdx: number; sequence: number } | null>(null)
+  type TtTargetField = 'capturedAnswer' | 'spellerSentence'
+  const [activeTtQuestion, setActiveTtQuestionState] = useState<{ hunkIdx: number; questionIdx: number; sequence: number; targetField: TtTargetField } | null>(null)
   const ttChannelRef = useRef<RealtimeChannel | null>(null)
   const ttConnectingRef = useRef(false)
-  const activeTtQuestionRef = useRef<{ hunkIdx: number; questionIdx: number; sequence: number } | null>(null)
+  const activeTtQuestionRef = useRef<{ hunkIdx: number; questionIdx: number; sequence: number; targetField: TtTargetField } | null>(null)
   const ttSequenceRef = useRef(0)
 
-  function setActiveTtQuestion(value: { hunkIdx: number; questionIdx: number; sequence: number } | null) {
+  function setActiveTtQuestion(value: { hunkIdx: number; questionIdx: number; sequence: number; targetField: TtTargetField } | null) {
     activeTtQuestionRef.current = value
     setActiveTtQuestionState(value)
   }
@@ -232,6 +233,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       const next = [...prev]
       const qs = [...next[hunkIdx].questions]
       qs[questionIdx] = { ...qs[questionIdx], capturedAnswer: answer, asked: true }
+      next[hunkIdx] = { ...next[hunkIdx], questions: qs }
+      return next
+    })
+  }
+
+  function setSpellerSentenceForHunk(hunkIdx: number, questionIdx: number, sentence: string) {
+    setCaptures(prev => {
+      const next = [...prev]
+      const qs = [...next[hunkIdx].questions]
+      qs[questionIdx] = { ...qs[questionIdx], spellerSentence: sentence, asked: true }
       next[hunkIdx] = { ...next[hunkIdx], questions: qs }
       return next
     })
@@ -266,7 +277,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
           const active = activeTtQuestionRef.current
           if (!active || active.sequence !== answer.sequence) return
-          setCapturedAnswerForHunk(active.hunkIdx, active.questionIdx, answer.combinedText)
+          if (active.targetField === 'spellerSentence') {
+            setSpellerSentenceForHunk(active.hunkIdx, active.questionIdx, answer.combinedText)
+          } else {
+            setCapturedAnswerForHunk(active.hunkIdx, active.questionIdx, answer.combinedText)
+          }
           setMisspokeCountForHunk(active.hunkIdx, active.questionIdx, answer.totalMisspokeCount)
         })
         .subscribe()
@@ -277,11 +292,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     }
   }
 
-  async function handleSendToTt(hunkIdx: number, questionIdx: number, questionText: string) {
+  async function handleSendToTt(hunkIdx: number, questionIdx: number, questionText: string, targetField: TtTargetField) {
     await ensureTtChannel()
     if (!ttChannelRef.current) return
     const sequence = ++ttSequenceRef.current
-    setActiveTtQuestion({ hunkIdx, questionIdx, sequence })
+    setActiveTtQuestion({ hunkIdx, questionIdx, sequence, targetField })
     ttChannelRef.current.send({
       type: 'broadcast',
       event: 'question',
@@ -735,6 +750,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         setSaveError(`Save failed: ${data.error ?? res.status}`)
         setSaving(false)
         return
+      }
+      if (ttChannelRef.current) {
+        ttChannelRef.current.send({ type: 'broadcast', event: 'session-end', payload: {} })
       }
       router.push(`/practitioner/students/${studentId}`)
     } catch (e) {
@@ -1218,9 +1236,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                         >✏</button>
                       </div>
                     )}
-                    {isOpen && (
+                    {(isOpen || isKnown || isSemiOpen || isMath) && (
                       <button
-                        onClick={() => handleSendToTt(currentHunk, i, q.questionText)}
+                        onClick={() => handleSendToTt(currentHunk, i, q.questionText, isOpen ? 'capturedAnswer' : 'spellerSentence')}
                         className={`text-xs px-2 py-0.5 rounded border shrink-0 transition-colors font-medium ${
                           activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === i
                             ? 'text-purple-700 bg-purple-100 border-purple-300'
