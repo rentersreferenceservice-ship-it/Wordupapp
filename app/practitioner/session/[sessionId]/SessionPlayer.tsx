@@ -201,6 +201,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [ttCode, setTtCode] = useState<string | null>(null)
   const [ttQrDataUrl, setTtQrDataUrl] = useState<string | null>(null)
   const [ttConnecting, setTtConnecting] = useState(false)
+  const [ttError, setTtError] = useState('')
   type TtTargetField = 'capturedAnswer' | 'spellerSentence'
   const [activeTtQuestion, setActiveTtQuestionState] = useState<{ hunkIdx: number; questionIdx: number; sequence: number; targetField: TtTargetField } | null>(null)
   const ttChannelRef = useRef<RealtimeChannel | null>(null)
@@ -262,10 +263,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     if (ttChannelRef.current || ttConnectingRef.current) return
     ttConnectingRef.current = true
     setTtConnecting(true)
+    setTtError('')
     try {
       const res = await fetch(`/api/practitioner/sessions/${sessionId}/tt-pairing`)
-      const data = await res.json()
-      if (!data.code) return
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.code) {
+        setTtError(data.error ?? 'Could not connect a tablet — please try again.')
+        return
+      }
       setTtCode(data.code)
       const shareUrl = `${window.location.origin}/type-to-talk/live/${data.code}`
       generateQRDataUrlFromUrl(shareUrl).then(setTtQrDataUrl).catch(() => {})
@@ -286,6 +291,8 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
         })
         .subscribe()
       ttChannelRef.current = channel
+    } catch {
+      setTtError('Could not connect a tablet — check your connection and try again.')
     } finally {
       ttConnectingRef.current = false
       setTtConnecting(false)
@@ -865,6 +872,12 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           {ttPanelOpen && (
             <div className="px-5 pb-5 border-t border-gray-100 pt-4 flex items-center gap-4 flex-wrap">
               {ttConnecting && !ttCode && <p className="text-sm text-gray-400">Connecting…</p>}
+              {ttError && (
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-red-600">{ttError}</p>
+                  <button type="button" onClick={ensureTtChannel} className="text-xs text-blue-600 hover:underline">Retry</button>
+                </div>
+              )}
               {ttQrDataUrl && (
                 <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/type-to-talk/live/${ttCode}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
