@@ -70,12 +70,14 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
           {/* Share */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4 flex-wrap">
             {qrDataUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={qrDataUrl} alt="QR code linking to this Type to Talk page" width={100} height={100} className="rounded-lg border border-gray-100 shrink-0" />
+              <a href={shareUrl} className="shrink-0" title="Open Type to Talk">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={qrDataUrl} alt="QR code linking to this Type to Talk page — tap to open, or scan with a camera" width={100} height={100} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+              </a>
             )}
             <div className="flex-1 min-w-[200px]">
               <p className="text-sm font-semibold text-gray-700">Share this tool</p>
-              <p className="text-xs text-gray-400 mt-0.5">Scan the code, copy the link, or save the QR image to share on Facebook or anywhere else.</p>
+              <p className="text-xs text-gray-400 mt-0.5">Tap or scan the code to open it directly on another device, copy the link, or save the QR image to share on Facebook or anywhere else.</p>
             </div>
             <div className="flex items-center gap-2">
               <CopyLinkButton url={shareUrl} />

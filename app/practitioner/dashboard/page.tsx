@@ -1,13 +1,16 @@
 ﻿import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { getStudents, getSessions, getPractitionerSubscription } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
+import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import Link from 'next/link'
 import AccessCodeManager from './AccessCodeManager'
 import AddToHomeScreen from '../AddToHomeScreen'
 import SuggestEditButton from '@/app/lessons/[id]/SuggestEditButton'
 import InvoiceLookup from './InvoiceLookup'
 import GettingStarted from './GettingStarted'
+import CopyLinkButton from '@/app/components/CopyLinkButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +51,11 @@ export default async function PractitionerDashboard() {
     .filter(inv => inv.balanceDue > 0)
 
   const recentSessions = sessions.slice(0, 5)
+
+  const hdrs = await headers()
+  const shareBaseUrl = `${hdrs.get('x-forwarded-proto') ?? 'https'}://${hdrs.get('host') ?? 'wordups2c.com'}`
+  const typeToTalkShareUrl = `${shareBaseUrl}/type-to-talk`
+  const typeToTalkQrDataUrl = await generateQRDataUrlFromUrl(typeToTalkShareUrl).catch(() => null)
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-5xl mx-auto">
@@ -96,6 +104,32 @@ export default async function PractitionerDashboard() {
             <Link href="/practitioner/testimonials" className="bg-amber-100 border-2 border-amber-400 text-amber-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-200 transition-colors">
               ✦ Testimonials
             </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Share Type to Talk */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-8 flex items-center gap-4 flex-wrap">
+        {typeToTalkQrDataUrl && (
+          <a href={typeToTalkShareUrl} className="shrink-0" title="Open Type to Talk">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={typeToTalkQrDataUrl} alt="QR code linking to the free Type to Talk tool — tap to open, or scan with a camera" width={80} height={80} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+          </a>
+        )}
+        <div className="flex-1 min-w-[220px]">
+          <p className="text-sm font-semibold text-gray-700">Share Type to Talk with a family</p>
+          <p className="text-xs text-gray-400 mt-0.5">Free, no account needed. Tap the code, scan it, or send the link — it opens the writing surface directly on their device.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <CopyLinkButton url={typeToTalkShareUrl} />
+          {typeToTalkQrDataUrl && (
+            <a
+              href={typeToTalkQrDataUrl}
+              download="type-to-talk-qr.png"
+              className="bg-gray-100 text-gray-700 border-2 border-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors whitespace-nowrap"
+            >
+              Save QR Code
+            </a>
           )}
         </div>
       </div>
