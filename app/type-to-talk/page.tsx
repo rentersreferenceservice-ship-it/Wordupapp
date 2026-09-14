@@ -5,7 +5,7 @@ import PublicNav from '../components/PublicNav'
 import PublicFooter from '../components/PublicFooter'
 import { getLesson } from '@/lib/lessonStore'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
-import TypeToTalkSurface from '../components/TypeToTalkSurface'
+import PublicSurface from './PublicSurface'
 import CopyLinkButton from '../components/CopyLinkButton'
 
 export const dynamic = 'force-dynamic'
@@ -51,7 +51,7 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
               the whole word once you hit space, the whole sentence on a period, and the whole paragraph after pressing Enter twice.
             </p>
             <p className="text-sm text-gray-600 mt-2 leading-relaxed">
-              Anyone can use it, at any time, for free — no sign-up, no login, and no subscription. Nothing you type here is saved.
+              Anyone can use it, at any time, for free — no sign-up, no login, and no subscription. Nothing is stored on our end, but you can save a copy to your own device any time with the button below the writing box.
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <TypeToTalkSurface rows={14} />
+            <PublicSurface rows={14} />
           </div>
         </div>
       </main>
