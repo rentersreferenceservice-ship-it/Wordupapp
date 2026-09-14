@@ -26,7 +26,7 @@ export default function ReflectionsClient({ reflections }: { reflections: Reflec
             In their own words.
           </h1>
           <p className="leading-relaxed mb-10" style={{ color: '#7a6a5a', fontSize: '1.05rem', lineHeight: '1.8' }}>
-            Share your experience with Word Up and Spelling to Communicate. Whether you&apos;re a family,
+            Share your experience with Word Up. Whether you&apos;re a family,
             a practitioner, or someone who has witnessed this work firsthand — your reflection matters.
           </p>
           {!showForm && (

@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Our Philosophy — Word Up',
-  description: 'Presuming competence. Believing in every student. How and why Melody practices Spelling to Communicate.',
+  description: 'Presuming competence. Believing in every student. How and why Melody works with her students.',
 }
 
 export default function PhilosophyPage() {
@@ -41,13 +41,13 @@ export default function PhilosophyPage() {
 
           <div className="space-y-7 text-gray-700 leading-relaxed text-lg">
             <p>
-              I became a Spelling to Communicate practitioner because I believe — without reservation — that every person has the capacity to think, to learn, and to communicate.
+              I became a practitioner because I believe — without reservation — that every person has the capacity to think, to learn, and to communicate.
             </p>
             <p>
               What gets in the way is not intelligence. What gets in the way is motor. Many of the students I work with have spent years being misunderstood — not because they didn&apos;t understand the world around them, but because their bodies couldn&apos;t yet show it.
             </p>
             <p>
-              Spelling to Communicate changes that. When we put a letterboard in front of a student and presume they are capable of pointing to the right letter — and then wait, and believe, and don&apos;t give up — something extraordinary happens.
+              The letterboard changes that. When we put a letterboard in front of a student and presume they are capable of pointing to the right letter — and then wait, and believe, and don&apos;t give up — something extraordinary happens.
             </p>
             <blockquote className="border-l-4 pl-6 py-2 my-8 italic font-medium text-xl" style={{ borderColor: '#C9A435', color: '#333' }}>
               &ldquo;They show you who they are.&rdquo;

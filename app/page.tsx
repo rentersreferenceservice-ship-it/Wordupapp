@@ -3,8 +3,8 @@ import PublicNav from './components/PublicNav'
 import PublicFooter from './components/PublicFooter'
 
 export const metadata = {
-  title: 'Word Up — Spelling to Communicate',
-  description: 'A Spelling to Communicate practice rooted in presence, connection, and the belief that every student has something to say.',
+  title: 'Word Up',
+  description: 'A practice rooted in presence, connection, and the belief that every student has something to say.',
 }
 
 export default function HomePage() {
@@ -25,9 +25,6 @@ export default function HomePage() {
 
         <div className="relative flex flex-col justify-end max-w-6xl mx-auto px-8 pb-20 md:pb-28" style={{ minHeight: '92vh' }}>
           <div className="max-w-lg">
-            <p className="text-xs uppercase tracking-[0.35em] mb-6 font-medium" style={{ color: '#C9A435' }}>
-              Spelling to Communicate
-            </p>
             <h1 className="font-bold text-white mb-6"
               style={{ fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', lineHeight: '1.12', letterSpacing: '-0.01em' }}>
               Every student has something to say.
@@ -62,7 +59,7 @@ export default function HomePage() {
             style={{ color: '#2a1f17', fontSize: 'clamp(1.4rem, 3vw, 2rem)', lineHeight: '1.55' }}>
             &ldquo;Motor differences are not intellectual differences. Every person is presumed competent — not eventually, not potentially, but right now, exactly as they are.&rdquo;
           </blockquote>
-          <p className="text-sm font-medium" style={{ color: '#a08060' }}>— Melody, Certified Spelling to Communicate Practitioner</p>
+          <p className="text-sm font-medium" style={{ color: '#a08060' }}>— Melody, Certified Practitioner</p>
         </div>
       </section>
 
@@ -75,7 +72,7 @@ export default function HomePage() {
             <div className="flex flex-col items-center md:items-start">
               <img
                 src="/letterboard-az.jpg"
-                alt="The black A-Z letterboard used in Spelling to Communicate sessions"
+                alt="The black A-Z letterboard used in practice sessions"
                 className="w-full max-w-sm rounded-3xl shadow-2xl"
               />
               <p className="text-center mt-5 text-xs tracking-widest uppercase font-medium w-full max-w-sm" style={{ color: '#8a7060' }}>
@@ -137,7 +134,7 @@ export default function HomePage() {
                   />
                   <div>
                     <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
-                    <p className="text-sm" style={{ color: '#a08060' }}>Certified Spelling to Communicate Practitioner · Founder</p>
+                    <p className="text-sm" style={{ color: '#a08060' }}>Certified Practitioner · Founder</p>
                   </div>
                 </div>
               </div>
@@ -217,7 +214,7 @@ export default function HomePage() {
             If this resonates with you —<br />we&apos;d love to connect.
           </h2>
           <p className="leading-relaxed mb-12" style={{ color: '#7a6a5a', fontSize: '1.05rem' }}>
-            Whether you&apos;re a family just beginning to explore Spelling to Communicate, or someone who has been searching for a practitioner who sees your child the way you do — this work is for you.
+            Whether you&apos;re a family just beginning this journey, or someone who has been searching for a practitioner who sees your child the way you do — this work is for you.
           </p>
           <div className="flex flex-wrap justify-center gap-5">
             <a href="mailto:wordups2c@gmail.com"

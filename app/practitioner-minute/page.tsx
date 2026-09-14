@@ -3,7 +3,7 @@ import PublicFooter from '../components/PublicFooter'
 
 export const metadata = {
   title: 'Practitioner Minute — Word Up',
-  description: 'Evidence-based articles and insights for Spelling to Communicate practitioners. Evidence Over Assumption.',
+  description: 'Evidence-based articles and insights for S2C practitioners. Evidence Over Assumption.',
 }
 
 export default function PractitionerMinutePage() {
@@ -16,7 +16,7 @@ export default function PractitionerMinutePage() {
           <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>Practitioner Minute</p>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Evidence Over Assumption.</h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Short, evidence-based articles and insights for Spelling to Communicate practitioners — supportive, grounded, and never confrontational.
+            Short, evidence-based articles and insights for S2C practitioners — supportive, grounded, and never confrontational.
           </p>
         </div>
       </section>

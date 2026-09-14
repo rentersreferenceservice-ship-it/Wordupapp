@@ -22,7 +22,7 @@ export default function PublicFooter() {
           <div>
             <img src="/word_up_clean.jpeg" alt="Word Up" className="h-20 w-auto rounded-2xl mb-5 shadow-lg" />
             <p className="leading-relaxed text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              A Spelling to Communicate practice.<br />
+              A practice.<br />
               Rooted in presence, connection,<br />
               and the belief that every student<br />
               has something to say.
@@ -66,7 +66,7 @@ export default function PublicFooter() {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs"
           style={{ borderTop: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)' }}>
           <p>© {new Date().getFullYear()} Word Up, LLC. All rights reserved.</p>
-          <p>Spelling to Communicate · wordups2c.com</p>
+          <p>wordups2c.com</p>
         </div>
       </div>
     </footer>

@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Our Practice — Word Up',
-  description: 'Inside a Spelling to Communicate session — the letterboard, the structure, the data, and what it means for your student.',
+  description: 'Inside a session — the letterboard, the structure, the data, and what it means for your student.',
 }
 
 export default function OurPracticePage() {
@@ -16,7 +16,7 @@ export default function OurPracticePage() {
       <section className="relative overflow-hidden" style={{ minHeight: '55vh' }}>
         <img
           src="/s2c-session-hero.png"
-          alt="A student points to a letterboard during a Spelling to Communicate session"
+          alt="A student points to a letterboard during a session"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0"
@@ -41,7 +41,7 @@ export default function OurPracticePage() {
             <div className="flex justify-center">
               <img
                 src="/letterboard-az.jpg"
-                alt="The black A-Z letterboard used in Spelling to Communicate sessions"
+                alt="The black A-Z letterboard used in practice sessions"
                 className="w-full max-w-sm rounded-3xl shadow-2xl"
               />
             </div>

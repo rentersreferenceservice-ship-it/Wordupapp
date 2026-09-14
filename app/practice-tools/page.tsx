@@ -266,7 +266,7 @@ export default function PracticeToolsPage() {
             />
             <div>
               <p className="font-semibold" style={{ color: '#2a1f17' }}>Melody</p>
-              <p className="text-sm" style={{ color: '#a08060' }}>Certified Spelling to Communicate Practitioner · Founder</p>
+              <p className="text-sm" style={{ color: '#a08060' }}>Certified Practitioner · Founder</p>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Reflections — Word Up S2C',
-  description: 'Share your experience with Word Up and Spelling to Communicate.',
+  description: 'Share your experience with Word Up.',
 }
 
 export default async function ReflectionsPage() {

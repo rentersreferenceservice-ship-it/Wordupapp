@@ -60,7 +60,7 @@ export default function ReflectionForm({ onSubmitted }: { onSubmitted?: () => vo
           What has this work meant to you?
         </h2>
         <p className="mb-10 leading-relaxed" style={{ color: '#7a6a5a' }}>
-          Open to families, practitioners, and anyone whose life has been touched by Spelling to Communicate.
+          Open to families, practitioners, and anyone whose life has been touched by this work.
           Every reflection is reviewed before it appears on this page.
         </p>
 

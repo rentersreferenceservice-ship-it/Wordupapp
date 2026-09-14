@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Parent Resources — Word Up',
-  description: 'Resources and support for families of students using Spelling to Communicate.',
+  description: 'Resources and support for families of students using S2C.',
 }
 
 export default function ParentResourcesPage() {
@@ -17,17 +17,17 @@ export default function ParentResourcesPage() {
           <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#C9A435' }}>Parent Resources</p>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Supporting Families on the S2C Journey</h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Families are essential partners in the Spelling to Communicate journey. These resources are here to support you every step of the way.
+            Families are essential partners in the S2C journey. These resources are here to support you every step of the way.
           </p>
         </div>
       </section>
 
       <section className="py-20" style={{ background: '#faf8f3' }}>
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-10 text-center" style={{ color: '#1d1d1d' }}>Understanding Spelling to Communicate</h2>
+          <h2 className="text-3xl font-bold mb-10 text-center" style={{ color: '#1d1d1d' }}>Understanding S2C</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {[
-              { title: 'What is Spelling to Communicate (S2C)?', body: 'Spelling to Communicate (S2C) is an educational method designed to help individuals with complex communication needs develop the purposeful motor skills required to point accurately to letters and spell as a means of communication. Working with a trained practitioner, students engage in structured lessons that support regulation, motor planning, and increasingly independent communication while presuming competence and providing meaningful opportunities for learning.' },
+              { title: 'What is S2C?', body: 'S2C is an educational method designed to help individuals with complex communication needs develop the purposeful motor skills required to point accurately to letters and spell as a means of communication. Working with a trained practitioner, students engage in structured lessons that support regulation, motor planning, and increasingly independent communication while presuming competence and providing meaningful opportunities for learning.' },
               { title: 'The Motor Connection', body: 'Research and clinical observation suggest that many individuals with complex communication needs also experience motor differences that affect their ability to consistently execute intentional movements, including speech. S2C focuses on developing purposeful motor control through structured, progressively challenging activities that support accurate letter selection for communication.' },
               { title: 'What Does a Session Look Like?', body: 'Each session begins with the practitioner observing the student\'s level of regulation and readiness for learning. When needed, strategies are incorporated to support regulation before instruction begins. Sessions then move into an academically rich lesson, where the practitioner uses a letterboard, verbal coaching, and gestural cues to support purposeful motor responses. Through structured instruction and consistent practice, students develop increasingly reliable motor control for accurate letter selection and communication through spelling.' },
               { title: 'Your Role at Home', body: 'Families are communication partners. Practicing calm, supportive interaction at home — presuming competence, using the letterboard regularly, and staying consistent — makes a significant difference in your student\'s progress.' },

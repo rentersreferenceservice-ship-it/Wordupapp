@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Practitioner Services — Word Up',
-  description: 'One-on-one Spelling to Communicate sessions and family support from an experienced Certified S2C Practitioner.',
+  description: 'One-on-one sessions and family support from an experienced Certified S2C Practitioner.',
 }
 
 export default function PractitionerServicesPage() {
@@ -16,7 +16,7 @@ export default function PractitionerServicesPage() {
       <section className="relative overflow-hidden" style={{ minHeight: '60vh' }}>
         <img
           src="/s2c-adult-session.png"
-          alt="A Spelling to Communicate session in a warm, intentional space"
+          alt="A practitioner session in a warm, intentional space"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0"
@@ -28,7 +28,7 @@ export default function PractitionerServicesPage() {
               Supporting students &amp; families.
             </h1>
             <p className="text-lg leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              Evidence-based Spelling to Communicate services delivered with warmth, structure, and genuine care for every student.
+              Evidence-based services delivered with warmth, structure, and genuine care for every student.
             </p>
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function PractitionerServicesPage() {
               </h2>
               <div className="space-y-4 leading-relaxed" style={{ color: '#5a4a3a' }}>
                 <p>
-                  Individualized Spelling to Communicate sessions tailored to each student&apos;s unique needs, pace, and communication goals. Every session is structured, purposeful, and student-centered.
+                  Individualized sessions tailored to each student&apos;s unique needs, pace, and communication goals. Every session is structured, purposeful, and student-centered.
                 </p>
                 <p>
                   We begin with regulation. We move through a carefully scaffolded lesson. We close with reflection. And we track every response — objectively, honestly, and without judgment.
@@ -136,7 +136,7 @@ export default function PractitionerServicesPage() {
                   Consultations available for practitioners, educators, and support teams working alongside S2C spellers. The tone is always collegial. The foundation is always evidence.
                 </p>
                 <p>
-                  Whether you are new to Spelling to Communicate or experienced and looking for a thought partner — we welcome the conversation.
+                  Whether you are new to this work or experienced and looking for a thought partner — we welcome the conversation.
                 </p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function PractitionerServicesPage() {
         <div className="max-w-3xl mx-auto px-8 text-center">
           <p className="text-xs uppercase tracking-[0.3em] font-medium mb-8" style={{ color: '#C9A435' }}>Our Approach</p>
           <div className="space-y-5 leading-relaxed mb-12" style={{ color: 'rgba(255,255,255,0.72)', fontSize: '1.05rem' }}>
-            <p>Every session is grounded in the principles of Spelling to Communicate — structured, evidence-based, respectful, and hopeful.</p>
+            <p>Every session is grounded in structure, evidence, respect, and hope.</p>
             <p>Students are presumed competent. Families are treated as partners. Progress is documented and shared with transparency.</p>
             <p className="font-semibold" style={{ color: 'rgba(255,255,255,0.9)' }}>Evidence over assumption. Always.</p>
           </div>
