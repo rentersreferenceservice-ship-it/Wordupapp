@@ -16,3 +16,11 @@ export async function generateQRDataUrl(videoId: string | undefined, query: stri
     color: { dark: '#000000', light: '#ffffff' },
   })
 }
+
+export async function generateQRDataUrlFromUrl(url: string, size = 160): Promise<string> {
+  return QRCode.toDataURL(url, {
+    width: size,
+    margin: 1,
+    color: { dark: '#000000', light: '#ffffff' },
+  })
+}
