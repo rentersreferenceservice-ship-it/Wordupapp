@@ -80,7 +80,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm flex items-center gap-4 flex-wrap">
             <a href={typeToTalkShareUrl} className="shrink-0" title="Open Type to Talk with this lesson">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={typeToTalkQrDataUrl} alt="QR code linking to Type to Talk with this lesson — tap to open, or scan with a camera" width={72} height={72} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+              <img src={typeToTalkQrDataUrl} alt="QR code linking to Type to Talk with this lesson — tap to open, or scan with a camera" width={72} height={72} className="bg-white rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
             </a>
             <div className="flex-1 min-w-[200px]">
               <p className="text-sm font-semibold text-gray-700">Type to Talk with this lesson</p>

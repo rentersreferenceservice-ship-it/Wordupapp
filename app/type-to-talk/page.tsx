@@ -72,7 +72,7 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
             {qrDataUrl && (
               <a href={shareUrl} className="shrink-0" title="Open Type to Talk">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={qrDataUrl} alt="QR code linking to this Type to Talk page — tap to open, or scan with a camera" width={100} height={100} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+                <img src={qrDataUrl} alt="QR code linking to this Type to Talk page — tap to open, or scan with a camera" width={100} height={100} className="bg-white rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
               </a>
             )}
             <div className="flex-1 min-w-[200px]">

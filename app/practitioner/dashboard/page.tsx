@@ -113,7 +113,7 @@ export default async function PractitionerDashboard() {
         {typeToTalkQrDataUrl && (
           <a href={typeToTalkShareUrl} className="shrink-0" title="Open Type to Talk">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={typeToTalkQrDataUrl} alt="QR code linking to the free Type to Talk tool — tap to open, or scan with a camera" width={80} height={80} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+            <img src={typeToTalkQrDataUrl} alt="QR code linking to the free Type to Talk tool — tap to open, or scan with a camera" width={80} height={80} className="bg-white rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
           </a>
         )}
         <div className="flex-1 min-w-[220px]">
