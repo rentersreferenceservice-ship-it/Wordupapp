@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Student } from '@/lib/practitionerStore'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
-import TypeToTalkSurface, { type TypeToTalkSurfaceHandle } from '@/app/components/TypeToTalkSurface'
+import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
+import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 
 const STATE_OPTIONS = [
   'Happy', 'Excited', 'High energy',
@@ -16,11 +18,20 @@ const STATE_OPTIONS = [
   'Hungry', 'Tired', 'Sick', 'Pain',
 ]
 
+interface QARow {
+  id: number
+  question: string
+  answer: string
+  misspokeCount: number
+}
+
 export default function TypeToTalkSessionForm({ students }: { students: Student[] }) {
   const router = useRouter()
   const [studentId, setStudentId] = useState('')
   const [search, setSearch] = useState('')
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0])
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [startingSession, setStartingSession] = useState(false)
   const [regArrival, setRegArrival] = useState<string | null>(null)
   const [regDeparture, setRegDeparture] = useState<string | null>(null)
   const [studentStates, setStudentStates] = useState<string[]>([])
@@ -33,7 +44,31 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [error, setError] = useState('')
 
-  const surfaceRef = useRef<TypeToTalkSurfaceHandle>(null)
+  const [qaRows, setQaRows] = useState<QARow[]>([{ id: 1, question: '', answer: '', misspokeCount: 0 }])
+  const nextRowIdRef = useRef(2)
+
+  // Type to Talk live sync — a paired tablet the student answers from
+  const [ttPanelOpen, setTtPanelOpen] = useState(false)
+  const [ttCode, setTtCode] = useState<string | null>(null)
+  const [ttQrDataUrl, setTtQrDataUrl] = useState<string | null>(null)
+  const [ttConnecting, setTtConnecting] = useState(false)
+  const [ttError, setTtError] = useState('')
+  const [activeTtRow, setActiveTtRowState] = useState<{ rowId: number; sequence: number } | null>(null)
+  const ttChannelRef = useRef<RealtimeChannel | null>(null)
+  const ttConnectingRef = useRef(false)
+  const activeTtRowRef = useRef<{ rowId: number; sequence: number } | null>(null)
+  const ttSequenceRef = useRef(0)
+
+  function setActiveTtRow(value: { rowId: number; sequence: number } | null) {
+    activeTtRowRef.current = value
+    setActiveTtRowState(value)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (ttChannelRef.current) getSupabaseBrowserClient().removeChannel(ttChannelRef.current)
+    }
+  }, [])
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
@@ -44,37 +79,148 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
     setStudentStates(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
   }
 
-  async function saveSession(): Promise<string | null> {
-    const paragraphs = surfaceRef.current?.getAllParagraphs() ?? []
-    const res = await fetch('/api/practitioner/type-to-talk-session', {
+  function addRow() {
+    setQaRows(prev => [...prev, { id: nextRowIdRef.current++, question: '', answer: '', misspokeCount: 0 }])
+  }
+
+  function removeRow(id: number) {
+    setQaRows(prev => prev.filter(r => r.id !== id))
+  }
+
+  function updateRowQuestion(id: number, question: string) {
+    setQaRows(prev => prev.map(r => r.id === id ? { ...r, question } : r))
+  }
+
+  function setRowAnswer(rowId: number, answer: string) {
+    setQaRows(prev => prev.map(r => r.id === rowId ? { ...r, answer } : r))
+  }
+
+  function setRowMisspoke(rowId: number, count: number) {
+    setQaRows(prev => prev.map(r => r.id === rowId ? { ...r, misspokeCount: count } : r))
+  }
+
+  async function handleSelectStudent(id: string) {
+    setStudentId(id)
+    setSearch('')
+    if (sessionId || startingSession) return
+    setStartingSession(true)
+    setError('')
+    try {
+      const res = await fetch('/api/practitioner/type-to-talk-session/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: id, sessionDate }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.sessionId) { setError(data.error ?? 'Failed to start session'); return }
+      setSessionId(data.sessionId)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to start session')
+    } finally {
+      setStartingSession(false)
+    }
+  }
+
+  async function ensureTtChannel() {
+    if (!sessionId || ttChannelRef.current || ttConnectingRef.current) return
+    ttConnectingRef.current = true
+    setTtConnecting(true)
+    setTtError('')
+    try {
+      const res = await fetch(`/api/practitioner/sessions/${sessionId}/tt-pairing`)
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.code) {
+        setTtError(data.error ?? 'Could not connect a tablet — please try again.')
+        return
+      }
+      setTtCode(data.code)
+      const shareUrl = `${window.location.origin}/type-to-talk/live/${data.code}`
+      generateQRDataUrlFromUrl(shareUrl).then(setTtQrDataUrl).catch(() => {})
+
+      const supabase = getSupabaseBrowserClient()
+      const channel = supabase.channel(`tt:${sessionId}`, { config: { broadcast: { self: false } } })
+      channel
+        .on('broadcast', { event: 'answer' }, (payload) => {
+          const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
+          const active = activeTtRowRef.current
+          if (!active || active.sequence !== answer.sequence) return
+          setRowAnswer(active.rowId, answer.combinedText)
+          setRowMisspoke(active.rowId, answer.totalMisspokeCount)
+        })
+        .subscribe()
+      ttChannelRef.current = channel
+    } catch {
+      setTtError('Could not connect a tablet — check your connection and try again.')
+    } finally {
+      ttConnectingRef.current = false
+      setTtConnecting(false)
+    }
+  }
+
+  async function handleSendToTt(rowId: number, questionText: string) {
+    if (!questionText.trim()) return
+    await ensureTtChannel()
+    if (!ttChannelRef.current) return
+    const sequence = ++ttSequenceRef.current
+    setActiveTtRow({ rowId, sequence })
+    ttChannelRef.current.send({
+      type: 'broadcast',
+      event: 'question',
+      payload: { sequence, questionText, hunkNumber: 1 },
+    })
+  }
+
+  function buildResponses(complete: boolean) {
+    const filled = qaRows.filter(r => r.question.trim())
+    return [
+      { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
+      { hunkNumber: 0, questionType: 'SESSION_NOTES', questionText: 'Session Notes', capturedAnswer: sessionNotes, expectedAnswer: '', misspokeCount: 0 },
+      ...(sessionVideo.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...(showExternalLink && invoiceLink.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Invoice', capturedAnswer: invoiceLink.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...(excludeFromAccuracy ? [{ hunkNumber: 0, questionType: 'ACCURACY_EXCLUDED', questionText: 'Accuracy Excluded', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
+      ...filled.map((r, i) => ({
+        hunkNumber: i + 1,
+        questionType: 'OPEN',
+        questionText: r.question.trim(),
+        capturedAnswer: r.answer,
+        expectedAnswer: '',
+        misspokeCount: r.misspokeCount,
+      })),
+    ]
+  }
+
+  async function saveResponses(complete: boolean): Promise<boolean> {
+    if (!sessionId) return false
+    await fetch(`/api/practitioner/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ regulation_arrival: regArrival, regulation_departure: regDeparture }),
+    }).catch(() => {})
+    const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId,
-        sessionDate,
-        paragraphs,
-        sessionNotes,
-        sessionVideo,
-        invoiceLink: showExternalLink ? invoiceLink.trim() : null,
-        regulationArrival: regArrival,
-        regulationDeparture: regDeparture,
-        studentStates,
-        excludeFromAccuracy,
-      }),
+      body: JSON.stringify({ responses: buildResponses(complete) }),
     })
-    const data = await res.json()
-    if (!res.ok || !data.sessionId) { setError(data.error ?? 'Failed to save session'); return null }
-    return data.sessionId
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      setError(data.error ?? 'Failed to save session')
+      return false
+    }
+    return true
   }
 
   async function handleFinishSession() {
-    if (!studentId) { setError('Please select a student.'); return }
-    if (!surfaceRef.current?.getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
+    if (!studentId || !sessionId) { setError('Please select a student.'); return }
+    if (!qaRows.some(r => r.question.trim())) { setError('Add at least one question.'); return }
     setSaving(true)
     setError('')
     try {
-      const sessionId = await saveSession()
-      if (!sessionId) { setSaving(false); return }
+      const ok = await saveResponses(true)
+      if (!ok) { setSaving(false); return }
+      if (ttChannelRef.current) {
+        ttChannelRef.current.send({ type: 'broadcast', event: 'session-end', payload: {} })
+      }
       router.push(`/practitioner/transcript/${sessionId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save session')
@@ -83,13 +229,12 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
   }
 
   async function handleGenerateInvoice() {
-    if (!studentId) { setError('Please select a student.'); return }
-    if (!surfaceRef.current?.getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
+    if (!studentId || !sessionId) { setError('Please select a student.'); return }
     setGeneratingInvoice(true)
     setError('')
     try {
-      const sessionId = await saveSession()
-      if (!sessionId) { setGeneratingInvoice(false); return }
+      const ok = await saveResponses(false)
+      if (!ok) { setGeneratingInvoice(false); return }
       const res = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -145,7 +290,9 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
           {selectedStudent ? (
             <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5">
               <span className="font-semibold text-blue-800">{selectedStudent.name}</span>
-              <button type="button" onClick={() => { setStudentId(''); setSearch('') }} className="text-xs text-blue-400 hover:text-blue-600">Change</button>
+              {!sessionId && (
+                <button type="button" onClick={() => { setStudentId(''); setSearch('') }} className="text-xs text-blue-400 hover:text-blue-600">Change</button>
+              )}
             </div>
           ) : (
             <div>
@@ -165,7 +312,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => { setStudentId(s.id); setSearch('') }}
+                        onClick={() => handleSelectStudent(s.id)}
                         className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-0"
                       >
                         {s.name} <span className="text-gray-400 text-xs">{s.ageGroup}</span>
@@ -174,6 +321,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
                   )}
                 </div>
               )}
+              {startingSession && <p className="text-xs text-gray-400 mt-1">Starting session…</p>}
             </div>
           )}
         </div>
@@ -184,10 +332,46 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
             type="date"
             value={sessionDate}
             onChange={e => setSessionDate(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={!!sessionId}
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
           />
         </div>
       </div>
+
+      {/* Connect a tablet */}
+      {sessionId && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => { setTtPanelOpen(o => !o); if (!ttPanelOpen) ensureTtChannel() }}
+            className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <span>📱 Connect a tablet {ttCode ? '· Connected' : ''}</span>
+            <span className="text-gray-400">{ttPanelOpen ? '▲' : '▼'}</span>
+          </button>
+          {ttPanelOpen && (
+            <div className="px-5 pb-5 border-t border-gray-100 pt-4 flex items-center gap-4 flex-wrap">
+              {ttConnecting && !ttCode && <p className="text-sm text-gray-400">Connecting…</p>}
+              {ttError && (
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-red-600">{ttError}</p>
+                  <button type="button" onClick={ensureTtChannel} className="text-xs text-blue-600 hover:underline">Retry</button>
+                </div>
+              )}
+              {ttQrDataUrl && (
+                <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/type-to-talk/live/${ttCode}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
+                </a>
+              )}
+              <div className="flex-1 min-w-[200px]">
+                {ttCode && <p className="text-sm text-gray-700">Code: <span className="font-mono font-bold tracking-wider">{ttCode}</span></p>}
+                <p className="text-xs text-gray-400 mt-0.5">Scan or enter this code on the student&apos;s tablet, then use &quot;Send to Speller&apos;s Tablet&quot; on any question to send it there.</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Observation */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
@@ -275,7 +459,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
             </button>
             <button
               type="button"
-              disabled={generatingInvoice}
+              disabled={generatingInvoice || !sessionId}
               onClick={handleGenerateInvoice}
               className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
             >
@@ -295,9 +479,64 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
         </div>
       </div>
 
-      {/* Writing surface */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5">
-        <TypeToTalkSurface ref={surfaceRef} />
+      {/* Questions & Responses */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Questions &amp; Responses</p>
+        {!sessionId && <p className="text-xs text-amber-600">Select a student above to start the session.</p>}
+
+        {qaRows.map((row, idx) => {
+          const isActive = activeTtRow?.rowId === row.id
+          return (
+            <div key={row.id} className="border border-gray-100 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-400">Q{idx + 1}</span>
+                {qaRows.length > 1 && (
+                  <button type="button" onClick={() => removeRow(row.id)} className="text-gray-300 hover:text-red-400 text-xs">Remove</button>
+                )}
+              </div>
+              <input
+                type="text"
+                value={row.question}
+                onChange={e => updateRowQuestion(row.id, e.target.value)}
+                placeholder="Question…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                value={row.answer}
+                onChange={e => setRowAnswer(row.id, e.target.value)}
+                placeholder="Speller's response — type here, or send to their tablet below…"
+                rows={2}
+                className="w-full border border-pink-200 bg-pink-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none placeholder-pink-300"
+              />
+              <div className="flex items-center gap-3 flex-wrap">
+                {row.answer && (
+                  <span className="text-xs font-semibold text-blue-500">{row.answer.replace(/\s/g, '').length} letters</span>
+                )}
+                {row.misspokeCount > 0 && (
+                  <span className="text-xs font-semibold text-red-500">{row.misspokeCount} misspoke{row.misspokeCount === 1 ? '' : 's'}</span>
+                )}
+                <button
+                  type="button"
+                  disabled={!sessionId || !row.question.trim()}
+                  onClick={() => handleSendToTt(row.id, row.question)}
+                  className={`ml-auto text-xs px-3 py-1 rounded-lg border font-medium transition-colors disabled:opacity-40 ${
+                    isActive ? 'text-purple-700 bg-purple-100 border-purple-300' : 'text-purple-600 border-purple-200 hover:bg-purple-50'
+                  }`}
+                >
+                  {isActive ? '✓ Sent to Speller’s Tablet' : 'Send to Speller’s Tablet'}
+                </button>
+              </div>
+            </div>
+          )
+        })}
+
+        <button
+          type="button"
+          onClick={addRow}
+          className="w-full border-2 border-dashed border-gray-200 text-gray-400 hover:border-blue-400 hover:text-blue-500 rounded-xl py-2.5 text-sm font-medium transition-colors"
+        >
+          + Add Question
+        </button>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -305,7 +544,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
       <button
         type="button"
         onClick={handleFinishSession}
-        disabled={saving}
+        disabled={saving || !sessionId}
         className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-60 transition-colors"
       >
         {saving ? 'Saving…' : 'Finish Session'}
