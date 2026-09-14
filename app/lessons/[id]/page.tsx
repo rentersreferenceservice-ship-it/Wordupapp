@@ -1,4 +1,5 @@
 ﻿import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { getLesson } from '@/lib/lessonStore'
 import { getUserUsage } from '@/lib/usageStore'
 import { getPractitionerSubscription } from '@/lib/practitionerStore'
@@ -12,7 +13,8 @@ import FactCheckButton from './FactCheckButton'
 import TranslateButton from './TranslateButton'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
-import { generateQRDataUrl } from '@/lib/qrcode'
+import { generateQRDataUrl, generateQRDataUrlFromUrl } from '@/lib/qrcode'
+import CopyLinkButton from '@/app/components/CopyLinkButton'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
@@ -53,6 +55,11 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
     }
   }
 
+  const hdrs = await headers()
+  const shareBaseUrl = `${hdrs.get('x-forwarded-proto') ?? 'https'}://${hdrs.get('host') ?? 'wordups2c.com'}`
+  const typeToTalkShareUrl = `${shareBaseUrl}/type-to-talk?lesson=${id}`
+  const typeToTalkQrDataUrl = await generateQRDataUrlFromUrl(typeToTalkShareUrl).catch(() => null)
+
   const qrMap: Record<string, string> = {}
   if (isSubscribed) {
     await Promise.all(
@@ -87,6 +94,22 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             </a>
           </div>
         </nav>
+
+        {typeToTalkQrDataUrl && (
+          <div className="print:hidden relative z-10 max-w-4xl mx-auto px-6 mb-2">
+            <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm flex items-center gap-4 flex-wrap">
+              <a href={typeToTalkShareUrl} className="shrink-0" title="Open Type to Talk with this lesson">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={typeToTalkQrDataUrl} alt="QR code linking to Type to Talk with this lesson — tap to open, or scan with a camera" width={72} height={72} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+              </a>
+              <div className="flex-1 min-w-[200px]">
+                <p className="text-sm font-semibold text-gray-700">Type to Talk with this lesson — free, no account needed</p>
+                <p className="text-xs text-gray-400 mt-0.5">Tap or scan the code to open it on another device.</p>
+              </div>
+              <CopyLinkButton url={typeToTalkShareUrl} />
+            </div>
+          </div>
+        )}
 
         <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
           <div className="flex justify-center mb-1">
@@ -194,6 +217,22 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           {isAdmin && <DeleteButton />}
         </div>
       </nav>
+
+      {typeToTalkQrDataUrl && (
+        <div className="print:hidden relative z-10 max-w-4xl mx-auto px-6 mb-2">
+          <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm flex items-center gap-4 flex-wrap">
+            <a href={typeToTalkShareUrl} className="shrink-0" title="Open Type to Talk with this lesson">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={typeToTalkQrDataUrl} alt="QR code linking to Type to Talk with this lesson — tap to open, or scan with a camera" width={72} height={72} className="rounded-lg border border-gray-100 hover:border-purple-400 transition-colors" />
+            </a>
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-sm font-semibold text-gray-700">Type to Talk with this lesson — free, no account needed</p>
+              <p className="text-xs text-gray-400 mt-0.5">Tap or scan the code to open it on another device.</p>
+            </div>
+            <CopyLinkButton url={typeToTalkShareUrl} />
+          </div>
+        </div>
+      )}
 
       <article className="relative z-10 max-w-4xl mx-auto px-8 py-8 my-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg font-[Arial,sans-serif] text-[14pt] leading-snug">
         <div className="flex justify-center mb-1">

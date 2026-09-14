@@ -56,7 +56,7 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
           </div>
 
           {lesson && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+            <div className="bg-white border border-blue-200 rounded-xl px-4 py-3 flex items-center justify-between gap-3 shadow-sm">
               <div>
                 <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide">Using with lesson</p>
                 <p className="text-sm font-semibold text-blue-900">{lesson.title}</p>
