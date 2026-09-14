@@ -19,6 +19,7 @@ const NAV_LINKS = [
 export default function PublicNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const showTagline = !pathname.startsWith('/type-to-talk')
 
   return (
     <header className="sticky top-0 z-50" style={{ background: '#fdf9f4', boxShadow: '0 1px 0 rgba(90,60,30,0.08)' }}>
@@ -31,10 +32,12 @@ export default function PublicNav() {
               style={{ color: '#2a1f17', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
               WORD UP
             </p>
-            <p className="font-semibold tracking-[0.35em] mt-2 uppercase"
-              style={{ color: '#C9A435', fontSize: 'clamp(0.6rem, 1.2vw, 0.8rem)' }}>
-              Spelling to Communicate
-            </p>
+            {showTagline && (
+              <p className="font-semibold tracking-[0.35em] mt-2 uppercase"
+                style={{ color: '#C9A435', fontSize: 'clamp(0.6rem, 1.2vw, 0.8rem)' }}>
+                Spelling to Communicate
+              </p>
+            )}
           </div>
         </Link>
 
