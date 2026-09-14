@@ -22,10 +22,14 @@ interface FinishedParagraph {
   misspokeCount: number
 }
 
+const SPEECH_RATE = 1.4
+
 function speak(text: string) {
   const trimmed = text.trim()
   if (!trimmed || typeof window === 'undefined' || !window.speechSynthesis) return
-  window.speechSynthesis.speak(new SpeechSynthesisUtterance(trimmed))
+  const utterance = new SpeechSynthesisUtterance(trimmed)
+  utterance.rate = SPEECH_RATE
+  window.speechSynthesis.speak(utterance)
 }
 
 export default function TypeToTalkSessionForm({ students }: { students: Student[] }) {
@@ -42,6 +46,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
   const [invoiceLink, setInvoiceLink] = useState('')
   const [excludeFromAccuracy, setExcludeFromAccuracy] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [error, setError] = useState('')
 
   // The writing surface
@@ -120,35 +125,67 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
     return trailing ? [...finishedParagraphs, { text: trailing, misspokeCount }] : finishedParagraphs
   }
 
+  async function saveSession(): Promise<string | null> {
+    const paragraphs = getAllParagraphs()
+    const res = await fetch('/api/practitioner/type-to-talk-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId,
+        sessionDate,
+        paragraphs,
+        sessionNotes,
+        sessionVideo,
+        invoiceLink: showExternalLink ? invoiceLink.trim() : null,
+        regulationArrival: regArrival,
+        regulationDeparture: regDeparture,
+        studentStates,
+        excludeFromAccuracy,
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok || !data.sessionId) { setError(data.error ?? 'Failed to save session'); return null }
+    return data.sessionId
+  }
+
   async function handleFinishSession() {
     if (!studentId) { setError('Please select a student.'); return }
-    const paragraphs = getAllParagraphs()
-    if (!paragraphs.length) { setError('Type at least one paragraph.'); return }
+    if (!getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
     setSaving(true)
     setError('')
     try {
-      const res = await fetch('/api/practitioner/type-to-talk-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId,
-          sessionDate,
-          paragraphs,
-          sessionNotes,
-          sessionVideo,
-          invoiceLink: showExternalLink ? invoiceLink.trim() : null,
-          regulationArrival: regArrival,
-          regulationDeparture: regDeparture,
-          studentStates,
-          excludeFromAccuracy,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.sessionId) { setError(data.error ?? 'Failed to save session'); setSaving(false); return }
-      router.push(`/practitioner/transcript/${data.sessionId}`)
+      const sessionId = await saveSession()
+      if (!sessionId) { setSaving(false); return }
+      router.push(`/practitioner/transcript/${sessionId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save session')
       setSaving(false)
+    }
+  }
+
+  async function handleGenerateInvoice() {
+    if (!studentId) { setError('Please select a student.'); return }
+    if (!getAllParagraphs().length) { setError('Type at least one paragraph.'); return }
+    setGeneratingInvoice(true)
+    setError('')
+    try {
+      const sessionId = await saveSession()
+      if (!sessionId) { setGeneratingInvoice(false); return }
+      const res = await fetch('/api/practitioner/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      })
+      const data = await res.json()
+      if (data.invoiceId) {
+        router.push(`/practitioner/invoice/${data.invoiceId}`)
+      } else {
+        setError(data.error ?? 'Failed to generate invoice')
+        setGeneratingInvoice(false)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to generate invoice')
+      setGeneratingInvoice(false)
     }
   }
 
@@ -309,14 +346,24 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
 
         <div>
           <p className="text-xs text-gray-400 mb-1.5">Invoice</p>
-          <button
-            type="button"
-            onClick={() => setShowExternalLink(v => !v)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${showExternalLink ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-          >
-            External Link
-          </button>
-          <p className="text-xs text-gray-400 mt-1">You can generate an invoice from the transcript page after saving.</p>
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => setShowExternalLink(v => !v)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${showExternalLink ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >
+              External Link
+            </button>
+            <button
+              type="button"
+              disabled={generatingInvoice}
+              onClick={handleGenerateInvoice}
+              className="bg-green-600 text-white border-2 border-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-60 transition-colors"
+            >
+              {generatingInvoice ? 'Creating…' : 'Generate Invoice'}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400">Generating an invoice saves the session so far and takes you to the invoice — same as Open Session.</p>
           {showExternalLink && (
             <input
               type="url"
