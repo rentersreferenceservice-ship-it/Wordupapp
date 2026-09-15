@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
+
+const DRAFT_KEY = 'wordup-no-lesson-session-draft'
 
 interface StudentOption {
   id: string
@@ -25,9 +27,41 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
 
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
+
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY)
+      if (!saved) {
+        setHasRestoredDraft(true)
+        return
+      }
+      const draft = JSON.parse(saved) as Partial<{ studentId: string; to: string; note: string; invoice: string; video: string; sessionId: string | null }>
+      if (draft.studentId) setStudentId(draft.studentId)
+      if (draft.to) setTo(draft.to)
+      if (draft.note) setNote(draft.note)
+      if (draft.invoice) setInvoice(draft.invoice)
+      if (draft.video) setVideo(draft.video)
+      if (draft.sessionId) setSessionId(draft.sessionId)
+    } catch {
+      // ignore invalid drafts
+    } finally {
+      setHasRestoredDraft(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!hasRestoredDraft) return
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ studentId, to, note, invoice, video, sessionId }))
+  }, [studentId, to, note, invoice, video, sessionId, hasRestoredDraft])
+
+  function clearDraft() {
+    sessionStorage.removeItem(DRAFT_KEY)
+  }
 
   function handleStudentChange(id: string) {
     setStudentId(id)
@@ -40,6 +74,19 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
     setGeneratingInvoice(true)
     setInvoiceError('')
     try {
+      const draftRes = await fetch('/api/practitioner/no-lesson-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, note, video, draftOnly: true }),
+      })
+      const draftData = await draftRes.json().catch(() => ({}))
+      if (!draftRes.ok || !draftData.sessionId) {
+        setInvoiceError(draftData.error ?? 'Failed to save the no-lesson session draft')
+        setGeneratingInvoice(false)
+        return
+      }
+      setSessionId(draftData.sessionId)
+
       const res = await fetch('/api/practitioner/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +118,7 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
       const res = await fetch('/api/practitioner/no-lesson-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: recipients, note, invoice, video, studentId: studentId || null }),
+        body: JSON.stringify({ to: recipients, note, invoice, video, studentId: studentId || null, sessionId: sessionId || null }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -79,6 +126,7 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
         setSending(false)
         return
       }
+      clearDraft()
       setSent(true)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Send failed')
@@ -93,7 +141,10 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
         <p className="text-green-600 font-semibold text-lg mb-1">✓ Sent</p>
         <p className="text-sm text-gray-500 mb-4">The update was emailed to {to}.</p>
         <button
-          onClick={() => router.push('/practitioner/dashboard')}
+          onClick={() => {
+            clearDraft()
+            router.push('/practitioner/dashboard')
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
         >
           Back to Dashboard
@@ -202,7 +253,15 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
 
         <div className="flex items-center gap-2 pt-1">
           <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>
-          <button onClick={() => router.push('/practitioner/dashboard')} className="text-gray-500 text-sm">Cancel</button>
+          <button
+            onClick={() => {
+              clearDraft()
+              router.push('/practitioner/dashboard')
+            }}
+            className="text-gray-500 text-sm"
+          >
+            Cancel
+          </button>
           {error && <span className="text-red-500 text-xs">{error}</span>}
         </div>
       </div>

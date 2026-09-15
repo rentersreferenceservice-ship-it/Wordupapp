@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
     const video: string | null = body.video ?? null
     const invoice: string | null = body.invoice ?? null
     const studentId: string | null = body.studentId ?? null
+    const sessionId: string | null = body.sessionId ?? null
+    const draftOnly: boolean = !!body.draftOnly
 
     const clerk = await clerkClient()
     const user = await clerk.users.getUser(userId)
@@ -51,6 +53,50 @@ export async function POST(req: NextRequest) {
     const ytMatch = normalizedVideo?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
     const ytId = ytMatch?.[1] ?? null
     const ytThumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null
+
+    if (draftOnly) {
+      if (!studentId || !student) {
+        return Response.json({ error: 'Select a student before saving a draft' }, { status: 400 })
+      }
+
+      const sessionDate = new Date().toISOString().split('T')[0]
+      const draftSession = sessionId
+        ? await supabase.from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).maybeSingle()
+        : { data: null, error: null }
+
+      if (sessionId && draftSession.data) {
+        await supabase.from('session_responses').upsert([
+          { session_id: sessionId, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
+          ...(normalizedVideo ? [{ session_id: sessionId, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
+          ...(rawInvoice ? [{ session_id: sessionId, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+        ], { onConflict: 'session_id,question_type,hunk_number' })
+        return Response.json({ ok: true, sessionId })
+      }
+
+      const { data: newSession, error: sessionError } = await supabase
+        .from('sessions')
+        .insert({
+          practitioner_id: userId,
+          student_id: studentId,
+          lesson_id: null,
+          lesson_title: 'No Lesson Session',
+          session_date: sessionDate,
+        })
+        .select()
+        .single()
+
+      if (sessionError || !newSession) {
+        return Response.json({ error: sessionError?.message ?? 'Failed to save no-lesson draft' }, { status: 500 })
+      }
+
+      await supabase.from('session_responses').insert([
+        { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
+        ...(normalizedVideo ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
+        ...(rawInvoice ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+      ])
+
+      return Response.json({ ok: true, sessionId: newSession.id })
+    }
 
     const logoHtml = settings?.logo_url
       ? `<img src="${settings.logo_url}" alt="Practice Logo" style="height:52px;object-fit:contain;margin-bottom:12px;display:block" />`
@@ -148,39 +194,55 @@ export async function POST(req: NextRequest) {
     // a sessions row plus session_responses — so it shows up in Session
     // History and is viewable via the existing transcript page.
     console.log('No-lesson-session: entering persistence block?', !!(studentId && student))
+    let persistedSessionId = sessionId
     if (studentId && student) {
       try {
         const sessionDate = new Date().toISOString().split('T')[0]
-        const { data: newSession, error: sessionError } = await supabase
-          .from('sessions')
-          .insert({
-            practitioner_id: userId,
-            student_id: studentId,
-            lesson_id: null,
-            lesson_title: 'No Lesson Session',
-            session_date: sessionDate,
-          })
-          .select()
-          .single()
+        if (persistedSessionId) {
+          const { data: existingSession, error: existingError } = await supabase
+            .from('sessions')
+            .select('id')
+            .eq('id', persistedSessionId)
+            .eq('practitioner_id', userId)
+            .single()
+          if (!existingError && existingSession) {
+            persistedSessionId = existingSession.id
+          } else {
+            persistedSessionId = null
+          }
+        }
 
-        console.log('No-lesson-session: session insert result=', newSession, 'sessionError=', sessionError)
+        if (!persistedSessionId) {
+          const { data: newSession, error: sessionError } = await supabase
+            .from('sessions')
+            .insert({
+              practitioner_id: userId,
+              student_id: studentId,
+              lesson_id: null,
+              lesson_title: 'No Lesson Session',
+              session_date: sessionDate,
+            })
+            .select()
+            .single()
 
-        if (sessionError || !newSession) {
-          console.error('No-lesson session record error:', sessionError)
-        } else {
+          console.log('No-lesson-session: session insert result=', newSession, 'sessionError=', sessionError)
+          persistedSessionId = newSession?.id ?? null
+        }
+
+        if (persistedSessionId) {
           const responses = [
-            { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
-            ...(normalizedVideo ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
-            ...(rawInvoice ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
-            { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
+            { session_id: persistedSessionId, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
+            ...(normalizedVideo ? [{ session_id: persistedSessionId, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
+            ...(rawInvoice ? [{ session_id: persistedSessionId, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+            { session_id: persistedSessionId, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
           ]
-          const { error: responsesError } = await supabase.from('session_responses').insert(responses)
+          const { error: responsesError } = await supabase.from('session_responses').upsert(responses, { onConflict: 'session_id,question_type,hunk_number' })
           console.log('No-lesson-session: responses insert error=', responsesError)
 
           if (rawInvoice?.startsWith('/practitioner/invoice/')) {
             const invoiceId = rawInvoice.split('/').pop()
             if (invoiceId) {
-              const { error: invoiceUpdateError } = await supabase.from('invoices').update({ session_id: newSession.id }).eq('id', invoiceId).eq('practitioner_id', userId)
+              const { error: invoiceUpdateError } = await supabase.from('invoices').update({ session_id: persistedSessionId }).eq('id', invoiceId).eq('practitioner_id', userId)
               console.log('No-lesson-session: invoice link update error=', invoiceUpdateError)
             }
           }
@@ -190,7 +252,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return Response.json({ ok: true, messageId: resendData?.id })
+    return Response.json({ ok: true, messageId: resendData?.id, sessionId: persistedSessionId })
   } catch (e) {
     console.error('No-lesson email route error:', e)
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
