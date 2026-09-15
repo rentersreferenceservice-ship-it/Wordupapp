@@ -33,6 +33,10 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
 
+  const [savingDraft, setSavingDraft] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [savedAt, setSavedAt] = useState<number | null>(null)
+
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem(DRAFT_KEY)
@@ -103,6 +107,30 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
       setInvoiceError(e instanceof Error ? e.message : 'Failed to create invoice')
     } finally {
       setGeneratingInvoice(false)
+    }
+  }
+
+  async function handleSaveDraft() {
+    if (!studentId) { setSaveError('Select a student first'); return }
+    setSavingDraft(true)
+    setSaveError('')
+    try {
+      const res = await fetch('/api/practitioner/no-lesson-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, note, video, invoice, draftOnly: true, sessionId: sessionId || null }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.sessionId) {
+        setSaveError(data.error ?? 'Failed to save')
+        return
+      }
+      setSessionId(data.sessionId)
+      setSavedAt(Date.now())
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Failed to save')
+    } finally {
+      setSavingDraft(false)
     }
   }
 
@@ -254,6 +282,14 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
         <div className="flex items-center gap-2 pt-1">
           <button onClick={handleSend} disabled={sending} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">{sending ? 'Sending…' : 'Send'}</button>
           <button
+            onClick={handleSaveDraft}
+            disabled={savingDraft || !studentId}
+            title={!studentId ? 'Select a student above to save' : undefined}
+            className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {savingDraft ? 'Saving…' : 'Save'}
+          </button>
+          <button
             onClick={() => {
               clearDraft()
               router.push('/practitioner/dashboard')
@@ -262,6 +298,8 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
           >
             Cancel
           </button>
+          {saveError && <span className="text-red-500 text-xs">{saveError}</span>}
+          {!saveError && savedAt && <span className="text-green-600 text-xs">Saved</span>}
           {error && <span className="text-red-500 text-xs">{error}</span>}
         </div>
       </div>
