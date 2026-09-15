@@ -13,14 +13,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const toRaw: unknown = body.to
     const to: string[] = Array.isArray(toRaw) ? toRaw : (typeof toRaw === 'string' ? [toRaw] : [])
-    if (to.length === 0 || to.some(e => !e.includes('@'))) return Response.json({ error: 'Invalid recipient email' }, { status: 400 })
+    const draftOnly: boolean = !!body.draftOnly
+    if (!draftOnly && (to.length === 0 || to.some(e => !e.includes('@')))) {
+      return Response.json({ error: 'Invalid recipient email' }, { status: 400 })
+    }
 
     const note: string | null = body.note ?? null
     const video: string | null = body.video ?? null
     const invoice: string | null = body.invoice ?? null
     const studentId: string | null = body.studentId ?? null
     const sessionId: string | null = body.sessionId ?? null
-    const draftOnly: boolean = !!body.draftOnly
 
     const clerk = await clerkClient()
     const user = await clerk.users.getUser(userId)
