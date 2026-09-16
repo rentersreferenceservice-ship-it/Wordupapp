@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
           { session_id: sessionId, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
           ...(normalizedVideo ? [{ session_id: sessionId, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
           ...(rawInvoice ? [{ session_id: sessionId, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+          { session_id: sessionId, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
         ], { onConflict: 'session_id,question_type,hunk_number' })
         return Response.json({ ok: true, sessionId })
       }
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
         { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_NOTES', question_text: 'Session Notes', captured_answer: note ?? '', expected_answer: '', misspoke_count: 0 },
         ...(normalizedVideo ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_VIDEO', question_text: 'Session Video', captured_answer: normalizedVideo, expected_answer: '', misspoke_count: 0 }] : []),
         ...(rawInvoice ? [{ session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_INVOICE', question_text: 'Invoice', captured_answer: rawInvoice, expected_answer: '', misspoke_count: 0 }] : []),
+        { session_id: newSession.id, hunk_number: 0, question_type: 'SESSION_COMPLETE', question_text: 'Session Complete', captured_answer: 'true', expected_answer: '', misspoke_count: 0 },
       ])
 
       return Response.json({ ok: true, sessionId: newSession.id })
