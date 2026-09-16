@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
       const sessionDate = new Date().toISOString().split('T')[0]
       const draftSession = sessionId
-        ? await supabase.from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).maybeSingle()
+        ? await supabase.from('sessions').select('*').eq('id', sessionId).eq('practitioner_id', userId).eq('student_id', studentId).maybeSingle()
         : { data: null, error: null }
 
       if (sessionId && draftSession.data) {
@@ -206,6 +206,7 @@ export async function POST(req: NextRequest) {
             .select('id')
             .eq('id', persistedSessionId)
             .eq('practitioner_id', userId)
+            .eq('student_id', studentId)
             .single()
           if (!existingError && existingSession) {
             persistedSessionId = existingSession.id

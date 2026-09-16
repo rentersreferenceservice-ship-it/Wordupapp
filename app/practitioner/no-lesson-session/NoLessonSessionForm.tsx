@@ -68,6 +68,11 @@ export default function NoLessonSessionForm({ students, practitionerName, today 
   }
 
   function handleStudentChange(id: string) {
+    if (id !== studentId) {
+      setSessionId(null)
+      setInvoice('')
+      setSavedAt(null)
+    }
     setStudentId(id)
     const s = students.find(s => s.id === id)
     if (s?.guardianEmail) setTo(s.guardianEmail)
