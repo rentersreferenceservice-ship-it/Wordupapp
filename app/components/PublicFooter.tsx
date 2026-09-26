@@ -59,6 +59,9 @@ export default function PublicFooter() {
                 className="block transition-colors hover:text-white">
                 Lesson Generator ↗
               </a>
+              <Link href="/practitioner/get-started" className="block transition-colors hover:text-white" style={{ color: '#C9A435' }}>
+                Practitioner Portal
+              </Link>
             </div>
           </div>
         </div>

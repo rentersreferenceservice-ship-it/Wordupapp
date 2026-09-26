@@ -55,11 +55,11 @@ export default function PublicNav() {
             {l.label}
           </Link>
         ))}
-        <a href="https://worduplessongenerator.com/practitioner/get-started"
-          className="text-sm transition-all whitespace-nowrap"
-          style={{ color: '#7a6a5a', fontWeight: '500' }}>
-          Practitioner Dashboard
-        </a>
+        <Link href="/practitioner/get-started"
+          className="text-sm font-semibold px-4 py-2 rounded-full transition-all hover:opacity-90 whitespace-nowrap"
+          style={{ background: '#C9A435', color: '#2a1f17' }}>
+          Practitioner Portal
+        </Link>
       </nav>
 
       {/* Mobile menu */}
@@ -77,12 +77,12 @@ export default function PublicNav() {
               </Link>
             ))}
           </div>
-          <a href="https://worduplessongenerator.com/practitioner/get-started"
+          <Link href="/practitioner/get-started"
             onClick={() => setOpen(false)}
-            className="block px-4 py-3 rounded-xl text-sm transition-colors"
-            style={{ color: '#5a4a3a', fontWeight: '500' }}>
-            Practitioner Dashboard
-          </a>
+            className="block mx-4 mt-2 px-4 py-3 rounded-xl text-sm text-center font-semibold transition-colors"
+            style={{ background: '#C9A435', color: '#2a1f17' }}>
+            Practitioner Portal
+          </Link>
         </div>
       )}
     </header>

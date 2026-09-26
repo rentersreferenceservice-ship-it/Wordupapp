@@ -205,6 +205,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* For practitioners — the tools behind the practice */}
+      <section className="py-24" style={{ background: '#f0ede8' }}>
+        <div className="max-w-3xl mx-auto px-8 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] mb-5 font-medium" style={{ color: '#a08060' }}>
+            For Practitioners
+          </p>
+          <h2 className="font-bold mb-6" style={{ color: '#2a1f17', fontSize: 'clamp(1.7rem, 3vw, 2.4rem)', lineHeight: '1.3' }}>
+            The same tools we use here, built for your practice.
+          </h2>
+          <p className="leading-relaxed mb-9" style={{ color: '#5a4a3a', fontSize: '1.05rem', maxWidth: '48ch', marginInline: 'auto' }}>
+            Manage your caseload, run sessions, track accuracy, and generate transcripts and invoices — the Practitioner Portal is a 30-day free trial, no charge until it ends.
+          </p>
+          <Link href="/practitioner/get-started"
+            className="inline-block font-semibold px-8 py-4 rounded-full transition-all hover:opacity-90 shadow-lg"
+            style={{ background: '#C9A435', color: '#2a1f17' }}>
+            Explore the Practitioner Portal
+          </Link>
+        </div>
+      </section>
+
       {/* Closing — invitation, not CTA */}
       <section className="py-28" style={{ background: '#fdf9f4' }}>
         <div className="max-w-2xl mx-auto px-8 text-center">
