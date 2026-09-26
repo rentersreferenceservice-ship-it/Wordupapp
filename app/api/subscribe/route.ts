@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       },
     ],
     ...(skipTrial ? {} : { subscription_data: { trial_period_days: 30 } }),
-    payment_method_collection: skipTrial ? 'always' : 'if_required',
+    payment_method_collection: 'always',
     metadata: {
       clerkUserId: userId,
       ...(referral?.trim() ? { referralSource: referral.trim() } : {}),

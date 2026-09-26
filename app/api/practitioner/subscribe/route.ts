@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       quantity: 1,
     }],
     ...(skipTrial ? {} : { subscription_data: { trial_period_days: 30 } }),
-    payment_method_collection: skipTrial ? 'always' : 'if_required',
+    payment_method_collection: 'always',
     metadata: { clerkUserId: userId, practitionerTier: 'standard', billingPeriod: billing, source: source ?? 'direct' },
     success_url: `${origin}/practitioner/welcome`,
     cancel_url: `${origin}/practitioner/subscribe`,
