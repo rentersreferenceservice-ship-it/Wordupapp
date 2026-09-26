@@ -9,3 +9,6 @@ export function showDueDateChangeNotice(invoiceDate: string): boolean {
 
 export const DUE_DATE_CHANGE_NOTICE =
   "Please note: our payment terms have changed. Invoices are now due upon receipt, rather than within 30 days."
+
+export const RESEND_POLICY_NOTICE =
+  "As a courtesy, any invoice still marked unpaid is automatically resent on the 1st of each month — this is just a reminder, not a late notice."
