@@ -25,6 +25,8 @@ interface QARow {
   misspokeCount: number
 }
 
+const DRAFT_KEY = 'wordup-type-to-talk-session-draft'
+
 export default function TypeToTalkSessionForm({ students }: { students: Student[] }) {
   const router = useRouter()
   const [studentId, setStudentId] = useState('')
@@ -46,6 +48,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
 
   const [qaRows, setQaRows] = useState<QARow[]>([{ id: 1, question: '', answer: '', misspokeCount: 0 }])
   const nextRowIdRef = useRef(2)
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false)
 
   // Type to Talk live sync — a paired tablet the student answers from
   const [ttPanelOpen, setTtPanelOpen] = useState(false)
@@ -69,6 +72,53 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
       if (ttChannelRef.current) getSupabaseBrowserClient().removeChannel(ttChannelRef.current)
     }
   }, [])
+
+  // Recover in-progress work after a crash, accidental reload, or the tablet
+  // going to sleep mid-session — none of this was being saved before, so any
+  // interruption meant the whole session (and everything typed) was gone.
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY)
+      if (!saved) { setHasRestoredDraft(true); return }
+      const draft = JSON.parse(saved) as Partial<{
+        studentId: string; sessionId: string | null; sessionDate: string
+        qaRows: QARow[]; sessionNotes: string; sessionVideo: string
+        studentStates: string[]; regArrival: string | null; regDeparture: string | null
+        showExternalLink: boolean; invoiceLink: string; excludeFromAccuracy: boolean
+      }>
+      if (draft.studentId) setStudentId(draft.studentId)
+      if (draft.sessionId) setSessionId(draft.sessionId)
+      if (draft.sessionDate) setSessionDate(draft.sessionDate)
+      if (draft.qaRows?.length) {
+        setQaRows(draft.qaRows)
+        nextRowIdRef.current = Math.max(...draft.qaRows.map(r => r.id)) + 1
+      }
+      if (draft.sessionNotes) setSessionNotes(draft.sessionNotes)
+      if (draft.sessionVideo) setSessionVideo(draft.sessionVideo)
+      if (draft.studentStates) setStudentStates(draft.studentStates)
+      if (draft.regArrival) setRegArrival(draft.regArrival)
+      if (draft.regDeparture) setRegDeparture(draft.regDeparture)
+      if (draft.showExternalLink) setShowExternalLink(draft.showExternalLink)
+      if (draft.invoiceLink) setInvoiceLink(draft.invoiceLink)
+      if (draft.excludeFromAccuracy) setExcludeFromAccuracy(draft.excludeFromAccuracy)
+    } catch {
+      // ignore invalid drafts
+    } finally {
+      setHasRestoredDraft(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!hasRestoredDraft) return
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+      studentId, sessionId, sessionDate, qaRows, sessionNotes, sessionVideo,
+      studentStates, regArrival, regDeparture, showExternalLink, invoiceLink, excludeFromAccuracy,
+    }))
+  }, [studentId, sessionId, sessionDate, qaRows, sessionNotes, sessionVideo, studentStates, regArrival, regDeparture, showExternalLink, invoiceLink, excludeFromAccuracy, hasRestoredDraft])
+
+  function clearDraft() {
+    sessionStorage.removeItem(DRAFT_KEY)
+  }
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
@@ -221,6 +271,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
       if (ttChannelRef.current) {
         ttChannelRef.current.send({ type: 'broadcast', event: 'session-end', payload: {} })
       }
+      clearDraft()
       router.push(`/practitioner/transcript/${sessionId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save session')
@@ -359,14 +410,18 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
                 </div>
               )}
               {ttQrDataUrl && (
-                <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/type-to-talk/live/${ttCode}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                // Not a link — this QR is meant to be scanned by the tablet's
+                // camera, not tapped here. Tapping it used to navigate this
+                // practitioner session away entirely, silently losing all
+                // in-progress work with no way back.
+                <div className="shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
-                </a>
+                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet — scan with the tablet's camera, do not tap here" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
+                </div>
               )}
               <div className="flex-1 min-w-[200px]">
                 {ttCode && <p className="text-sm text-gray-700">Code: <span className="font-mono font-bold tracking-wider">{ttCode}</span></p>}
-                <p className="text-xs text-gray-400 mt-0.5">Scan or enter this code on the student&apos;s tablet, then use &quot;Send to Speller&apos;s Tablet&quot; on any question to send it there.</p>
+                <p className="text-xs text-gray-400 mt-0.5">Scan this with the student&apos;s tablet (don&apos;t tap it here), or enter the code on the tablet, then use &quot;Send to Speller&apos;s Tablet&quot; on any question to send it there.</p>
               </div>
             </div>
           )}

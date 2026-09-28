@@ -122,6 +122,16 @@ export default function LiveClient({ code }: { code: string }) {
         >
           Save to my device
         </button>
+        <div className="pt-4 mt-4 border-t border-gray-100">
+          <p className="text-sm text-gray-500 mb-2">Want to keep using Type to Talk on this tablet between sessions — with a CRP, when the practitioner isn&apos;t here?</p>
+          <a
+            href="/type-to-talk"
+            className="inline-block bg-white text-purple-700 border-2 border-purple-600 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+          >
+            Open Type to Talk on your own
+          </a>
+          <p className="text-xs text-gray-400 mt-2">Tip: bookmark this page or add it to the tablet&apos;s home screen so it&apos;s always one tap away.</p>
+        </div>
       </div>
     )
   }
