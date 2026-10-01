@@ -19,6 +19,8 @@ export default function LiveClient({ code }: { code: string }) {
   const [error, setError] = useState<string | null>(null)
   const [question, setQuestion] = useState<LiveQuestion | null>(null)
   const [sessionEnded, setSessionEnded] = useState(false)
+  const [connectionLost, setConnectionLost] = useState(false)
+  const [reconnectAttempt, setReconnectAttempt] = useState(0)
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowserClient>['channel']> | null>(null)
   const questionRef = useRef<LiveQuestion | null>(null)
   const latestAnswerRef = useRef('')
@@ -63,13 +65,24 @@ export default function LiveClient({ code }: { code: string }) {
         finishCurrentQuestion()
         setSessionEnded(true)
       })
-      .subscribe()
+      .subscribe((status) => {
+        // Previously a dropped connection (network blip, tablet going idle,
+        // etc.) just left this screen frozen forever with no indication —
+        // this is almost certainly what "kicked the speller off" mid-session.
+        // Now it shows what's happening and retries automatically.
+        if (status === 'SUBSCRIBED') {
+          setConnectionLost(false)
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          setConnectionLost(true)
+          setTimeout(() => setReconnectAttempt(n => n + 1), 2000)
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)
       channelRef.current = null
     }
-  }, [sessionId])
+  }, [sessionId, reconnectAttempt])
 
   function handleLiveChange(info: { combinedText: string; totalMisspokeCount: number }) {
     latestAnswerRef.current = info.combinedText
@@ -140,12 +153,20 @@ export default function LiveClient({ code }: { code: string }) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-gray-400">Waiting for a question…</p>
+        {connectionLost && (
+          <p className="text-amber-600 text-sm mt-3">Connection lost — reconnecting…</p>
+        )}
       </div>
     )
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      {connectionLost && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
+          Connection lost — reconnecting… your answer so far is still safe here.
+        </div>
+      )}
       <TypeToTalkSurface
         key={question.sequence}
         currentQuestion={question.text}

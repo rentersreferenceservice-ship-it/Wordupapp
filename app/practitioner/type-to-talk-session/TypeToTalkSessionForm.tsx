@@ -197,7 +197,16 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
           setRowAnswer(active.rowId, answer.combinedText)
           setRowMisspoke(active.rowId, answer.totalMisspokeCount)
         })
-        .subscribe()
+        .subscribe((status) => {
+          // If the connection drops for any reason (network blip, tablet
+          // going idle, etc.) the old code had no way to notice — Send
+          // would silently do nothing forever after that. Clearing the
+          // ref lets the next Send (or Retry) rebuild the connection.
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            ttChannelRef.current = null
+            setTtError('Connection to the tablet was lost — tap Retry, or just press Send again.')
+          }
+        })
       ttChannelRef.current = channel
     } catch {
       setTtError('Could not connect a tablet — check your connection and try again.')
