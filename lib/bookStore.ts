@@ -1,6 +1,6 @@
 import { getSupabase } from './supabase'
 
-export type BookVisibility = 'private' | 'link'
+export type BookVisibility = 'private' | 'link' | 'public'
 
 export interface BookPage {
   imageUrl: string
@@ -40,6 +40,15 @@ export async function getBooks(practitionerId: string): Promise<Book[]> {
     .from('books')
     .select('*')
     .eq('practitioner_id', practitionerId)
+    .order('updated_at', { ascending: false })
+  return (data ?? []).map(mapRow)
+}
+
+export async function getPublicBooks(): Promise<Book[]> {
+  const { data } = await getSupabase()
+    .from('books')
+    .select('*')
+    .eq('visibility', 'public')
     .order('updated_at', { ascending: false })
   return (data ?? []).map(mapRow)
 }

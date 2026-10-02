@@ -16,7 +16,7 @@ export default async function PublicBookPage({ params }: { params: Promise<{ id:
     )
   }
 
-  if (book.visibility !== 'link') {
+  if (book.visibility === 'private') {
     // Private — only the owning, logged-in practitioner may view it here.
     const { userId } = await auth()
     if (!userId || userId !== book.practitionerId) {

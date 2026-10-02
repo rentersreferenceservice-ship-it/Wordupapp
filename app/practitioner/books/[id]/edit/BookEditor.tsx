@@ -158,8 +158,15 @@ export default function BookEditor({ book }: { book: Book }) {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${visibility === 'link' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200'}`}>
                 Shared by Link
               </button>
+              <button type="button" onClick={() => setVisibility('public')}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-colors ${visibility === 'public' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200'}`}>
+                Public (in library)
+              </button>
             </div>
-            {visibility === 'link' && (
+            {visibility === 'public' && (
+              <p className="text-xs text-gray-500 mt-2">Anyone can find and read this in the public Book Library — no link needed.</p>
+            )}
+            {(visibility === 'link' || visibility === 'public') && (
               <div className="mt-3 flex items-center gap-2 flex-wrap">
                 <code className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-600 break-all">{shareUrl}</code>
                 <button type="button" onClick={copyLink} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-200">
