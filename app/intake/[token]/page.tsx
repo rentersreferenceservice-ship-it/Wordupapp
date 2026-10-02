@@ -72,20 +72,20 @@ const REVIEWABLE_FIELDS: (keyof Answers)[] = [
   'allergies', 'foodAversions', 'emergencyName', 'emergencyPhone',
 ]
 
-function FieldInput({ label, value, onChange, placeholder, opt }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; opt?: boolean }) {
+function FieldInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label} {opt && <span className="text-gray-400 font-normal">(optional)</span>}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
     </div>
   )
 }
 
-function FieldArea({ label, value, onChange, placeholder, opt }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; opt?: boolean }) {
+function FieldArea({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label} {opt && <span className="text-gray-400 font-normal">(optional)</span>}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <textarea rows={3} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none" />
     </div>
@@ -206,72 +206,72 @@ export default function IntakeForm() {
 
         <Section title="About your child">
           <FieldInput label="Child's name" value={a.childName} onChange={v => set('childName', v)} />
-          <FieldInput label="Preferred name / nickname" value={a.nickname} onChange={v => set('nickname', v)} opt />
-          <FieldInput label="Date of birth" value={a.dob} onChange={v => set('dob', v)} placeholder="MM/DD/YYYY" opt />
+          <FieldInput label="Preferred name / nickname" value={a.nickname} onChange={v => set('nickname', v)} />
+          <FieldInput label="Date of birth" value={a.dob} onChange={v => set('dob', v)} placeholder="MM/DD/YYYY" />
         </Section>
 
         <Section title="Your information" sub="So we know who we're talking with.">
           <FieldInput label="Your name" value={a.guardianName} onChange={v => set('guardianName', v)} />
-          <FieldInput label="Relationship to your non-speaker" value={a.guardianRelationship} onChange={v => set('guardianRelationship', v)} opt />
-          <FieldInput label="Email" value={a.guardianEmail} onChange={v => set('guardianEmail', v)} opt />
-          <FieldInput label="Phone" value={a.guardianPhone} onChange={v => set('guardianPhone', v)} opt />
+          <FieldInput label="Relationship to your non-speaker" value={a.guardianRelationship} onChange={v => set('guardianRelationship', v)} />
+          <FieldInput label="Email" value={a.guardianEmail} onChange={v => set('guardianEmail', v)} />
+          <FieldInput label="Phone" value={a.guardianPhone} onChange={v => set('guardianPhone', v)} />
         </Section>
 
         <Section title="Family profile" sub="Who's at home, and how your non-speaker connects with them.">
-          <FieldInput label="Is there another parent or guardian involved? Name and relationship" value={a.otherGuardian} onChange={v => set('otherGuardian', v)} opt />
-          <FieldInput label="Siblings in the home" value={a.siblings} onChange={v => set('siblings', v)} placeholder="Names/ages" opt />
-          <FieldArea label="How does your non-speaker interact with siblings or others in the house?" value={a.familyDynamics} onChange={v => set('familyDynamics', v)} opt />
+          <FieldInput label="Is there another parent or guardian involved? Name and relationship" value={a.otherGuardian} onChange={v => set('otherGuardian', v)} />
+          <FieldInput label="Siblings in the home" value={a.siblings} onChange={v => set('siblings', v)} placeholder="Names/ages" />
+          <FieldArea label="How does your non-speaker interact with siblings or others in the house?" value={a.familyDynamics} onChange={v => set('familyDynamics', v)} />
         </Section>
 
         <Section title="Interests & what lights them up" sub="The best sessions are built around real interest, not just what's being worked on.">
-          <FieldArea label="What does your non-speaker love — topics, characters, activities, anything" value={a.interests} onChange={v => set('interests', v)} opt />
-          <FieldArea label="Something your non-speaker is good at or proud of" value={a.strengths} onChange={v => set('strengths', v)} opt />
+          <FieldArea label="What does your non-speaker love — topics, characters, activities, anything" value={a.interests} onChange={v => set('interests', v)} />
+          <FieldArea label="Something your non-speaker is good at or proud of" value={a.strengths} onChange={v => set('strengths', v)} />
         </Section>
 
         <Section title="Communication background">
-          <FieldArea label="How does your non-speaker communicate today?" value={a.communicationToday} onChange={v => set('communicationToday', v)} opt />
-          <FieldInput label="Diagnoses you'd like to share" value={a.diagnosis} onChange={v => set('diagnosis', v)} opt />
-          <FieldArea label="Prior speech therapy or AAC history" value={a.priorAacHistory} onChange={v => set('priorAacHistory', v)} opt />
-          <FieldInput label="How long have you been using Spelling to Communicate?" value={a.s2cDuration} onChange={v => set('s2cDuration', v)} opt />
-          <FieldInput label="How long have you been working with Word Up?" value={a.wordUpDuration} onChange={v => set('wordUpDuration', v)} opt />
-          <FieldInput label="Working with another practitioner? Name, if so" value={a.otherPractitioner} onChange={v => set('otherPractitioner', v)} opt />
-          <FieldInput label="CRPs currently supporting your non-speaker" value={a.crpsSupporting} onChange={v => set('crpsSupporting', v)} placeholder="List names, if any" opt />
+          <FieldArea label="How does your non-speaker communicate today?" value={a.communicationToday} onChange={v => set('communicationToday', v)} />
+          <FieldInput label="Diagnoses you'd like to share" value={a.diagnosis} onChange={v => set('diagnosis', v)} />
+          <FieldArea label="Prior speech therapy or AAC history" value={a.priorAacHistory} onChange={v => set('priorAacHistory', v)} />
+          <FieldInput label="How long have you been using Spelling to Communicate?" value={a.s2cDuration} onChange={v => set('s2cDuration', v)} />
+          <FieldInput label="How long have you been working with Word Up?" value={a.wordUpDuration} onChange={v => set('wordUpDuration', v)} />
+          <FieldInput label="Working with another practitioner? Name, if so" value={a.otherPractitioner} onChange={v => set('otherPractitioner', v)} />
+          <FieldInput label="CRPs currently supporting your non-speaker" value={a.crpsSupporting} onChange={v => set('crpsSupporting', v)} placeholder="List names, if any" />
         </Section>
 
         <Section title="School & educational setting">
-          <FieldInput label="Is your non-speaker currently in school? If so, what grade?" value={a.schoolStatus} onChange={v => set('schoolStatus', v)} opt />
-          <FieldArea label="Classroom setting — general education, special education, or a mix" value={a.classroomSetting} onChange={v => set('classroomSetting', v)} opt />
-          <FieldInput label="Does your non-speaker have a one-on-one aide or paraprofessional?" value={a.oneOnOne} onChange={v => set('oneOnOne', v)} opt />
-          <FieldArea label="Anything else about your non-speaker's school day that would help us" value={a.schoolNotes} onChange={v => set('schoolNotes', v)} opt />
+          <FieldInput label="Is your non-speaker currently in school? If so, what grade?" value={a.schoolStatus} onChange={v => set('schoolStatus', v)} />
+          <FieldArea label="Classroom setting — general education, special education, or a mix" value={a.classroomSetting} onChange={v => set('classroomSetting', v)} />
+          <FieldInput label="Does your non-speaker have a one-on-one aide or paraprofessional?" value={a.oneOnOne} onChange={v => set('oneOnOne', v)} />
+          <FieldArea label="Anything else about your non-speaker's school day that would help us" value={a.schoolNotes} onChange={v => set('schoolNotes', v)} />
         </Section>
 
         <Section title="Motor profile" sub="This helps us set up the letterboard to work with them, not against them.">
-          <FieldArea label="Fine motor — pointing accuracy, hand strength, grip" value={a.motorFine} onChange={v => set('motorFine', v)} opt />
-          <FieldArea label="Gross motor — how their body moves and settles" value={a.motorGross} onChange={v => set('motorGross', v)} opt />
-          <FieldArea label="Motor planning — starting, stopping, or sequencing a movement" value={a.motorPlanning} onChange={v => set('motorPlanning', v)} opt />
+          <FieldArea label="Fine motor — pointing accuracy, hand strength, grip" value={a.motorFine} onChange={v => set('motorFine', v)} />
+          <FieldArea label="Gross motor — how their body moves and settles" value={a.motorGross} onChange={v => set('motorGross', v)} />
+          <FieldArea label="Motor planning — starting, stopping, or sequencing a movement" value={a.motorPlanning} onChange={v => set('motorPlanning', v)} />
         </Section>
 
         <Section title="Sensory profile">
-          <FieldArea label="What does your non-speaker seek out?" value={a.sensorySeek} onChange={v => set('sensorySeek', v)} opt />
-          <FieldArea label="What does your non-speaker avoid or find distressing?" value={a.sensoryAvoid} onChange={v => set('sensoryAvoid', v)} opt />
-          <FieldArea label="Stimming / self-regulatory movements or sounds" value={a.stimming} onChange={v => set('stimming', v)} placeholder="e.g. hand-flapping, rocking, vocal sounds — all welcome here" opt />
-          <FieldArea label="Known triggers" value={a.sensoryTriggers} onChange={v => set('sensoryTriggers', v)} opt />
+          <FieldArea label="What does your non-speaker seek out?" value={a.sensorySeek} onChange={v => set('sensorySeek', v)} />
+          <FieldArea label="What does your non-speaker avoid or find distressing?" value={a.sensoryAvoid} onChange={v => set('sensoryAvoid', v)} />
+          <FieldArea label="Stimming / self-regulatory movements or sounds" value={a.stimming} onChange={v => set('stimming', v)} placeholder="e.g. hand-flapping, rocking, vocal sounds — all welcome here" />
+          <FieldArea label="Known triggers" value={a.sensoryTriggers} onChange={v => set('sensoryTriggers', v)} />
         </Section>
 
         <Section title="Regulation" sub="The most important section. This is what we'll actually use in session.">
-          <FieldArea label="Early signs your non-speaker is becoming dysregulated" value={a.regSigns} onChange={v => set('regSigns', v)} opt />
-          <FieldArea label="What actually helps your non-speaker regulate" value={a.regHelps} onChange={v => set('regHelps', v)} opt />
-          <FieldArea label="What to avoid when your non-speaker is dysregulated" value={a.regAvoid} onChange={v => set('regAvoid', v)} opt />
+          <FieldArea label="Early signs your non-speaker is becoming dysregulated" value={a.regSigns} onChange={v => set('regSigns', v)} />
+          <FieldArea label="What actually helps your non-speaker regulate" value={a.regHelps} onChange={v => set('regHelps', v)} />
+          <FieldArea label="What to avoid when your non-speaker is dysregulated" value={a.regAvoid} onChange={v => set('regAvoid', v)} />
         </Section>
 
         <Section title="Health & safety">
-          <FieldInput label="Allergies" value={a.allergies} onChange={v => set('allergies', v)} opt />
-          <FieldArea label="Food aversions or strong preferences" value={a.foodAversions} onChange={v => set('foodAversions', v)} opt />
+          <FieldInput label="Allergies" value={a.allergies} onChange={v => set('allergies', v)} />
+          <FieldArea label="Food aversions or strong preferences" value={a.foodAversions} onChange={v => set('foodAversions', v)} />
         </Section>
 
         <Section title="Emergency contact">
-          <FieldInput label="Name" value={a.emergencyName} onChange={v => set('emergencyName', v)} opt />
-          <FieldInput label="Phone" value={a.emergencyPhone} onChange={v => set('emergencyPhone', v)} opt />
+          <FieldInput label="Name" value={a.emergencyName} onChange={v => set('emergencyName', v)} />
+          <FieldInput label="Phone" value={a.emergencyPhone} onChange={v => set('emergencyPhone', v)} />
         </Section>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
