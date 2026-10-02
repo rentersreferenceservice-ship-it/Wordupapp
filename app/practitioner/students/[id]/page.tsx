@@ -15,6 +15,9 @@ import DeleteReportButton from './DeleteReportButton'
 import InvoicesCollapsible from './InvoicesCollapsible'
 import StudentDocumentsManager from './StudentDocumentsManager'
 import FormSubmissionsSection from './FormSubmissionsSection'
+import RequestUpdatedInfoButton from './RequestUpdatedInfoButton'
+import StudentProfileSection from './StudentProfileSection'
+import { getStudentProfile } from '@/lib/intakeStore'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +34,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   ])
   const lessons = [...practitionerLessons, ...publicLessons]
 
-  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs, formSubmissions] = await Promise.all([
+  const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs, formSubmissions, studentProfile] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),
     getStudentAccuracyHistory(id, userId),
     getSupabase()
@@ -44,6 +47,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     getSavedReports(id, userId),
     getStudentDocuments(id, userId).catch(() => []),
     getFormSubmissions(id, userId).catch(() => []),
+    getStudentProfile(id).catch(() => null),
   ])
   const invoices = invoicesResult.data ?? []
   const todayStr = new Date().toISOString().split('T')[0]
@@ -70,6 +74,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
           <p className="text-sm text-gray-500">{student.ageGroup}</p>
           {student.notes && <p className="text-sm text-gray-400 mt-1">{student.notes}</p>}
+          <div className="mt-2">
+            <RequestUpdatedInfoButton studentId={id} />
+          </div>
         </div>
         <div className="flex gap-2">
           <Link href={`/practitioner/students/${id}/edit`} className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
@@ -156,6 +163,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           </ul>
         )}
       </div>
+
+      {/* Client Profile (from intake) */}
+      <StudentProfileSection profile={studentProfile} />
 
       {/* CRP Management */}
       <CrpManager studentId={id} initialCrps={crps} />

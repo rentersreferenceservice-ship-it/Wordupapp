@@ -158,9 +158,17 @@ export default async function PractitionerDashboard() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">My Students</h2>
-            <Link href="/practitioner/students/new" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
-              + Add Student
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/practitioner/inquiries" className="text-xs text-gray-500 hover:underline">
+                Pending Inquiries &amp; Updates
+              </Link>
+              <Link href="/practitioner/inquiries/new" className="bg-white text-blue-700 border-2 border-blue-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
+                + New Inquiry
+              </Link>
+              <Link href="/practitioner/students/new" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+                + Add Student
+              </Link>
+            </div>
           </div>
           {students.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-6">No students yet. Add your first student to get started.</p>
