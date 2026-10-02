@@ -11,6 +11,9 @@ export default function RootNav() {
   if (pathname.startsWith('/join')) return null
   if (pathname.startsWith('/invoice')) return null
   if (pathname.startsWith('/lessons')) return null
+  if (pathname.startsWith('/books')) return null
+  if (pathname.startsWith('/intake')) return null
+  if (pathname.startsWith('/observe')) return null
   // Marketing pages use PublicNav instead
   if (pathname === '/') return null
   if (pathname.startsWith('/about')) return null
