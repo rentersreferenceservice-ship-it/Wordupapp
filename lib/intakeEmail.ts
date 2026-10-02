@@ -59,3 +59,54 @@ export async function sendIntakeRequestEmail(
   if (error) return { error: error.message }
   return { ok: true }
 }
+
+// Fired right after a public submission lands — this is what actually tells
+// the practitioner something needs their attention; nothing else does.
+export async function sendIntakeSubmittedNotification(
+  intakeRequestId: string,
+  practitionerId: string
+): Promise<{ ok: true } | { error: string }> {
+  const request = await getIntakeRequest(intakeRequestId, practitionerId)
+  if (!request) return { error: 'Not found' }
+
+  const clerk = await clerkClient()
+  const user = await clerk.users.getUser(practitionerId)
+  const practitionerEmail = user.emailAddresses[0]?.emailAddress ?? ''
+  if (!practitionerEmail) return { error: 'No practitioner email on file' }
+
+  let studentName: string | null = null
+  if (request.studentId) {
+    const { data: student } = await getSupabase().from('students').select('name').eq('id', request.studentId).single()
+    studentName = student?.name ?? null
+  }
+
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wordups2c.com'
+  const reviewLink = `${origin}/practitioner/inquiries/${intakeRequestId}`
+  const isUpdate = !!request.studentId
+
+  const html = `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1f2937;background:#f9fafb;padding:24px;border-radius:12px">
+  <div style="background:white;border-radius:10px;padding:28px;border:1px solid #e5e7eb">
+    <p style="font-size:14px;line-height:1.6;margin:0 0 16px 0">
+      ${isUpdate ? `An update was just submitted for ${studentName ?? 'a client'}.` : 'A new intake form was just submitted.'}
+    </p>
+    <p style="font-size:14px;line-height:1.6;margin:0 0 16px 0">Nothing has been added to your records yet — review and approve it first.</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="${reviewLink}" style="display:inline-block;background:#1e3a5f;color:white;text-decoration:none;font-weight:600;font-size:14px;padding:12px 28px;border-radius:8px">
+        Review submission
+      </a>
+    </div>
+  </div>
+</div>`
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const { error } = await resend.emails.send({
+    from: 'Word Up <noreply@worduplessongenerator.com>',
+    to: [practitionerEmail],
+    subject: isUpdate ? `Update submitted for ${studentName ?? 'a client'}` : 'New intake form submitted',
+    html,
+  })
+
+  if (error) return { error: error.message }
+  return { ok: true }
+}

@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
 import { getIntakeRequestByToken, submitIntakeResponse } from '@/lib/intakeStore'
+import { sendIntakeSubmittedNotification } from '@/lib/intakeEmail'
+import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,5 +20,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
   const result = await submitIntakeResponse(token, answers, fieldsNeedingReview)
   if ('error' in result) return Response.json({ error: result.error }, { status: 400 })
+
+  const { data: row } = await getSupabase().from('intake_requests').select('id, practitioner_id').eq('token', token).single()
+  if (row) {
+    await sendIntakeSubmittedNotification(row.id, row.practitioner_id).catch(() => {})
+  }
+
   return Response.json(result)
 }

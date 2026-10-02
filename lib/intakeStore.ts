@@ -309,3 +309,13 @@ export async function dismissIntakeRequest(id: string, practitionerId: string): 
   if (error) return { error: error.message }
   return { ok: true }
 }
+
+export async function deleteIntakeRequest(id: string, practitionerId: string): Promise<{ ok: true } | { error: string }> {
+  const { error } = await getSupabase()
+    .from('intake_requests')
+    .delete()
+    .eq('id', id)
+    .eq('practitioner_id', practitionerId)
+  if (error) return { error: error.message }
+  return { ok: true }
+}

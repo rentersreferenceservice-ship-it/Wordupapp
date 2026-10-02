@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getPendingIntakeRequests } from '@/lib/intakeStore'
 import { getSupabase } from '@/lib/supabase'
+import DeleteIntakeButton from './DeleteIntakeButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,9 +48,12 @@ export default async function InquiriesPage() {
                     {r.recipientEmail ? ` to ${r.recipientEmail}` : r.recipientPhone ? ` to ${r.recipientPhone}` : ''}
                   </p>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[r.status]}`}>
-                  {r.status}
-                </span>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[r.status]}`}>
+                    {r.status}
+                  </span>
+                  <DeleteIntakeButton id={r.id} />
+                </div>
               </Link>
             </li>
           ))}
