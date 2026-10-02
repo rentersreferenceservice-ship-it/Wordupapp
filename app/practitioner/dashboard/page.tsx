@@ -159,6 +159,9 @@ export default async function PractitionerDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">My Students</h2>
             <div className="flex items-center gap-3">
+              <Link href="/practitioner/books" className="text-xs text-gray-500 hover:underline">
+                My Books
+              </Link>
               <Link href="/practitioner/inquiries" className="text-xs text-gray-500 hover:underline">
                 Pending Intakes &amp; Updates
               </Link>
