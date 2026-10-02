@@ -117,7 +117,7 @@ export default async function ReviewInquiryPage({ params }: { params: Promise<{ 
 
     return (
       <main className="min-h-screen px-6 py-8 max-w-2xl mx-auto">
-        <Link href="/practitioner/inquiries" className="text-sm text-blue-600 hover:underline mb-4 block">← Pending Inquiries</Link>
+        <Link href="/practitioner/inquiries" className="text-sm text-blue-600 hover:underline mb-4 block">← Pending Intakes</Link>
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Review update — {student?.name ?? 'Student'}</h1>
         <p className="text-sm text-gray-500 mb-6">For anything that already had a value, choose which to keep. Blank fields get filled in automatically.</p>
         <ReviewExistingClient requestId={id} entries={entries} submittedValues={submittedProfile} />
@@ -127,8 +127,8 @@ export default async function ReviewInquiryPage({ params }: { params: Promise<{ 
 
   return (
     <main className="min-h-screen px-6 py-8 max-w-2xl mx-auto">
-      <Link href="/practitioner/inquiries" className="text-sm text-blue-600 hover:underline mb-4 block">← Pending Inquiries</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Review new inquiry</h1>
+      <Link href="/practitioner/inquiries" className="text-sm text-blue-600 hover:underline mb-4 block">← Pending Intakes</Link>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Review new intake</h1>
       <p className="text-sm text-gray-500 mb-6">Approving will create a new student record.</p>
       <ReviewNewInquiry
         requestId={id}

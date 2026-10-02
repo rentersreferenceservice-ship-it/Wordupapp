@@ -160,10 +160,10 @@ export default async function PractitionerDashboard() {
             <h2 className="text-lg font-semibold text-gray-900">My Students</h2>
             <div className="flex items-center gap-3">
               <Link href="/practitioner/inquiries" className="text-xs text-gray-500 hover:underline">
-                Pending Inquiries &amp; Updates
+                Pending Intakes &amp; Updates
               </Link>
               <Link href="/practitioner/inquiries/new" className="bg-white text-blue-700 border-2 border-blue-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
-                + New Inquiry
+                + New Intake
               </Link>
               <Link href="/practitioner/students/new" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
                 + Add Student

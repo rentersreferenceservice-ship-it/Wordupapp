@@ -28,7 +28,7 @@ export default async function InquiriesPage() {
   return (
     <main className="min-h-screen px-6 py-8 max-w-3xl mx-auto">
       <Link href="/practitioner/dashboard" className="text-sm text-blue-600 hover:underline mb-4 block">← Dashboard</Link>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Pending Inquiries &amp; Updates</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Pending Intakes &amp; Updates</h1>
 
       {requests.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-10">No intake requests yet.</p>
@@ -40,7 +40,7 @@ export default async function InquiriesPage() {
                 className={`flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white ${r.status === 'submitted' ? 'hover:bg-gray-50' : ''}`}>
                 <div>
                   <p className="font-medium text-gray-900">
-                    {r.studentId ? `Update — ${studentName(r.studentId) ?? 'Student'}` : 'New inquiry'}
+                    {r.studentId ? `Update — ${studentName(r.studentId) ?? 'Student'}` : 'New intake'}
                   </p>
                   <p className="text-xs text-gray-400">
                     Sent {new Date(r.sentAt).toLocaleDateString()} via {r.channel}

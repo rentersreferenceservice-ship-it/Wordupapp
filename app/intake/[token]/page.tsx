@@ -187,6 +187,11 @@ export default function IntakeForm() {
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="max-w-2xl mx-auto">
+        <div className="flex flex-col items-center mb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/word_up_clean.jpeg" alt="Word Up" className="h-16 w-auto rounded-xl shadow mb-2" />
+          <p className="text-xs font-semibold tracking-[0.3em] uppercase text-gray-400 mb-4">Spelling to Communicate</p>
+        </div>
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             {mode === 'existing' && studentName ? `Updating ${studentName}'s information` : 'Welcome — tell us about your non-speaker'}

@@ -24,7 +24,7 @@ export default function NewInquiryPage() {
         body: JSON.stringify({ channel, recipientEmail, recipientPhone, quotedFee }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Could not create the inquiry.'); setLoading(false); return }
+      if (!res.ok) { setError(data.error || 'Could not create the intake.'); setLoading(false); return }
       if (channel === 'email') {
         router.push('/practitioner/inquiries')
       } else {
@@ -60,7 +60,7 @@ export default function NewInquiryPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">New Inquiry</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-6">New Intake</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             <button type="button" onClick={() => setChannel('email')}
