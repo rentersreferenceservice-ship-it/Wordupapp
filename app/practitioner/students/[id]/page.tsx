@@ -75,7 +75,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           <p className="text-sm text-gray-500">{student.ageGroup}</p>
           {student.notes && <p className="text-sm text-gray-400 mt-1">{student.notes}</p>}
           <div className="mt-2">
-            <RequestUpdatedInfoButton studentId={id} />
+            <RequestUpdatedInfoButton studentId={id} guardianEmail={student.guardianEmail} funderEmail={student.funderEmail} />
           </div>
         </div>
         <div className="flex gap-2">
