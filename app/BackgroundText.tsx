@@ -8,6 +8,7 @@ export default function BackgroundText() {
   if (pathname.startsWith('/invoice')) return null
   if (pathname.startsWith('/submit')) return null
   if (pathname.startsWith('/observe')) return null
+  if (pathname.startsWith('/intake')) return null
   if (pathname.endsWith('/edit')) return null
   // Marketing pages — clean background
   if (pathname === '/') return null
