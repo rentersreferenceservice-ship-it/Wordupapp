@@ -17,7 +17,9 @@ export default clerkMiddleware(async (auth, req) => {
   if (isProtected(req)) {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.redirect(new URL('/practitioner/get-started', req.url))
+      const target = new URL('/practitioner/get-started', req.url)
+      target.searchParams.set('redirect_url', pathname)
+      return NextResponse.redirect(target)
     }
   }
 })

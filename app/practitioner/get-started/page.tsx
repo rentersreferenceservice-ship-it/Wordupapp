@@ -1,20 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { SignUpButton, SignInButton, useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function PractitionerAccessPage() {
+  return (
+    <Suspense>
+      <PractitionerAccessPageInner />
+    </Suspense>
+  )
+}
+
+function PractitionerAccessPageInner() {
   const { isSignedIn, isLoaded } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect_url') || '/practitioner/dashboard'
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', organization: '', role: '' })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (isSignedIn) router.replace('/practitioner/dashboard')
-  }, [isSignedIn, router])
+    if (isSignedIn) router.replace(redirectUrl)
+  }, [isSignedIn, router, redirectUrl])
 
   if (!isLoaded || isSignedIn) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: '#fdf9f4' }}>
@@ -81,14 +91,14 @@ export default function PractitionerAccessPage() {
       </div>
 
       {/* Primary CTA */}
-      <SignUpButton mode="modal" forceRedirectUrl="/practitioner/dashboard">
+      <SignUpButton mode="modal" forceRedirectUrl={redirectUrl}>
         <button className="w-full max-w-sm py-4 rounded-full font-bold text-base transition-all hover:opacity-90 shadow-lg mb-3"
           style={{ background: '#C9A435', color: '#2a1f17' }}>
           Start Free Trial
         </button>
       </SignUpButton>
 
-      <SignInButton mode="modal" forceRedirectUrl="/practitioner/dashboard">
+      <SignInButton mode="modal" forceRedirectUrl={redirectUrl}>
         <button className="w-full max-w-sm py-3.5 rounded-full font-semibold text-sm transition-all border-2 mb-8"
           style={{ borderColor: '#c4b49a', color: '#5a4a3a', background: 'white' }}>
           Already have an account? Sign in
