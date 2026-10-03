@@ -14,7 +14,6 @@ const AGE_GROUPS = [
 
 interface GeneratedPage {
   caption: string
-  imagePrompt: string
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -30,7 +29,7 @@ function CopyButton({ text }: { text: string }) {
   }
   return (
     <button onClick={handleCopy} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-200 shrink-0">
-      {copied ? '✓ Copied' : 'Copy prompt'}
+      {copied ? '✓ Copied' : 'Copy'}
     </button>
   )
 }
@@ -110,7 +109,7 @@ export default function GenerateBookPage() {
         <button onClick={() => setPages(null)} className="text-sm text-blue-600 hover:underline mb-4 block">← Start over</button>
         <h1 className="text-xl font-bold text-gray-900 mb-1">{title}</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Edit captions if you&apos;d like, then send each page straight to ChatGPT to make the picture (or copy the prompt yourself). When you&apos;re ready, create the book — you&apos;ll add each image afterward in the editor.
+          Edit captions if you&apos;d like, then send each page straight to ChatGPT to make the picture (or copy the line yourself). When you&apos;re ready, create the book — you&apos;ll add each image afterward in the editor.
         </p>
 
         <div className="space-y-3 mb-6">
@@ -123,18 +122,17 @@ export default function GenerateBookPage() {
                 rows={2}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none mb-3"
               />
-              <div className="flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
-                <p className="text-xs text-gray-600 flex-1">{page.imagePrompt}</p>
-                <CopyButton text={page.imagePrompt} />
+              <div className="flex items-center gap-2">
+                <CopyButton text={page.caption} />
+                <a
+                  href={`https://chatgpt.com/?q=${encodeURIComponent(page.caption)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
+                >
+                  Open in ChatGPT →
+                </a>
               </div>
-              <a
-                href={`https://chatgpt.com/?q=${encodeURIComponent(page.imagePrompt)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
-              >
-                Open in ChatGPT →
-              </a>
             </div>
           ))}
         </div>

@@ -30,6 +30,10 @@ export default function BookEditor({ book }: { book: Book }) {
   const [newCaption, setNewCaption] = useState('')
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [bulkFiles, setBulkFiles] = useState<File[]>([])
+  const [bulkPreviews, setBulkPreviews] = useState<string[]>([])
+  const [bulkAssignments, setBulkAssignments] = useState<number[]>([])
+  const [bulkUploading, setBulkUploading] = useState(false)
 
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/books/${book.id}` : ''
 
@@ -120,6 +124,39 @@ export default function BookEditor({ book }: { book: Book }) {
 
   function captionBlur(idx: number) {
     savePages(pages)
+  }
+
+  function handleBulkSelect(files: FileList) {
+    const fileArr = Array.from(files)
+    const emptyIndexes = pages.map((p, i) => (p.imageUrl ? -1 : i)).filter(i => i !== -1)
+    setBulkFiles(fileArr)
+    setBulkPreviews(fileArr.map(f => URL.createObjectURL(f)))
+    setBulkAssignments(fileArr.map((_, i) => (emptyIndexes[i] !== undefined ? emptyIndexes[i] : -1)))
+  }
+
+  function updateBulkAssignment(fileIdx: number, pageIdx: number) {
+    setBulkAssignments(prev => prev.map((v, i) => (i === fileIdx ? pageIdx : v)))
+  }
+
+  function cancelBulk() {
+    setBulkFiles([])
+    setBulkPreviews([])
+    setBulkAssignments([])
+  }
+
+  async function confirmBulkUpload() {
+    setBulkUploading(true)
+    setError('')
+    const next = [...pages]
+    for (let i = 0; i < bulkFiles.length; i++) {
+      const pageIdx = bulkAssignments[i]
+      if (pageIdx === -1) continue
+      const url = await uploadImage(bulkFiles[i])
+      if (url) next[pageIdx] = { ...next[pageIdx], imageUrl: url }
+    }
+    await savePages(next)
+    cancelBulk()
+    setBulkUploading(false)
   }
 
   async function handleDelete() {
@@ -224,6 +261,48 @@ export default function BookEditor({ book }: { book: Book }) {
       {/* Pages */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Pages</h2>
+
+        <div className="mb-6 bg-blue-50 border border-blue-100 rounded-xl p-4">
+          <p className="text-sm font-semibold text-gray-700 mb-2">Add Multiple Images at Once</p>
+          <p className="text-xs text-gray-500 mb-2">Pick all the images you saved from ChatGPT — they&apos;ll line up with empty pages automatically, and you can change any of them below.</p>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            onChange={e => { if (e.target.files && e.target.files.length) handleBulkSelect(e.target.files) }}
+            className="text-sm"
+          />
+          {bulkFiles.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {bulkFiles.map((file, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={bulkPreviews[i]} alt="" className="w-14 h-14 object-cover rounded-lg border border-gray-200 shrink-0" />
+                  <select
+                    value={bulkAssignments[i]}
+                    onChange={e => updateBulkAssignment(i, parseInt(e.target.value, 10))}
+                    className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white"
+                  >
+                    <option value={-1}>Skip this image</option>
+                    {pages.map((p, pIdx) => (
+                      <option key={pIdx} value={pIdx}>
+                        Page {pIdx + 1}{p.caption ? ` — ${p.caption.slice(0, 30)}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1">
+                <button onClick={confirmBulkUpload} disabled={bulkUploading} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                  {bulkUploading ? 'Uploading…' : `Upload ${bulkFiles.length} image${bulkFiles.length === 1 ? '' : 's'}`}
+                </button>
+                <button onClick={cancelBulk} disabled={bulkUploading} className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-200 disabled:opacity-50">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="space-y-3 mb-6">
           {pages.map((page, idx) => (
