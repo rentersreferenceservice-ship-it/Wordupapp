@@ -3,10 +3,20 @@
 import { useState } from 'react'
 import type { Book, BookPage, BookVisibility } from '@/lib/bookStore'
 
+const AGE_GROUPS = [
+  'Early Childhood (ages 4–5)',
+  'Young Children (ages 6–8)',
+  'Children (ages 9–11)',
+  'Tweens (ages 12–14)',
+  'Teens (ages 15–17)',
+  'Adults (18+)',
+]
+
 export default function BookEditor({ book }: { book: Book }) {
   const [title, setTitle] = useState(book.title)
   const [subtitle, setSubtitle] = useState(book.subtitle)
   const [author, setAuthor] = useState(book.author)
+  const [ageGroup, setAgeGroup] = useState(book.ageGroup)
   const [coverImageUrl, setCoverImageUrl] = useState(book.coverImageUrl)
   const [visibility, setVisibility] = useState<BookVisibility>(book.visibility)
   const [pages, setPages] = useState<BookPage[]>(book.pages)
@@ -44,7 +54,7 @@ export default function BookEditor({ book }: { book: Book }) {
       const res = await fetch(`/api/practitioner/books/${book.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, subtitle, author, coverImageUrl, visibility }),
+        body: JSON.stringify({ title, subtitle, author, coverImageUrl, ageGroup, visibility }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Failed to save'); return }
@@ -138,6 +148,13 @@ export default function BookEditor({ book }: { book: Book }) {
             <input value={author} onChange={e => setAuthor(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Age group</label>
+            <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+              <option value="">Not set</option>
+              {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Cover image</label>
             {coverImageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -191,8 +208,23 @@ export default function BookEditor({ book }: { book: Book }) {
         <div className="space-y-3 mb-6">
           {pages.map((page, idx) => (
             <div key={idx} className="flex gap-3 border border-gray-100 rounded-xl p-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={page.imageUrl} alt={`Page ${idx + 1}`} className="w-20 h-20 object-cover rounded-lg border border-gray-200 shrink-0" />
+              {page.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={page.imageUrl} alt={`Page ${idx + 1}`} className="w-20 h-20 object-cover rounded-lg border border-gray-200 shrink-0" />
+              ) : (
+                <div className="w-20 h-20 shrink-0 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+                  <label className="text-xs text-blue-600 text-center cursor-pointer px-1">
+                    Upload
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                      onChange={async e => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        const url = await uploadImage(f)
+                        if (url) await savePages(pages.map((p, i) => i === idx ? { ...p, imageUrl: url } : p))
+                      }} />
+                  </label>
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-gray-400 mb-1">Page {idx + 1}</p>
                 <textarea

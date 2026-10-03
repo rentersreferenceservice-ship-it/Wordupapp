@@ -14,6 +14,7 @@ export interface Book {
   subtitle: string
   author: string
   coverImageUrl: string | null
+  ageGroup: string
   pages: BookPage[]
   visibility: BookVisibility
   createdAt: string
@@ -28,6 +29,7 @@ function mapRow(d: Record<string, unknown>): Book {
     subtitle: (d.subtitle as string | null) ?? '',
     author: (d.author as string | null) ?? '',
     coverImageUrl: (d.cover_image_url as string | null) ?? null,
+    ageGroup: (d.age_group as string | null) ?? '',
     pages: (d.pages as BookPage[] | null) ?? [],
     visibility: d.visibility as BookVisibility,
     createdAt: d.created_at as string,
@@ -61,7 +63,7 @@ export async function getBook(id: string): Promise<Book | null> {
 
 export async function createBook(
   practitionerId: string,
-  fields: { title: string; subtitle?: string; author?: string; coverImageUrl?: string | null }
+  fields: { title: string; subtitle?: string; author?: string; coverImageUrl?: string | null; ageGroup?: string }
 ): Promise<Book> {
   const { data, error } = await getSupabase()
     .from('books')
@@ -71,6 +73,7 @@ export async function createBook(
       subtitle: fields.subtitle ?? null,
       author: fields.author ?? null,
       cover_image_url: fields.coverImageUrl ?? null,
+      age_group: fields.ageGroup ?? null,
     })
     .select()
     .single()
@@ -81,13 +84,14 @@ export async function createBook(
 export async function updateBook(
   id: string,
   practitionerId: string,
-  fields: Partial<{ title: string; subtitle: string; author: string; coverImageUrl: string | null; visibility: BookVisibility }>
+  fields: Partial<{ title: string; subtitle: string; author: string; coverImageUrl: string | null; ageGroup: string; visibility: BookVisibility }>
 ): Promise<{ ok: true } | { error: string }> {
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (fields.title !== undefined) update.title = fields.title
   if (fields.subtitle !== undefined) update.subtitle = fields.subtitle
   if (fields.author !== undefined) update.author = fields.author
   if (fields.coverImageUrl !== undefined) update.cover_image_url = fields.coverImageUrl
+  if (fields.ageGroup !== undefined) update.age_group = fields.ageGroup
   if (fields.visibility !== undefined) update.visibility = fields.visibility
 
   const { error } = await getSupabase()

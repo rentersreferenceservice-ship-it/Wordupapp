@@ -3,11 +3,21 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+const AGE_GROUPS = [
+  'Early Childhood (ages 4–5)',
+  'Young Children (ages 6–8)',
+  'Children (ages 9–11)',
+  'Tweens (ages 12–14)',
+  'Teens (ages 15–17)',
+  'Adults (18+)',
+]
+
 export default function NewBookPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
   const [author, setAuthor] = useState('')
+  const [ageGroup, setAgeGroup] = useState('')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -37,7 +47,7 @@ export default function NewBookPage() {
       const res = await fetch('/api/practitioner/books', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, subtitle, author, coverImageUrl }),
+        body: JSON.stringify({ title, subtitle, author, coverImageUrl, ageGroup }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Could not create the book.'); setLoading(false); return }
@@ -80,6 +90,13 @@ export default function NewBookPage() {
               onChange={e => setAuthor(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Age group <span className="text-gray-400 font-normal">(optional)</span></label>
+            <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-white">
+              <option value="">Not set</option>
+              {AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Cover image <span className="text-gray-400 font-normal">(optional, add later if you prefer)</span></label>

@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     subtitle: body.subtitle,
     author: body.author,
     coverImageUrl: body.coverImageUrl,
+    ageGroup: body.ageGroup,
   })
   return Response.json({ book })
 }

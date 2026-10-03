@@ -25,6 +25,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     subtitle: body.subtitle,
     author: body.author,
     coverImageUrl: body.coverImageUrl,
+    ageGroup: body.ageGroup,
     visibility: body.visibility,
   })
   if ('error' in result) return Response.json({ error: result.error }, { status: 500 })

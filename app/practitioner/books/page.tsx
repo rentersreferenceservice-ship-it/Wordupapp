@@ -18,9 +18,14 @@ export default async function BooksLibraryPage() {
           <Link href="/practitioner/dashboard" className="text-sm text-blue-600 hover:underline mb-1 block">← Dashboard</Link>
           <h1 className="text-2xl font-bold text-gray-900">My Books</h1>
         </div>
-        <Link href="/practitioner/books/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-          + New Book
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/practitioner/books/generate" className="bg-white text-blue-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+            ✨ Generate with AI
+          </Link>
+          <Link href="/practitioner/books/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            + New Book
+          </Link>
+        </div>
       </div>
 
       {books.length === 0 ? (
@@ -39,8 +44,9 @@ export default async function BooksLibraryPage() {
               </div>
               <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">{b.title}</p>
               <p className="text-xs text-gray-400">
-                {b.pages.length} page{b.pages.length === 1 ? '' : 's'} · {b.visibility === 'link' ? 'Shared by link' : 'Private'}
+                {b.pages.length} page{b.pages.length === 1 ? '' : 's'} · {b.visibility === 'link' ? 'Shared by link' : b.visibility === 'public' ? 'Public' : 'Private'}
               </p>
+              {b.ageGroup && <p className="text-xs text-blue-500 mt-0.5">{b.ageGroup}</p>}
             </Link>
           ))}
         </div>

@@ -28,6 +28,7 @@ export default async function PublicBookLibraryPage() {
                 </div>
                 <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">{b.title}</p>
                 {b.author && <p className="text-xs text-gray-400">by {b.author}</p>}
+                {b.ageGroup && <p className="text-xs text-blue-500">{b.ageGroup}</p>}
               </Link>
             ))}
           </div>
