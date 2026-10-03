@@ -19,7 +19,7 @@ function PageCard({ book, index }: { book: Book; index: number }) {
         <div className="text-gray-300 text-sm">No image</div>
       )}
 
-      {isCover && (
+      {isCover && !imageUrl && (
         <div className="text-center mt-4 px-6">
           <h1 className="text-gray-900 text-2xl font-bold">{book.title}</h1>
           {book.subtitle && <p className="text-gray-500 text-sm mt-1">{book.subtitle}</p>}
