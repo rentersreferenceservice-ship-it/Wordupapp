@@ -6,6 +6,8 @@ export const dynamic = 'force-dynamic'
 
 const SYSTEM_PROMPT = `You write simple, calming visual picture-book stories for nonspeaking and autistic students, in the exact style of "How Big Is Joey's World?" — one short, plain, concrete sentence per page, present tense, no plot complexity, just a clear sequence of single ideas (e.g. "This is Joey." "This is Joey's house." "This is where Joey lives on planet Earth, as seen from space."). Never use metaphor, sarcasm, or ambiguity. Adjust sentence length and vocabulary to the requested age group — shorter and more literal for younger children, a little more descriptive for teens/adults, but always plain and concrete, never flowery.
 
+If no main character is given, do not invent one — write directly about the topic itself (e.g. plain factual or sequential statements), still one plain concrete sentence per page.
+
 For each page you also write an "imagePrompt" — a ready-to-paste description for an AI image generator (like ChatGPT/DALL-E) to illustrate that exact page. Every imagePrompt must restate the character's appearance in full (using the character description provided) so each prompt works on its own, without needing the others for context, and should request a warm, simple, children's book illustration style (soft watercolor or gouache, not photorealistic).
 
 When given a genre or field of study (e.g. science, social story, life skills, history, friendship), keep every page's content and vocabulary grounded in that subject while still following the one-plain-sentence-per-page style above.
@@ -27,7 +29,10 @@ export async function POST(req: NextRequest) {
   const pageCount: number = Math.min(Math.max(parseInt(body.pageCount, 10) || 9, 3), 24)
 
   if (!topic) return Response.json({ error: 'A topic is required' }, { status: 400 })
-  if (!characterName) return Response.json({ error: "The main character's name is required" }, { status: 400 })
+
+  const characterLine = characterName
+    ? ` The main character is named ${characterName}. Character appearance: ${characterDescription || "(use your judgement for a simple, warm children's book character design)"}.`
+    : ' There is no specific main character — write directly about the topic.'
 
   const client = new Anthropic()
   const message = await client.messages.create({
@@ -36,7 +41,7 @@ export async function POST(req: NextRequest) {
     system: SYSTEM_PROMPT,
     messages: [{
       role: 'user',
-      content: `Write a ${pageCount}-page picture book about "${topic}", for a ${ageGroup} reader.${genre ? ` Genre / field of study: ${genre}.` : ''} The main character is named ${characterName}. Character appearance: ${characterDescription || '(use your judgement for a simple, warm children\'s book character design)'}.`,
+      content: `Write a ${pageCount}-page picture book about "${topic}", for a ${ageGroup} reader.${genre ? ` Genre / field of study: ${genre}.` : ''}${characterLine}`,
     }],
   })
 

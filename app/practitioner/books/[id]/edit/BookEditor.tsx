@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Book, BookPage, BookVisibility } from '@/lib/bookStore'
 
 const AGE_GROUPS = [
@@ -13,6 +14,8 @@ const AGE_GROUPS = [
 ]
 
 export default function BookEditor({ book }: { book: Book }) {
+  const router = useRouter()
+  const [deleting, setDeleting] = useState(false)
   const [title, setTitle] = useState(book.title)
   const [subtitle, setSubtitle] = useState(book.subtitle)
   const [author, setAuthor] = useState(book.author)
@@ -119,6 +122,18 @@ export default function BookEditor({ book }: { book: Book }) {
     savePages(pages)
   }
 
+  async function handleDelete() {
+    if (!confirm(`Delete "${book.title}"? This can't be undone.`)) return
+    setDeleting(true)
+    const res = await fetch(`/api/practitioner/books/${book.id}`, { method: 'DELETE' })
+    if (res.ok) {
+      router.push('/practitioner/books')
+    } else {
+      setError('Could not delete this book.')
+      setDeleting(false)
+    }
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(shareUrl)
@@ -195,9 +210,14 @@ export default function BookEditor({ book }: { book: Book }) {
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <button onClick={saveDetails} disabled={savingDetails} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            {savingDetails ? 'Saving…' : detailsSaved ? '✓ Saved' : 'Save Details'}
-          </button>
+          <div className="flex items-center justify-between">
+            <button onClick={saveDetails} disabled={savingDetails} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              {savingDetails ? 'Saving…' : detailsSaved ? '✓ Saved' : 'Save Details'}
+            </button>
+            <button onClick={handleDelete} disabled={deleting} className="text-red-500 text-sm font-medium hover:text-red-700 disabled:opacity-50">
+              {deleting ? 'Deleting…' : 'Delete Book'}
+            </button>
+          </div>
         </div>
       </div>
 

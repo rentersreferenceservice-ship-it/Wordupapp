@@ -53,7 +53,6 @@ export default function GenerateBookPage() {
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
     if (!topic.trim()) { setError('A topic is required.'); return }
-    if (!characterName.trim()) { setError("The main character's name is required."); return }
     setGenerating(true)
     setError('')
     try {
@@ -160,8 +159,8 @@ export default function GenerateBookPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Main character&apos;s name</label>
-            <input type="text" value={characterName} onChange={e => setCharacterName(e.target.value)} placeholder="Joey"
+            <label className="block text-sm font-medium text-gray-700 mb-1">Main character&apos;s name <span className="text-gray-400 font-normal">(optional)</span></label>
+            <input type="text" value={characterName} onChange={e => setCharacterName(e.target.value)} placeholder="Joey — leave blank if there's no main character"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
