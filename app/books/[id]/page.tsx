@@ -1,8 +1,19 @@
 import { auth } from '@clerk/nextjs/server'
+import type { Metadata } from 'next'
 import { getBook } from '@/lib/bookStore'
 import BookViewer from './BookViewer'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const book = await getBook(id)
+  if (!book?.coverImageUrl) return {}
+  return {
+    title: book.title,
+    icons: { icon: book.coverImageUrl, apple: book.coverImageUrl },
+  }
+}
 
 export default async function PublicBookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
