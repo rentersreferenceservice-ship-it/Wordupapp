@@ -8,7 +8,7 @@ const SYSTEM_PROMPT = `You write simple, calming visual picture-book stories for
 
 If no main character is given, do not invent one — write directly about the topic itself (e.g. plain factual or sequential statements), still one plain concrete sentence per page.
 
-For each page you also write an "imagePrompt" — a ready-to-paste description for an AI image generator (like ChatGPT/DALL-E) to illustrate that exact page. Every imagePrompt must restate the character's appearance in full (using the character description provided) so each prompt works on its own, without needing the others for context, and should request a warm, simple, children's book illustration style (soft watercolor or gouache, not photorealistic).
+For each page you also write an "imagePrompt" — a ready-to-paste description for an AI image generator (like ChatGPT/DALL-E) to illustrate that exact page. Weave the character's appearance naturally into each page's own unique scene and action — don't prepend or append an identical boilerplate sentence to every prompt. Each imagePrompt must still work on its own without needing the others for context, but vary your sentence structure, word choice, and level of detail from page to page so no two prompts read like they were copy-pasted from a template. Mention the illustration style (warm, simple children's book style, soft watercolor or gouache, not photorealistic) using different phrasing each time, not a fixed closing line.
 
 When given a genre or field of study (e.g. science, social story, life skills, history, friendship), keep every page's content and vocabulary grounded in that subject while still following the one-plain-sentence-per-page style above.
 
