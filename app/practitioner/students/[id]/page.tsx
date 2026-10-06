@@ -54,6 +54,10 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
 
+  const completedLessonIds = new Set(
+    sessions.filter(s => s.lessonId && completedIds.has(s.id)).map(s => s.lessonId as string)
+  )
+
   // Compute suggested board levels: scan sessions oldest→newest, carry last known
   const oldestFirst = [...sessions].reverse()
   let lastKnown: string | null = null
@@ -96,7 +100,7 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
         <h2 className="text-base font-semibold text-blue-900 mb-3">Start New Session</h2>
         <p className="text-sm text-blue-700 mb-4">Select a lesson from the library to run a live session with {student.name}.</p>
-        <StartSessionButton studentId={id} studentName={student.name} lessons={lessons} />
+        <StartSessionButton studentId={id} studentName={student.name} lessons={lessons} completedLessonIds={[...completedLessonIds]} />
       </div>
 
       {/* Accuracy trend — featured */}

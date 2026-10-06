@@ -33,27 +33,33 @@ function detectSubject(lesson: Lesson): string {
 const AGE_GROUPS = ['All Ages','Young Children (ages 6–8)','Children (ages 9–11)','Tweens (ages 12–14)','Teens (ages 15–17)','Adults (18+)']
 const SUBJECTS = ['All Subjects', ...Object.keys(SUBJECT_KEYWORDS), 'Other']
 
-export default function StartSessionButton({ studentId, studentName, lessons }: {
+export default function StartSessionButton({ studentId, studentName, lessons, completedLessonIds }: {
   studentId: string
   studentName: string
   lessons: Lesson[]
+  completedLessonIds: string[]
 }) {
   const router = useRouter()
+  const completedSet = useMemo(() => new Set(completedLessonIds), [completedLessonIds])
   const [selectedLesson, setSelectedLesson] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [ageFilter, setAgeFilter] = useState('All Ages')
   const [subjectFilter, setSubjectFilter] = useState('All Subjects')
+  const [showCompleted, setShowCompleted] = useState(false)
 
   const filtered = useMemo(() => {
     return lessons.filter(lesson => {
+      if (!showCompleted && completedSet.has(lesson.id)) return false
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
       const searchMatch = !search || lesson.title.toLowerCase().includes(search.toLowerCase()) || lesson.topic?.toLowerCase().includes(search.toLowerCase())
       return ageMatch && subjectMatch && searchMatch
     })
-  }, [lessons, ageFilter, subjectFilter, search])
+  }, [lessons, ageFilter, subjectFilter, search, showCompleted, completedSet])
+
+  const hiddenCompletedCount = lessons.filter(l => completedSet.has(l.id)).length
 
   async function handleStart() {
     if (!selectedLesson) return
@@ -101,18 +107,35 @@ export default function StartSessionButton({ studentId, studentName, lessons }: 
         {filtered.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-4">No lessons match.</p>
         ) : (
-          filtered.map(l => (
-            <button
-              key={l.id}
-              onClick={() => setSelectedLesson(l.id)}
-              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${selectedLesson === l.id ? 'bg-blue-600 text-white' : 'hover:bg-blue-50 text-gray-800'}`}
-            >
-              <span className="font-medium">{l.title}</span>
-              <span className={`ml-2 text-xs ${selectedLesson === l.id ? 'text-blue-200' : 'text-gray-400'}`}>{l.ageGroup} · {detectSubject(l)}</span>
-            </button>
-          ))
+          filtered.map(l => {
+            const done = completedSet.has(l.id)
+            return (
+              <button
+                key={l.id}
+                onClick={() => setSelectedLesson(l.id)}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${selectedLesson === l.id ? 'bg-blue-600 text-white' : 'hover:bg-blue-50 text-gray-800'}`}
+              >
+                <span className="font-medium">{l.title}</span>
+                <span className={`ml-2 text-xs ${selectedLesson === l.id ? 'text-blue-200' : 'text-gray-400'}`}>{l.ageGroup} · {detectSubject(l)}</span>
+                {done && (
+                  <span className={`ml-2 text-xs font-semibold ${selectedLesson === l.id ? 'text-yellow-200' : 'text-amber-600'}`}>✓ Already done</span>
+                )}
+              </button>
+            )
+          })
         )}
       </div>
+
+      {hiddenCompletedCount > 0 && (
+        <p className="text-xs text-gray-500">
+          {showCompleted
+            ? `Showing ${hiddenCompletedCount} lesson${hiddenCompletedCount === 1 ? '' : 's'} already done with ${studentName}.`
+            : `${hiddenCompletedCount} lesson${hiddenCompletedCount === 1 ? '' : 's'} already done with ${studentName} ${hiddenCompletedCount === 1 ? 'is' : 'are'} hidden.`}{' '}
+          <button type="button" onClick={() => setShowCompleted(s => !s)} className="text-blue-600 hover:underline font-medium">
+            {showCompleted ? 'Hide them' : 'Show them anyway'}
+          </button>
+        </p>
+      )}
 
       {/* Date + Start */}
       <div className="flex gap-3">
