@@ -83,6 +83,20 @@ export default function ReportClient({
   const [finFrequency, setFinFrequency] = useState(sc.finFrequency ?? '')
   const [finRate, setFinRate] = useState(sc.finRate ?? '')
   const [finTotal, setFinTotal] = useState(sc.finTotal ?? '')
+
+  function handleFrequencyChange(value: string) {
+    setFinFrequency(value)
+    const freq = parseFloat(value)
+    const rate = parseFloat(finRate)
+    if (!isNaN(freq) && !isNaN(rate)) setFinTotal(String(Math.round(freq * rate * 52)))
+  }
+
+  function handleRateChange(value: string) {
+    setFinRate(value)
+    const freq = parseFloat(finFrequency)
+    const rate = parseFloat(value)
+    if (!isNaN(freq) && !isNaN(rate)) setFinTotal(String(Math.round(freq * rate * 52)))
+  }
   const [statAvg, setStatAvg] = useState(sc.statAvg ?? '')
   const [statProgress, setStatProgress] = useState(sc.statProgress ?? '')
   const [statBest, setStatBest] = useState(sc.statBest ?? '')
@@ -199,9 +213,9 @@ export default function ReportClient({
       setShow(prev => ({ ...prev, letters: rd.topMisspokedLetters.length > 0 }))
 
       setFinSessions(rd.financials.completedSessions.toString())
-      setFinRate('')
-      setFinFrequency('')
-      setFinTotal('')
+      setFinRate(rd.financials.sessionRate != null ? String(rd.financials.sessionRate) : '')
+      setFinFrequency('1')
+      setFinTotal(rd.financials.sessionRate != null ? String(Math.round(rd.financials.sessionRate * 52)) : '')
 
       if (data.observationsSummary) {
         setObservationsText(data.observationsSummary)
@@ -461,11 +475,12 @@ export default function ReportClient({
                 <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Session & Funding Summary</h2>
                 <button onClick={() => hide('financials')} className="no-print opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 text-lg leading-none transition-opacity">×</button>
               </div>
+              <p className="text-xs text-gray-400 mb-3 no-print">Projected Annual Total auto-fills from Sessions/Wk × Session Rate × 52 weeks — edit it directly if you need a different number.</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
                   { label: 'Sessions Completed', value: finSessions, set: setFinSessions, prefix: '', type: 'number' },
-                  { label: 'Sessions / Wk', value: finFrequency, set: setFinFrequency, prefix: '', type: 'number' },
-                  { label: 'Session Rate', value: finRate, set: setFinRate, prefix: '$', type: 'number' },
+                  { label: 'Sessions / Wk', value: finFrequency, set: handleFrequencyChange, prefix: '', type: 'number' },
+                  { label: 'Session Rate', value: finRate, set: handleRateChange, prefix: '$', type: 'number' },
                   { label: 'Projected Annual Total', value: finTotal, set: setFinTotal, prefix: '$', type: 'number' },
                 ].map(f => (
                   <div key={f.label} className="bg-gray-50 rounded-xl p-3 text-center">
