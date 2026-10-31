@@ -16,6 +16,7 @@ import InvoicesCollapsible from './InvoicesCollapsible'
 import StudentDocumentsManager from './StudentDocumentsManager'
 import FormSubmissionsSection from './FormSubmissionsSection'
 import RequestUpdatedInfoButton from './RequestUpdatedInfoButton'
+import FamilyTypeToTalkButton from './FamilyTypeToTalkButton'
 import StudentProfileSection from './StudentProfileSection'
 import { getStudentProfile } from '@/lib/intakeStore'
 
@@ -78,8 +79,9 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
           <p className="text-sm text-gray-500">{student.ageGroup}</p>
           {student.notes && <p className="text-sm text-gray-400 mt-1">{student.notes}</p>}
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-4">
             <RequestUpdatedInfoButton studentId={id} guardianEmail={student.guardianEmail} funderEmail={student.funderEmail} />
+            <FamilyTypeToTalkButton studentId={id} />
           </div>
         </div>
         <div className="flex gap-2">

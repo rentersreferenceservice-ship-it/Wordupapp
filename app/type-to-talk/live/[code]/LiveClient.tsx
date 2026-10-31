@@ -15,7 +15,7 @@ interface HistoryEntry {
 }
 
 export default function LiveClient({ code }: { code: string }) {
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [question, setQuestion] = useState<LiveQuestion | null>(null)
   const [sessionEnded, setSessionEnded] = useState(false)
@@ -32,8 +32,8 @@ export default function LiveClient({ code }: { code: string }) {
       .then(res => res.json())
       .then(data => {
         if (cancelled) return
-        if (!data.sessionId) { setError('This code was not found. Ask your practitioner for a new one.'); return }
-        setSessionId(data.sessionId)
+        if (data.error) { setError('This code was not found. Ask your practitioner for a new one.'); return }
+        setReady(true)
       })
       .catch(() => { if (!cancelled) setError('Something went wrong connecting. Please try again.') })
     return () => { cancelled = true }
@@ -48,9 +48,9 @@ export default function LiveClient({ code }: { code: string }) {
   }
 
   useEffect(() => {
-    if (!sessionId) return
+    if (!ready) return
     const supabase = getSupabaseBrowserClient()
-    const channel = supabase.channel(`tt:${sessionId}`, { config: { broadcast: { self: false } } })
+    const channel = supabase.channel(`tt:${code}`, { config: { broadcast: { self: false } } })
     channelRef.current = channel
 
     channel
@@ -82,7 +82,7 @@ export default function LiveClient({ code }: { code: string }) {
       supabase.removeChannel(channel)
       channelRef.current = null
     }
-  }, [sessionId, reconnectAttempt])
+  }, [code, ready, reconnectAttempt])
 
   function handleLiveChange(info: { combinedText: string; totalMisspokeCount: number }) {
     latestAnswerRef.current = info.combinedText
@@ -116,7 +116,7 @@ export default function LiveClient({ code }: { code: string }) {
     )
   }
 
-  if (!sessionId) {
+  if (!ready) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-gray-400">Connecting…</p>

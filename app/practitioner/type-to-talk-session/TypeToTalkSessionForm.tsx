@@ -188,7 +188,7 @@ export default function TypeToTalkSessionForm({ students }: { students: Student[
       generateQRDataUrlFromUrl(shareUrl).then(setTtQrDataUrl).catch(() => {})
 
       const supabase = getSupabaseBrowserClient()
-      const channel = supabase.channel(`tt:${sessionId}`, { config: { broadcast: { self: false } } })
+      const channel = supabase.channel(`tt:${data.code}`, { config: { broadcast: { self: false } } })
       channel
         .on('broadcast', { event: 'answer' }, (payload) => {
           const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
