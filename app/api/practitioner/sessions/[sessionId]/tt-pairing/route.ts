@@ -21,17 +21,22 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ ses
 
   const supabase = getSupabase()
 
-  const { data: session } = await supabase.from('sessions').select('practitioner_id').eq('id', sessionId).single()
+  const { data: session } = await supabase.from('sessions').select('practitioner_id, student_id').eq('id', sessionId).single()
   if (!session || session.practitioner_id !== userId) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const { data: existing } = await supabase.from('tt_session_pairings').select('code').eq('session_id', sessionId).single()
-  if (existing) return Response.json({ code: existing.code })
+  // One persistent code per student — reused across every session, so a family's
+  // saved link keeps working instead of going dead when that day's session ends.
+  const { data: existing } = await supabase.from('tt_session_pairings').select('code').eq('student_id', session.student_id).single()
+  if (existing) {
+    await supabase.from('tt_session_pairings').update({ session_id: sessionId }).eq('student_id', session.student_id)
+    return Response.json({ code: existing.code })
+  }
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateCode()
     const { data: created, error } = await supabase
       .from('tt_session_pairings')
-      .insert({ session_id: sessionId, code, practitioner_id: userId })
+      .insert({ session_id: sessionId, code, practitioner_id: userId, student_id: session.student_id })
       .select('code')
       .single()
     if (created) return Response.json({ code: created.code })
