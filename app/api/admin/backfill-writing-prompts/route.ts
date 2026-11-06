@@ -12,8 +12,9 @@ interface WritingPromptTiers {
   pro: string
 }
 
-// Generates the beginner + intermediate tiers only — pro is either the
-// existing writingPrompt (preserved as-is) or generated fresh if truly missing.
+// Generates all three tiers fresh. existingPro (if any) is used only as loose
+// thematic inspiration — it is no longer preserved verbatim, since Pro prompts
+// are also subject to the yes/no ban and the no-fact-recall rule.
 async function generateWritingPromptTiers(
   hunkText: string,
   ageGroup: string,
@@ -25,49 +26,41 @@ async function generateWritingPromptTiers(
     .filter(q => q.type !== 'VAKT' && q.type !== 'OPEN')
     .map(q => `"${q.question}" → ${q.answer}`)
     .join('\n')
-  const ageInstruction =
-    ageGroup.includes('6') || ageGroup.toLowerCase().includes('young')
-      ? 'Draw a picture and write one sentence about what you learned from this section.'
-      : ageGroup.includes('9') || ageGroup.includes('11') || ageGroup.toLowerCase().includes('children')
-      ? 'Write 2–3 sentences about what you learned. Tell one fact and what surprised you.'
-      : ageGroup.includes('12') || ageGroup.includes('14') || ageGroup.toLowerCase().includes('tween')
-      ? 'Write a short paragraph using two facts from this section and one personal connection.'
-      : ageGroup.includes('15') || ageGroup.includes('17') || ageGroup.toLowerCase().includes('teen')
-      ? 'Write a paragraph using details from this section and explain what this means to you personally.'
-      : 'Write a paragraph incorporating the key ideas from this section and reflect on why this topic matters to you.'
 
   const res = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 400,
+    max_tokens: 500,
     messages: [{
       role: 'user',
-      content: `You are writing two writing-prompt difficulty tiers for a letterboard lesson for ${ageGroup}.
+      content: `You are writing three writing-prompt difficulty tiers (beginner, intermediate, pro) for a letterboard lesson for ${ageGroup}.
 
 The hunk text is:
 """
 ${hunkText}
 """
-${existingPro ? `\nThe existing, more advanced "pro" prompt (for reference only, so you don't duplicate it — do not repeat it or match its length/complexity) is: "${existingPro}"\n` : ''}
-${alreadyTestedFacts ? `\nThis hunk's other questions already test these facts — NEVER ask the student to recall any of these in a writing prompt, at any tier:\n${alreadyTestedFacts}\n` : ''}
-Write two prompts, each specific to this hunk's content (not generic). Follow these rules strictly — no exceptions, no multi-part questions, no "write a paragraph" instructions, no quoting the text back at the student:
+${existingPro ? `\nFor loose thematic inspiration only (do not reuse its wording or structure) the previous prompt for this hunk was: "${existingPro}"\n` : ''}
+${alreadyTestedFacts ? `\nThis hunk's other questions already test these facts — NEVER ask the student to recall any of these, or anything else directly stated in the text, in ANY tier:\n${alreadyTestedFacts}\n` : ''}
+Every tier must ask for the student's own opinion, feeling, or preference — never something answerable by pointing back at the text. Follow these rules strictly, for all three tiers, no exceptions:
 
 ABSOLUTELY NO yes/no questions, ever. If a prompt could be fully answered with just "yes" or "no," it is wrong, even when a longer answer was "intended" — "Do you think X matters?" is still a yes/no question. Never start with Is/Are/Was/Were/Did/Does/Do/Has/Have/Can/Could/Will/Would/Should.
 - Bad: "Do you think modern leaders should keep symbolic roles?" → Good: "What's your take on modern leaders keeping symbolic roles?"
 - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
 
-1. BEGINNER — one extremely simple opinion or preference question, anchored to something concrete and specific in the hunk. NEVER a fact-recall question (never a date, name, number, or definition) — writing prompts are for self-expression, not fact recall, which is what the hunk's other questions are already for. Still answerable in a word or short phrase, but it must require the student's own reaction or choice.
+1. BEGINNER — one extremely simple opinion or preference question, anchored to something concrete and specific in the hunk. Still answerable in a word or short phrase, but it must require the student's own reaction or choice.
   - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
   - Example: "What's the coolest part of this to you?" NOT "What year did this happen?"
 
 2. INTERMEDIATE — exactly one short question, under 20 words, inviting a brief personal reaction or opinion. ONE sentence only — do not add a second sentence of setup or context, do not ask for two things at once. Use vocabulary appropriate for ${ageGroup}.
 
-Respond with ONLY valid JSON, no markdown, no explanation: {"beginner": "...", "intermediate": "..."}`,
+3. PRO — the fuller, open, reflective invitation to write freely. Do not tell the student how long to write or what structure to follow. Still an opinion/reflection prompt, never a request to summarize or restate the text.
+
+Respond with ONLY valid JSON, no markdown, no explanation: {"beginner": "...", "intermediate": "...", "pro": "..."}`,
     }],
   })
 
   const content = res.content[0]
   const raw = content.type === 'text' ? content.text.trim() : '{}'
-  let parsed: { beginner?: string; intermediate?: string } = {}
+  let parsed: { beginner?: string; intermediate?: string; pro?: string } = {}
   try {
     parsed = JSON.parse(raw)
   } catch {
@@ -76,9 +69,9 @@ Respond with ONLY valid JSON, no markdown, no explanation: {"beginner": "...", "
   }
 
   return {
-    beginner: parsed.beginner ?? 'What is one thing this section tells you?',
-    intermediate: parsed.intermediate ?? ageInstruction,
-    pro: existingPro ?? ageInstruction,
+    beginner: parsed.beginner ?? 'What is your favorite part of this section?',
+    intermediate: parsed.intermediate ?? 'What did you find interesting about this section?',
+    pro: parsed.pro ?? existingPro ?? 'What stands out to you about this section?',
   }
 }
 

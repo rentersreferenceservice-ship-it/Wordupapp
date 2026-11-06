@@ -197,7 +197,7 @@ WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
   - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
   - Bad: "Did the frog eat a fly?" → Good: "What did the frog eat?"
 
-- NEVER have a writing prompt, at any tier, simply re-ask a fact that's already one of this hunk's KNOWN/MATH/SEMI-OPEN/PRIOR KNOWLEDGE questions (e.g. don't ask "What year did X happen?" as a writing prompt if a question above it already asks that same date). Writing prompts exist for self-expression, not fact recall — that's what the regular questions are for.
+- NEVER have a writing prompt, at ANY tier including Pro, simply re-ask a fact that's already one of this hunk's KNOWN/MATH/SEMI-OPEN/PRIOR KNOWLEDGE questions, or that's otherwise directly stated in the hunk text (e.g. don't ask "What year did X happen?" as a writing prompt if the text or a question above it already states that date). Every tier must ask for the student's own opinion, feeling, or preference — something that cannot be found by simply pointing back at the text. Writing prompts exist for self-expression, not fact recall — that's what the regular questions are for.
 
 - BEGINNER: One extremely simple opinion or preference question, anchored to something concrete and specific in the hunk — NEVER a fact-recall question (never a date, name, number, or definition). Still answerable in a word or short phrase, but it must require the student's own reaction or choice, not a fact lookup. This is for a student who is brand new to writing responses at all.
   - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
@@ -206,7 +206,7 @@ WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
 - INTERMEDIATE: Exactly one sentence, under 20 words, inviting a brief personal reaction or opinion — answerable in a phrase or short sentence. Never add a second sentence of setup or context, never ask for two things at once, never quote the hunk text back at the student.
   - Example: "What did you find interesting about how frogs change as they grow?"
 
-- PRO: The fuller, open invitation to write freely and reflectively — this is the existing, more complex style. Do not tell the student how long to write, how many sentences to use, or what structure to follow. Tone by age group:
+- PRO: The fuller, open invitation to write freely and reflectively. Still subject to the yes/no ban and the no-fact-recall rule above — this is an opinion/reflection invitation, never a request to summarize or restate what the text already says. Do not tell the student how long to write, how many sentences to use, or what structure to follow. Tone by age group:
   - Young Children (ages 6–8): Warm, simple. "What do you think about ___?" or "Tell me one thing about ___."
   - Children (ages 9–11): Curious, friendly. "What was interesting to you about ___?" or "Write whatever comes to mind about ___."
   - Tweens (ages 12–14): Casual, no pressure. "What's your take on ___?" or "Share whatever you want about ___."
