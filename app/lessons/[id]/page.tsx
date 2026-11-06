@@ -11,6 +11,7 @@ import SuggestEditButton from './SuggestEditButton'
 import VerifyToggle from './VerifyToggle'
 import FactCheckButton from './FactCheckButton'
 import TranslateButton from './TranslateButton'
+import WritingPromptTabs from './WritingPromptTabs'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl, generateQRDataUrlFromUrl } from '@/lib/qrcode'
@@ -153,19 +154,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
                 ))}
               </div>
               {(firstHunk.writingPrompts || firstHunk.writingPrompt) && (
-                <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50 space-y-2">
-                  <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompts</p>
-                  {(['beginner', 'intermediate', 'pro'] as const).map(tier => {
-                    const text = firstHunk.writingPrompts?.[tier] ?? (tier === 'pro' ? firstHunk.writingPrompt : null)
-                    if (!text) return null
-                    return (
-                      <div key={tier}>
-                        <p className="text-[10px] font-semibold text-pink-400 uppercase tracking-wide">{tier}</p>
-                        <p className="text-sm text-pink-600">{text}</p>
-                      </div>
-                    )
-                  })}
-                </div>
+                <WritingPromptTabs writingPrompts={firstHunk.writingPrompts} legacyPrompt={firstHunk.writingPrompt} />
               )}
             </section>
           )}
@@ -302,19 +291,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
               })}
             </div>
             {(hunk.writingPrompts || hunk.writingPrompt) && (
-              <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50 space-y-2">
-                <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompts</p>
-                {(['beginner', 'intermediate', 'pro'] as const).map(tier => {
-                  const text = hunk.writingPrompts?.[tier] ?? (tier === 'pro' ? hunk.writingPrompt : null)
-                  if (!text) return null
-                  return (
-                    <div key={tier}>
-                      <p className="text-[10px] font-semibold text-pink-400 uppercase tracking-wide">{tier}</p>
-                      <p className="text-sm text-pink-600">{text}</p>
-                    </div>
-                  )
-                })}
-              </div>
+              <WritingPromptTabs writingPrompts={hunk.writingPrompts} legacyPrompt={hunk.writingPrompt} />
             )}
           </section>
         ))}
