@@ -42,9 +42,11 @@ ${existingPro ? `\nFor loose thematic inspiration only (do not reuse its wording
 ${alreadyTestedFacts ? `\nThis hunk's other questions already test these facts — NEVER ask the student to recall any of these, or anything else directly stated in the text, in ANY tier:\n${alreadyTestedFacts}\n` : ''}
 Every tier must ask for the student's own opinion, feeling, or preference — never something answerable by pointing back at the text. Follow these rules strictly, for all three tiers, no exceptions:
 
-ABSOLUTELY NO yes/no questions, ever. If a prompt could be fully answered with just "yes" or "no," it is wrong, even when a longer answer was "intended" — "Do you think X matters?" is still a yes/no question. Never start with Is/Are/Was/Were/Did/Does/Do/Has/Have/Can/Could/Will/Would/Should.
+ABSOLUTELY NO yes/no questions, ever. NEVER start with Is/Are/Was/Were/Did/Does/Do/Has/Have/Can/Could/Will/Would/Should — no exceptions, not even for a forced choice between two things. Rephrase as a "What" or "Which" question instead.
 - Bad: "Do you think modern leaders should keep symbolic roles?" → Good: "What's your take on modern leaders keeping symbolic roles?"
 - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
+- Bad: "Would you rather be a pirate captain or a crew member?" → Good: "Which would you rather be — a pirate captain or a crew member?"
+- Bad: "Would you want a fluffernutter or a different sandwich?" → Good: "Which sounds better to you — a fluffernutter or a different sandwich?"
 
 1. BEGINNER — one extremely simple opinion or preference question, anchored to something concrete and specific in the hunk. Still answerable in a word or short phrase, but it must require the student's own reaction or choice.
   - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
