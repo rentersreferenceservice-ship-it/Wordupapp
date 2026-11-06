@@ -42,10 +42,12 @@ The hunk text is:
 """
 ${hunkText}
 """
-${existingPro ? `\nThe existing, more advanced prompt (for reference only — do not repeat it) is: "${existingPro}"\n` : ''}
-Write two prompts, each specific to this hunk's content (not generic):
-1. BEGINNER — one extremely concrete, narrowly-answerable question about a single explicit fact in the hunk. Answerable in a word or short phrase, no interpretation or opinion required.
-2. INTERMEDIATE — one short, open-but-bounded question inviting a brief personal reaction, answerable in a phrase or short sentence. Roughly this framing as a guide: "${ageInstruction}"
+${existingPro ? `\nThe existing, more advanced "pro" prompt (for reference only, so you don't duplicate it — do not repeat it or match its length/complexity) is: "${existingPro}"\n` : ''}
+Write two prompts, each specific to this hunk's content (not generic). Follow these length rules strictly — no exceptions, no multi-part questions, no "write a paragraph" instructions, no quoting the text back at the student:
+
+1. BEGINNER — exactly one short question, under 12 words, about a single explicit fact stated in the hunk. Answerable in a word or short phrase. No interpretation, no opinion, no "why."
+
+2. INTERMEDIATE — exactly one short question, under 20 words, inviting a brief personal reaction or opinion. ONE sentence only — do not add a second sentence of setup or context, do not ask for two things at once. Use vocabulary appropriate for ${ageGroup}.
 
 Respond with ONLY valid JSON, no markdown, no explanation: {"beginner": "...", "intermediate": "..."}`,
     }],

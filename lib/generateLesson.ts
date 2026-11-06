@@ -197,7 +197,7 @@ WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
   - Example: "What color is the sky in this picture?" NOT "What do you think about the sky?"
   - Example: "What is the frog's favorite food?" NOT "How do you feel about what frogs eat?"
 
-- INTERMEDIATE: One short, open-but-bounded question inviting a brief personal reaction or thought tied to the hunk's content — answerable in a phrase or short sentence. More room than beginner, but still just one clear, bounded ask.
+- INTERMEDIATE: Exactly one sentence, under 20 words, inviting a brief personal reaction or opinion — answerable in a phrase or short sentence. Never add a second sentence of setup or context, never ask for two things at once, never quote the hunk text back at the student.
   - Example: "What did you find interesting about how frogs change as they grow?"
 
 - PRO: The fuller, open invitation to write freely and reflectively — this is the existing, more complex style. Do not tell the student how long to write, how many sentences to use, or what structure to follow. Tone by age group:
