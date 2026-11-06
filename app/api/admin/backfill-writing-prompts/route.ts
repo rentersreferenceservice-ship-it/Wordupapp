@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { getSupabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
-import type { Lesson } from '@/lib/types'
+import type { Lesson, Question } from '@/lib/types'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
@@ -18,8 +18,13 @@ async function generateWritingPromptTiers(
   hunkText: string,
   ageGroup: string,
   existingPro: string | null,
+  existingQuestions: Question[],
   client: Anthropic
 ): Promise<WritingPromptTiers> {
+  const alreadyTestedFacts = existingQuestions
+    .filter(q => q.type !== 'VAKT' && q.type !== 'OPEN')
+    .map(q => `"${q.question}" → ${q.answer}`)
+    .join('\n')
   const ageInstruction =
     ageGroup.includes('6') || ageGroup.toLowerCase().includes('young')
       ? 'Draw a picture and write one sentence about what you learned from this section.'
@@ -43,13 +48,16 @@ The hunk text is:
 ${hunkText}
 """
 ${existingPro ? `\nThe existing, more advanced "pro" prompt (for reference only, so you don't duplicate it — do not repeat it or match its length/complexity) is: "${existingPro}"\n` : ''}
+${alreadyTestedFacts ? `\nThis hunk's other questions already test these facts — NEVER ask the student to recall any of these in a writing prompt, at any tier:\n${alreadyTestedFacts}\n` : ''}
 Write two prompts, each specific to this hunk's content (not generic). Follow these rules strictly — no exceptions, no multi-part questions, no "write a paragraph" instructions, no quoting the text back at the student:
 
 ABSOLUTELY NO yes/no questions, ever. If a prompt could be fully answered with just "yes" or "no," it is wrong, even when a longer answer was "intended" — "Do you think X matters?" is still a yes/no question. Never start with Is/Are/Was/Were/Did/Does/Do/Has/Have/Can/Could/Will/Would/Should.
 - Bad: "Do you think modern leaders should keep symbolic roles?" → Good: "What's your take on modern leaders keeping symbolic roles?"
 - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
 
-1. BEGINNER — exactly one short question, under 12 words, about a single explicit fact stated in the hunk. Answerable in a word or short phrase. No interpretation, no opinion, no "why."
+1. BEGINNER — one extremely simple opinion or preference question, anchored to something concrete and specific in the hunk. NEVER a fact-recall question (never a date, name, number, or definition) — writing prompts are for self-expression, not fact recall, which is what the hunk's other questions are already for. Still answerable in a word or short phrase, but it must require the student's own reaction or choice.
+  - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
+  - Example: "What's the coolest part of this to you?" NOT "What year did this happen?"
 
 2. INTERMEDIATE — exactly one short question, under 20 words, inviting a brief personal reaction or opinion. ONE sentence only — do not add a second sentence of setup or context, do not ask for two things at once. Use vocabulary appropriate for ${ageGroup}.
 
@@ -111,7 +119,7 @@ export async function POST(req: NextRequest) {
         updatedHunks.push(hunk)
         continue
       }
-      const tiers = await generateWritingPromptTiers(hunk.text, lesson.age_group, hunk.writingPrompt ?? null, client)
+      const tiers = await generateWritingPromptTiers(hunk.text, lesson.age_group, hunk.writingPrompt ?? null, hunk.questions, client)
       hunksUpdated++
       changed = true
       updatedHunks.push({ ...hunk, writingPrompts: tiers })

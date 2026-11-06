@@ -197,9 +197,11 @@ WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
   - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
   - Bad: "Did the frog eat a fly?" → Good: "What did the frog eat?"
 
-- BEGINNER: One extremely concrete, narrowly-answerable question about a single explicit fact stated in the hunk. Answerable in a word or short phrase — no interpretation, opinion, or open-ended thinking required. This is for a student who is brand new to writing responses at all.
-  - Example: "What color is the sky in this picture?" NOT "What do you think about the sky?"
-  - Example: "What is the frog's favorite food?" NOT "How do you feel about what frogs eat?"
+- NEVER have a writing prompt, at any tier, simply re-ask a fact that's already one of this hunk's KNOWN/MATH/SEMI-OPEN/PRIOR KNOWLEDGE questions (e.g. don't ask "What year did X happen?" as a writing prompt if a question above it already asks that same date). Writing prompts exist for self-expression, not fact recall — that's what the regular questions are for.
+
+- BEGINNER: One extremely simple opinion or preference question, anchored to something concrete and specific in the hunk — NEVER a fact-recall question (never a date, name, number, or definition). Still answerable in a word or short phrase, but it must require the student's own reaction or choice, not a fact lookup. This is for a student who is brand new to writing responses at all.
+  - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
+  - Example: "What's the coolest part of this to you?" NOT "What color is the sky in this picture?"
 
 - INTERMEDIATE: Exactly one sentence, under 20 words, inviting a brief personal reaction or opinion — answerable in a phrase or short sentence. Never add a second sentence of setup or context, never ask for two things at once, never quote the hunk text back at the student.
   - Example: "What did you find interesting about how frogs change as they grow?"
