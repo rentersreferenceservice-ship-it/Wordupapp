@@ -247,6 +247,7 @@ export default function LessonHunkEditor({
                             <div className="shrink-0 text-center" style={{ maxWidth: 96 }}>
                               <a href={q.youtubeVideoId ? youtubeVideoUrl(q.youtubeVideoId) : youtubeSearchUrl(q.youtubeQuery ?? '')} target="_blank" rel="noopener noreferrer" title="Open this video">
                                 <img src={qrDataUrl} alt="YouTube QR — click to open the video" width={80} height={80} className="hover:opacity-80 transition-opacity" />
+                                <p className="text-[7pt] text-blue-500 font-semibold mt-0.5 leading-tight">▶ Click to play</p>
                               </a>
                               {q.youtubeDescription && <p className="text-[7pt] text-gray-600 mt-0.5 leading-tight">{q.youtubeDescription}</p>}
                             </div>
