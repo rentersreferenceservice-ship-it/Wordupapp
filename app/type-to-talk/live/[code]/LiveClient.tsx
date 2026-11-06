@@ -24,6 +24,7 @@ export default function LiveClient({ code }: { code: string }) {
   const [reconnectAttempt, setReconnectAttempt] = useState(0)
   const [connectQrDataUrl, setConnectQrDataUrl] = useState<string | null>(null)
   const [showConnectQr, setShowConnectQr] = useState(false)
+  const [deviceConnectedNotice, setDeviceConnectedNotice] = useState(false)
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowserClient>['channel']> | null>(null)
   const questionRef = useRef<LiveQuestion | null>(null)
   const latestAnswerRef = useRef('')
@@ -73,6 +74,10 @@ export default function LiveClient({ code }: { code: string }) {
       .on('broadcast', { event: 'session-end' }, () => {
         finishCurrentQuestion()
         setSessionEnded(true)
+      })
+      .on('broadcast', { event: 'device-connected' }, () => {
+        setDeviceConnectedNotice(true)
+        setTimeout(() => setDeviceConnectedNotice(false), 5000)
       })
       .subscribe((status) => {
         // Previously a dropped connection (network blip, tablet going idle,
@@ -161,14 +166,20 @@ export default function LiveClient({ code }: { code: string }) {
   if (!question) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <p className="text-gray-400 mb-6">Waiting for a question…</p>
+        {deviceConnectedNotice && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
+            ✓ A new device just connected
+          </div>
+        )}
+        <p className="text-gray-700 font-medium mb-1">Waiting for a question…</p>
+        <p className="text-gray-400 text-sm mb-6">Once someone connects and sends a question, it will appear here for you to answer.</p>
         {connectQrDataUrl && (
           <div className="inline-block bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-700 mb-3">Connect a helper&apos;s device</p>
+            <p className="text-sm font-semibold text-gray-700 mb-3">Not connected to anyone yet?</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={connectQrDataUrl} alt="QR code — scan with a CRP or family member's device to connect" width={160} height={160} className="mx-auto" />
-            <p className="text-xs text-gray-400 mt-3 max-w-[200px] mx-auto">
-              Have the CRP or a family member scan this with their phone or tablet to connect. The connection stays until they disconnect.
+            <p className="text-xs text-gray-400 mt-3 max-w-[220px] mx-auto">
+              Hand this screen to a CRP or family member and have them scan this code with their own phone or tablet&apos;s camera. Once they scan it, they can send you questions any time — you&apos;ll see a notice here each time a new device connects. The connection stays until they choose to disconnect.
             </p>
           </div>
         )}
@@ -181,6 +192,11 @@ export default function LiveClient({ code }: { code: string }) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      {deviceConnectedNotice && (
+        <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
+          ✓ A new device just connected
+        </div>
+      )}
       {connectionLost && (
         <div className="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
           Connection lost — reconnecting… your answer so far is still safe here.
