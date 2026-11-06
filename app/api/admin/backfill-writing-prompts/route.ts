@@ -48,6 +48,9 @@ ABSOLUTELY NO yes/no questions, ever. NEVER start with Is/Are/Was/Were/Did/Does/
 - Bad: "Would you rather be a pirate captain or a crew member?" → Good: "Which would you rather be — a pirate captain or a crew member?"
 - Bad: "Would you want a fluffernutter or a different sandwich?" → Good: "Which sounds better to you — a fluffernutter or a different sandwich?"
 
+If a prompt asks the student to pick from a finite, named set of options (e.g. naming several specific people/jobs/items from the hunk and asking which one they like), it must also ask "and why" — a bare one-word pick is never enough, at ANY tier including Beginner.
+- Bad: "Which job sounds most interesting to you — scientist, engineer, emergency manager, or power grid operator?" → Good: "Which job sounds most interesting to you — scientist, engineer, emergency manager, or power grid operator — and why?"
+
 1. BEGINNER — one extremely simple opinion or preference question, anchored to something concrete and specific in the hunk. Still answerable in a word or short phrase, but it must require the student's own reaction or choice.
   - Example: "Which animal in this section is your favorite?" NOT "What animal is mentioned in this section?"
   - Example: "What's the coolest part of this to you?" NOT "What year did this happen?"

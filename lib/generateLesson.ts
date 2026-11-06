@@ -199,6 +199,9 @@ WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
   - Bad: "Would you rather be a pirate captain or a crew member?" → Good: "Which would you rather be — a pirate captain or a crew member?"
   - Bad: "Would you want a fluffernutter or a different sandwich?" → Good: "Which sounds better to you — a fluffernutter or a different sandwich?"
 
+- If a prompt asks the student to pick from a finite, named set of options (e.g. naming several specific people/jobs/items from the hunk and asking which one they like), it must also ask "and why" — a bare one-word pick is never enough, at ANY tier including Beginner. This overrides the "no why" guidance for Beginner specifically in this one case.
+  - Bad: "Which job sounds most interesting to you — scientist, engineer, emergency manager, or power grid operator?" → Good: "Which job sounds most interesting to you — scientist, engineer, emergency manager, or power grid operator — and why?"
+
 - NEVER have a writing prompt, at ANY tier including Pro, simply re-ask a fact that's already one of this hunk's KNOWN/MATH/SEMI-OPEN/PRIOR KNOWLEDGE questions, or that's otherwise directly stated in the hunk text (e.g. don't ask "What year did X happen?" as a writing prompt if the text or a question above it already states that date). Every tier must ask for the student's own opinion, feeling, or preference — something that cannot be found by simply pointing back at the text. Writing prompts exist for self-expression, not fact recall — that's what the regular questions are for.
 
 - BEGINNER: One extremely simple opinion or preference question, anchored to something concrete and specific in the hunk — NEVER a fact-recall question (never a date, name, number, or definition). Still answerable in a word or short phrase, but it must require the student's own reaction or choice, not a fact lookup. This is for a student who is brand new to writing responses at all.
