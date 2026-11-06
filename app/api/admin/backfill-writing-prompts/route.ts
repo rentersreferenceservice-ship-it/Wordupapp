@@ -6,7 +6,20 @@ import type { Lesson } from '@/lib/types'
 
 const ADMIN_USER_ID = 'user_3CDvdqpvQ2gtVYzPEzJZuleRX9p'
 
-async function generateWritingPrompt(hunkText: string, ageGroup: string, client: Anthropic): Promise<string> {
+interface WritingPromptTiers {
+  beginner: string
+  intermediate: string
+  pro: string
+}
+
+// Generates the beginner + intermediate tiers only — pro is either the
+// existing writingPrompt (preserved as-is) or generated fresh if truly missing.
+async function generateWritingPromptTiers(
+  hunkText: string,
+  ageGroup: string,
+  existingPro: string | null,
+  client: Anthropic
+): Promise<WritingPromptTiers> {
   const ageInstruction =
     ageGroup.includes('6') || ageGroup.toLowerCase().includes('young')
       ? 'Draw a picture and write one sentence about what you learned from this section.'
@@ -20,24 +33,39 @@ async function generateWritingPrompt(hunkText: string, ageGroup: string, client:
 
   const res = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 150,
+    max_tokens: 400,
     messages: [{
       role: 'user',
-      content: `You are writing a short writing prompt for a letterboard lesson for ${ageGroup}.
+      content: `You are writing two writing-prompt difficulty tiers for a letterboard lesson for ${ageGroup}.
 
 The hunk text is:
 """
 ${hunkText}
 """
+${existingPro ? `\nThe existing, more advanced prompt (for reference only — do not repeat it) is: "${existingPro}"\n` : ''}
+Write two prompts, each specific to this hunk's content (not generic):
+1. BEGINNER — one extremely concrete, narrowly-answerable question about a single explicit fact in the hunk. Answerable in a word or short phrase, no interpretation or opinion required.
+2. INTERMEDIATE — one short, open-but-bounded question inviting a brief personal reaction, answerable in a phrase or short sentence. Roughly this framing as a guide: "${ageInstruction}"
 
-Write a 1–2 sentence writing prompt that invites the student to write a paragraph about the main concept in this hunk. The prompt must be specific to this hunk's content — not generic. Use this age-appropriate framing as a guide: "${ageInstruction}"
-
-Respond with ONLY the writing prompt text, no quotes, no explanation.`,
+Respond with ONLY valid JSON, no markdown, no explanation: {"beginner": "...", "intermediate": "..."}`,
     }],
   })
 
   const content = res.content[0]
-  return content.type === 'text' ? content.text.trim() : ageInstruction
+  const raw = content.type === 'text' ? content.text.trim() : '{}'
+  let parsed: { beginner?: string; intermediate?: string } = {}
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    const match = raw.match(/\{[\s\S]*\}/)
+    if (match) { try { parsed = JSON.parse(match[0]) } catch { /* fall through to defaults below */ } }
+  }
+
+  return {
+    beginner: parsed.beginner ?? 'What is one thing this section tells you?',
+    intermediate: parsed.intermediate ?? ageInstruction,
+    pro: existingPro ?? ageInstruction,
+  }
 }
 
 export const maxDuration = 300
@@ -73,14 +101,14 @@ export async function POST(req: NextRequest) {
     const updatedHunks: Lesson['hunks'] = []
 
     for (const hunk of hunks) {
-      if (hunk.writingPrompt) {
+      if (hunk.writingPrompts) {
         updatedHunks.push(hunk)
         continue
       }
-      const prompt = await generateWritingPrompt(hunk.text, lesson.age_group, client)
+      const tiers = await generateWritingPromptTiers(hunk.text, lesson.age_group, hunk.writingPrompt ?? null, client)
       hunksUpdated++
       changed = true
-      updatedHunks.push({ ...hunk, writingPrompt: prompt })
+      updatedHunks.push({ ...hunk, writingPrompts: tiers })
     }
 
     if (changed) {

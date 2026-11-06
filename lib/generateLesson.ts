@@ -189,18 +189,23 @@ OPEN:
 - Example: "If you could visit the Moon, what would you bring?" → STUDENT CHOICE
 - CRITICAL: STUDENT CHOICE is ONLY valid for OPEN questions. Never write STUDENT CHOICE as the answer for KNOWN, SEMI-OPEN, PRIOR KNOWLEDGE, MATH, or VAKT.
 
-WRITING PROMPT (required for every hunk):
-- After the questions, each hunk must include a WRITING PROMPT — a short, open invitation for the student to respond to this hunk's main concept in their own words.
-- Purpose: to invite expression. The prompt should open a door, not prescribe what's behind it. Do not tell the student how long to write, how many sentences to use, or what structure to follow.
-- The prompt must be specific to this hunk's content — not a generic "write about what you learned."
-- Tone by age group:
+WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
+- After the questions, each hunk must include a "writingPrompts" object with three tiers: beginner, intermediate, and pro. A brand-new student should never be handed a prompt meant for an advanced one — that's the entire point of the three tiers.
+- All three must be specific to this hunk's content — never a generic "write about what you learned." Keep each to 1 sentence. Never stack multiple requirements in one prompt. Vary the framing across hunks — don't reuse the same opening phrase twice within a lesson.
+
+- BEGINNER: One extremely concrete, narrowly-answerable question about a single explicit fact stated in the hunk. Answerable in a word or short phrase — no interpretation, opinion, or open-ended thinking required. This is for a student who is brand new to writing responses at all.
+  - Example: "What color is the sky in this picture?" NOT "What do you think about the sky?"
+  - Example: "What is the frog's favorite food?" NOT "How do you feel about what frogs eat?"
+
+- INTERMEDIATE: One short, open-but-bounded question inviting a brief personal reaction or thought tied to the hunk's content — answerable in a phrase or short sentence. More room than beginner, but still just one clear, bounded ask.
+  - Example: "What did you find interesting about how frogs change as they grow?"
+
+- PRO: The fuller, open invitation to write freely and reflectively — this is the existing, more complex style. Do not tell the student how long to write, how many sentences to use, or what structure to follow. Tone by age group:
   - Young Children (ages 6–8): Warm, simple. "What do you think about ___?" or "Tell me one thing about ___."
   - Children (ages 9–11): Curious, friendly. "What was interesting to you about ___?" or "Write whatever comes to mind about ___."
   - Tweens (ages 12–14): Casual, no pressure. "What's your take on ___?" or "Share whatever you want about ___."
   - Teens (ages 15–17): Simple and open — no format requirements, no sentence counts. "What does ___ make you think about?" or "Write anything that came to mind."
   - Adults (18+): Reflective but open. "What stands out to you about ___?" or "Write your thoughts on ___."
-- Keep the prompt to 1 sentence. Never stack multiple requirements.
-- Vary the framing across hunks — don't use the same opening phrase twice.
 
 ANSWER RULES:
 - ALL answers in ALL CAPS
@@ -227,7 +232,11 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
         { "type": "VAKT", "question": "sensory break prompt", "answer": "SENSORY RESPONSE / OPTIONS", "youtubeQuery": "2-4 word YouTube search", "youtubeDescription": "Watch a monarch butterfly migrate south" },
         ...
       ],
-      "writingPrompt": "A 1–2 sentence prompt inviting the student to write a paragraph about this hunk's main concept."
+      "writingPrompts": {
+        "beginner": "One very concrete, narrowly-answerable question about a single explicit fact in this hunk.",
+        "intermediate": "One short, open-but-bounded question inviting a brief personal reaction to this hunk.",
+        "pro": "The fuller, open invitation to write freely about this hunk's main concept, per the age-group tone rules."
+      }
     },
     ...
   ],
@@ -235,7 +244,7 @@ You must respond with valid JSON only — no markdown, no explanation. Use this 
   "hashtags": ["#TopicTag", "#AnotherTag"]
 }
 
-Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson. Every hunk must include a "writingPrompt" field.
+Include exactly 8 hunks. Include 3+ citations. Each hunk has exactly 6 questions in this order: KNOWN, KNOWN, KNOWN, SEMI-OPEN, SEMI-OPEN, then one of MATH/VAKT/OPEN/PRIOR KNOWLEDGE. Rotate the 6th type so all four appear across the lesson. Every hunk must include a "writingPrompts" object with all three tiers (beginner, intermediate, pro).
 For hashtags: include 4–6 relatable, topic-specific hashtags a teacher or therapist would use on social media (e.g. #ArtemisMission #SpaceExploration #NASAFacts #MoonLanding). Always include #WordUp and #LetterboardLessons.`
 
 function applyAnnotations(

@@ -433,6 +433,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [editingQKey, setEditingQKey] = useState<string | null>(null)
   const [editingWP, setEditingWP] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState('')
+  const [writingLevel, setWritingLevel] = useState<'beginner' | 'intermediate' | 'pro'>('intermediate')
 
   const hunk = lesson.hunks[currentHunk]
   const capture = captures[currentHunk]
@@ -586,14 +587,22 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   }
 
   async function patchCustomHunks(qEdits: typeof questionEdits, wpEdits: typeof writingPromptEdits) {
-    const customHunks = lesson.hunks.map((h, hi) => ({
-      ...h,
-      writingPrompt: hi in wpEdits ? wpEdits[hi] : h.writingPrompt,
-      questions: h.questions.map((q, qi) => ({
-        ...q,
-        question: qEdits[`${hi}-${qi}`] ?? q.question,
-      })),
-    }))
+    const customHunks = lesson.hunks.map((h, hi) => {
+      const override = hi in wpEdits ? wpEdits[hi] : undefined
+      return {
+        ...h,
+        writingPrompt: override ?? h.writingPrompt,
+        // Overwrite the specific tier being edited so it sticks on reload —
+        // otherwise the tier default would silently win over the edit next time.
+        writingPrompts: override !== undefined
+          ? { beginner: '', intermediate: '', pro: '', ...h.writingPrompts, [writingLevel]: override }
+          : h.writingPrompts,
+        questions: h.questions.map((q, qi) => ({
+          ...q,
+          question: qEdits[`${hi}-${qi}`] ?? q.question,
+        })),
+      }
+    })
     await fetch(`/api/practitioner/sessions/${sessionId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -625,7 +634,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   }
 
   function getEffectiveWritingPrompt(hunkIdx: number): string | undefined {
-    return hunkIdx in writingPromptEdits ? writingPromptEdits[hunkIdx] : lesson.hunks[hunkIdx]?.writingPrompt
+    if (hunkIdx in writingPromptEdits) return writingPromptEdits[hunkIdx]
+    const h = lesson.hunks[hunkIdx]
+    return h?.writingPrompts?.[writingLevel] ?? h?.writingPrompt
   }
 
   function updateWritingMisspokes(delta: number) {
@@ -1161,13 +1172,26 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           <div className="mb-5 mt-1 p-4 bg-pink-50 rounded-xl border border-pink-100">
             <div className="flex items-center justify-between mb-1">
               <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompt</p>
-              {!capture.writingSkipped && editingWP !== currentHunk && (
-                <button
-                  onClick={() => { setEditDraft(getEffectiveWritingPrompt(currentHunk) ?? ''); setEditingWP(currentHunk) }}
-                  className="text-gray-300 hover:text-pink-400 text-sm transition-colors"
-                  title="Edit writing prompt"
-                >✏</button>
-              )}
+              <div className="flex items-center gap-2">
+                <div className="flex rounded-lg border border-pink-200 overflow-hidden text-xs">
+                  {(['beginner', 'intermediate', 'pro'] as const).map(level => (
+                    <button
+                      key={level}
+                      onClick={() => setWritingLevel(level)}
+                      className={`px-2 py-1 capitalize transition-colors ${writingLevel === level ? 'bg-pink-500 text-white' : 'bg-white text-pink-500 hover:bg-pink-50'}`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+                {!capture.writingSkipped && editingWP !== currentHunk && (
+                  <button
+                    onClick={() => { setEditDraft(getEffectiveWritingPrompt(currentHunk) ?? ''); setEditingWP(currentHunk) }}
+                    className="text-gray-300 hover:text-pink-400 text-sm transition-colors"
+                    title="Edit writing prompt"
+                  >✏</button>
+                )}
+              </div>
             </div>
             {editingWP === currentHunk ? (
               <div className="space-y-1 mb-2">

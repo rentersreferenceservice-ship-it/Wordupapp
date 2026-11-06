@@ -15,7 +15,12 @@ export interface Hunk {
   number: number
   text: string
   questions: Question[]
-  writingPrompt?: string
+  writingPrompt?: string // legacy single-prompt field — kept as a fallback, superseded by writingPrompts
+  writingPrompts?: {
+    beginner: string
+    intermediate: string
+    pro: string
+  }
   imageUrl?: string
   imageAlt?: string
 }
