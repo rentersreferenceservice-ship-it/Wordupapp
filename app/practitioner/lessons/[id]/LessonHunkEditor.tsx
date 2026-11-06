@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Hunk, Lesson, QuestionType } from '@/lib/types'
+import { youtubeVideoUrl, youtubeSearchUrl } from '@/lib/qrcode'
 import type { Student } from '@/lib/practitionerStore'
 import StartSessionFromLesson from './StartSessionFromLesson'
 
@@ -244,7 +245,9 @@ export default function LessonHunkEditor({
                           </div>
                           {qrDataUrl && (
                             <div className="shrink-0 text-center" style={{ maxWidth: 96 }}>
-                              <img src={qrDataUrl} alt="YouTube QR" width={80} height={80} />
+                              <a href={q.youtubeVideoId ? youtubeVideoUrl(q.youtubeVideoId) : youtubeSearchUrl(q.youtubeQuery ?? '')} target="_blank" rel="noopener noreferrer" title="Open this video">
+                                <img src={qrDataUrl} alt="YouTube QR — click to open the video" width={80} height={80} className="hover:opacity-80 transition-opacity" />
+                              </a>
                               {q.youtubeDescription && <p className="text-[7pt] text-gray-600 mt-0.5 leading-tight">{q.youtubeDescription}</p>}
                             </div>
                           )}
