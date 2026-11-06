@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
+import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import TypeToTalkSurface from '@/app/components/TypeToTalkSurface'
 
 interface LiveQuestion {
@@ -21,10 +22,18 @@ export default function LiveClient({ code }: { code: string }) {
   const [sessionEnded, setSessionEnded] = useState(false)
   const [connectionLost, setConnectionLost] = useState(false)
   const [reconnectAttempt, setReconnectAttempt] = useState(0)
+  const [connectQrDataUrl, setConnectQrDataUrl] = useState<string | null>(null)
+  const [showConnectQr, setShowConnectQr] = useState(false)
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowserClient>['channel']> | null>(null)
   const questionRef = useRef<LiveQuestion | null>(null)
   const latestAnswerRef = useRef('')
   const historyRef = useRef<HistoryEntry[]>([])
+
+  useEffect(() => {
+    generateQRDataUrlFromUrl(`${window.location.origin}/type-to-talk/connect/${code}`)
+      .then(setConnectQrDataUrl)
+      .catch(() => {})
+  }, [code])
 
   useEffect(() => {
     let cancelled = false
@@ -152,7 +161,17 @@ export default function LiveClient({ code }: { code: string }) {
   if (!question) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <p className="text-gray-400">Waiting for a question…</p>
+        <p className="text-gray-400 mb-6">Waiting for a question…</p>
+        {connectQrDataUrl && (
+          <div className="inline-block bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+            <p className="text-sm font-semibold text-gray-700 mb-3">Connect a helper&apos;s device</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={connectQrDataUrl} alt="QR code — scan with a CRP or family member's device to connect" width={160} height={160} className="mx-auto" />
+            <p className="text-xs text-gray-400 mt-3 max-w-[200px] mx-auto">
+              Have the CRP or a family member scan this with their phone or tablet to connect. The connection stays until they disconnect.
+            </p>
+          </div>
+        )}
         {connectionLost && (
           <p className="text-amber-600 text-sm mt-3">Connection lost — reconnecting…</p>
         )}
@@ -173,6 +192,19 @@ export default function LiveClient({ code }: { code: string }) {
         onLiveChange={handleLiveChange}
         rows={10}
       />
+      {connectQrDataUrl && (
+        <div className="mt-4 text-center">
+          <button type="button" onClick={() => setShowConnectQr(v => !v)} className="text-xs text-gray-400 hover:text-gray-600 underline">
+            {showConnectQr ? 'Hide connect code' : 'Connect another device'}
+          </button>
+          {showConnectQr && (
+            <div className="inline-block bg-white border border-gray-200 rounded-2xl p-4 shadow-sm mt-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={connectQrDataUrl} alt="QR code — scan to connect" width={120} height={120} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import type { Hunk, Lesson, QuestionType } from '@/lib/types'
 import VaktVideoQR from '@/app/components/VaktVideoQR'
+import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
+import SendToTabletButton from '@/app/components/SendToTabletButton'
 import type { Student } from '@/lib/practitionerStore'
 import StartSessionFromLesson from './StartSessionFromLesson'
 
@@ -133,7 +135,7 @@ export default function LessonHunkEditor({
     (key.type === 'writing' || (editing as { qIdx: number }).qIdx === key.qIdx)
 
   return (
-    <>
+    <TabletConnectionProvider>
       {hasEdits && (
         <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 text-sm text-yellow-800 print:hidden">
           You have edited questions — these changes will be saved to the student record when you start a session.
@@ -255,6 +257,7 @@ export default function LessonHunkEditor({
                               />
                             </div>
                           )}
+                          <SendToTabletButton questionText={q.question} />
                         </div>
                         <button
                           onClick={() => startEdit(key)}
@@ -324,6 +327,6 @@ export default function LessonHunkEditor({
           </section>
         )
       })}
-    </>
+    </TabletConnectionProvider>
   )
 }
