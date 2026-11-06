@@ -43,6 +43,11 @@ export default function LessonHunkEditor({
   const [hunks, setHunks] = useState<Hunk[]>(initialHunks)
   const [editing, setEditing] = useState<EditingKey | null>(null)
   const [draft, setDraft] = useState('')
+  const [writingLevel, setWritingLevel] = useState<'beginner' | 'intermediate' | 'pro'>('intermediate')
+
+  function getWritingPromptText(hunk: Hunk): string {
+    return hunk.writingPrompts?.[writingLevel] ?? hunk.writingPrompt ?? ''
+  }
   const hasEdits = JSON.stringify(hunks) !== JSON.stringify(initialHunks)
 
   // Admin-only: hunk body text editing
@@ -85,7 +90,7 @@ export default function LessonHunkEditor({
     if (key.type === 'question') {
       setDraft(hunks[key.hunkIdx].questions[key.qIdx].question)
     } else {
-      setDraft(hunks[key.hunkIdx].writingPrompt ?? '')
+      setDraft(getWritingPromptText(hunks[key.hunkIdx]))
     }
     setEditing(key)
   }
@@ -100,7 +105,13 @@ export default function LessonHunkEditor({
           question: draft,
         }
       } else {
-        next[editing.hunkIdx] = { ...next[editing.hunkIdx], writingPrompt: draft }
+        const h = next[editing.hunkIdx]
+        next[editing.hunkIdx] = {
+          ...h,
+          writingPrompt: draft,
+          // Overwrite the specific tier being edited so it sticks for this session.
+          writingPrompts: { beginner: '', intermediate: '', pro: '', ...h.writingPrompts, [writingLevel]: draft },
+        }
       }
       return next
     })
@@ -256,19 +267,32 @@ export default function LessonHunkEditor({
             {(() => {
               const key: EditingKey = { type: 'writing', hunkIdx }
               const isActive = isEditingKey(key)
-              return hunk.writingPrompt || isActive ? (
+              return hunk.writingPrompt || hunk.writingPrompts || isActive ? (
                 <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50 group">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompt</p>
-                    {!isActive && (
-                      <button
-                        onClick={() => startEdit(key)}
-                        title="Edit writing prompt"
-                        className="print:hidden opacity-0 group-hover:opacity-100 text-gray-300 hover:text-blue-500 transition-opacity text-sm"
-                      >
-                        ✏
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 print:hidden">
+                      <div className="flex rounded-lg border border-pink-200 overflow-hidden text-[10px]">
+                        {(['beginner', 'intermediate', 'pro'] as const).map(level => (
+                          <button
+                            key={level}
+                            onClick={() => setWritingLevel(level)}
+                            className={`px-1.5 py-0.5 capitalize transition-colors ${writingLevel === level ? 'bg-pink-500 text-white' : 'bg-white text-pink-500 hover:bg-pink-50'}`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                      {!isActive && (
+                        <button
+                          onClick={() => startEdit(key)}
+                          title="Edit writing prompt"
+                          className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-blue-500 transition-opacity text-sm"
+                        >
+                          ✏
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {isActive ? (
                     <div className="space-y-1">
@@ -285,7 +309,7 @@ export default function LessonHunkEditor({
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-pink-600">{hunk.writingPrompt}</p>
+                    <p className="text-sm text-pink-600">{getWritingPromptText(hunk)}</p>
                   )}
                 </div>
               ) : null

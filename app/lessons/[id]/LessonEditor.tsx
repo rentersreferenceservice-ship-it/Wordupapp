@@ -28,10 +28,16 @@ export default function LessonEditor({ lesson: original }: { lesson: Lesson }) {
     })
   }
 
-  function updateWritingPrompt(hunkIdx: number, text: string) {
+  function updateWritingPromptTier(hunkIdx: number, tier: 'beginner' | 'intermediate' | 'pro', text: string) {
     setLesson(l => {
       const hunks = [...l.hunks]
-      hunks[hunkIdx] = { ...hunks[hunkIdx], writingPrompt: text }
+      const existing = hunks[hunkIdx].writingPrompts ?? { beginner: '', intermediate: '', pro: hunks[hunkIdx].writingPrompt ?? '' }
+      const writingPrompts = { ...existing, [tier]: text }
+      hunks[hunkIdx] = {
+        ...hunks[hunkIdx],
+        writingPrompts,
+        writingPrompt: tier === 'pro' ? text : hunks[hunkIdx].writingPrompt,
+      }
       return { ...l, hunks }
     })
   }
@@ -211,19 +217,27 @@ export default function LessonEditor({ lesson: original }: { lesson: Lesson }) {
               )}
             </div>
 
-            {/* Writing Prompt */}
-            <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50">
-              <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide mb-1">Writing Prompt</p>
-              {editing ? (
-                <textarea
-                  value={hunk.writingPrompt ?? ''}
-                  onChange={e => updateWritingPrompt(hunkIdx, e.target.value)}
-                  rows={2}
-                  className="w-full border border-pink-200 rounded px-2 py-1 text-sm text-pink-700 focus:outline-none focus:ring-1 focus:ring-pink-400 bg-white resize-none"
-                />
-              ) : (
-                <p className="text-sm text-pink-600">{hunk.writingPrompt ?? ''}</p>
-              )}
+            {/* Writing Prompts — Beginner / Intermediate / Pro */}
+            <div className="mt-3 border border-pink-200 rounded-lg p-3 bg-pink-50 space-y-2">
+              <p className="text-xs font-semibold text-pink-500 uppercase tracking-wide">Writing Prompts</p>
+              {(['beginner', 'intermediate', 'pro'] as const).map(tier => {
+                const text = hunk.writingPrompts?.[tier] ?? (tier === 'pro' ? hunk.writingPrompt ?? '' : '')
+                return (
+                  <div key={tier}>
+                    <p className="text-[10px] font-semibold text-pink-400 uppercase tracking-wide">{tier}</p>
+                    {editing ? (
+                      <textarea
+                        value={text}
+                        onChange={e => updateWritingPromptTier(hunkIdx, tier, e.target.value)}
+                        rows={2}
+                        className="w-full border border-pink-200 rounded px-2 py-1 text-sm text-pink-700 focus:outline-none focus:ring-1 focus:ring-pink-400 bg-white resize-none"
+                      />
+                    ) : (
+                      <p className="text-sm text-pink-600">{text}</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </section>
         ))}
