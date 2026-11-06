@@ -192,6 +192,10 @@ OPEN:
 WRITING PROMPTS (required for every hunk — THREE difficulty tiers, not one):
 - After the questions, each hunk must include a "writingPrompts" object with three tiers: beginner, intermediate, and pro. A brand-new student should never be handed a prompt meant for an advanced one — that's the entire point of the three tiers.
 - All three must be specific to this hunk's content — never a generic "write about what you learned." Keep each to 1 sentence. Never stack multiple requirements in one prompt. Vary the framing across hunks — don't reuse the same opening phrase twice within a lesson.
+- ABSOLUTELY NO yes/no questions in ANY tier, ever — this is non-negotiable, same rule as the KNOWN/SEMI-OPEN questions above. If a prompt could be fully answered with just "yes" or "no," it is wrong. This applies even when a longer answer was "intended" — "Do you think X matters?" is still a yes/no question. Never start a prompt with Is/Are/Was/Were/Did/Does/Do/Has/Have/Can/Could/Will/Would/Should.
+  - Bad: "Do you think modern leaders should maintain symbolic roles?" → Good: "What's your take on modern leaders keeping symbolic roles?"
+  - Bad: "Would you want biogas made from cow poop to power your home?" → Good: "What would you think about having your home powered by cow-poop biogas?"
+  - Bad: "Did the frog eat a fly?" → Good: "What did the frog eat?"
 
 - BEGINNER: One extremely concrete, narrowly-answerable question about a single explicit fact stated in the hunk. Answerable in a word or short phrase — no interpretation, opinion, or open-ended thinking required. This is for a student who is brand new to writing responses at all.
   - Example: "What color is the sky in this picture?" NOT "What do you think about the sky?"
