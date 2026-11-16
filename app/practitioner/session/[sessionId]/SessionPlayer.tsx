@@ -276,7 +276,8 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       generateQRDataUrlFromUrl(shareUrl).then(setTtQrDataUrl).catch(() => {})
 
       const supabase = getSupabaseBrowserClient()
-      const channel = supabase.channel(`tt:${sessionId}`, { config: { broadcast: { self: false } } })
+      // Must match the channel the tablet listens on (LiveClient uses the code).
+      const channel = supabase.channel(`tt:${data.code}`, { config: { broadcast: { self: false } } })
       channel
         .on('broadcast', { event: 'answer' }, (payload) => {
           const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
@@ -899,14 +900,16 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                 </div>
               )}
               {ttQrDataUrl && (
-                <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/type-to-talk/live/${ttCode}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                // Not a link — tapping it here just opened the tablet's
+                // waiting screen on the practitioner's own device.
+                <div className="shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
-                </a>
+                  <img src={ttQrDataUrl} alt="QR code to connect a student tablet — scan with the tablet's camera, do not tap here" width={90} height={90} className="bg-white rounded-lg border border-gray-100" />
+                </div>
               )}
               <div className="flex-1 min-w-[200px]">
                 {ttCode && <p className="text-sm text-gray-700">Code: <span className="font-mono font-bold tracking-wider">{ttCode}</span></p>}
-                <p className="text-xs text-gray-400 mt-0.5">Scan or enter this code on the student&apos;s tablet, then use &quot;Send to TT&quot; on any question to send it there.</p>
+                <p className="text-xs text-gray-400 mt-0.5">Scan this with the student&apos;s tablet camera (don&apos;t tap it here), then use &quot;Send to TT&quot; on any question to send it there.</p>
               </div>
             </div>
           )}
