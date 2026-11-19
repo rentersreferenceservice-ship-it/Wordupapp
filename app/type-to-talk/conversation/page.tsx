@@ -4,7 +4,7 @@ import PublicFooter from '../../components/PublicFooter'
 import StartConversationButton from './StartConversationButton'
 
 export const metadata: Metadata = {
-  title: 'Speller Conversation — Type to Talk | Word Up',
+  title: 'Tablet to Tablet — Type to Talk | Word Up',
   description: 'Two spellers, two tablets — ask and answer each other back and forth, with every letter, word and sentence read aloud.',
 }
 
@@ -14,7 +14,7 @@ export default function ConversationStartPage() {
       <PublicNav />
       <main className="flex-1 px-4 py-10">
         <div className="max-w-md mx-auto bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Speller Conversation</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tablet to Tablet</h1>
           <p className="text-sm text-gray-600 leading-relaxed">
             Two spellers, each on their own tablet, take turns asking and answering each other — the whole conversation
             stays on both screens like a text thread, and every letter, word and sentence is read aloud as it&apos;s typed.

@@ -200,7 +200,7 @@ export default function ConversationClient({ code }: { code: string }) {
   if (!name) {
     return (
       <div className="max-w-md mx-auto px-4 py-16">
-        <h1 className="text-xl font-bold text-gray-900 mb-1 text-center">Speller Conversation</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-1 text-center">Tablet to Tablet</h1>
         <p className="text-sm text-gray-500 mb-6 text-center">What&apos;s your name? It shows next to everything you send.</p>
         <form onSubmit={handleJoin} className="space-y-3">
           <input
@@ -223,7 +223,7 @@ export default function ConversationClient({ code }: { code: string }) {
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Speller Conversation</h1>
+          <h1 className="text-lg font-bold text-gray-900">Tablet to Tablet</h1>
           <p className="text-sm text-gray-500">
             {others.length > 0
               ? <span className="text-green-700">✓ Connected with {others.join(', ')}</span>
