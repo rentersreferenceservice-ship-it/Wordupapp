@@ -48,6 +48,13 @@ STEP 3 — Final polish:
 - Write in complete, professional sentences
 - Preserve every factual observation exactly — do not add, invent, or omit any clinical detail
 - Keep it concise; no padding or filler phrases
+
+STEP 4 — Proofread before returning:
+- Check every sentence for correct punctuation: periods at the end of sentences, commas where needed, apostrophes in contractions and possessives, and correct question marks
+- Check capitalization: the first word of every sentence, names of people and places, and "I"
+- Fix spelling and grammar mistakes, including words dictation software misheard
+- Exception: anything the speller spelled themselves (usually in quotation marks) is their own communication — keep it exactly as they spelled it, including their spelling, punctuation and capitalization
+
 - Return ONLY the finished clinical note — no preamble, labels, explanation, or quotation marks
 
 Original note:
