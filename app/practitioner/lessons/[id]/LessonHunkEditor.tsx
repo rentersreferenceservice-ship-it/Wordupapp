@@ -319,7 +319,10 @@ export default function LessonHunkEditor({
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-pink-600">{getWritingPromptText(hunk)}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm text-pink-600">{getWritingPromptText(hunk)}</p>
+                      {getWritingPromptText(hunk) && <SendToTabletButton questionText={getWritingPromptText(hunk)} />}
+                    </div>
                   )}
                 </div>
               ) : null

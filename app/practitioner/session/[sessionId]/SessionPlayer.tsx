@@ -202,7 +202,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   const [ttQrDataUrl, setTtQrDataUrl] = useState<string | null>(null)
   const [ttConnecting, setTtConnecting] = useState(false)
   const [ttError, setTtError] = useState('')
-  type TtTargetField = 'capturedAnswer' | 'spellerSentence'
+  type TtTargetField = 'capturedAnswer' | 'spellerSentence' | 'writingResponse'
   const [activeTtQuestion, setActiveTtQuestionState] = useState<{ hunkIdx: number; questionIdx: number; sequence: number; targetField: TtTargetField } | null>(null)
   const ttChannelRef = useRef<RealtimeChannel | null>(null)
   const ttConnectingRef = useRef(false)
@@ -283,6 +283,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           const answer = payload.payload as { sequence: number; combinedText: string; totalMisspokeCount: number }
           const active = activeTtQuestionRef.current
           if (!active || active.sequence !== answer.sequence) return
+          if (active.targetField === 'writingResponse') {
+            setCaptures(prev => {
+              const next = [...prev]
+              next[active.hunkIdx] = { ...next[active.hunkIdx], writingResponse: answer.combinedText, writingMisspokes: answer.totalMisspokeCount }
+              return next
+            })
+            return
+          }
           if (active.targetField === 'spellerSentence') {
             setSpellerSentenceForHunk(active.hunkIdx, active.questionIdx, answer.combinedText)
           } else {
@@ -1187,6 +1195,19 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                     </button>
                   ))}
                 </div>
+                {!capture.writingSkipped && editingWP !== currentHunk && getEffectiveWritingPrompt(currentHunk) && (
+                  // questionIdx -1 marks the writing prompt (not one of the hunk's questions)
+                  <button
+                    onClick={() => handleSendToTt(currentHunk, -1, getEffectiveWritingPrompt(currentHunk) ?? '', 'writingResponse')}
+                    className={`text-xs px-2 py-0.5 rounded border shrink-0 transition-colors font-medium ${
+                      activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === -1
+                        ? 'text-purple-700 bg-purple-100 border-purple-300'
+                        : 'text-purple-600 border-purple-200 bg-white hover:bg-purple-50'
+                    }`}
+                  >
+                    {activeTtQuestion?.hunkIdx === currentHunk && activeTtQuestion?.questionIdx === -1 ? '✓ Sent to Speller’s Tablet' : 'Send to Speller’s Tablet'}
+                  </button>
+                )}
                 {!capture.writingSkipped && editingWP !== currentHunk && (
                   <button
                     onClick={() => { setEditDraft(getEffectiveWritingPrompt(currentHunk) ?? ''); setEditingWP(currentHunk) }}

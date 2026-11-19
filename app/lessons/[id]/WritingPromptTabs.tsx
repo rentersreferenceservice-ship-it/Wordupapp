@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import SendToTabletButton from '@/app/components/SendToTabletButton'
 
 export default function WritingPromptTabs({
   writingPrompts,
@@ -30,7 +31,10 @@ export default function WritingPromptTabs({
           </div>
         )}
       </div>
-      <p className="text-sm text-pink-600">{text}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm text-pink-600">{text}</p>
+        {text && <SendToTabletButton questionText={text} />}
+      </div>
     </div>
   )
 }
