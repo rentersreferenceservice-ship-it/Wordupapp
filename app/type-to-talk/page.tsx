@@ -67,6 +67,11 @@ export default async function TypeToTalkPage({ searchParams }: { searchParams: P
             </div>
           )}
 
+          <Link href="/type-to-talk/conversation" className="block bg-purple-50 border-2 border-purple-200 rounded-2xl p-5 hover:border-purple-400 transition-colors">
+            <p className="text-sm font-semibold text-purple-900">Speller Conversation →</p>
+            <p className="text-xs text-purple-700 mt-0.5">Two spellers, two tablets — ask and answer each other back and forth. Works in the same room or over Zoom.</p>
+          </Link>
+
           {/* Share */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-4 flex-wrap">
             {qrDataUrl && (
