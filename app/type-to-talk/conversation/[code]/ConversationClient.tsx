@@ -91,6 +91,9 @@ export default function ConversationClient({ code }: { code: string }) {
       config: { broadcast: { self: false }, presence: { key: deviceId } },
     })
     channelRef.current = channel
+    // Ignore the CLOSED status our own cleanup triggers, or it loops reconnecting forever.
+    let active = true
+    let retryScheduled = false
 
     channel
       .on('broadcast', { event: 'message' }, (payload) => {
@@ -125,16 +128,20 @@ export default function ConversationClient({ code }: { code: string }) {
         }
       })
       .subscribe((status) => {
+        if (!active) return
         if (status === 'SUBSCRIBED') {
           setConnectionLost(false)
           channel.track({ name })
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           setConnectionLost(true)
-          setTimeout(() => setReconnectAttempt(n => n + 1), 2000)
+          if (retryScheduled) return
+          retryScheduled = true
+          setTimeout(() => { if (active) setReconnectAttempt(n => n + 1) }, 2000)
         }
       })
 
     return () => {
+      active = false
       supabase.removeChannel(channel)
       channelRef.current = null
     }

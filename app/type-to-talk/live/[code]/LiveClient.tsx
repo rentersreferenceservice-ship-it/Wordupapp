@@ -62,6 +62,12 @@ export default function LiveClient({ code }: { code: string }) {
     const supabase = getSupabaseBrowserClient()
     const channel = supabase.channel(`tt:${code}`, { config: { broadcast: { self: false } } })
     channelRef.current = channel
+    // Removing this channel in cleanup fires its own CLOSED status. Without
+    // this flag that counted as "connection lost", scheduled another
+    // reconnect, and looped forever — the banner popping in and out every
+    // couple of seconds is what made the tablet screen flicker.
+    let active = true
+    let retryScheduled = false
 
     channel
       .on('broadcast', { event: 'question' }, (payload) => {
@@ -84,15 +90,19 @@ export default function LiveClient({ code }: { code: string }) {
         // etc.) just left this screen frozen forever with no indication —
         // this is almost certainly what "kicked the speller off" mid-session.
         // Now it shows what's happening and retries automatically.
+        if (!active) return
         if (status === 'SUBSCRIBED') {
           setConnectionLost(false)
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           setConnectionLost(true)
-          setTimeout(() => setReconnectAttempt(n => n + 1), 2000)
+          if (retryScheduled) return
+          retryScheduled = true
+          setTimeout(() => { if (active) setReconnectAttempt(n => n + 1) }, 2000)
         }
       })
 
     return () => {
+      active = false
       supabase.removeChannel(channel)
       channelRef.current = null
     }

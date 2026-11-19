@@ -39,3 +39,22 @@ export async function getOrCreatePairingForStudent(
 
   return { error: 'Failed to generate a unique code' }
 }
+
+// A code for a parent/family device with no practitioner account — lets the
+// public lesson library send questions to a speller's tablet. Not tied to a
+// student or session; practitioner_id is required by the table, so it's
+// marked 'public'.
+export async function createPublicPairing(): Promise<{ code: string } | { error: string }> {
+  const supabase = getSupabase()
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = generateCode()
+    const { data: created, error } = await supabase
+      .from('tt_session_pairings')
+      .insert({ code, practitioner_id: 'public' })
+      .select('code')
+      .single()
+    if (created) return { code: created.code }
+    if (error?.code !== '23505') return { error: error?.message ?? 'Failed to create pairing' }
+  }
+  return { error: 'Failed to generate a unique code' }
+}
