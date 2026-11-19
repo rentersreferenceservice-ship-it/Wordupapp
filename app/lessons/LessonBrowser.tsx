@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useUser, UserButton, useClerk } from '@clerk/nextjs'
 import type { Lesson } from '@/lib/types'
+import { lessonMatchesSearch } from '@/lib/lessonSearch'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
   Relationships: [
@@ -261,7 +262,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
-      const searchMatch = !search || lesson.title.toLowerCase().includes(search.toLowerCase()) || lesson.topic?.toLowerCase().includes(search.toLowerCase())
+      const searchMatch = lessonMatchesSearch(lesson, search, detectSubject(lesson))
       return ageMatch && subjectMatch && searchMatch
     })
   }, [lessons, ageFilter, subjectFilter, search])

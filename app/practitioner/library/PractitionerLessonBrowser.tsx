@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { Lesson } from '@/lib/types'
+import { lessonMatchesSearch } from '@/lib/lessonSearch'
 
 const SUBJECT_KEYWORDS: Record<string, string[]> = {
   Relationships: ['relationship','relationships','dating','romance','romantic','marriage','wedding','divorce','breakup','trust','boundaries','consent','intimacy','attraction','spouse','couple','boyfriend','girlfriend','crush','social connection','healthy relationship','communication skills'],
@@ -167,7 +168,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
-      const searchMatch = !search || lesson.title.toLowerCase().includes(search.toLowerCase()) || lesson.topic?.toLowerCase().includes(search.toLowerCase())
+      const searchMatch = lessonMatchesSearch(lesson, search, detectSubject(lesson))
       return ageMatch && subjectMatch && searchMatch
     })
   }, [lessons, ageFilter, subjectFilter, search])
