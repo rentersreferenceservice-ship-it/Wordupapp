@@ -168,7 +168,7 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
-      const searchMatch = lessonMatchesSearch(lesson, search, detectSubject(lesson))
+      const searchMatch = lessonMatchesSearch(lesson, search)
       return ageMatch && subjectMatch && searchMatch
     })
   }, [lessons, ageFilter, subjectFilter, search])

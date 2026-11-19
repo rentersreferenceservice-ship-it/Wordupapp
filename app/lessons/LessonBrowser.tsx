@@ -262,7 +262,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
     return lessons.filter(lesson => {
       const ageMatch = ageFilter === 'All Ages' || lesson.ageGroup === ageFilter
       const subjectMatch = subjectFilter === 'All Subjects' || detectSubject(lesson) === subjectFilter
-      const searchMatch = lessonMatchesSearch(lesson, search, detectSubject(lesson))
+      const searchMatch = lessonMatchesSearch(lesson, search)
       return ageMatch && subjectMatch && searchMatch
     })
   }, [lessons, ageFilter, subjectFilter, search])
