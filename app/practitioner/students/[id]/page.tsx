@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments, getFormSubmissions } from '@/lib/practitionerStore'
-import { listAllPractitionerLessons, listLessons } from '@/lib/lessonStore'
+import { listLessonSummaries } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
@@ -26,13 +26,15 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   const { userId } = await auth()
   if (!userId) redirect('/practitioner/get-started')
 
-  const [student, sessions, practitionerLessons, publicLessons] = await Promise.all([
+  const [student, sessions, allLessons] = await Promise.all([
     getStudent(id),
     getSessions(userId, id),
-    listAllPractitionerLessons(),
-    listLessons(),
+    listLessonSummaries(),
   ])
-  const lessons = [...practitionerLessons, ...publicLessons]
+  // Practitioner lessons first, then public — same order as before.
+  // (public ones with unverified first, matching listLessons).
+  const publicLessons = allLessons.filter(l => !l.practitionerId).sort((a, b) => Number(a.verified) - Number(b.verified))
+  const lessons = [...allLessons.filter(l => l.practitionerId), ...publicLessons]
 
   const [completedIds, accuracyHistory, invoicesResult, crps, savedReports, studentDocs, formSubmissions, studentProfile] = await Promise.all([
     getCompletedSessionIds(sessions.map(s => s.id)),

@@ -75,3 +75,14 @@ function dbRowToLesson(row: Record<string, unknown>): Lesson {
     verified: row.verified === true,
   }
 }
+
+// Titles/filters only — no lesson text. For pickers like "Start a session",
+// where loading every lesson's full hunks made the page ~10 MB and slow.
+export async function listLessonSummaries(): Promise<Lesson[]> {
+  const { data } = await getSupabase()
+    .from('lessons')
+    .select('id, topic, age_group, title, created_at, hashtags, practitioner_id, is_ai_generated, author, verified')
+    .order('created_at', { ascending: false })
+  if (!data) return []
+  return data.map(row => ({ ...dbRowToLesson({ ...row, hunks: [], citations: [] }) }))
+}
