@@ -12,11 +12,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The site is always light. A dark-mode override here used to turn text
+   near-white on devices set to dark mode while backgrounds stayed white —
+   making typed/dictated notes and pasted links invisible. */
+:root {
+  color-scheme: light;
+}
+
+input, textarea, select {
+  color: #111827;
 }
 
 body {

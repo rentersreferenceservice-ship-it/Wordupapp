@@ -53,7 +53,8 @@ STEP 4 — Proofread before returning:
 - Check every sentence for correct punctuation: periods at the end of sentences, commas where needed, apostrophes in contractions and possessives, and correct question marks
 - Check capitalization: the first word of every sentence, names of people and places, and "I"
 - Fix spelling and grammar mistakes, including words dictation software misheard
-- Exception: anything the speller spelled themselves (usually in quotation marks) is their own communication — keep it exactly as they spelled it, including their spelling, punctuation and capitalization
+- This includes the speller's quoted words: the note was dictated, so their capitalization and punctuation came from dictation software, not the speller — capitalize and punctuate quotes properly (e.g. "i like lava" → "I like lava.", "can we go outside" → "Can we go outside?")
+- But never change WHICH words the speller spelled inside a quote — keep their exact word choices
 
 - Return ONLY the finished clinical note — no preamble, labels, explanation, or quotation marks
 
