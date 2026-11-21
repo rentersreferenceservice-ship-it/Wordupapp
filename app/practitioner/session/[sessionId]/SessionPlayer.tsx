@@ -329,6 +329,45 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     })
   }
 
+  // Keep your place if the window closes or reloads mid-session. Answers
+  // used to be saved only when pressing Next, so anything on the current
+  // hunk was lost — and on reopening, the session jumped to the last hunk
+  // (every hunk has saved rows), not the one you were on.
+  const hunkStorageKey = `wordup-session-hunk-${sessionId}`
+  useEffect(() => {
+    try {
+      const saved = Number(localStorage.getItem(hunkStorageKey))
+      if (Number.isInteger(saved) && saved >= 0 && saved < lesson.hunks.length) setCurrentHunk(saved)
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hunkStorageKey])
+
+  useEffect(() => {
+    try { localStorage.setItem(hunkStorageKey, String(currentHunk)) } catch {}
+  }, [currentHunk, hunkStorageKey])
+
+  const autoSaveSkipFirstRef = useRef(true)
+  useEffect(() => {
+    if (autoSaveSkipFirstRef.current) { autoSaveSkipFirstRef.current = false; return }
+    const t = setTimeout(() => autoSave(), 4000)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [captures, sessionNotes, studentStates, sessionVideo, sessionInvoice])
+
+  // Last-chance save when the window is closed or the tablet switches away.
+  const autoSaveRef = useRef<() => void>(() => {})
+  autoSaveRef.current = () => autoSave(true)
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') autoSaveRef.current() }
+    const onPageHide = () => autoSaveRef.current()
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', onPageHide)
+    return () => {
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', onPageHide)
+    }
+  }, [])
+
   // Timer — persisted to localStorage against a wall-clock end time, so
   // an accidental screen-off/lock (or the tab getting reloaded) restores
   // the true remaining time instead of losing it or resetting to zero.
@@ -764,15 +803,22 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     ]
   }
 
-  function autoSave() {
+  // Set while Complete / Save & Exit is saving, so a background autosave
+  // (which never marks the session complete) can't land after and undo it.
+  const finishingRef = useRef(false)
+
+  function autoSave(keepalive = false) {
+    if (finishingRef.current) return
     fetch(`/api/practitioner/sessions/${sessionId}`, {
       method: 'POST',
+      keepalive, // lets the save finish even if the window is closing
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses: buildResponses(false) }),
     }).catch(() => {})
   }
 
   async function handleSaveAndExit() {
+    finishingRef.current = true
     setSaving(true)
     setSaveError('')
     try {
@@ -784,6 +830,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       if (!res.ok) {
         const data = await res.json()
         setSaveError(`Save failed: ${data.error ?? res.status}`)
+        finishingRef.current = false
         setSaving(false)
         return
       }
@@ -793,11 +840,13 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       router.push(`/practitioner/students/${studentId}`)
     } catch (e) {
       setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
+      finishingRef.current = false
       setSaving(false)
     }
   }
 
   async function handleComplete() {
+    finishingRef.current = true
     setSaving(true)
     setSaveError('')
     try {
@@ -810,15 +859,18 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       const data = await res.json()
       if (!res.ok) {
         setSaveError(`Save failed: ${data.error ?? res.status}`)
+        finishingRef.current = false
         setSaving(false)
         return
       }
       if (ttChannelRef.current) {
         ttChannelRef.current.send({ type: 'broadcast', event: 'session-end', payload: {} })
       }
+      try { localStorage.removeItem(hunkStorageKey) } catch {}
       router.push(`/practitioner/transcript/${sessionId}`)
     } catch (e) {
       setSaveError(`Error: ${e instanceof Error ? e.message : String(e)}`)
+      finishingRef.current = false
       setSaving(false)
     }
   }
