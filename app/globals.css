@@ -19,8 +19,11 @@
   color-scheme: light;
 }
 
-input, textarea, select {
-  color: #111827;
+/* In the base layer so Tailwind text-* classes on a field still win. */
+@layer base {
+  input, textarea, select {
+    color: #111827;
+  }
 }
 
 body {
