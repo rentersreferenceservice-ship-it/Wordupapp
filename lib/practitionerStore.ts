@@ -27,6 +27,7 @@ export interface Student {
   defaultMileageLabel: string
   altMileage: number | null
   altMileageLabel: string
+  homeMileage: number | null
   createdAt: string
 }
 
@@ -124,6 +125,7 @@ export async function getStudents(practitionerId: string): Promise<Student[]> {
     defaultMileageLabel: d.default_mileage_label ?? '',
     altMileage: d.alt_mileage ?? null,
     altMileageLabel: d.alt_mileage_label ?? '',
+    homeMileage: d.home_mileage ?? null,
     createdAt: d.created_at,
   }))
 }
@@ -145,6 +147,7 @@ export async function getStudent(id: string): Promise<Student | null> {
     defaultMileageLabel: data.default_mileage_label ?? '',
     altMileage: data.alt_mileage ?? null,
     altMileageLabel: data.alt_mileage_label ?? '',
+    homeMileage: data.home_mileage ?? null,
     createdAt: data.created_at,
   }
 }
@@ -171,6 +174,7 @@ export async function createStudent(practitionerId: string, name: string, ageGro
     defaultMileageLabel: data.default_mileage_label ?? '',
     altMileage: data.alt_mileage ?? null,
     altMileageLabel: data.alt_mileage_label ?? '',
+    homeMileage: data.home_mileage ?? null,
     createdAt: data.created_at,
   }
 }
@@ -192,12 +196,13 @@ export async function updateStudent(id: string, name: string, ageGroup: string, 
 // before sql/2026-11-21_alt_mileage.sql has been run.
 export async function updateStudentMileageOptions(
   id: string,
-  opts: { defaultMileageLabel: string; altMileage: number | null; altMileageLabel: string }
+  opts: { defaultMileageLabel: string; altMileage: number | null; altMileageLabel: string; homeMileage: number | null }
 ): Promise<string | null> {
   const { error } = await getSupabase().from('students').update({
     default_mileage_label: opts.defaultMileageLabel || null,
     alt_mileage: opts.altMileage,
     alt_mileage_label: opts.altMileageLabel || null,
+    home_mileage: opts.homeMileage,
   }).eq('id', id)
   return error ? error.message : null
 }

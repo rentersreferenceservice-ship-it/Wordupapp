@@ -41,14 +41,17 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
       .eq('student_id', invoice.student_id)
       .eq('is_paid', false)
       .neq('id', invoiceId),
-    supabase.from('mileage_log').select('miles').eq('invoice_id', invoiceId),
+    supabase.from('mileage_log').select('*').eq('invoice_id', invoiceId),
   ])
 
   const mileageOptions = [
     student?.default_mileage ? { miles: parseFloat(student.default_mileage), label: student.default_mileage_label ?? 'Regular trip' } : null,
     student?.alt_mileage ? { miles: parseFloat(student.alt_mileage), label: student.alt_mileage_label ?? 'Second trip' } : null,
   ].filter((o): o is { miles: number; label: string } => o !== null)
-  const currentMiles = (mileageRows ?? []).reduce((sum: number, r: { miles: string }) => sum + parseFloat(r.miles), 0)
+  type MileageRow = { miles: string; is_trip_home?: boolean }
+  const currentMiles = ((mileageRows ?? []) as MileageRow[]).filter(r => !r.is_trip_home).reduce((sum, r) => sum + parseFloat(r.miles), 0)
+  const homeAdded = ((mileageRows ?? []) as MileageRow[]).some(r => r.is_trip_home)
+  const homeMiles = student?.home_mileage ? parseFloat(student.home_mileage) : null
 
   const outstandingBalance = (unpaid ?? []).reduce((sum: number, inv: { amount: string; amount_paid: string }) => {
     return sum + Math.max(0, parseFloat(inv.amount) - parseFloat(inv.amount_paid ?? '0'))
@@ -74,8 +77,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
 
   return (
     <div className="min-h-screen bg-white px-4 py-8">
-      {mileageOptions.length > 0 && (
-        <InvoiceMileagePicker invoiceId={invoiceId} options={mileageOptions} currentMiles={currentMiles} />
+      {(mileageOptions.length > 0 || homeMiles) && (
+        <InvoiceMileagePicker invoiceId={invoiceId} options={mileageOptions} currentMiles={currentMiles} homeMiles={homeMiles} homeAdded={homeAdded} />
       )}
 
       {/* Nav — hidden on print */}

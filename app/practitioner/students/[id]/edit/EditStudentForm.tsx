@@ -19,6 +19,7 @@ interface StudentData {
   defaultMileageLabel?: string
   altMileage?: number | null
   altMileageLabel?: string
+  homeMileage?: number | null
 }
 
 export default function EditStudentForm({ student }: { student: StudentData }) {
@@ -34,6 +35,7 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
   const [defaultMileageLabel, setDefaultMileageLabel] = useState(student.defaultMileageLabel ?? '')
   const [altMileage, setAltMileage] = useState(student.altMileage != null ? String(student.altMileage) : '')
   const [altMileageLabel, setAltMileageLabel] = useState(student.altMileageLabel ?? '')
+  const [homeMileage, setHomeMileage] = useState(student.homeMileage != null ? String(student.homeMileage) : '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -51,6 +53,7 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
         defaultMileageLabel,
         altMileage: altMileage ? parseFloat(altMileage) : null,
         altMileageLabel,
+        homeMileage: homeMileage ? parseFloat(homeMileage) : null,
       }),
     })
     const data = await res.json()
@@ -147,6 +150,8 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
               <input type="text" value={defaultMileageLabel} onChange={e => setDefaultMileageLabel(e.target.value)} placeholder="Regular trip — e.g. from Franco's" aria-label="Regular trip description" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               <input type="number" min="0" step="0.1" value={altMileage} onChange={e => setAltMileage(e.target.value)} placeholder="Miles" aria-label="Second trip miles" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               <input type="text" value={altMileageLabel} onChange={e => setAltMileageLabel(e.target.value)} placeholder="Second trip (optional) — e.g. from Joey's" aria-label="Second trip description" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" min="0" step="0.1" value={homeMileage} onChange={e => setHomeMileage(e.target.value)} placeholder="Miles" aria-label="Miles home" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <p className="text-xs text-gray-500 self-center">Drive home / to your office from here — added on the invoice page with &quot;Add drive home&quot; when this is your last stop</p>
             </div>
           </div>
 
