@@ -4,6 +4,7 @@ import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import InvoiceActions from './InvoiceActions'
 import InvoiceSessionFee from './InvoiceSessionFee'
+import InvoiceMileagePicker from './InvoiceMileagePicker'
 import { showDueDateChangeNotice, DUE_DATE_CHANGE_NOTICE } from '@/lib/invoiceNotice'
 
 export const dynamic = 'force-dynamic'
@@ -27,8 +28,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
     .single()
   if (!invoice) notFound()
 
-  const [{ data: student }, { data: session }, { data: settings }, { data: unpaid }] = await Promise.all([
-    supabase.from('students').select('name').eq('id', invoice.student_id).single(),
+  const [{ data: student }, { data: session }, { data: settings }, { data: unpaid }, { data: mileageRows }] = await Promise.all([
+    // '*' so this still works before the second-mileage columns exist
+    supabase.from('students').select('*').eq('id', invoice.student_id).single(),
     invoice.session_id
       ? supabase.from('sessions').select('lesson_title, session_date, id').eq('id', invoice.session_id).single()
       : Promise.resolve({ data: null }),
@@ -39,7 +41,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
       .eq('student_id', invoice.student_id)
       .eq('is_paid', false)
       .neq('id', invoiceId),
+    supabase.from('mileage_log').select('miles').eq('invoice_id', invoiceId),
   ])
+
+  const mileageOptions = [
+    student?.default_mileage ? { miles: parseFloat(student.default_mileage), label: student.default_mileage_label ?? 'Regular trip' } : null,
+    student?.alt_mileage ? { miles: parseFloat(student.alt_mileage), label: student.alt_mileage_label ?? 'Second trip' } : null,
+  ].filter((o): o is { miles: number; label: string } => o !== null)
+  const currentMiles = (mileageRows ?? []).reduce((sum: number, r: { miles: string }) => sum + parseFloat(r.miles), 0)
 
   const outstandingBalance = (unpaid ?? []).reduce((sum: number, inv: { amount: string; amount_paid: string }) => {
     return sum + Math.max(0, parseFloat(inv.amount) - parseFloat(inv.amount_paid ?? '0'))
@@ -65,6 +74,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ invoic
 
   return (
     <div className="min-h-screen bg-white px-4 py-8">
+      {mileageOptions.length > 0 && (
+        <InvoiceMileagePicker invoiceId={invoiceId} options={mileageOptions} currentMiles={currentMiles} />
+      )}
+
       {/* Nav — hidden on print */}
       <div className="print:hidden flex gap-3 max-w-2xl mx-auto mb-6">
         {session?.id && (

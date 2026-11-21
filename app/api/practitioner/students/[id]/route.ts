@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getStudent, updateStudent, deleteStudent } from '@/lib/practitionerStore'
+import { getStudent, updateStudent, updateStudentMileageOptions, deleteStudent } from '@/lib/practitionerStore'
 import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -24,8 +24,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const student = await getStudent(id)
   if (!student || student.practitionerId !== userId) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  const { name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate, defaultMileage } = await req.json()
+  const { name, ageGroup, notes, guardianEmail, funderName, funderEmail, sessionRate, defaultMileage, defaultMileageLabel, altMileage, altMileageLabel } = await req.json()
   await updateStudent(id, name, ageGroup, notes ?? '', guardianEmail ?? '', funderName ?? '', funderEmail ?? '', sessionRate != null ? parseFloat(sessionRate) : null, defaultMileage != null ? parseFloat(defaultMileage) : null)
+  const mileageError = await updateStudentMileageOptions(id, {
+    defaultMileageLabel: defaultMileageLabel ?? '',
+    altMileage: altMileage != null ? parseFloat(altMileage) : null,
+    altMileageLabel: altMileageLabel ?? '',
+  })
+  if (mileageError) {
+    return Response.json({ error: 'The rest of the profile was saved, but the second mileage option could not be saved yet — the database needs a one-time update.' }, { status: 500 })
+  }
   return Response.json({ ok: true })
 }
 

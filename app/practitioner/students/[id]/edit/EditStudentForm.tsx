@@ -16,6 +16,9 @@ interface StudentData {
   funderEmail: string
   sessionRate: number | null
   defaultMileage: number | null
+  defaultMileageLabel?: string
+  altMileage?: number | null
+  altMileageLabel?: string
 }
 
 export default function EditStudentForm({ student }: { student: StudentData }) {
@@ -28,6 +31,9 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
   const [funderEmail, setFunderEmail] = useState(student.funderEmail ?? '')
   const [sessionRate, setSessionRate] = useState(student.sessionRate != null ? String(student.sessionRate) : '')
   const [defaultMileage, setDefaultMileage] = useState(student.defaultMileage != null ? String(student.defaultMileage) : '')
+  const [defaultMileageLabel, setDefaultMileageLabel] = useState(student.defaultMileageLabel ?? '')
+  const [altMileage, setAltMileage] = useState(student.altMileage != null ? String(student.altMileage) : '')
+  const [altMileageLabel, setAltMileageLabel] = useState(student.altMileageLabel ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -42,6 +48,9 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
         name, ageGroup, notes, guardianEmail, funderName, funderEmail,
         sessionRate: sessionRate ? parseFloat(sessionRate) : null,
         defaultMileage: defaultMileage ? parseFloat(defaultMileage) : null,
+        defaultMileageLabel,
+        altMileage: altMileage ? parseFloat(altMileage) : null,
+        altMileageLabel,
       }),
     })
     const data = await res.json()
@@ -128,17 +137,17 @@ export default function EditStudentForm({ student }: { student: StudentData }) {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Default Trip Mileage <span className="text-gray-400 font-normal">— auto-logged when you invoice this student</span></label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={defaultMileage}
-              onChange={e => setDefaultMileage(e.target.value)}
-              placeholder="e.g. 12.5"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="space-y-3 border border-gray-200 rounded-xl p-3">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Trip Mileage</p>
+              <p className="text-xs text-gray-400">The regular trip is logged automatically when you invoice this student. Add a second trip if your route sometimes changes — you can switch to it on the invoice.</p>
+            </div>
+            <div className="grid grid-cols-[7rem_1fr] gap-2">
+              <input type="number" min="0" step="0.1" value={defaultMileage} onChange={e => setDefaultMileage(e.target.value)} placeholder="Miles" aria-label="Regular trip miles" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="text" value={defaultMileageLabel} onChange={e => setDefaultMileageLabel(e.target.value)} placeholder="Regular trip — e.g. from Franco's" aria-label="Regular trip description" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" min="0" step="0.1" value={altMileage} onChange={e => setAltMileage(e.target.value)} placeholder="Miles" aria-label="Second trip miles" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="text" value={altMileageLabel} onChange={e => setAltMileageLabel(e.target.value)} placeholder="Second trip (optional) — e.g. from Joey's" aria-label="Second trip description" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
           </div>
 
           <div>

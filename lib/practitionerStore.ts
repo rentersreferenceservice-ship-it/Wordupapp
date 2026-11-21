@@ -24,6 +24,9 @@ export interface Student {
   funderEmail: string
   sessionRate: number | null
   defaultMileage: number | null
+  defaultMileageLabel: string
+  altMileage: number | null
+  altMileageLabel: string
   createdAt: string
 }
 
@@ -118,6 +121,9 @@ export async function getStudents(practitionerId: string): Promise<Student[]> {
     funderEmail: d.funder_email ?? '',
     sessionRate: d.session_rate ?? null,
     defaultMileage: d.default_mileage ?? null,
+    defaultMileageLabel: d.default_mileage_label ?? '',
+    altMileage: d.alt_mileage ?? null,
+    altMileageLabel: d.alt_mileage_label ?? '',
     createdAt: d.created_at,
   }))
 }
@@ -136,6 +142,9 @@ export async function getStudent(id: string): Promise<Student | null> {
     funderEmail: data.funder_email ?? '',
     sessionRate: data.session_rate ?? null,
     defaultMileage: data.default_mileage ?? null,
+    defaultMileageLabel: data.default_mileage_label ?? '',
+    altMileage: data.alt_mileage ?? null,
+    altMileageLabel: data.alt_mileage_label ?? '',
     createdAt: data.created_at,
   }
 }
@@ -159,6 +168,9 @@ export async function createStudent(practitionerId: string, name: string, ageGro
     funderEmail: data.funder_email ?? '',
     sessionRate: data.session_rate ?? null,
     defaultMileage: data.default_mileage ?? null,
+    defaultMileageLabel: data.default_mileage_label ?? '',
+    altMileage: data.alt_mileage ?? null,
+    altMileageLabel: data.alt_mileage_label ?? '',
     createdAt: data.created_at,
   }
 }
@@ -174,6 +186,20 @@ export async function updateStudent(id: string, name: string, ageGroup: string, 
     funder_email: funderEmail || null,
     session_rate: sessionRate,
   }).eq('id', id)
+}
+
+// Separate from updateStudent so the rest of the profile still saves even
+// before sql/2026-11-21_alt_mileage.sql has been run.
+export async function updateStudentMileageOptions(
+  id: string,
+  opts: { defaultMileageLabel: string; altMileage: number | null; altMileageLabel: string }
+): Promise<string | null> {
+  const { error } = await getSupabase().from('students').update({
+    default_mileage_label: opts.defaultMileageLabel || null,
+    alt_mileage: opts.altMileage,
+    alt_mileage_label: opts.altMileageLabel || null,
+  }).eq('id', id)
+  return error ? error.message : null
 }
 
 export async function deleteStudent(id: string): Promise<void> {
