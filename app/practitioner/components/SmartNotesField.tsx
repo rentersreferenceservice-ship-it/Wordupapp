@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { fixCapitalization } from '@/lib/fixCapitalization'
 
 interface Props {
   value: string
@@ -84,7 +85,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       }
       if (finalChunk) {
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
-        baseRef.current = baseRef.current + sep + finalChunk.trimStart()
+        baseRef.current = fixCapitalization(baseRef.current + sep + finalChunk.trimStart())
       }
       interimRef.current = interim
       const display = baseRef.current + (interim ? (baseRef.current ? ' ' : '') + interim : '')
@@ -111,7 +112,7 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
 
       if (interimRef.current) {
         const sep = baseRef.current && !baseRef.current.endsWith(' ') ? ' ' : ''
-        baseRef.current = baseRef.current + sep + interimRef.current.trimStart()
+        baseRef.current = fixCapitalization(baseRef.current + sep + interimRef.current.trimStart())
         onChange(baseRef.current)
         interimRef.current = ''
       }
@@ -199,6 +200,12 @@ export default function SmartNotesField({ value, onChange, placeholder = 'Sessio
       <textarea
         value={value}
         onChange={e => { baseRef.current = e.target.value; onChange(e.target.value) }}
+        onBlur={() => {
+          // Fix sentence-start capitals once typing is done (not per keystroke,
+          // which would jump the cursor).
+          const fixed = fixCapitalization(value)
+          if (fixed !== value && !listeningRef.current) { baseRef.current = fixed; onChange(fixed) }
+        }}
         placeholder={listening ? '🎙 Listening…' : placeholder}
         rows={rows}
         className={`w-full border rounded-xl px-3 py-2 text-sm outline-none resize-none transition-colors ${

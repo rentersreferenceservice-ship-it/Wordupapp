@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { fixCapitalization } from '@/lib/fixCapitalization'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,9 @@ export async function POST(req: NextRequest) {
 
   const message = await client.messages.create({
     model: 'claude-sonnet-5',
-    max_tokens: 1024,
+    // Room for the model's thinking plus the note — at 1024 long notes
+    // were cut off mid-way.
+    max_tokens: 8000,
     messages: [
       {
         role: 'user',
@@ -64,6 +67,17 @@ ${note.trim()}`,
     ],
   })
 
-  const edited = message.content[0].type === 'text' ? message.content[0].text.trim() : note
-  return Response.json({ edited })
+  // The reply usually starts with a thinking block and the note comes after
+  // it. Reading only content[0] meant the original note was silently handed
+  // back as the "AI version" — no capitalization or punctuation fixes at all.
+  const text = message.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map(b => b.text)
+    .join('')
+    .trim()
+  if (!text) return Response.json({ error: 'The AI did not return a note — please try again.' }, { status: 502 })
+  if (message.stop_reason === 'max_tokens') {
+    return Response.json({ error: 'This note is too long to convert in one go — try converting it in two parts.' }, { status: 502 })
+  }
+  return Response.json({ edited: fixCapitalization(text) })
 }
