@@ -3,7 +3,18 @@
 import { useState, useRef } from 'react'
 
 const CATEGORIES = ['Subscriptions', 'Insurance', 'Materials', 'Other']
-const IRS_RATE = 0.72
+// IRS business standard mileage rates, newest first. Each trip uses the
+// rate in effect on its trip date. Add a new line when the IRS changes it.
+const IRS_RATES: Array<{ from: string; rate: number }> = [
+  { from: '2026-07-01', rate: 0.76 },  // IRS Announcement 2026-11 (midyear fuel increase)
+  { from: '2026-01-01', rate: 0.725 },
+  { from: '2025-01-01', rate: 0.70 },
+  { from: '2024-01-01', rate: 0.67 },
+]
+
+function irsRateFor(tripDate: string): number {
+  return (IRS_RATES.find(r => tripDate >= r.from) ?? IRS_RATES[IRS_RATES.length - 1]).rate
+}
 
 type Expense = {
   id: string
@@ -54,7 +65,7 @@ export default function ExpensesManager({
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0)
   const totalMiles = mileageEntries.reduce((s, e) => s + e.miles, 0)
-  const mileageDeduction = totalMiles * IRS_RATE
+  const mileageDeduction = mileageEntries.reduce((s, e) => s + e.miles * irsRateFor(e.trip_date), 0)
   const netIncome = yearlyIncome - totalExpenses
   const taxableIncome = netIncome - mileageDeduction
 
@@ -136,7 +147,7 @@ export default function ExpensesManager({
           <span>${netIncome.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm pt-3 border-t border-gray-100">
-          <span className="text-gray-500">Mileage deduction ({totalMiles.toFixed(1)} mi @ ${IRS_RATE}/mi)</span>
+          <span className="text-gray-500">Mileage deduction ({totalMiles.toFixed(1)} mi at IRS rates — 76¢/mi from July 1, 2026)</span>
           <span className="font-medium text-blue-600">−${mileageDeduction.toFixed(2)}</span>
         </div>
         <div className={`flex justify-between font-bold text-sm ${taxableIncome >= 0 ? 'text-gray-700' : 'text-orange-700'}`}>
