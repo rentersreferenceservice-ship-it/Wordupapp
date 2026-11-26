@@ -505,6 +505,8 @@ async function researchFacts(client: Anthropic, topic: string, ageGroup: string)
 
 Use web search to find the key facts a lesson on this topic would state — especially dates, numbers, measurements, names, records, and how/why things work. Prefer authoritative sources: government agencies, universities, museums, encyclopedias, established science or history organizations.
 
+STATISTICS: numbers like spending, populations, percentages and records change from year to year, and different pages give different years' figures. For every such number, write the exact year it applies to and whether it is an actual result or a forecast/estimate, e.g. "Americans spent $12.2 billion on Halloween in 2023 (actual, NRF)". Prefer the most recent year you can confirm, and never list two different years' figures for the same statistic unless both are clearly labeled with their year.
+
 Then reply with ONLY a fact sheet:
 - 20–35 short bullet points, each one specific, verified fact from your search results
 - after each fact, the number of its source in brackets, e.g. [2]
@@ -576,7 +578,7 @@ export async function generateLesson(topic: string, ageGroup: string, style?: st
 VERIFIED FACT SHEET (researched from the web just now):
 ${factSheet}
 
-FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, names, records, firsts — must come from the fact sheet above. Do not add specific facts from memory that are not on it; general, common-knowledge explanations are fine. Your citations must be sources listed on the fact sheet, written as "Page title — URL".`,
+FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, names, records, firsts — must come from the fact sheet above. When you use a statistic, state the same year (and forecast vs. actual) the fact sheet gives for it; never attach a number to a different year, and don't mix figures from different years for the same statistic in a way that could look contradictory. Do not add specific facts from memory that are not on it; general, common-knowledge explanations are fine. Your citations must be sources listed on the fact sheet, written as "Page title — URL".`,
         },
       ],
     })

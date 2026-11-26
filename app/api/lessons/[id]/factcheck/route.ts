@@ -69,10 +69,18 @@ async function checkWithClaudeOpus(prompt: string): Promise<string> {
     const client = new Anthropic()
     const message = await client.messages.create({
       model: 'claude-opus-4-7',
-      max_tokens: 1024,
+      max_tokens: 8000,
+      // Think first: without it the reply often opened with "ISSUES FOUND",
+      // then concluded every item was fine — reported as issues.
+      thinking: { type: 'adaptive' },
       messages: [{ role: 'user', content: prompt }],
     })
-    return message.content[0].type === 'text' ? message.content[0].text : 'No response received.'
+    const text = message.content
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+      .map(b => b.text)
+      .join('')
+      .trim()
+    return text || 'No response received.'
   } catch {
     return 'CLAUDE_UNAVAILABLE'
   }
