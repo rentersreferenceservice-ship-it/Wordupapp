@@ -16,6 +16,7 @@ import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
 import SendToTabletButton from '@/app/components/SendToTabletButton'
 import BrainBreakCard from '@/app/components/BrainBreakCard'
 import Link from 'next/link'
+import AddBrainBreaksButton from '@/app/components/AddBrainBreaksButton'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
 
@@ -186,6 +187,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
           <SuggestEditButton lessonId={id} lessonTitle={lesson.title} variant="button" />
           <PrintButton />
           <TranslateButton lessonId={id} />
+          {(isAdmin || (userId && lesson.practitionerId === userId)) && !lesson.hunks.some(h => h.brainBreak) && <AddBrainBreaksButton lessonId={id} />}
           <a
             href="mailto:wordups2c@gmail.com"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"

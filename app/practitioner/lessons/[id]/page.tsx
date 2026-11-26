@@ -2,6 +2,7 @@
 import { getLesson } from '@/lib/lessonStore'
 import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
+import AddBrainBreaksButton from '@/app/components/AddBrainBreaksButton'
 import PrintButton from '@/app/lessons/[id]/PrintButton'
 import DeleteButton from '@/app/lessons/[id]/DeleteButton'
 import EditTypesButton from '@/app/lessons/[id]/EditTypesButton'
@@ -55,6 +56,7 @@ export default async function PractitionerLessonPage({ params }: { params: Promi
           </Link>
           <PrintButton />
           <TranslateButton lessonId={id} />
+          {(isAdmin || lesson.practitionerId === userId) && !lesson.hunks.some(h => h.brainBreak) && <AddBrainBreaksButton lessonId={id} />}
           <a
             href="mailto:wordups2c@gmail.com"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
