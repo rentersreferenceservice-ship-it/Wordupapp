@@ -2,20 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { Lesson, Hunk } from './types'
 import { v4 as uuidv4 } from 'uuid'
 import { addBrainBreaks } from './brainBreaks'
-
-function parseIsoDuration(iso: string): string {
-  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
-  if (!m) return ''
-  const h = parseInt(m[1] ?? '0'), min = parseInt(m[2] ?? '0'), s = parseInt(m[3] ?? '0')
-  if (h > 0) return `${h}:${String(min).padStart(2,'0')}:${String(s).padStart(2,'0')}`
-  return `${min}:${String(s).padStart(2,'0')}`
-}
-
-function isoDurationSeconds(iso: string): number {
-  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
-  if (!m) return 0
-  return parseInt(m[1] ?? '0') * 3600 + parseInt(m[2] ?? '0') * 60 + parseInt(m[3] ?? '0')
-}
+import { pickYoutubeVideo } from './youtubePicker'
 
 const SYSTEM_PROMPT = `You are an expert letterboard lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
@@ -708,32 +695,15 @@ FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, 
           const vaktQ = q as typeof q & { youtubeQuery?: string; youtubeDescription?: string }
           if (q.type !== 'VAKT' || !vaktQ.youtubeQuery) return q
           try {
-            const searchRes = await fetch(
-              `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(vaktQ.youtubeQuery)}&type=video&videoDuration=short&maxResults=5&safeSearch=strict&relevanceLanguage=en&key=${youtubeKey}`
-            )
-            if (!searchRes.ok) return q
-            const searchData = await searchRes.json()
-            const videos: { id: { videoId: string }; snippet: { title: string } }[] = searchData.items ?? []
-            if (videos.length === 0) return q
-
-            const ids = videos.map(v => v.id.videoId).join(',')
-            const detailRes = await fetch(
-              `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${ids}&key=${youtubeKey}`
-            )
-            if (!detailRes.ok) return q
-            const detailData = await detailRes.json()
-            const details: { id: string; contentDetails: { duration: string } }[] = detailData.items ?? []
-
-            for (const video of videos) {
-              const videoId = video.id.videoId
-              const detail = details.find(d => d.id === videoId)
-              const iso = detail?.contentDetails?.duration ?? ''
-              const secs = isoDurationSeconds(iso)
-              if (secs > 0 && secs <= 180) {
-                return { ...q, youtubeVideoId: videoId, youtubeVideoTitle: video.snippet.title, youtubeDuration: parseIsoDuration(iso) }
-              }
-            }
-            return q
+            // Checked pick (see lib/youtubePicker.ts) — never just the first result.
+            const picked = await pickYoutubeVideo({
+              query: vaktQ.youtubeQuery,
+              description: vaktQ.youtubeDescription,
+              activity: q.question,
+              lessonTitle: parsed.title,
+              ageGroup,
+            })
+            return picked ? { ...q, youtubeVideoId: picked.videoId, youtubeVideoTitle: picked.title, youtubeDuration: picked.duration } : q
           } catch {
             return q
           }

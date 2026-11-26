@@ -60,41 +60,61 @@ function ocularMotorOptions(ageGroup: string): EyeHandGame[] {
   ]
 }
 
-async function topicEmoji(lesson: Lesson): Promise<{ pairs: { a: string; aLabel: string; b: string; bLabel: string }[]; x: string; o: string } | null> {
+async function topicEmoji(lesson: Lesson, guessWord?: string): Promise<{ pairs: { a: string; aLabel: string; b: string; bLabel: string }[]; x: string; o: string; clue?: string } | null> {
   try {
     const client = new Anthropic()
     const message = await client.messages.create({
       model: 'claude-haiku-5-5',
-      max_tokens: 2000,
+      max_tokens: 4000,
       messages: [{
         role: 'user',
-        content: `A lesson titled "${lesson.title}" for ${lesson.ageGroup}. Create emoji for two quick games.
+        content: `A lesson titled "${lesson.title}" for ${lesson.ageGroup}. Create content for three quick games.
 
 1. A picture-matching game: ${isYoung(lesson.ageGroup) ? 4 : 5} pairs of things that go together and relate to the topic (like a fire truck 🚒 and a firefighter helmet ⛑️). Each side is ONE emoji plus a 1–3 word label. Use common emoji that display on phones and tablets.
 2. Two different topic emoji to use instead of X and O in tic-tac-toe.
+3. A word-guessing game for the word "${guessWord ?? ''}": write ONE short clue (under 15 words) that helps a ${lesson.ageGroup} student guess it, using what the lesson teaches. Never use the word itself or a form of it in the clue.
 
 Reply with ONLY JSON in this shape:
-{"pairs":[{"a":"🚒","aLabel":"Fire truck","b":"⛑️","bLabel":"Helmet"}],"x":"🦖","o":"🌋"}`,
+{"pairs":[{"a":"🚒","aLabel":"Fire truck","b":"⛑️","bLabel":"Helmet"}],"x":"🦖","o":"🌋","clue":"Lizards lie on a warm one of these to soak up the sun."}`,
       }],
     })
     const text = message.content.filter((b): b is Anthropic.TextBlock => b.type === 'text').map(b => b.text).join('')
     const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
     if (!Array.isArray(json.pairs) || json.pairs.length < 3 || !json.x || !json.o) return null
-    return { pairs: json.pairs.slice(0, 6), x: String(json.x), o: String(json.o) }
+    const clue = typeof json.clue === 'string' && guessWord && !json.clue.toUpperCase().includes(guessWord) ? json.clue.trim() : undefined
+    return { pairs: json.pairs.slice(0, 6), x: String(json.x), o: String(json.o), clue }
   } catch {
     return null
   }
 }
 
+// A real clue for Word Guess. Prefer the AI clue; otherwise use the lesson
+// sentence the word appears in, with the word blanked out.
+function wordClue(lesson: Lesson, word: string, aiClue?: string): string {
+  const letters = `(${word.length} letters)`
+  if (aiClue) return `${aiClue} ${letters}`
+  for (const h of lesson.hunks) {
+    for (const sentence of h.text.split(/(?<=[.!?])\s+/)) {
+      if (new RegExp(`\\b${word}\\b`, 'i').test(sentence)) {
+        const blank = sentence.replace(/\([^)]*\)/g, '').replace(new RegExp(`\\b${word}\\b`, 'gi'), '_'.repeat(word.length))
+        if (blank.length <= 140) return `${blank.trim()} ${letters}`
+      }
+    }
+  }
+  return `A word from this lesson ${letters}`
+}
+
 export async function addBrainBreaks(lesson: Lesson): Promise<Lesson> {
   const maxLen = maxWordLength(lesson.ageGroup)
   const words = keywordsOf(lesson).filter(w => w.length <= maxLen)
-  const emoji = await topicEmoji(lesson)
+  // Random word (4+ letters when possible) so lessons don't all guess the first keyword.
+  const longWords = words.filter(w => w.length >= 4)
+  const pool = longWords.length ? longWords : words
+  const hangmanWord = pool.length ? pool[Math.floor(Math.random() * pool.length)] : undefined
+  const emoji = await topicEmoji(lesson, hangmanWord)
 
   const options: BrainBreak[] = []
-  // Alternate a word game with a picture/play game.
-  const hangmanWord = words.find(w => w.length >= 4) ?? words[0]
-  if (hangmanWord) options.push({ type: 'hangman', word: hangmanWord, hint: `A word from this lesson (${hangmanWord.length} letters)` })
+  if (hangmanWord) options.push({ type: 'hangman', word: hangmanWord, hint: wordClue(lesson, hangmanWord, emoji?.clue) })
   if (emoji) options.push({ type: 'match', pairs: emoji.pairs })
   // 3-letter words only for little ones; for older spellers they're mostly abbreviations.
   const searchWords = words.filter(w => w !== hangmanWord && (isYoung(lesson.ageGroup) || w.length >= 4)).slice(0, isYoung(lesson.ageGroup) ? 4 : 6)
@@ -124,4 +144,10 @@ export async function addBrainBreaks(lesson: Lesson): Promise<Lesson> {
       return idx >= 0 && picks[idx] ? { ...h, brainBreak: picks[idx] } : h
     }),
   }
+}
+
+// For lessons whose Word Guess was made before clues existed.
+export async function wordGuessClue(lesson: Lesson, word: string): Promise<string> {
+  const emoji = await topicEmoji(lesson, word)
+  return wordClue(lesson, word, emoji?.clue)
 }
