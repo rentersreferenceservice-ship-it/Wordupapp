@@ -86,6 +86,50 @@ async function checkWithClaudeOpus(prompt: string): Promise<string> {
   }
 }
 
+// Perplexity alone used to decide "Verified", and it often flags things that
+// aren't errors (or lists an item and then calls it accurate), so lessons
+// needed several rounds. When it flags issues, Claude reviews each claimed
+// issue against the same rules. Returns the issues that are real errors
+// (empty when none are), or null if the review couldn't run.
+async function reviewPerplexityIssues(lessonPrompt: string, perplexityResult: string): Promise<string[] | null> {
+  try {
+    const client = new Anthropic()
+    const message = await client.messages.create({
+      model: 'claude-opus-4-7',
+      max_tokens: 8000,
+      thinking: { type: 'adaptive' },
+      messages: [{
+        role: 'user',
+        content: `${lessonPrompt}
+
+----
+A first fact-checker reviewed this lesson and reported the issues below. Decide, for each one, whether it is a REAL, material factual error under the rules above (a student would learn something genuinely incorrect). Treat as NOT real: items the checker itself says are accurate, acceptable simplifications, phrasing preferences, date-format complaints, figures that are correct for the year the lesson states, and claims you cannot confirm are wrong.
+
+FIRST CHECKER'S REPORT:
+${perplexityResult}
+
+Reply in exactly this format:
+If none are real errors, the first line is exactly: NO REAL ISSUES
+Otherwise the first line is exactly: REAL ISSUES:
+followed by one line per real error, starting with "- ", giving the issue and the correct fact.`,
+      }],
+    })
+    const text = message.content
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+      .map(b => b.text)
+      .join('')
+      .trim()
+    if (!text) return null
+    if (text.toUpperCase().startsWith('NO REAL ISSUES')) return []
+    return text.split('\n').map(l => l.trim()).filter(l => l.startsWith('- '))
+  } catch {
+    return null
+  }
+}
+
+// Two checks plus a review step can take a couple of minutes.
+export const maxDuration = 300
+
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -106,9 +150,23 @@ export async function POST(
     checkWithClaudeOpus(prompt),
   ])
 
-  const perplexityClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
+  const perplexityRawClean = perplexityResult.trimStart().toUpperCase().startsWith('VERIFIED')
+  const perplexityFailed = perplexityResult.includes('Perplexity API error')
   const claudeUnavailable = claudeResult === 'CLAUDE_UNAVAILABLE'
   const claudeClean = !claudeUnavailable && claudeResult.trimStart().toUpperCase().startsWith('VERIFIED')
+
+  // Referee Perplexity's flags (not when its API call itself failed).
+  let realIssues: string[] | null = null
+  if (!perplexityRawClean && !perplexityFailed) {
+    realIssues = await reviewPerplexityIssues(prompt, perplexityResult)
+  }
+  const perplexityClean = perplexityRawClean || (claudeClean && realIssues !== null && realIssues.length === 0)
+  // What the lesson page shows and "Apply fixes" uses: only the real issues.
+  const perplexityShown = perplexityRawClean || realIssues === null
+    ? perplexityResult
+    : realIssues.length === 0
+      ? 'VERIFIED: No issues found. (Perplexity raised notes, but on review none were real errors.)'
+      : `ISSUES FOUND:\n${realIssues.join('\n')}`
 
   const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -124,8 +182,9 @@ export async function POST(
         <h2>✓ Lesson Auto-Verified</h2>
         <p><strong>${lesson.title}</strong> was confirmed accurate by Perplexity AI and has been automatically marked as Verified.</p>
         <hr />
-        <h3>Perplexity AI (Authority):</h3>
+        <h3>Perplexity AI:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
+        ${perplexityRawClean ? '' : '<p><em>Perplexity raised notes; Claude reviewed each one and found no real errors.</em></p>'}
         <hr />
         <h3>Claude Opus (Advisory):</h3>
         <p>${claudeUnavailable ? 'Temporarily unavailable.' : claudeResult.replace(/\n/g, '<br />')}</p>
@@ -144,6 +203,7 @@ export async function POST(
         <hr />
         <h3>Perplexity AI — ⚠️ Issues Found:</h3>
         <p>${perplexityResult.replace(/\n/g, '<br />')}</p>
+        ${realIssues && realIssues.length ? `<h3>Real errors after review (what "Apply fixes" will fix):</h3><p>${realIssues.join('<br />')}</p>` : ''}
         <hr />
         <h3>Claude Opus (Advisory) — ${claudeClean ? '✓ Clean' : claudeUnavailable ? '— Unavailable' : '⚠️ Notes'}:</h3>
         <p>${claudeUnavailable ? 'Temporarily unavailable.' : claudeResult.replace(/\n/g, '<br />')}</p>
@@ -154,7 +214,7 @@ export async function POST(
   }
 
   return Response.json({
-    perplexity: perplexityResult,
+    perplexity: perplexityShown,
     gemini: claudeUnavailable ? 'Claude Opus was temporarily unavailable.' : claudeResult,
     perplexityClean,
     geminiClean: claudeClean,
