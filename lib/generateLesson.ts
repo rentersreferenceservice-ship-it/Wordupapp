@@ -494,30 +494,106 @@ const GENRE_INSTRUCTIONS: Record<string, string> = {
   sel: 'Apply a social-emotional learning lens throughout — emphasize feelings, relationships, coping strategies, identity, empathy, and community connection.',
 }
 
+// Step 1 of lesson generation: research the topic on the web and return a
+// compact fact sheet with sources. Uses a low-cost model because reading
+// search results is most of the tokens.
+async function researchFacts(client: Anthropic, topic: string, ageGroup: string): Promise<string> {
+  const messages: Anthropic.MessageParam[] = [
+    {
+      role: 'user',
+      content: `You are researching facts for an educational lesson about "${topic}" for ${ageGroup}.
+
+Use web search to find the key facts a lesson on this topic would state — especially dates, numbers, measurements, names, records, and how/why things work. Prefer authoritative sources: government agencies, universities, museums, encyclopedias, established science or history organizations.
+
+Then reply with ONLY a fact sheet:
+- 20–35 short bullet points, each one specific, verified fact from your search results
+- after each fact, the number of its source in brackets, e.g. [2]
+- then a "Sources:" list numbered to match, each as "Page title — URL"
+Only include facts you actually found in the search results. Do not add anything from memory.`,
+    },
+  ]
+  let message: Anthropic.Message | null = null
+  // Server-side search can pause a long turn (pause_turn); send the partial
+  // turn back to continue. Capped so it can't loop.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    message = await client.messages
+      .stream({
+        model: 'claude-haiku-5-5',
+        max_tokens: 16000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 4 }],
+        messages,
+      })
+      .finalMessage()
+    if (message.stop_reason !== 'pause_turn') break
+    messages.push({ role: 'assistant', content: message.content })
+  }
+  console.log('research usage:', JSON.stringify(message?.usage))
+  // The fact sheet is the text written after the last search result.
+  const content = message?.content ?? []
+  const lastSearchIdx = content.map(b => b.type).lastIndexOf('web_search_tool_result')
+  const sheet = content
+    .slice(lastSearchIdx + 1)
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map(b => b.text)
+    .join('')
+    .trim()
+  if (!sheet) throw new Error('Could not research this topic right now. Please try again.')
+  return sheet
+}
+
 export async function generateLesson(topic: string, ageGroup: string, style?: string | string[], genre?: string): Promise<Lesson> {
   const styleKeys = Array.isArray(style) ? style : (style ? [style] : [])
   const combinedStyle = styleKeys.filter(s => STYLE_INSTRUCTIONS[s]).map(s => STYLE_INSTRUCTIONS[s]).join(' ')
   const styleInstruction = combinedStyle ? `\n\nTONE INSTRUCTIONS: ${combinedStyle}` : ''
   const genreInstruction = genre && GENRE_INSTRUCTIONS[genre] ? `\n\nGENRE LENS: ${GENRE_INSTRUCTIONS[genre]}` : ''
   const client = new Anthropic()
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8192,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: `Generate a complete letterboard lesson about "${topic}" written for ${ageGroup}.${styleInstruction}${genreInstruction}`,
-      },
-    ],
-  })
 
-  console.log('stop_reason:', message.stop_reason)
+  // Two steps, so first drafts don't need several fact checks without
+  // making each lesson expensive:
+  // 1. A low-cost model web-searches the topic and returns a short fact
+  //    sheet with sources (searching with the writer model itself cost
+  //    ~$2.60 and ~6 minutes per lesson — it re-reads every search result).
+  // 2. The writer uses only that fact sheet for specific facts, and its
+  //    citations are the pages actually found.
+  const factSheet = await researchFacts(client, topic, ageGroup)
 
-  const content = message.content[0]
-  if (content.type !== 'text') {
-    throw new Error('Unexpected response type from Claude')
+  const message = await client.messages
+    .stream({
+      model: 'claude-sonnet-5-5',
+      max_tokens: 32000,
+      system: SYSTEM_PROMPT,
+      // Thinking off for the writing step: the facts are already researched,
+      // and with thinking on it spent its whole output budget before writing.
+      // (Sonnet 5.5 turns thinking off with 'between_tools'; this SDK version
+      // doesn't have that type yet.)
+      thinking: { type: 'between_tools' } as unknown as Anthropic.ThinkingConfigParam,
+      output_config: { effort: 'medium' },
+      messages: [
+        {
+          role: 'user',
+          content: `Generate a complete letterboard lesson about "${topic}" written for ${ageGroup}.${styleInstruction}${genreInstruction}
+
+VERIFIED FACT SHEET (researched from the web just now):
+${factSheet}
+
+FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, names, records, firsts — must come from the fact sheet above. Do not add specific facts from memory that are not on it; general, common-knowledge explanations are fine. Your citations must be sources listed on the fact sheet, written as "Page title — URL".`,
+        },
+      ],
+    })
+    .finalMessage()
+
+  console.log('stop_reason:', message.stop_reason, 'usage:', JSON.stringify(message.usage))
+  if (message.stop_reason === 'max_tokens') {
+    throw new Error('The lesson came out too long. Please try again.')
   }
+  const finalText = message.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map(b => b.text)
+    .join('')
+  if (!finalText.trim()) {
+    throw new Error('Unexpected response from Claude. Please try again.')
+  }
+  const content = { text: finalText }
 
   console.log('raw response (first 300 chars):', content.text.slice(0, 300))
   console.log('raw response (last 300 chars):', content.text.slice(-300))

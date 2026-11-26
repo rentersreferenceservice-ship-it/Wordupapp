@@ -3,6 +3,9 @@ import { auth } from '@clerk/nextjs/server'
 import { generateLesson } from '@/lib/generateLesson'
 import { saveLesson } from '@/lib/lessonStore'
 
+// Research + writing can take a couple of minutes.
+export const maxDuration = 300
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()

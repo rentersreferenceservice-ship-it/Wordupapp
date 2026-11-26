@@ -11,6 +11,9 @@ import {
 } from '@/lib/usageStore'
 import { getSupabase } from '@/lib/supabase'
 
+// Research + writing can take a couple of minutes.
+export const maxDuration = 300
+
 export async function POST(request: NextRequest) {
   try {
     const { topic, ageGroup, style, genre, email } = await request.json()
