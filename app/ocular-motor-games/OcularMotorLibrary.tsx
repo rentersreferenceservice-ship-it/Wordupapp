@@ -92,7 +92,7 @@ function GameRow({ meta }: { meta: typeof GAMES[number] }) {
   )
 }
 
-export default function EyeHandLibrary() {
+export default function OcularMotorLibrary() {
   return (
     <div className="space-y-3">
       {GAMES.map(g => <GameRow key={g.key} meta={g} />)}

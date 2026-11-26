@@ -34,7 +34,7 @@ export type BrainBreak =
   | { type: 'match'; pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }
   | { type: 'wordsearch'; words: string[]; size: number }
   | { type: 'tictactoe'; x: string; o: string }
-  // Eye-hand (oculomotor) practice — the Eye-Hand Games library
+  // Eye-hand (oculomotor) practice — the Ocular Motor Games library
   | EyeHandGame
 
 export type TargetSize = 'small' | 'medium' | 'large'

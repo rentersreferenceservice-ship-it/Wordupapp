@@ -5,7 +5,7 @@ import type { EyeHandGame, GameSpeed, TargetSize } from '@/lib/types'
 
 // Eye-hand (oculomotor) practice for spellers. Tap-only, no timers, no
 // penalties: a wrong tap just gives a gentle shake. Size, speed and count
-// are set by the practitioner on the Eye-Hand Games page.
+// are set by the practitioner on the Ocular Motor Games page.
 
 const TARGET_PX: Record<TargetSize, number> = { small: 64, medium: 96, large: 136 }
 const MOVE_SECONDS: Record<GameSpeed, number> = { slow: 3, medium: 2, fast: 1.2 }

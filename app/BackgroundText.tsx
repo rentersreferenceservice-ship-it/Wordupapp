@@ -69,7 +69,12 @@ export default function BackgroundText() {
   return (
     <div
       className="fixed inset-0 overflow-hidden pointer-events-none select-none print:hidden"
-      style={{ zIndex: 0 }}
+      // Behind everything: a page with an opaque background (bg-white) now
+      // really covers it. At zIndex 0 it painted ABOVE any non-positioned
+      // page, so the colored lettering ran through white pages (invoices,
+      // games, the speller's tablet screens). Pages meant to show it are
+      // transparent and still do.
+      style={{ zIndex: -1 }}
       aria-hidden="true"
     >
       <p
