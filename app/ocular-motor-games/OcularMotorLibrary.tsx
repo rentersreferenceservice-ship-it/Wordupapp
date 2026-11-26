@@ -7,6 +7,8 @@ import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 
 type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone'
 
+const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠' }
+
 const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
   { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
   { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', ages: 'All ages', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
@@ -38,16 +40,18 @@ const SIZES: { v: TargetSize; label: string }[] = [{ v: 'large', label: 'Large' 
 
 function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle }) {
   const tablet = useTabletConnection()
-  const [size, setSize] = useState<TargetSize>('large')
+  // Teens & adults start a step harder; everything is still adjustable.
+  const teen = style === 'grownup'
+  const [size, setSize] = useState<TargetSize>(teen ? 'medium' : 'large')
   const [count, setCount] = useState(10)
-  const [pairs, setPairs] = useState(2)
-  const [dotMode, setDotMode] = useState<'numbers' | 'letters' | 'alternating'>('numbers')
-  const [board, setBoard] = useState<'three' | 'alphabet' | 'keyboard'>('three')
-  const [cells, setCells] = useState(4)
+  const [pairs, setPairs] = useState(teen ? 6 : 2)
+  const [dotMode, setDotMode] = useState<'numbers' | 'letters' | 'alternating'>(teen ? 'alternating' : 'numbers')
+  const [board, setBoard] = useState<'three' | 'alphabet' | 'keyboard'>(teen ? 'keyboard' : 'three')
+  const [cells, setCells] = useState(teen ? 8 : 4)
   const [mazeMode, setMazeMode] = useState<'slide' | 'tap'>('slide')
-  const [grid, setGrid] = useState(4)
+  const [grid, setGrid] = useState(teen ? 5 : 4)
   const [gridMode, setGridMode] = useState<'numbers' | 'letters'>('numbers')
-  const [oddGrid, setOddGrid] = useState(4)
+  const [oddGrid, setOddGrid] = useState(teen ? 6 : 4)
   const [playing, setPlaying] = useState<EyeHandGame | null>(null)
   const [sent, setSent] = useState(false)
 
@@ -72,7 +76,7 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <p className="font-bold text-gray-900">
-            {meta.emoji} {meta.name}
+            {(teen && GROWNUP_ICON[meta.key]) || meta.emoji} {meta.name}
             <span className="ml-2 text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">{meta.skill}</span>
             <span className="ml-1 text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{meta.ages}</span>
           </p>
@@ -117,17 +121,24 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
 }
 
 export default function OcularMotorLibrary() {
-  // Playful (emoji, animals) for younger spellers; grown-up (plain shapes,
-  // letters) for teens and adults. Applies to every game below.
+  // Kids: playful emoji and gentle starting settings. Teens & adults: plain
+  // shapes and letters, harder starting settings, teen/adult games first.
   const [style, setStyle] = useState<GameStyle>('playful')
+  const teen = style === 'grownup'
+  const games = teen ? [...GAMES].sort((a, b) => Number(b.ages === 'Teens & adults') - Number(a.ages === 'Teens & adults')) : GAMES
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 flex-wrap bg-gray-50 rounded-xl px-4 py-3">
-        <span className="text-sm font-semibold text-gray-700">Style:</span>
-        <button type="button" onClick={() => setStyle('playful')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${style === 'playful' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🐸 Playful (kids)</button>
-        <button type="button" onClick={() => setStyle('grownup')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${style === 'grownup' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🔵 Grown-up (teens & adults)</button>
+        <span className="text-sm font-semibold text-gray-700">Age group:</span>
+        <button type="button" onClick={() => setStyle('playful')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${!teen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🐸 Kids</button>
+        <button type="button" onClick={() => setStyle('grownup')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${teen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🔵 Teens & adults</button>
+        <p className="w-full text-xs text-gray-500">
+          {teen
+            ? 'Teens & adults: plain shapes and letters instead of animals, harder starting settings, and the teen & adult games first.'
+            : 'Kids: playful pictures and easy starting settings (large targets, small mazes, 4 cards).'}
+        </p>
       </div>
-      {GAMES.map(g => <GameRow key={g.key} meta={g} style={style} />)}
+      {games.map(g => <GameRow key={`${g.key}-${style}`} meta={g} style={style} />)}
     </div>
   )
 }
