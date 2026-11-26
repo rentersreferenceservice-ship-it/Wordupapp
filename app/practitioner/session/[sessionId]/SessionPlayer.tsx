@@ -7,6 +7,7 @@ import type { SessionResponse, CRP } from '@/lib/practitionerStore'
 import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
+import VaktVideoQR from '@/app/components/VaktVideoQR'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
@@ -1489,6 +1490,23 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                       />
                     </div>
                   )}
+
+                  {/* VAKT — video (opens in a new window) */}
+                  {isVakt && (() => {
+                    const src = lesson.hunks[currentHunk]?.questions[i]
+                    if (!src?.youtubeVideoId && !src?.youtubeQuery) return null
+                    return (
+                      <div className="mb-3 text-center">
+                        <VaktVideoQR
+                          videoId={src.youtubeVideoId}
+                          searchQuery={src.youtubeQuery}
+                          description={src.youtubeDescription}
+                          duration={src.youtubeDuration}
+                          videoTitle={src.youtubeVideoTitle}
+                        />
+                      </div>
+                    )
+                  })()}
 
                   {/* VAKT — completion toggle */}
                   {isVakt && (

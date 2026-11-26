@@ -1,8 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { youtubeSearchUrl } from '@/lib/qrcode'
+import { useEffect, useState } from 'react'
+import { generateQRDataUrl, youtubeSearchUrl, youtubeVideoUrl } from '@/lib/qrcode'
 
+// Tapping opens the video on YouTube in a new window, so the student can
+// watch it while the lesson or session stays open here. (Playing it inside
+// the page failed for the many videos that block embedding on other sites.)
+// Pass qrDataUrl when it was made on the server; otherwise it's made here.
 export default function VaktVideoQR({
   qrDataUrl,
   videoId,
@@ -11,74 +15,36 @@ export default function VaktVideoQR({
   duration,
   videoTitle,
 }: {
-  qrDataUrl: string
+  qrDataUrl?: string
   videoId?: string
   searchQuery?: string
   description?: string
   duration?: string
   videoTitle?: string
 }) {
-  const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [qr, setQr] = useState<string | undefined>(qrDataUrl)
 
   useEffect(() => {
-    if (!open) return
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open])
+    if (qrDataUrl || (!videoId && !searchQuery)) return
+    generateQRDataUrl(videoId, searchQuery).then(setQr).catch(() => {})
+  }, [qrDataUrl, videoId, searchQuery])
+
+  if (!videoId && !searchQuery) return null
+  const url = videoId ? youtubeVideoUrl(videoId) : youtubeSearchUrl(searchQuery ?? '')
 
   function handleClick() {
-    if (!videoId) {
-      window.open(youtubeSearchUrl(searchQuery ?? ''), '_blank', 'noopener,noreferrer')
-      return
-    }
-    setOpen(true)
-    // Best-effort true fullscreen where the browser allows it — the overlay
-    // itself still fills the screen even when this is unavailable/denied.
-    requestAnimationFrame(() => {
-      containerRef.current?.requestFullscreen?.().catch(() => {})
-    })
-  }
-
-  function handleClose() {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
-    setOpen(false)
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
     <>
-      <button type="button" onClick={handleClick} className="block mx-auto">
-        <img src={qrDataUrl} alt="YouTube QR — click to open the video" width={80} height={80} className="hover:opacity-80 transition-opacity" />
-        <p className="text-[7pt] text-blue-500 font-semibold mt-0.5 leading-tight">▶ Click to play</p>
+      <button type="button" onClick={handleClick} className="block mx-auto" title="Open the video in a new window">
+        {qr && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={qr} alt="YouTube QR — tap to open the video in a new window" width={80} height={80} className="hover:opacity-80 transition-opacity" />
+        )}
+        <p className="text-[7pt] text-blue-500 font-semibold mt-0.5 leading-tight">▶ Tap to play</p>
       </button>
-
-      {open && videoId && (
-        <div
-          ref={containerRef}
-          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
-          onClick={e => { if (e.target === e.currentTarget) handleClose() }}
-        >
-          <button
-            type="button"
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-white text-3xl leading-none hover:text-gray-300 z-10"
-            title="Close"
-          >
-            ✕
-          </button>
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-            title={videoTitle || 'YouTube video'}
-            className="w-full h-full max-w-6xl max-h-[90vh] aspect-video"
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
-          />
-        </div>
-      )}
-
       {description && <p className="text-[7pt] text-gray-600 mt-0.5 leading-tight">{description}</p>}
       {duration && videoTitle && (
         <p className="text-[7pt] text-gray-400 mt-0.5 leading-tight">{duration} — {videoTitle}</p>
