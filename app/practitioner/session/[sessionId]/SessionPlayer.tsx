@@ -318,6 +318,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     }
   }
 
+  async function handleSendVideoToTt(videoId: string, title?: string) {
+    await ensureTtChannel()
+    ttChannelRef.current?.send({ type: 'broadcast', event: 'video', payload: { videoId, title } })
+  }
+
   async function handleSendToTt(hunkIdx: number, questionIdx: number, questionText: string, targetField: TtTargetField) {
     await ensureTtChannel()
     if (!ttChannelRef.current) return
@@ -1503,6 +1508,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
                           description={src.youtubeDescription}
                           duration={src.youtubeDuration}
                           videoTitle={src.youtubeVideoTitle}
+                          onSendToTablet={src.youtubeVideoId ? () => handleSendVideoToTt(src.youtubeVideoId!, src.youtubeVideoTitle) : undefined}
                         />
                       </div>
                     )

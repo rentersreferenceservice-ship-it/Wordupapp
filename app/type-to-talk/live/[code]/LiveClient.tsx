@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import TypeToTalkSurface from '@/app/components/TypeToTalkSurface'
+import VideoOverlay from '@/app/components/VideoOverlay'
 
 interface LiveQuestion {
   text: string
@@ -25,6 +26,7 @@ export default function LiveClient({ code }: { code: string }) {
   const [connectQrDataUrl, setConnectQrDataUrl] = useState<string | null>(null)
   const [showConnectQr, setShowConnectQr] = useState(false)
   const [deviceConnectedNotice, setDeviceConnectedNotice] = useState(false)
+  const [video, setVideo] = useState<{ videoId: string; title?: string } | null>(null)
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowserClient>['channel']> | null>(null)
   const questionRef = useRef<LiveQuestion | null>(null)
   const latestAnswerRef = useRef('')
@@ -80,6 +82,10 @@ export default function LiveClient({ code }: { code: string }) {
       .on('broadcast', { event: 'session-end' }, () => {
         finishCurrentQuestion()
         setSessionEnded(true)
+      })
+      .on('broadcast', { event: 'video' }, (payload) => {
+        const data = payload.payload as { videoId: string; title?: string }
+        if (data.videoId) setVideo({ videoId: data.videoId, title: data.title })
       })
       .on('broadcast', { event: 'device-connected' }, () => {
         setDeviceConnectedNotice(true)
@@ -173,9 +179,14 @@ export default function LiveClient({ code }: { code: string }) {
     )
   }
 
+  const videoLayer = video && (
+    <VideoOverlay videoId={video.videoId} title={video.title} onClose={() => setVideo(null)} />
+  )
+
   if (!question) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
+        {videoLayer}
         {deviceConnectedNotice && (
           <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
             ✓ A new device just connected
@@ -202,6 +213,7 @@ export default function LiveClient({ code }: { code: string }) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      {videoLayer}
       {deviceConnectedNotice && (
         <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-2 mb-4 text-center">
           ✓ A new device just connected

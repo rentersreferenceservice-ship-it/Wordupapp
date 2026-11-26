@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import TypeToTalkSurface, { type TypeToTalkSurfaceHandle } from '@/app/components/TypeToTalkSurface'
 import CopyLinkButton from '@/app/components/CopyLinkButton'
+import VideoOverlay from '@/app/components/VideoOverlay'
 
 interface ChatMessage {
   id: string
@@ -22,6 +23,13 @@ function speak(text: string) {
   const utterance = new SpeechSynthesisUtterance(text.trim())
   utterance.rate = 1.15
   window.speechSynthesis.speak(utterance)
+}
+
+// Accepts youtube.com/watch?v=, youtu.be/, /shorts/, /embed/ links or a bare id.
+function youtubeIdFrom(input: string): string | null {
+  const t = input.trim()
+  const m = t.match(/(?:v=|youtu\.be\/|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/) ?? t.match(/^([\w-]{11})$/)
+  return m ? m[1] : null
 }
 
 function mergeMessages(a: ChatMessage[], b: ChatMessage[]): ChatMessage[] {
@@ -45,6 +53,10 @@ export default function ConversationClient({ code }: { code: string }) {
   const [reconnectAttempt, setReconnectAttempt] = useState(0)
   const [composeKey, setComposeKey] = useState(0)
   const [saved, setSaved] = useState(false)
+  const [video, setVideo] = useState<{ videoId: string; title?: string } | null>(null)
+  const [showVideoShare, setShowVideoShare] = useState(false)
+  const [videoLink, setVideoLink] = useState('')
+  const [videoShareMsg, setVideoShareMsg] = useState('')
   const channelRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowserClient>['channel']> | null>(null)
   const surfaceRef = useRef<TypeToTalkSurfaceHandle>(null)
   const messagesRef = useRef<ChatMessage[]>([])
@@ -106,6 +118,10 @@ export default function ConversationClient({ code }: { code: string }) {
       .on('broadcast', { event: 'history' }, (payload) => {
         const incoming = (payload.payload as { messages: ChatMessage[] }).messages ?? []
         setMessages(prev => mergeMessages(prev, incoming))
+      })
+      .on('broadcast', { event: 'video' }, (payload) => {
+        const data = payload.payload as { videoId: string; title?: string }
+        if (data.videoId) setVideo({ videoId: data.videoId, title: data.title })
       })
       .on('broadcast', { event: 'typing' }, (payload) => {
         setTypingName((payload.payload as { name: string }).name)
@@ -172,6 +188,16 @@ export default function ConversationClient({ code }: { code: string }) {
     setComposeKey(k => k + 1) // fresh, empty box for the next message
   }
 
+  function handleShareVideo(e: React.FormEvent) {
+    e.preventDefault()
+    const id = youtubeIdFrom(videoLink)
+    if (!id) { setVideoShareMsg("That doesn't look like a YouTube link."); return }
+    channelRef.current?.send({ type: 'broadcast', event: 'video', payload: { videoId: id, title: `Video from ${name}` } })
+    setVideoLink('')
+    setVideoShareMsg(others.length ? '✓ Sent — it opens on their screen.' : "Sent, but nobody else is connected yet.")
+    setTimeout(() => setVideoShareMsg(''), 3000)
+  }
+
   function handleSave() {
     if (messages.length === 0) return
     const lines = messages.flatMap(m => [
@@ -221,6 +247,7 @@ export default function ConversationClient({ code }: { code: string }) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
+      {video && <VideoOverlay videoId={video.videoId} title={video.title} onClose={() => setVideo(null)} />}
       <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Tablet to Tablet</h1>
@@ -234,11 +261,32 @@ export default function ConversationClient({ code }: { code: string }) {
           <button type="button" onClick={() => setShowShare(v => !v)} className="text-sm text-purple-700 border-2 border-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-50">
             {showShare ? 'Hide invite' : 'Invite'}
           </button>
+          <button type="button" onClick={() => setShowVideoShare(v => !v)} className="text-sm text-purple-700 border-2 border-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-50">
+            📺 Share a video
+          </button>
           <button type="button" onClick={handleSave} disabled={messages.length === 0} className="text-sm bg-gray-100 text-gray-700 border-2 border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-50">
             {saved ? '✓ Saved' : 'Save conversation'}
           </button>
         </div>
       </div>
+
+      {showVideoShare && (
+        <form onSubmit={handleShareVideo} className="bg-white border border-purple-200 rounded-2xl p-4 shadow-sm mb-4 space-y-2">
+          <p className="text-sm font-semibold text-gray-700">Share a YouTube video</p>
+          <p className="text-xs text-gray-500">Paste a YouTube link. It opens full-screen on the other tablet; when they close it, their conversation is right where they left it.</p>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={videoLink}
+              onChange={e => setVideoLink(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=…"
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <button type="submit" disabled={!videoLink.trim()} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 disabled:opacity-50">Send</button>
+          </div>
+          {videoShareMsg && <p className="text-xs text-gray-600">{videoShareMsg}</p>}
+        </form>
+      )}
 
       {showShare && (
         <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm mb-4 flex items-center gap-4 flex-wrap">

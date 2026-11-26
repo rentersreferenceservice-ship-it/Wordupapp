@@ -9,9 +9,10 @@ const STORAGE_KEY = 'tt-tablet-code'
 interface TabletConnectionValue {
   code: string | null
   sendQuestion: (text: string) => void
+  sendVideo: (videoId: string, title?: string) => void
 }
 
-const TabletConnectionContext = createContext<TabletConnectionValue>({ code: null, sendQuestion: () => {} })
+const TabletConnectionContext = createContext<TabletConnectionValue>({ code: null, sendQuestion: () => {}, sendVideo: () => {} })
 
 export function useTabletConnection() {
   return useContext(TabletConnectionContext)
@@ -88,8 +89,15 @@ export default function TabletConnectionProvider({ children }: { children: React
     setTimeout(() => setSent(null), 2000)
   }
 
+  function sendVideo(videoId: string, title?: string) {
+    if (!channelRef.current) return
+    channelRef.current.send({ type: 'broadcast', event: 'video', payload: { videoId, title } })
+    setSent(`Video: ${title || 'video'}`)
+    setTimeout(() => setSent(null), 2000)
+  }
+
   return (
-    <TabletConnectionContext.Provider value={{ code, sendQuestion }}>
+    <TabletConnectionContext.Provider value={{ code, sendQuestion, sendVideo }}>
       <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 print:hidden">
         {code ? (
           <div className="flex items-center justify-between flex-wrap gap-2">
