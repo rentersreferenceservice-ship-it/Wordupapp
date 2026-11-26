@@ -1,14 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { BrainBreak } from '@/lib/types'
 import BrainBreakGame, { BRAIN_BREAK_NAMES } from './BrainBreakGame'
 import { useTabletConnection } from './TabletConnectionProvider'
 
 // Full-screen game layer. Like the video overlay it sits ON TOP of the page,
 // so the speller's work underneath is untouched when it's closed.
+// Rendered into <body> (a portal): the lesson page's frosted panel
+// (backdrop-blur) traps "fixed" layers inside it, so the game opened at the
+// top of the lesson, off-screen, leaving a blank white screen.
 export function BrainBreakOverlay({ game, onClose }: { game: BrainBreak; onClose: () => void }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
@@ -19,7 +23,8 @@ export function BrainBreakOverlay({ game, onClose }: { game: BrainBreak; onClose
         </div>
         <BrainBreakGame game={game} />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

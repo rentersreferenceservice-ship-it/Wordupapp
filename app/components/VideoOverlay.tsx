@@ -1,5 +1,6 @@
 'use client'
 
+import { createPortal } from 'react-dom'
 import { youtubeVideoUrl } from '@/lib/qrcode'
 
 // Full-screen video shown ON TOP of the speller's screen. It's only a layer —
@@ -10,7 +11,8 @@ export default function VideoOverlay({ videoId, title, onClose }: {
   title?: string
   onClose: () => void
 }) {
-  return (
+  // Portal into <body> so no parent styling can trap this full-screen layer.
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <p className="text-white text-sm font-medium truncate">{title || 'Video'}</p>
@@ -38,6 +40,7 @@ export default function VideoOverlay({ videoId, title, onClose }: {
         </a>{' '}
         — then come back to this tab when it&apos;s done.
       </p>
-    </div>
+    </div>,
+    document.body
   )
 }
