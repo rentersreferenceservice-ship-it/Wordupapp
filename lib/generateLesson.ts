@@ -543,11 +543,17 @@ Only include facts you actually found in the search results. Do not add anything
   return sheet
 }
 
-export async function generateLesson(topic: string, ageGroup: string, style?: string | string[], genre?: string): Promise<Lesson> {
+export async function generateLesson(topic: string, ageGroup: string, style?: string | string[], genre?: string | string[]): Promise<Lesson> {
   const styleKeys = Array.isArray(style) ? style : (style ? [style] : [])
   const combinedStyle = styleKeys.filter(s => STYLE_INSTRUCTIONS[s]).map(s => STYLE_INSTRUCTIONS[s]).join(' ')
   const styleInstruction = combinedStyle ? `\n\nTONE INSTRUCTIONS: ${combinedStyle}` : ''
-  const genreInstruction = genre && GENRE_INSTRUCTIONS[genre] ? `\n\nGENRE LENS: ${GENRE_INSTRUCTIONS[genre]}` : ''
+  // Up to 2 genres. Two make a cross-subject lesson that weaves both lenses.
+  const genreKeys = (Array.isArray(genre) ? genre : (genre ? [genre] : [])).filter(g => GENRE_INSTRUCTIONS[g]).slice(0, 2)
+  const genreInstruction = genreKeys.length === 1
+    ? `\n\nGENRE LENS: ${GENRE_INSTRUCTIONS[genreKeys[0]]}`
+    : genreKeys.length === 2
+      ? `\n\nCROSS-SUBJECT LESSON — weave BOTH of these lenses together throughout, so most hunks connect the two subjects (don't just alternate between them):\n1. ${GENRE_INSTRUCTIONS[genreKeys[0]]}\n2. ${GENRE_INSTRUCTIONS[genreKeys[1]]}`
+      : ''
   const client = new Anthropic()
 
   // Two steps, so first drafts don't need several fact checks without

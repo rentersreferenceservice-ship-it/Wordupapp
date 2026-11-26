@@ -17,6 +17,17 @@ const TONES = [
   { value: 'story', label: 'Narrative Story' },
   { value: 'science', label: 'Science & Discovery' },
   { value: 'realworld', label: 'Real-World' },
+  { value: 'mystery', label: 'Mystery' },
+  { value: 'mockserious', label: 'Mock-Serious' },
+  { value: 'timetraveler', label: 'Time Traveler' },
+  { value: 'explorer', label: "Explorer's Journal" },
+  { value: 'bigquestion', label: 'Big Questions' },
+  { value: 'patterndetective', label: 'Pattern Detective' },
+  { value: 'mythvsreality', label: 'Myth vs. Reality' },
+  { value: 'sensory', label: 'Sensory' },
+  { value: 'experimental', label: 'What If?' },
+  { value: 'identity', label: 'Identity & Belonging' },
+  { value: 'humanweirdness', label: 'Wonderfully Weird' },
 ]
 
 const GENRES = [
@@ -54,7 +65,14 @@ export default function PractitionerGeneratePage() {
   const [topic, setTopic] = useState('')
   const [ageGroup, setAgeGroup] = useState(AGE_GROUPS[0])
   const [styles, setStyles] = useState<string[]>(['conversational'])
-  const [genre, setGenre] = useState('')
+  const [genres, setGenres] = useState<string[]>([])
+  // Up to 2 genres; "General" clears them. Picking a third replaces the older one.
+  function toggleGenre(value: string) {
+    if (!value) { setGenres([]); return }
+    setGenres(prev =>
+      prev.includes(value) ? prev.filter(g => g !== value) : [...prev, value].slice(-2)
+    )
+  }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -69,7 +87,7 @@ export default function PractitionerGeneratePage() {
       const res = await fetch('/api/practitioner/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, ageGroup, style: styles, genre }),
+        body: JSON.stringify({ topic, ageGroup, style: styles, genre: genres }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Generation failed')
@@ -118,14 +136,14 @@ export default function PractitionerGeneratePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Genre</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Genre <span className="text-gray-400 font-normal text-xs">(pick up to 2 — two makes a cross-subject lesson)</span></label>
             <div className="flex flex-wrap gap-2">
               {GENRES.map(g => (
                 <Chip
                   key={g.value}
                   label={g.label}
-                  selected={genre === g.value}
-                  onClick={() => setGenre(g.value)}
+                  selected={g.value === '' ? genres.length === 0 : genres.includes(g.value)}
+                  onClick={() => toggleGenre(g.value)}
                   disabled={loading}
                 />
               ))}
