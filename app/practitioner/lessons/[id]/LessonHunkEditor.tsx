@@ -5,6 +5,7 @@ import type { Hunk, Lesson, QuestionType } from '@/lib/types'
 import VaktVideoQR from '@/app/components/VaktVideoQR'
 import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
 import SendToTabletButton from '@/app/components/SendToTabletButton'
+import BrainBreakCard from '@/app/components/BrainBreakCard'
 import type { Student } from '@/lib/practitionerStore'
 import StartSessionFromLesson from './StartSessionFromLesson'
 
@@ -327,6 +328,7 @@ export default function LessonHunkEditor({
                 </div>
               ) : null
             })()}
+            {hunk.brainBreak && <BrainBreakCard game={hunk.brainBreak} />}
           </section>
         )
       })}

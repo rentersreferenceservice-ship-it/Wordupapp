@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { Lesson, Hunk } from './types'
 import { v4 as uuidv4 } from 'uuid'
+import { addBrainBreaks } from './brainBreaks'
 
 function parseIsoDuration(iso: string): string {
   const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
@@ -543,6 +544,26 @@ Only include facts you actually found in the search results. Do not add anything
   return sheet
 }
 
+// The first balanced {...} in text, skipping braces inside JSON strings.
+function firstJsonObject(text: string): string | null {
+  const start = text.indexOf('{')
+  if (start < 0) return null
+  let depth = 0
+  let inString = false
+  let escaped = false
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+    if (inString) {
+      if (escaped) escaped = false
+      else if (ch === '\\') escaped = true
+      else if (ch === '"') inString = false
+    } else if (ch === '"') inString = true
+    else if (ch === '{') depth++
+    else if (ch === '}' && --depth === 0) return text.slice(start, i + 1)
+  }
+  return null
+}
+
 export async function generateLesson(topic: string, ageGroup: string, style?: string | string[], genre?: string | string[]): Promise<Lesson> {
   const styleKeys = Array.isArray(style) ? style : (style ? [style] : [])
   const combinedStyle = styleKeys.filter(s => STYLE_INSTRUCTIONS[s]).map(s => STYLE_INSTRUCTIONS[s]).join(' ')
@@ -616,13 +637,14 @@ FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, 
     try {
       parsed = JSON.parse(stripped)
     } catch {
-      // Extract the outermost {...} block
-      const match = stripped.match(/\{[\s\S]*\}/)
-      if (!match) {
+      // Take the first complete {...} object — the model sometimes adds a
+      // note after the JSON, which made a greedy first-{ to last-} match fail.
+      const block = firstJsonObject(stripped)
+      if (!block) {
         console.error('Claude raw response:', raw.slice(0, 500))
         throw new Error('Could not parse lesson from Claude response. Please try again.')
       }
-      parsed = JSON.parse(match[0])
+      parsed = JSON.parse(block)
     }
   }
 
@@ -733,5 +755,7 @@ FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, 
     hashtags: parsed.hashtags ?? [],
   }
 
-  return annotateKeywords(lesson, client)
+  // Two VAKT sensory-break games (after pages 3 and 6). Never block a lesson on them.
+  const annotated = await annotateKeywords(lesson, client)
+  return addBrainBreaks(annotated).catch(() => annotated)
 }

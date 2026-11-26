@@ -14,6 +14,7 @@ import WritingPromptTabs from './WritingPromptTabs'
 import VaktVideoQR from '@/app/components/VaktVideoQR'
 import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
 import SendToTabletButton from '@/app/components/SendToTabletButton'
+import BrainBreakCard from '@/app/components/BrainBreakCard'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { generateQRDataUrl } from '@/lib/qrcode'
@@ -265,6 +266,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
             {(hunk.writingPrompts || hunk.writingPrompt) && (
               <WritingPromptTabs writingPrompts={hunk.writingPrompts} legacyPrompt={hunk.writingPrompt} />
             )}
+            {hunk.brainBreak && <BrainBreakCard game={hunk.brainBreak} />}
           </section>
         ))}
 

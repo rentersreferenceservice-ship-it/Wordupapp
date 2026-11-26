@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
+import type { BrainBreak } from '@/lib/types'
 
 const STORAGE_KEY = 'tt-tablet-code'
 
@@ -10,9 +11,10 @@ interface TabletConnectionValue {
   code: string | null
   sendQuestion: (text: string) => void
   sendVideo: (videoId: string, title?: string) => void
+  sendGame: (game: BrainBreak) => void
 }
 
-const TabletConnectionContext = createContext<TabletConnectionValue>({ code: null, sendQuestion: () => {}, sendVideo: () => {} })
+const TabletConnectionContext = createContext<TabletConnectionValue>({ code: null, sendQuestion: () => {}, sendVideo: () => {}, sendGame: () => {} })
 
 export function useTabletConnection() {
   return useContext(TabletConnectionContext)
@@ -96,8 +98,15 @@ export default function TabletConnectionProvider({ children }: { children: React
     setTimeout(() => setSent(null), 2000)
   }
 
+  function sendGame(game: BrainBreak) {
+    if (!channelRef.current) return
+    channelRef.current.send({ type: 'broadcast', event: 'game', payload: { game } })
+    setSent('Brain break game')
+    setTimeout(() => setSent(null), 2000)
+  }
+
   return (
-    <TabletConnectionContext.Provider value={{ code, sendQuestion, sendVideo }}>
+    <TabletConnectionContext.Provider value={{ code, sendQuestion, sendVideo, sendGame }}>
       <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 print:hidden">
         {code ? (
           <div className="flex items-center justify-between flex-wrap gap-2">

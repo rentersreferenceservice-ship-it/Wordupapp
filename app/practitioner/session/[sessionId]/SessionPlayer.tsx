@@ -8,6 +8,8 @@ import SmartNotesField from '@/app/practitioner/components/SmartNotesField'
 import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import VaktVideoQR from '@/app/components/VaktVideoQR'
+import BrainBreakCard from '@/app/components/BrainBreakCard'
+import type { BrainBreak } from '@/lib/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 const QUESTION_COLORS: Record<QuestionType, string> = {
@@ -335,6 +337,11 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
   async function handleSendVideoToTt(videoId: string, title?: string) {
     await ensureTtChannel()
     ttChannelRef.current?.send({ type: 'broadcast', event: 'video', payload: { videoId, title } })
+  }
+
+  async function handleSendGameToTt(game: BrainBreak) {
+    await ensureTtChannel()
+    ttChannelRef.current?.send({ type: 'broadcast', event: 'game', payload: { game } })
   }
 
   async function handleSendToTt(hunkIdx: number, questionIdx: number, questionText: string, targetField: TtTargetField) {
@@ -1559,6 +1566,14 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
             })}
           </div>
         </div>
+
+        {/* VAKT brain break after this page (play here or send to the tablet) */}
+        {lesson.hunks[currentHunk]?.brainBreak && !capture.skipped && (
+          <BrainBreakCard
+            game={lesson.hunks[currentHunk].brainBreak!}
+            onSendToTablet={() => handleSendGameToTt(lesson.hunks[currentHunk].brainBreak!)}
+          />
+        )}
 
         {/* Navigation */}
         {saveError && <p className="text-sm text-red-600 text-center pb-2">{saveError}</p>}
