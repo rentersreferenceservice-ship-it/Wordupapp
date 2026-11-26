@@ -54,16 +54,62 @@ function Target({ x, y, px, emoji, onTap, glow, transitionSeconds, onArrive }: {
 }
 
 // ── Pop the Bubbles: one at a time, each in a new spot ───────────────────
+// Short soft "pop" — auditory feedback (the A in VAKT). Silently skipped if
+// the browser has no audio.
+function playPop() {
+  try {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const ctx = new AC()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.frequency.setValueAtTime(700, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.12)
+    gain.gain.setValueAtTime(0.25, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15)
+    osc.connect(gain).connect(ctx.destination)
+    osc.start()
+    osc.stop(ctx.currentTime + 0.16)
+    osc.onended = () => ctx.close()
+  } catch {}
+}
+
 function Bubbles({ count, size }: { count: number; size: TargetSize }) {
   const px = TARGET_PX[size]
   const [n, setN] = useState(0)
   const [spot, setSpot] = useState(() => randomSpot(px))
+  const [popping, setPopping] = useState(false)
+
+  // Burst first (💥 grows and fades, with a pop sound), then the next bubble.
+  function pop() {
+    if (popping) return
+    setPopping(true)
+    playPop()
+    setTimeout(() => {
+      setPopping(false)
+      setN(v => v + 1)
+      setSpot(s => randomSpot(px, s))
+    }, 380)
+  }
+
   if (n >= count) return <Done text="🎉 All the bubbles popped!" />
   return (
     <div>
       <Progress done={n} total={count} />
       <div className={area}>
-        <Target x={spot.x} y={spot.y} px={px} emoji="🫧" onTap={() => { setN(v => v + 1); setSpot(s => randomSpot(px, s)) }} />
+        <button
+          key={n}
+          type="button"
+          onClick={pop}
+          aria-label="bubble"
+          className="absolute flex items-center justify-center rounded-full transition-all duration-300 ease-out"
+          style={{
+            left: `${spot.x}%`, top: `${spot.y}%`, width: px, height: px, fontSize: px * 0.7,
+            transform: `translate(-50%, -50%) scale(${popping ? 1.8 : 1})`,
+            opacity: popping ? 0 : 1,
+          }}
+        >
+          {popping ? '💥' : '🫧'}
+        </button>
       </div>
     </div>
   )
