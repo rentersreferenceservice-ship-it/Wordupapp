@@ -209,12 +209,14 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
               const isComplete = completedIds.has(s.id)
               return (
                 <li key={s.id} className="p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm truncate">{s.lessonTitle}</p>
+                  {/* Title gets its own space; the buttons wrap underneath on narrow
+                      screens instead of squeezing the title to nothing. */}
+                  <div className="flex items-start justify-between gap-x-3 gap-y-1 flex-wrap">
+                    <div className="min-w-[12rem] flex-1">
+                      <p className="font-medium text-gray-900 text-sm">{s.lessonTitle}</p>
                       <p className="text-xs text-gray-400">{new Date(s.sessionDate + 'T00:00:00').toLocaleDateString()}</p>
                     </div>
-                    <div className="flex items-center gap-3 ml-3 shrink-0">
+                    <div className="flex items-center gap-3 flex-wrap">
                       {isComplete ? (
                         <>
                           {finishStartHunks[s.id] && <FinishLessonButton sessionId={s.id} startHunk={finishStartHunks[s.id]} />}
