@@ -21,6 +21,10 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   maze: 'Star Maze',
   numbergrid: 'Number Grid',
   oddone: 'Odd One Out',
+  cups: 'Cup Shuffle',
+  findall: 'Find Them All',
+  pattern: 'Copy the Pattern',
+  spotdiff: 'Spot the Difference',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')

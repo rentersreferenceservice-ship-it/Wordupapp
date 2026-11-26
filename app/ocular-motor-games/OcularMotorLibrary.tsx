@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import type { EyeHandGame, GameStyle, TargetSize } from '@/lib/types'
+import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 
-type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone'
+type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff'
 
-const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠' }
+const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠', cups: '⚪', findall: '🔠', spotdiff: '♦️' }
 
 const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
   { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
@@ -18,6 +18,10 @@ const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: s
   { key: 'findletter', emoji: '🔤', name: 'Find the Letter', skill: 'Letterboard scanning', ages: 'All ages', how: 'A letter appears — find and tap it on the board.' },
   { key: 'numbergrid', emoji: '🔲', name: 'Number Grid', skill: 'Wide-field scanning', ages: 'Teens & adults', how: 'Numbers are scattered in a grid — tap them in order, 1 to the end.' },
   { key: 'oddone', emoji: '🔍', name: 'Odd One Out', skill: 'Visual discrimination', ages: 'All ages', how: 'One symbol is different from the rest (like Q among O’s). Find it.' },
+  { key: 'cups', emoji: '🥤', name: 'Cup Shuffle', skill: 'Smooth tracking', ages: 'All ages', how: 'Watch the cup with the ball as the cups slowly swap — then tap where it ended up.' },
+  { key: 'findall', emoji: '⭐', name: 'Find Them All', skill: 'Visual scanning', ages: 'All ages', how: 'Tap every target hidden among other shapes — like every ⭐, or every E among F, P and B.' },
+  { key: 'pattern', emoji: '🟦', name: 'Copy the Pattern', skill: 'Visual memory', ages: 'All ages', how: 'Some squares light up. Remember them, tap “I’m ready”, then tap the same squares.' },
+  { key: 'spotdiff', emoji: '👀', name: 'Spot the Difference', skill: 'Comparing side to side', ages: 'All ages', how: 'Two grids side by side — one picture is different. Find it.' },
 ]
 
 function Choice<T extends string | number>({ label, value, options, onChange }: {
@@ -52,6 +56,15 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [grid, setGrid] = useState(teen ? 5 : 4)
   const [gridMode, setGridMode] = useState<'numbers' | 'letters'>('numbers')
   const [oddGrid, setOddGrid] = useState(teen ? 6 : 4)
+  const [cupCount, setCupCount] = useState(3)
+  const [swaps, setSwaps] = useState(teen ? 8 : 3)
+  const [speed, setSpeed] = useState<GameSpeed>(teen ? 'medium' : 'slow')
+  const [findGrid, setFindGrid] = useState(teen ? 8 : 5)
+  const [findTargets, setFindTargets] = useState(teen ? 8 : 4)
+  const [patGrid, setPatGrid] = useState(teen ? 4 : 3)
+  const [patSquares, setPatSquares] = useState(teen ? 5 : 2)
+  const [spotGrid, setSpotGrid] = useState(teen ? 5 : 3)
+  const [rounds, setRounds] = useState(5)
   const [playing, setPlaying] = useState<EyeHandGame | null>(null)
   const [sent, setSent] = useState(false)
 
@@ -65,6 +78,10 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
       case 'findletter': return { type: 'findletter', count, board }
       case 'numbergrid': return { type: 'numbergrid', grid, mode: gridMode }
       case 'oddone': return { type: 'oddone', grid: oddGrid, rounds: count, style }
+      case 'cups': return { type: 'cups', cups: cupCount, swaps, speed, rounds, style }
+      case 'findall': return { type: 'findall', grid: findGrid, targets: findTargets, style }
+      case 'pattern': return { type: 'pattern', grid: patGrid, squares: patSquares, rounds }
+      case 'spotdiff': return { type: 'spotdiff', grid: spotGrid, rounds, style }
     }
   }
 
@@ -113,6 +130,27 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
           </>
         )}
         {meta.key === 'oddone' && <Choice label="Grid" value={oddGrid} onChange={setOddGrid} options={[3, 4, 5, 6, 8].map(g => ({ v: g, label: `${g}×${g}` }))} />}
+        {meta.key === 'cups' && (
+          <>
+            <Choice label="Cups" value={cupCount} onChange={setCupCount} options={[3, 4, 5].map(c => ({ v: c, label: String(c) }))} />
+            <Choice label="Swaps" value={swaps} onChange={setSwaps} options={[2, 3, 5, 8, 12].map(c => ({ v: c, label: String(c) }))} />
+            <Choice label="Speed" value={speed} onChange={setSpeed} options={[{ v: 'slow', label: 'Slow' }, { v: 'medium', label: 'Medium' }, { v: 'fast', label: 'Fast' }]} />
+          </>
+        )}
+        {meta.key === 'findall' && (
+          <>
+            <Choice label="Grid" value={findGrid} onChange={setFindGrid} options={[4, 5, 6, 8, 10].map(g => ({ v: g, label: `${g}×${g}` }))} />
+            <Choice label="Find" value={findTargets} onChange={setFindTargets} options={[3, 4, 6, 8, 12].map(c => ({ v: c, label: String(c) }))} />
+          </>
+        )}
+        {meta.key === 'pattern' && (
+          <>
+            <Choice label="Grid" value={patGrid} onChange={setPatGrid} options={[3, 4, 5].map(g => ({ v: g, label: `${g}×${g}` }))} />
+            <Choice label="Squares" value={patSquares} onChange={setPatSquares} options={[2, 3, 4, 5, 7].map(c => ({ v: c, label: String(c) }))} />
+          </>
+        )}
+        {meta.key === 'spotdiff' && <Choice label="Grid" value={spotGrid} onChange={setSpotGrid} options={[3, 4, 5, 6].map(g => ({ v: g, label: `${g}×${g}` }))} />}
+        {['cups', 'pattern', 'spotdiff'].includes(meta.key) && <Choice label="Rounds" value={rounds} onChange={setRounds} options={[3, 5, 8, 10].map(c => ({ v: c, label: String(c) }))} />}
         {showCount && <Choice label={meta.key === 'dots' ? 'Dots' : meta.key === 'oddone' ? 'Rounds' : 'Turns'} value={count} onChange={setCount} options={counts.map(c => ({ v: c, label: String(c) }))} />}
       </div>
       {playing && <BrainBreakOverlay game={playing} onClose={() => setPlaying(null)} />}

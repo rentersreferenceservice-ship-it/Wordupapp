@@ -51,6 +51,10 @@ export type EyeHandGame =
   | { type: 'cardmatch'; pairs: number; style?: GameStyle }
   | { type: 'numbergrid'; grid: number; mode: 'numbers' | 'letters' }
   | { type: 'oddone'; grid: number; rounds: number; style?: GameStyle }
+  | { type: 'cups'; cups: number; swaps: number; speed: GameSpeed; rounds: number; style?: GameStyle }
+  | { type: 'findall'; grid: number; targets: number; style?: GameStyle }
+  | { type: 'pattern'; grid: number; squares: number; rounds: number }
+  | { type: 'spotdiff'; grid: number; rounds: number; style?: GameStyle }
 
 export interface Lesson {
   id: string

@@ -485,6 +485,220 @@ function OddOneOut({ grid, rounds, style }: { grid: number; rounds: number; styl
   )
 }
 
+// ── Cup Shuffle: watch the cup with the ball as the cups swap ────────────
+const SWAP_SECONDS: Record<GameSpeed, number> = { slow: 1.4, medium: 0.9, fast: 0.6 }
+
+function CupShuffle({ cups, swaps, speed, rounds, style }: { cups: number; swaps: number; speed: GameSpeed; rounds: number; style?: GameStyle }) {
+  const [round, setRound] = useState(0)
+  // slotOf[cupId] = which slot (left→right) that cup is in. Cup 0 has the ball.
+  const [slotOf, setSlotOf] = useState<number[]>(() => Array.from({ length: cups }, (_, i) => i))
+  const [phase, setPhase] = useState<'show' | 'shuffle' | 'guess' | 'reveal'>('show')
+  const [picked, setPicked] = useState<number | null>(null)
+  const ball = style === 'grownup' ? '⚪' : '⚽'
+  const sec = SWAP_SECONDS[speed]
+
+  function start() {
+    setPhase('shuffle')
+    let i = 0
+    const step = () => {
+      if (i >= swaps) { setPhase('guess'); return }
+      setSlotOf(prev => {
+        const a = Math.floor(Math.random() * cups)
+        let b = Math.floor(Math.random() * (cups - 1)); if (b >= a) b++
+        const next = [...prev]
+        const ca = next.indexOf(a), cb = next.indexOf(b)
+        next[ca] = b; next[cb] = a
+        return next
+      })
+      i++
+      setTimeout(step, sec * 1000 + 150)
+    }
+    setTimeout(step, 400)
+  }
+
+  function guess(cupId: number) {
+    if (phase !== 'guess') return
+    setPicked(cupId)
+    setPhase('reveal')
+  }
+
+  function nextRound() {
+    setRound(r => r + 1); setPhase('show'); setPicked(null)
+    setSlotOf(Array.from({ length: cups }, (_, i) => i))
+  }
+
+  if (round >= rounds) return <Done text="🎉 Great tracking!" />
+  const width = 100 / cups
+  return (
+    <div>
+      <Progress done={round} total={rounds} />
+      <p className="text-center text-gray-500 mb-3">
+        {phase === 'show' ? `The ${ball} is under this cup. Watch it!` : phase === 'shuffle' ? 'Keep your eyes on the cup…' : phase === 'guess' ? `Where is the ${ball}? Tap that cup.` : picked === 0 ? '🎉 You found it!' : `Here it was! Nice try.`}
+      </p>
+      <div className="relative w-full max-w-xl mx-auto h-56">
+        {Array.from({ length: cups }, (_, id) => {
+          const lifted = phase === 'show' ? id === 0 : phase === 'reveal' ? id === 0 || id === picked : false
+          return (
+            <button key={id} type="button" onClick={() => guess(id)} aria-label="cup"
+              className="absolute bottom-6 flex flex-col items-center"
+              style={{ left: `${slotOf[id] * width + width / 2}%`, transform: 'translateX(-50%)', transition: `left ${sec}s ease-in-out`, width: `${Math.min(width * 0.8, 28)}%` }}>
+              {/* Cup sits on top of the ball (z-10) so the ball only shows when it's lifted */}
+              <div className="relative z-10 w-full transition-transform duration-300" style={{ transform: lifted ? 'translateY(-70px)' : 'none' }}>
+                <div className={`w-full aspect-[4/5] rounded-t-[40%] rounded-b-lg border-4 ${style === 'grownup' ? 'bg-slate-500 border-slate-700' : 'bg-red-500 border-red-700'}`} />
+              </div>
+              <span className={`absolute bottom-0 z-0 text-4xl ${id === 0 ? '' : 'invisible'}`}>{ball}</span>
+            </button>
+          )
+        })}
+      </div>
+      <div className="text-center">
+        {phase === 'show' && <button type="button" onClick={start} className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Start shuffling</button>}
+        {phase === 'reveal' && <button type="button" onClick={nextRound} className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Next round</button>}
+      </div>
+    </div>
+  )
+}
+
+// ── Find Them All: tap every target hidden among other symbols ───────────
+const FIND_SETS: Record<GameStyle, { target: string; others: string[] }[]> = {
+  playful: [{ target: '⭐', others: ['🔺', '🟦', '🟢', '🟣', '🔶'] }, { target: '🐸', others: ['🐢', '🐍', '🦎', '🐊'] }, { target: '🍎', others: ['🍅', '🍒', '🍓', '🌶️'] }],
+  grownup: [{ target: 'E', others: ['F', 'P', 'B', 'R', 'H'] }, { target: 'b', others: ['d', 'p', 'q', 'h'] }, { target: '7', others: ['1', '4', 'T', 'L'] }],
+}
+
+function FindAll({ grid, targets, style }: { grid: number; targets: number; style?: GameStyle }) {
+  const board = useMemo(() => {
+    const sets = FIND_SETS[style ?? 'playful']
+    const set = sets[Math.floor(Math.random() * sets.length)]
+    const total = grid * grid
+    const spots = new Set<number>()
+    while (spots.size < Math.min(targets, total - 1)) spots.add(Math.floor(Math.random() * total))
+    return { set, cells: Array.from({ length: total }, (_, i) => (spots.has(i) ? set.target : set.others[Math.floor(Math.random() * set.others.length)])), count: spots.size }
+  }, [grid, targets, style])
+  const [found, setFound] = useState<number[]>([])
+  const [wrong, setWrong] = useState<number | null>(null)
+  function tap(i: number) {
+    if (found.includes(i)) return
+    if (board.cells[i] === board.set.target) setFound(f => [...f, i])
+    else { setWrong(i); setTimeout(() => setWrong(null), 500) }
+  }
+  const left = board.count - found.length
+  return (
+    <div>
+      <p className="text-center mb-3 text-gray-600">Find every <span className="text-3xl font-bold align-middle mx-1">{board.set.target}</span> {left > 0 ? `— ${left} left` : ''}</p>
+      <div className="grid gap-1 mx-auto w-full max-w-[min(90vw,520px)]" style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }}>
+        {board.cells.map((sym, i) => (
+          <button key={i} type="button" onClick={() => tap(i)}
+            className={`aspect-square rounded-lg border-2 flex items-center justify-center font-semibold ${grid > 7 ? 'text-lg' : 'text-2xl'} ${
+              found.includes(i) ? 'bg-green-200 border-green-500' : wrong === i ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200'
+            }`}>
+            {sym}
+          </button>
+        ))}
+      </div>
+      {left === 0 && <Done text="🎉 You found them all!" />}
+    </div>
+  )
+}
+
+// ── Copy the Pattern: remember the lit squares, then tap them ────────────
+function CopyPattern({ grid, squares, rounds }: { grid: number; squares: number; rounds: number }) {
+  const [round, setRound] = useState(0)
+  const pattern = useMemo(() => {
+    const total = grid * grid
+    const s = new Set<number>()
+    while (s.size < Math.min(squares, total - 1)) s.add(Math.floor(Math.random() * total))
+    return s
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grid, squares, round])
+  const [phase, setPhase] = useState<'look' | 'tap'>('look')
+  const [hits, setHits] = useState<number[]>([])
+  const [miss, setMiss] = useState<number | null>(null)
+  const complete = hits.length === pattern.size
+
+  function tap(i: number) {
+    if (phase !== 'tap' || hits.includes(i) || complete) return
+    if (pattern.has(i)) {
+      const next = [...hits, i]
+      setHits(next)
+      if (next.length === pattern.size) setTimeout(() => { setRound(r => r + 1); setPhase('look'); setHits([]) }, 800)
+    } else { setMiss(i); setTimeout(() => setMiss(null), 500) }
+  }
+
+  if (round >= rounds) return <Done text="🎉 Great memory!" />
+  return (
+    <div>
+      <Progress done={round} total={rounds} />
+      <p className="text-center text-gray-500 mb-3">{phase === 'look' ? 'Look at the blue squares. Tap “I’m ready” when you remember them.' : 'Now tap the squares that were blue.'}</p>
+      <div className="grid gap-2 mx-auto w-full max-w-[min(80vw,420px)]" style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }}>
+        {Array.from({ length: grid * grid }, (_, i) => (
+          <button key={`${round}-${i}`} type="button" onClick={() => tap(i)}
+            className={`aspect-square rounded-xl border-2 ${
+              phase === 'look' && pattern.has(i) ? 'bg-blue-500 border-blue-600'
+                : hits.includes(i) ? 'bg-green-400 border-green-500'
+                  : miss === i ? 'bg-red-100 border-red-300' : 'bg-white border-gray-300'
+            }`} />
+        ))}
+      </div>
+      {phase === 'look' && (
+        <div className="text-center mt-4">
+          <button type="button" onClick={() => setPhase('tap')} className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold">I’m ready</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Spot the Difference: two grids, one picture changed ──────────────────
+const SPOT_SETS: Record<GameStyle, string[]> = {
+  playful: ['🐶', '🐱', '🐸', '🐵', '🦁', '🐷', '🐰', '🐻', '🍎', '🍌', '🚗', '⭐', '🌸', '🐟'],
+  grownup: ['♠️', '♥️', '♦️', '♣️', '⭐', '🔺', '🟦', '🟢', '🟣', '🔶', '⚫', '🌙', '☀️', '⚡'],
+}
+
+function SpotDiff({ grid, rounds, style }: { grid: number; rounds: number; style?: GameStyle }) {
+  const [round, setRound] = useState(0)
+  const puzzle = useMemo(() => {
+    const set = SPOT_SETS[style ?? 'playful']
+    const left = Array.from({ length: grid * grid }, () => set[Math.floor(Math.random() * set.length)])
+    const at = Math.floor(Math.random() * left.length)
+    const right = [...left]
+    let swap = set[Math.floor(Math.random() * set.length)]
+    while (swap === left[at]) swap = set[Math.floor(Math.random() * set.length)]
+    right[at] = swap
+    return { left, right, at }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grid, style, round])
+  const [found, setFound] = useState(false)
+  const [wrong, setWrong] = useState<string | null>(null)
+  function tap(side: string, i: number) {
+    if (found) return
+    if (i === puzzle.at) { setFound(true); setTimeout(() => { setFound(false); setRound(r => r + 1) }, 900) }
+    else { setWrong(`${side}${i}`); setTimeout(() => setWrong(null), 500) }
+  }
+  if (round >= rounds) return <Done text="🎉 Eagle eyes!" />
+  const panel = (side: string, cells: string[]) => (
+    <div className="grid gap-1 w-full" style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }}>
+      {cells.map((sym, i) => (
+        <button key={`${round}-${side}-${i}`} type="button" onClick={() => tap(side, i)}
+          className={`aspect-square rounded-md border flex items-center justify-center ${grid > 4 ? 'text-lg' : 'text-2xl sm:text-3xl'} ${
+            found && i === puzzle.at ? 'bg-green-200 border-green-500' : wrong === `${side}${i}` ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200'
+          }`}>
+          {sym}
+        </button>
+      ))}
+    </div>
+  )
+  return (
+    <div>
+      <Progress done={round} total={rounds} />
+      <p className="text-center text-gray-500 mb-3">One picture is different on the right. Find it and tap it.</p>
+      <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+        {panel('L', puzzle.left)}
+        {panel('R', puzzle.right)}
+      </div>
+    </div>
+  )
+}
+
 export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
   switch (game.type) {
     case 'bubbles': return <Bubbles count={game.count} size={game.size} style={game.style} />
@@ -496,5 +710,9 @@ export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
     case 'cardmatch': return <CardMatch pairs={game.pairs} style={game.style} />
     case 'numbergrid': return <NumberGrid grid={game.grid} mode={game.mode} />
     case 'oddone': return <OddOneOut grid={game.grid} rounds={game.rounds} style={game.style} />
+    case 'cups': return <CupShuffle cups={game.cups} swaps={game.swaps} speed={game.speed} rounds={game.rounds} style={game.style} />
+    case 'findall': return <FindAll grid={game.grid} targets={game.targets} style={game.style} />
+    case 'pattern': return <CopyPattern grid={game.grid} squares={game.squares} rounds={game.rounds} />
+    case 'spotdiff': return <SpotDiff grid={game.grid} rounds={game.rounds} style={game.style} />
   }
 }
