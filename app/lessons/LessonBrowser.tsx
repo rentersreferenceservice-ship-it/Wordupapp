@@ -338,7 +338,7 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
             Submit a Lesson
           </Link>
           <Link href="/type-to-talk" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors text-center">
-            Type to Talk — Free
+            Type to Talk
           </Link>
           <Link href="/type-to-talk/conversation" className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors text-center">
             Tablet to Tablet
