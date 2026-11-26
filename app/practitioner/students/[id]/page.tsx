@@ -1,12 +1,13 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getStudent, getSessions, getCompletedSessionIds, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments, getFormSubmissions } from '@/lib/practitionerStore'
+import { getStudent, getSessions, getCompletedSessionIds, getUnfinishedLessonStartHunks, getStudentAccuracyHistory, getCrps, getSavedReports, getStudentDocuments, getFormSubmissions } from '@/lib/practitionerStore'
 import { listLessonSummaries } from '@/lib/lessonStore'
 import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 import StartSessionButton from './StartSessionButton'
 import DeleteStudentButton from './DeleteStudentButton'
 import DeleteSessionButton from './DeleteSessionButton'
+import FinishLessonButton from './FinishLessonButton'
 import AccuracyChart from '@/app/AccuracyChart'
 import AccuracyExcludeButton from './AccuracyExcludeButton'
 import CrpManager from './CrpManager'
@@ -55,6 +56,18 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
   const todayStr = new Date().toISOString().split('T')[0]
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
+
+  // "Finish lesson" is offered on the most recent session of each lesson,
+  // when that session ended early (its last pages were skipped).
+  const latestSessionByLesson: Record<string, { id: string; key: string }> = {}
+  for (const s of sessions) {
+    if (!s.lessonId) continue
+    const key = `${s.sessionDate}|${s.createdAt}`
+    const cur = latestSessionByLesson[s.lessonId]
+    if (!cur || key > cur.key) latestSessionByLesson[s.lessonId] = { id: s.id, key }
+  }
+  const finishCandidates = Object.values(latestSessionByLesson).map(v => v.id).filter(id => completedIds.has(id))
+  const finishStartHunks = await getUnfinishedLessonStartHunks(finishCandidates).catch(() => ({} as Record<string, number>))
 
   const completedLessonIds = new Set(
     sessions.filter(s => s.lessonId && completedIds.has(s.id)).map(s => s.lessonId as string)
@@ -203,7 +216,10 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
                     </div>
                     <div className="flex items-center gap-3 ml-3 shrink-0">
                       {isComplete ? (
-                        <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-blue-600 hover:underline">View Transcript</Link>
+                        <>
+                          {finishStartHunks[s.id] && <FinishLessonButton sessionId={s.id} startHunk={finishStartHunks[s.id]} />}
+                          <Link href={`/practitioner/transcript/${s.id}`} className="text-xs text-blue-600 hover:underline">View Transcript</Link>
+                        </>
                       ) : (
                         <>
                           <Link href={`/practitioner/session/${s.id}`} className="text-xs font-semibold text-orange-600 hover:underline">▶ Resume</Link>

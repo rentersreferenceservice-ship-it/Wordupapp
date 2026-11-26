@@ -918,3 +918,68 @@ export async function getStudentDocuments(studentId: string, practitionerId: str
     uploadedAt: d.uploaded_at,
   }))
 }
+
+// For lesson sessions that ended early (the last pages were all skipped),
+// the 1-based hunk number to pick up from in a "Finish lesson" session.
+// Sessions that weren't cut short are left out.
+export async function getUnfinishedLessonStartHunks(sessionIds: string[]): Promise<Record<string, number>> {
+  if (!sessionIds.length) return {}
+  // The database returns at most 1000 rows per request — read in pages.
+  type Row = { session_id: string; hunk_number: number; question_type: string; captured_answer: string | null; misspoke_count: number | null; speller_sentence: string | null }
+  async function readAll(ids: string[], questionType?: string): Promise<Row[]> {
+    const rows: Row[] = []
+    for (let from = 0; ; from += 1000) {
+      let q = getSupabase()
+        .from('session_responses')
+        .select('session_id, hunk_number, question_type, captured_answer, misspoke_count, speller_sentence')
+        .in('session_id', ids)
+        .gt('hunk_number', 0)
+      if (questionType) q = q.eq('question_type', questionType)
+      const { data } = await q.order('id').range(from, from + 999)
+      rows.push(...((data ?? []) as Row[]))
+      if (!data || data.length < 1000) return rows
+    }
+  }
+  const skippedRows = await readAll(sessionIds, 'HUNK_SKIPPED')
+  const skipped: Record<string, Set<number>> = {}
+  for (const r of skippedRows ?? []) {
+    (skipped[r.session_id] ??= new Set()).add(r.hunk_number)
+  }
+  const withSkips = Object.keys(skipped)
+  if (!withSkips.length) return {}
+
+  // Number of pages in each session = highest hunk number it saved.
+  const kwRows = await readAll(withSkips, 'KEYWORD')
+  const total: Record<string, number> = {}
+  for (const r of kwRows ?? []) total[r.session_id] = Math.max(total[r.session_id] ?? 0, r.hunk_number)
+
+  // Until Nov 2026, tapping Skip on the last page finished the session
+  // before that skip was saved, so the last page looks "done". Treat it as
+  // skipped when the page before it was skipped and nothing was recorded on
+  // it (no misspokes, answers, sentences or writing).
+  const suspects = withSkips.filter(id => total[id] && !skipped[id].has(total[id]) && skipped[id].has(total[id] - 1))
+  if (suspects.length) {
+    const lastRows = await readAll(suspects)
+    const touched = new Set<string>()
+    for (const r of lastRows ?? []) {
+      if (r.hunk_number !== total[r.session_id]) continue
+      const answer = (r.captured_answer ?? '').trim()
+      const realAnswer = answer && !['SKIPPED', 'NOT_ASKED', 'SKIP'].includes(answer)
+      if ((r.misspoke_count ?? 0) > 0 || (r.speller_sentence ?? '').trim() || (r.question_type !== 'KEYWORD' && realAnswer)) {
+        touched.add(r.session_id)
+      }
+    }
+    for (const id of suspects) if (!touched.has(id)) skipped[id].add(total[id])
+  }
+
+  const result: Record<string, number> = {}
+  for (const id of withSkips) {
+    const n = total[id] ?? 0
+    const s = skipped[id]
+    if (!n || !s.has(n)) continue // last page was done — not cut short
+    let start = n
+    while (start > 1 && s.has(start - 1)) start--
+    if (start > 1) result[id] = start // every page skipped = never really started
+  }
+  return result
+}

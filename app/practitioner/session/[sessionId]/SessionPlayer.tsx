@@ -62,6 +62,20 @@ interface HunkCapture {
   skipped: boolean
 }
 
+// A page marked skipped: nothing on it counts toward accuracy.
+function skippedCapture(c: HunkCapture): HunkCapture {
+  return {
+    ...c,
+    skipped: true,
+    keywords: c.keywords.map(k => ({ ...k, asked: false, misspokeCount: 0 })),
+    extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: true, misspokeCount: 0 })),
+    questions: c.questions.map(q => ({ ...q, asked: false, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
+    writingSkipped: true,
+    writingResponse: '',
+    writingMisspokes: 0,
+  }
+}
+
 function playBell() {
   try {
     const ctx = new AudioContext()
@@ -749,7 +763,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     }
   }
 
-  function buildResponses(complete: boolean, invoiceOverride?: string) {
+  function buildResponses(complete: boolean, invoiceOverride?: string, capturesOverride?: HunkCapture[]) {
     const invoiceValue = (invoiceOverride ?? sessionInvoice).trim()
     return [
       { hunkNumber: 0, questionType: 'SESSION_STATE', questionText: 'Student State', capturedAnswer: studentStates.join(', '), expectedAnswer: '', misspokeCount: 0 },
@@ -757,7 +771,7 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
       ...(sessionVideo.trim() ? [{ hunkNumber: 0, questionType: 'SESSION_VIDEO', questionText: 'Session Video', capturedAnswer: sessionVideo.trim(), expectedAnswer: '', misspokeCount: 0 }] : []),
       ...(invoiceValue ? [{ hunkNumber: 0, questionType: 'SESSION_INVOICE', questionText: 'Session Invoice', capturedAnswer: invoiceValue, expectedAnswer: '', misspokeCount: 0 }] : []),
       ...(complete ? [{ hunkNumber: 0, questionType: 'SESSION_COMPLETE', questionText: 'Session Complete', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
-      ...captures.flatMap((hunkCapture, hunkIdx) => [
+      ...(capturesOverride ?? captures).flatMap((hunkCapture, hunkIdx) => [
         ...(hunkCapture.skipped ? [{ hunkNumber: hunkIdx + 1, questionType: 'HUNK_SKIPPED', questionText: 'Hunk Skipped', capturedAnswer: 'true', expectedAnswer: '', misspokeCount: 0 }] : []),
         ...hunkCapture.keywords.map(k => ({
           hunkNumber: hunkIdx + 1,
@@ -851,12 +865,29 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
     }
   }
 
-  async function handleComplete() {
+  // capturesOverride: pages changed in the same click (state isn't updated
+  // yet). Used as an onClick handler too, so ignore a click event argument.
+  // Student had to stop: mark every page after this one skipped and finish,
+  // so today's accuracy counts only the pages actually done. The rest can be
+  // picked up later with "Finish lesson" on the speller's page.
+  function handleEndSessionHere() {
+    const remaining = lesson.hunks.length - (currentHunk + 1)
+    const msg = remaining > 0
+      ? `End the session here? Pages ${currentHunk + 2}–${lesson.hunks.length} will be marked skipped, and today's accuracy will count only the pages you did. You can finish the rest another day with "Finish lesson" on the speller's page.`
+      : 'End the session here?'
+    if (!window.confirm(msg)) return
+    const next = captures.map((c, i) => (i > currentHunk ? skippedCapture(c) : c))
+    setCaptures(next)
+    handleComplete(next)
+  }
+
+  async function handleComplete(capturesOverride?: HunkCapture[] | unknown) {
+    const finalCaptures = Array.isArray(capturesOverride) ? (capturesOverride as HunkCapture[]) : undefined
     finishingRef.current = true
     setSaving(true)
     setSaveError('')
     try {
-      const responses = buildResponses(true)
+      const responses = buildResponses(true, undefined, finalCaptures)
       const res = await fetch(`/api/practitioner/sessions/${sessionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1566,27 +1597,22 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           ) : (
             <button
               onClick={() => {
-                setCaptures(prev => {
-                  const next = [...prev]
-                  const c = next[currentHunk]
-                  next[currentHunk] = {
-                    ...c,
-                    skipped: true,
-                    keywords: c.keywords.map(k => ({ ...k, asked: false, misspokeCount: 0 })),
-                    extraKeywords: c.extraKeywords.map(e => ({ ...e, skipped: true, misspokeCount: 0 })),
-                    questions: c.questions.map(q => ({ ...q, asked: false, misspokeCount: 0, capturedAnswer: '', completedAnswers: [] })),
-                    writingSkipped: true,
-                    writingResponse: '',
-                    writingMisspokes: 0,
-                  }
-                  return next
-                })
+                // Build the updated pages here so finishing on the last page
+                // includes this skip (it used to complete with stale state,
+                // counting the skipped last page as done and all-correct).
+                const next = captures.map((c, i) => (i === currentHunk ? skippedCapture(c) : c))
+                setCaptures(next)
                 if (!isLast) setCurrentHunk(h => h + 1)
-                else handleComplete()
+                else handleComplete(next)
               }}
               className="bg-gray-100 text-gray-500 px-4 py-3 rounded-xl font-medium text-sm border border-gray-200 hover:bg-gray-200 transition-colors"
             >
               Skip Page
+            </button>
+          )}
+          {!isLast && (
+            <button onClick={handleEndSessionHere} disabled={saving} title="Student has to stop — finish now and count only the pages done" className="bg-white text-red-600 px-4 py-3 rounded-xl font-medium text-sm border-2 border-red-200 hover:bg-red-50 disabled:opacity-60 transition-colors">
+              ⏹ End session here
             </button>
           )}
           {!isLast ? (
