@@ -38,14 +38,19 @@ export type BrainBreak =
   | EyeHandGame
 
 export type TargetSize = 'small' | 'medium' | 'large'
+/** Playful = emoji/animals; grown-up = plain shapes and letters for teens and adults. */
+export type GameStyle = 'playful' | 'grownup'
 export type GameSpeed = 'slow' | 'medium' | 'fast'
 export type EyeHandGame =
-  | { type: 'bubbles'; count: number; size: TargetSize }
+  | { type: 'bubbles'; count: number; size: TargetSize; style?: GameStyle }
   | { type: 'followstar'; count: number; size: TargetSize; speed: GameSpeed }
-  | { type: 'leftright'; count: number; size: TargetSize }
-  | { type: 'dots'; count: number; size: TargetSize; mode: 'numbers' | 'letters' }
+  | { type: 'maze'; cells: number; mode: 'slide' | 'tap'; style?: GameStyle }
+  | { type: 'leftright'; count: number; size: TargetSize; style?: GameStyle }
+  | { type: 'dots'; count: number; size: TargetSize; mode: 'numbers' | 'letters' | 'alternating' }
   | { type: 'findletter'; count: number; board: 'three' | 'alphabet' | 'keyboard' }
-  | { type: 'cardmatch'; pairs: number }
+  | { type: 'cardmatch'; pairs: number; style?: GameStyle }
+  | { type: 'numbergrid'; grid: number; mode: 'numbers' | 'letters' }
+  | { type: 'oddone'; grid: number; rounds: number; style?: GameStyle }
 
 export interface Lesson {
   id: string

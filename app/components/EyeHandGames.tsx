@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import type { EyeHandGame, GameSpeed, TargetSize } from '@/lib/types'
+import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 
 // Eye-hand (oculomotor) practice for spellers. Tap-only, no timers, no
 // penalties: a wrong tap just gives a gentle shake. Size, speed and count
@@ -73,7 +73,7 @@ function playPop() {
   } catch {}
 }
 
-function Bubbles({ count, size }: { count: number; size: TargetSize }) {
+function Bubbles({ count, size, style }: { count: number; size: TargetSize; style?: GameStyle }) {
   const px = TARGET_PX[size]
   const [n, setN] = useState(0)
   const [spot, setSpot] = useState(() => randomSpot(px))
@@ -108,7 +108,7 @@ function Bubbles({ count, size }: { count: number; size: TargetSize }) {
             opacity: popping ? 0 : 1,
           }}
         >
-          {popping ? '💥' : '🫧'}
+          {popping ? (style === 'grownup' ? '✳️' : '💥') : (style === 'grownup' ? '🔵' : '🫧')}
         </button>
       </div>
     </div>
@@ -141,7 +141,7 @@ function FollowStar({ count, size, speed }: { count: number; size: TargetSize; s
 }
 
 // ── Left–Right Jump: far left, far right, across the middle ──────────────
-function LeftRight({ count, size }: { count: number; size: TargetSize }) {
+function LeftRight({ count, size, style }: { count: number; size: TargetSize; style?: GameStyle }) {
   const px = TARGET_PX[size]
   const [n, setN] = useState(0)
   const [y, setY] = useState(50)
@@ -151,7 +151,7 @@ function LeftRight({ count, size }: { count: number; size: TargetSize }) {
     <div>
       <Progress done={n} total={count} />
       <div className={area}>
-        <Target x={left ? 9 : 91} y={y} px={px} emoji={left ? '🐸' : '🦋'}
+        <Target x={left ? 9 : 91} y={y} px={px} emoji={style === 'grownup' ? (left ? '🔵' : '🟠') : (left ? '🐸' : '🦋')}
           onTap={() => { setN(v => v + 1); setY(15 + Math.random() * 70) }} />
       </div>
     </div>
@@ -159,9 +159,13 @@ function LeftRight({ count, size }: { count: number; size: TargetSize }) {
 }
 
 // ── Connect the Dots: tap in order, 1→N or A→… ──────────────────────────
-function Dots({ count, size, mode }: { count: number; size: TargetSize; mode: 'numbers' | 'letters' }) {
+function Dots({ count, size, mode }: { count: number; size: TargetSize; mode: 'numbers' | 'letters' | 'alternating' }) {
   const px = Math.round(TARGET_PX[size] * 0.75)
-  const labels = useMemo(() => Array.from({ length: count }, (_, i) => (mode === 'letters' ? String.fromCharCode(65 + i) : String(i + 1))), [count, mode])
+  // 'alternating' is a number–letter trail: 1, A, 2, B, 3, C…
+  const labels = useMemo(() => Array.from({ length: count }, (_, i) =>
+    mode === 'letters' ? String.fromCharCode(65 + i)
+      : mode === 'alternating' ? (i % 2 === 0 ? String(i / 2 + 1) : String.fromCharCode(65 + (i - 1) / 2))
+        : String(i + 1)), [count, mode])
   const spots = useMemo(() => {
     const placed: { x: number; y: number }[] = []
     for (let i = 0; i < count; i++) {
@@ -246,13 +250,16 @@ function FindLetter({ count, board }: { count: number; board: 'three' | 'alphabe
 // ── Card Match: all cards face up — find the two that are the same ───────
 const CARD_FACES = ['🐶', '🐱', '🦊', '🐸', '🐵', '🦁', '🐷', '🐰', '🐻', '🐼', '🐢', '🐙', '🦋', '🐝', '🍎', '🍌', '🚗', '🚀']
 
-function CardMatch({ pairs }: { pairs: number }) {
+const CARD_FACES_GROWNUP = ['♠️', '♥️', '♦️', '♣️', '⭐', '🔺', '🟦', '🟢', '🟣', '🔶', '⚫', '✳️', '➕', '🌙', '☀️', '⚡', '🎵', '❄️']
+
+function CardMatch({ pairs, style }: { pairs: number; style?: GameStyle }) {
   const cards = useMemo(() => {
-    const faces = CARD_FACES.slice(0, Math.min(pairs, CARD_FACES.length))
+    const set = style === 'grownup' ? CARD_FACES_GROWNUP : CARD_FACES
+    const faces = set.slice(0, Math.min(pairs, set.length))
     const deck = [...faces, ...faces].map((f, i) => ({ f, id: i }))
     for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]] }
     return deck
-  }, [pairs])
+  }, [pairs, style])
   const [picked, setPicked] = useState<number | null>(null)
   const [matched, setMatched] = useState<number[]>([])
   const [wrong, setWrong] = useState<number[]>([])
@@ -285,13 +292,209 @@ function CardMatch({ pairs }: { pairs: number }) {
   )
 }
 
+// ── Star Maze: guide the star to the flag ────────────────────────────────
+// A new maze every time (depth-first "recursive backtracker", so there is
+// exactly one route). Slide mode: hold the star and slide it; slipping off
+// just leaves it where it is, and walls simply stop it. Tap mode: tap the
+// next open square beside the star, one step at a time.
+type Walls = { n: boolean; e: boolean; s: boolean; w: boolean }
+
+function buildMaze(n: number): Walls[][] {
+  const walls: Walls[][] = Array.from({ length: n }, () => Array.from({ length: n }, () => ({ n: true, e: true, s: true, w: true })))
+  const seen = Array.from({ length: n }, () => Array(n).fill(false))
+  const stack: [number, number][] = [[0, 0]]
+  seen[0][0] = true
+  while (stack.length) {
+    const [r, c] = stack[stack.length - 1]
+    const options = ([[r - 1, c, 'n', 's'], [r, c + 1, 'e', 'w'], [r + 1, c, 's', 'n'], [r, c - 1, 'w', 'e']] as const)
+      .filter(([y, x]) => y >= 0 && x >= 0 && y < n && x < n && !seen[y][x])
+    if (!options.length) { stack.pop(); continue }
+    const [y, x, side, back] = options[Math.floor(Math.random() * options.length)]
+    walls[r][c][side] = false
+    walls[y][x][back] = false
+    seen[y][x] = true
+    stack.push([y, x])
+  }
+  return walls
+}
+
+function canStep(walls: Walls[][], [r, c]: [number, number], [y, x]: [number, number]): boolean {
+  if (y === r - 1 && x === c) return !walls[r][c].n
+  if (y === r + 1 && x === c) return !walls[r][c].s
+  if (y === r && x === c + 1) return !walls[r][c].e
+  if (y === r && x === c - 1) return !walls[r][c].w
+  return false
+}
+
+function StarMaze({ cells, mode, style }: { cells: number; mode: 'slide' | 'tap'; style?: GameStyle }) {
+  const [round, setRound] = useState(0)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const walls = useMemo(() => buildMaze(cells), [cells, round])
+  const [pos, setPos] = useState<[number, number]>([0, 0])
+  const [trail, setTrail] = useState<string[]>(['0,0'])
+  const [dragging, setDragging] = useState(false)
+  const done = pos[0] === cells - 1 && pos[1] === cells - 1
+  const star = style === 'grownup' ? '🔵' : '⭐'
+
+  // Step one square at a time toward the finger, stopping at walls.
+  function moveToward(target: [number, number]) {
+    let p = pos
+    const visited: string[] = []
+    for (let i = 0; i < cells * 2; i++) {
+      if (p[0] === target[0] && p[1] === target[1]) break
+      const dy = Math.sign(target[0] - p[0]), dx = Math.sign(target[1] - p[1])
+      const tries: [number, number][] = Math.abs(target[0] - p[0]) >= Math.abs(target[1] - p[1])
+        ? [[p[0] + dy, p[1]], [p[0], p[1] + dx]] : [[p[0], p[1] + dx], [p[0] + dy, p[1]]]
+      const next = tries.find(t => (t[0] !== p[0] || t[1] !== p[1]) && canStep(walls, p, t))
+      if (!next) break
+      p = next
+      visited.push(`${p[0]},${p[1]}`)
+    }
+    if (visited.length) {
+      setPos(p)
+      setTrail(tr => [...tr, ...visited.filter(k => !tr.includes(k))])
+    }
+  }
+
+  function cellFromPoint(e: React.PointerEvent<HTMLDivElement>): [number, number] {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const c = Math.min(cells - 1, Math.max(0, Math.floor(((e.clientX - rect.left) / rect.width) * cells)))
+    const r = Math.min(cells - 1, Math.max(0, Math.floor(((e.clientY - rect.top) / rect.height) * cells)))
+    return [r, c]
+  }
+
+  function newMaze() { setRound(v => v + 1); setPos([0, 0]); setTrail(['0,0']) }
+
+  const wallColor = '#1f2937'
+  const wall = `3px solid ${wallColor}`
+  return (
+    <div>
+      <p className="text-center text-gray-500 mb-3">
+        {mode === 'slide' ? `Hold the ${star} and slide it to the 🏁.` : `Tap the square next to the ${star} to move it. Find the way to the 🏁.`}
+      </p>
+      <div
+        className="grid mx-auto w-full max-w-[min(90vw,520px)] aspect-square bg-white select-none"
+        style={{ gridTemplateColumns: `repeat(${cells}, 1fr)`, touchAction: 'none', border: `4px solid ${wallColor}` }}
+        onPointerDown={e => {
+          if (done) return
+          const [r, c] = cellFromPoint(e)
+          if (mode === 'slide') {
+            if (r === pos[0] && c === pos[1]) { setDragging(true); e.currentTarget.setPointerCapture(e.pointerId) }
+          } else if (canStep(walls, pos, [r, c])) {
+            setPos([r, c])
+            setTrail(tr => (tr.includes(`${r},${c}`) ? tr : [...tr, `${r},${c}`]))
+          }
+        }}
+        onPointerMove={e => { if (dragging && !done) moveToward(cellFromPoint(e)) }}
+        onPointerUp={() => setDragging(false)}
+        onPointerCancel={() => setDragging(false)}
+      >
+        {walls.flatMap((row, r) => row.map((w, c) => {
+          const here = pos[0] === r && pos[1] === c
+          const goal = r === cells - 1 && c === cells - 1
+          return (
+            <div key={`${r},${c}`} className={`flex items-center justify-center ${trail.includes(`${r},${c}`) ? 'bg-yellow-100' : ''}`}
+              style={{
+                borderTop: w.n ? wall : undefined, borderBottom: w.s ? wall : undefined,
+                borderLeft: w.w ? wall : undefined, borderRight: w.e ? wall : undefined,
+                fontSize: `min(${Math.round(60 / cells)}vw, ${Math.round(300 / cells)}px)`,
+              }}>
+              {here ? <span className={dragging ? 'inline-block scale-125 transition-transform' : ''}>{star}</span> : goal ? '🏁' : ''}
+            </div>
+          )
+        }))}
+      </div>
+      {done && (
+        <div className="text-center">
+          <Done text="🎉 You made it through the maze!" />
+          <button type="button" onClick={newMaze} className="mt-2 px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold">New maze</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Number Grid (Schulte table): tap 1→N in order ────────────────────────
+function NumberGrid({ grid, mode }: { grid: number; mode: 'numbers' | 'letters' }) {
+  const total = grid * grid
+  const labels = useMemo(() => Array.from({ length: total }, (_, i) => (mode === 'letters' ? String.fromCharCode(65 + i) : String(i + 1))), [total, mode])
+  const order = useMemo(() => {
+    const a = labels.map((_, i) => i)
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
+    return a
+  }, [labels])
+  const [next, setNext] = useState(0)
+  const [shake, setShake] = useState<number | null>(null)
+  function tap(i: number) {
+    if (i === next) setNext(v => v + 1)
+    else if (i > next) { setShake(i); setTimeout(() => setShake(null), 500) }
+  }
+  return (
+    <div>
+      <p className="text-center text-gray-500 mb-3">{next < total ? <>Tap them in order. Next: <b className="text-2xl text-blue-700">{labels[next]}</b></> : ''}</p>
+      <div className="grid gap-2 mx-auto w-full max-w-[min(90vw,520px)]" style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }}>
+        {order.map(i => (
+          <button key={i} type="button" onClick={() => tap(i)}
+            className={`aspect-square rounded-xl border-2 font-bold flex items-center justify-center ${grid > 5 ? 'text-xl' : 'text-3xl'} ${
+              i < next ? 'bg-gray-100 text-gray-300 border-gray-200' : shake === i ? 'bg-red-50 border-red-300' : 'bg-white border-gray-300 text-gray-900'
+            }`}>
+            {labels[i]}
+          </button>
+        ))}
+      </div>
+      {next >= total && <Done text="🎉 All in order!" />}
+    </div>
+  )
+}
+
+// ── Odd One Out: one symbol is different — find it ───────────────────────
+const ODD_PLAYFUL: [string, string][] = [['🐶', '🐱'], ['🍎', '🍏'], ['🚗', '🚕'], ['🐟', '🐠'], ['⭐', '🌟'], ['🌸', '🌼'], ['🐻', '🐼'], ['🍩', '🍪']]
+const ODD_GROWNUP: [string, string][] = [['O', 'Q'], ['b', 'd'], ['p', 'q'], ['E', 'F'], ['M', 'N'], ['6', '9'], ['C', 'G'], ['u', 'v'], ['8', 'B']]
+
+function OddOneOut({ grid, rounds, style }: { grid: number; rounds: number; style?: GameStyle }) {
+  const [round, setRound] = useState(0)
+  const [wrong, setWrong] = useState<number | null>(null)
+  const [found, setFound] = useState(false)
+  const puzzle = useMemo(() => {
+    const pairs = style === 'grownup' ? ODD_GROWNUP : ODD_PLAYFUL
+    const [same, odd] = pairs[Math.floor(Math.random() * pairs.length)]
+    return { same, odd, at: Math.floor(Math.random() * grid * grid) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round, grid, style])
+  if (round >= rounds) return <Done text="🎉 Sharp eyes!" />
+  function tap(i: number) {
+    if (found) return
+    if (i === puzzle.at) { setFound(true); setTimeout(() => { setFound(false); setRound(v => v + 1) }, 600) }
+    else { setWrong(i); setTimeout(() => setWrong(null), 500) }
+  }
+  return (
+    <div>
+      <Progress done={round} total={rounds} />
+      <p className="text-center text-gray-500 mb-3">One of these is different. Find it!</p>
+      <div className="grid gap-1.5 mx-auto w-full max-w-[min(90vw,520px)]" style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }}>
+        {Array.from({ length: grid * grid }, (_, i) => (
+          <button key={`${round}-${i}`} type="button" onClick={() => tap(i)}
+            className={`aspect-square rounded-lg border-2 flex items-center justify-center font-semibold ${grid > 6 ? 'text-xl' : 'text-3xl'} ${
+              found && i === puzzle.at ? 'bg-green-200 border-green-500' : wrong === i ? 'bg-red-50 border-red-300' : 'bg-white border-gray-200'
+            }`}>
+            {i === puzzle.at ? puzzle.odd : puzzle.same}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
   switch (game.type) {
-    case 'bubbles': return <Bubbles count={game.count} size={game.size} />
+    case 'bubbles': return <Bubbles count={game.count} size={game.size} style={game.style} />
     case 'followstar': return <FollowStar count={game.count} size={game.size} speed={game.speed} />
-    case 'leftright': return <LeftRight count={game.count} size={game.size} />
+    case 'maze': return <StarMaze cells={game.cells} mode={game.mode} style={game.style} />
+    case 'leftright': return <LeftRight count={game.count} size={game.size} style={game.style} />
     case 'dots': return <Dots count={game.count} size={game.size} mode={game.mode} />
     case 'findletter': return <FindLetter count={game.count} board={game.board} />
-    case 'cardmatch': return <CardMatch pairs={game.pairs} />
+    case 'cardmatch': return <CardMatch pairs={game.pairs} style={game.style} />
+    case 'numbergrid': return <NumberGrid grid={game.grid} mode={game.mode} />
+    case 'oddone': return <OddOneOut grid={game.grid} rounds={game.rounds} style={game.style} />
   }
 }

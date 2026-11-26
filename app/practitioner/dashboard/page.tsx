@@ -92,6 +92,9 @@ export default async function PractitionerDashboard() {
           <Link href="/type-to-talk/conversation" className="bg-purple-600 text-white border-2 border-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
             Tablet to Tablet
           </Link>
+          <Link href="/ocular-motor-games" className="bg-purple-100 text-purple-800 border-2 border-purple-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors">
+            👀 Ocular Motor Games
+          </Link>
           <Link href="/practitioner/tools-assessments" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
             Tools &amp; Assessments
           </Link>

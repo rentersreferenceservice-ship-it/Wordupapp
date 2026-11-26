@@ -1,19 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import type { EyeHandGame, GameSpeed, TargetSize } from '@/lib/types'
+import type { EyeHandGame, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 
-type GameKey = EyeHandGame['type']
+type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone'
 
-const GAMES: { key: GameKey; emoji: string; name: string; skill: string; how: string }[] = [
-  { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', how: 'All cards face up — find the two that are the same and tap them both.' },
-  { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
-  { key: 'followstar', emoji: '⭐', name: 'Follow the Star', skill: 'Smooth tracking', how: 'The star glides across the screen. When it stops and glows, tap it.' },
-  { key: 'leftright', emoji: '↔️', name: 'Left–Right Jump', skill: 'Crossing the midline', how: 'Targets jump between the far left and far right. Tap each one.' },
-  { key: 'dots', emoji: '🔢', name: 'Connect the Dots', skill: 'Scanning & sequencing', how: 'Tap the dots in order — 1, 2, 3… or A, B, C…' },
-  { key: 'findletter', emoji: '🔤', name: 'Find the Letter', skill: 'Letterboard scanning', how: 'A letter appears — find and tap it on the board.' },
+const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
+  { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
+  { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', ages: 'All ages', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
+  { key: 'maze', emoji: '⭐', name: 'Star Maze', skill: 'Eye-guided movement', ages: 'All ages', how: 'Guide the star through the maze to the flag — slide it, or tap one square at a time.' },
+  { key: 'leftright', emoji: '↔️', name: 'Left–Right Jump', skill: 'Crossing the midline', ages: 'All ages', how: 'Targets jump between the far left and far right. Tap each one.' },
+  { key: 'dots', emoji: '🔢', name: 'Connect the Dots', skill: 'Scanning & sequencing', ages: 'All ages', how: 'Tap the dots in order — 1, 2, 3… or A, B, C… or the trail 1, A, 2, B…' },
+  { key: 'findletter', emoji: '🔤', name: 'Find the Letter', skill: 'Letterboard scanning', ages: 'All ages', how: 'A letter appears — find and tap it on the board.' },
+  { key: 'numbergrid', emoji: '🔲', name: 'Number Grid', skill: 'Wide-field scanning', ages: 'Teens & adults', how: 'Numbers are scattered in a grid — tap them in order, 1 to the end.' },
+  { key: 'oddone', emoji: '🔍', name: 'Odd One Out', skill: 'Visual discrimination', ages: 'All ages', how: 'One symbol is different from the rest (like Q among O’s). Find it.' },
 ]
 
 function Choice<T extends string | number>({ label, value, options, onChange }: {
@@ -33,37 +35,47 @@ function Choice<T extends string | number>({ label, value, options, onChange }: 
 }
 
 const SIZES: { v: TargetSize; label: string }[] = [{ v: 'large', label: 'Large' }, { v: 'medium', label: 'Medium' }, { v: 'small', label: 'Small' }]
-const SPEEDS: { v: GameSpeed; label: string }[] = [{ v: 'slow', label: 'Slow' }, { v: 'medium', label: 'Medium' }, { v: 'fast', label: 'Fast' }]
 
-function GameRow({ meta }: { meta: typeof GAMES[number] }) {
+function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle }) {
   const tablet = useTabletConnection()
   const [size, setSize] = useState<TargetSize>('large')
-  const [speed, setSpeed] = useState<GameSpeed>('slow')
   const [count, setCount] = useState(10)
   const [pairs, setPairs] = useState(2)
-  const [mode, setMode] = useState<'numbers' | 'letters'>('numbers')
+  const [dotMode, setDotMode] = useState<'numbers' | 'letters' | 'alternating'>('numbers')
   const [board, setBoard] = useState<'three' | 'alphabet' | 'keyboard'>('three')
+  const [cells, setCells] = useState(4)
+  const [mazeMode, setMazeMode] = useState<'slide' | 'tap'>('slide')
+  const [grid, setGrid] = useState(4)
+  const [gridMode, setGridMode] = useState<'numbers' | 'letters'>('numbers')
+  const [oddGrid, setOddGrid] = useState(4)
   const [playing, setPlaying] = useState<EyeHandGame | null>(null)
   const [sent, setSent] = useState(false)
 
   function build(): EyeHandGame {
     switch (meta.key) {
-      case 'cardmatch': return { type: 'cardmatch', pairs }
-      case 'bubbles': return { type: 'bubbles', count, size }
-      case 'followstar': return { type: 'followstar', count, size, speed }
-      case 'leftright': return { type: 'leftright', count, size }
-      case 'dots': return { type: 'dots', count, size, mode }
+      case 'cardmatch': return { type: 'cardmatch', pairs, style }
+      case 'bubbles': return { type: 'bubbles', count, size, style }
+      case 'maze': return { type: 'maze', cells, mode: mazeMode, style }
+      case 'leftright': return { type: 'leftright', count, size, style }
+      case 'dots': return { type: 'dots', count, size, mode: dotMode }
       case 'findletter': return { type: 'findletter', count, board }
+      case 'numbergrid': return { type: 'numbergrid', grid, mode: gridMode }
+      case 'oddone': return { type: 'oddone', grid: oddGrid, rounds: count, style }
     }
   }
 
-  const counts = meta.key === 'dots' ? [5, 8, 10, 15] : [5, 10, 15, 20]
+  const counts = meta.key === 'dots' ? [6, 8, 10, 16] : [5, 10, 15, 20]
+  const showCount = ['bubbles', 'leftright', 'dots', 'findletter', 'oddone'].includes(meta.key)
 
   return (
-    <div className="border border-gray-200 rounded-2xl p-4 space-y-3">
+    <div className="border border-gray-200 rounded-2xl p-4 space-y-3 bg-white">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <p className="font-bold text-gray-900">{meta.emoji} {meta.name} <span className="ml-1 text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">{meta.skill}</span></p>
+          <p className="font-bold text-gray-900">
+            {meta.emoji} {meta.name}
+            <span className="ml-2 text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">{meta.skill}</span>
+            <span className="ml-1 text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{meta.ages}</span>
+          </p>
           <p className="text-sm text-gray-500 mt-0.5">{meta.how}</p>
         </div>
         <div className="flex gap-2">
@@ -81,11 +93,23 @@ function GameRow({ meta }: { meta: typeof GAMES[number] }) {
           <Choice label="Cards" value={pairs} onChange={setPairs}
             options={[2, 3, 4, 6, 8, 10].map(p => ({ v: p, label: `${p * 2}${p === 2 ? ' (ages 6–8 start)' : ''}` }))} />
         )}
-        {['bubbles', 'followstar', 'leftright', 'dots'].includes(meta.key) && <Choice label="Size" value={size} onChange={setSize} options={SIZES} />}
-        {meta.key === 'followstar' && <Choice label="Speed" value={speed} onChange={setSpeed} options={SPEEDS} />}
-        {meta.key === 'dots' && <Choice label="Use" value={mode} onChange={setMode} options={[{ v: 'numbers', label: '1, 2, 3' }, { v: 'letters', label: 'A, B, C' }]} />}
+        {meta.key === 'maze' && (
+          <>
+            <Choice label="Mode" value={mazeMode} onChange={setMazeMode} options={[{ v: 'slide', label: 'Slide the star' }, { v: 'tap', label: 'Tap the path' }]} />
+            <Choice label="Maze" value={cells} onChange={setCells} options={[{ v: 3, label: 'Tiny (3×3)' }, { v: 4, label: 'Small (4×4)' }, { v: 6, label: 'Medium (6×6)' }, { v: 8, label: 'Large (8×8)' }, { v: 10, label: 'Expert (10×10)' }]} />
+          </>
+        )}
+        {['bubbles', 'leftright', 'dots'].includes(meta.key) && <Choice label="Size" value={size} onChange={setSize} options={SIZES} />}
+        {meta.key === 'dots' && <Choice label="Use" value={dotMode} onChange={setDotMode} options={[{ v: 'numbers', label: '1, 2, 3' }, { v: 'letters', label: 'A, B, C' }, { v: 'alternating', label: '1, A, 2, B (teens & adults)' }]} />}
         {meta.key === 'findletter' && <Choice label="Board" value={board} onChange={setBoard} options={[{ v: 'three', label: '3-board' }, { v: 'alphabet', label: '26-board' }, { v: 'keyboard', label: 'Keyboard' }]} />}
-        {meta.key !== 'cardmatch' && <Choice label={meta.key === 'dots' ? 'Dots' : 'Turns'} value={count} onChange={setCount} options={counts.map(c => ({ v: c, label: String(c) }))} />}
+        {meta.key === 'numbergrid' && (
+          <>
+            <Choice label="Grid" value={grid} onChange={setGrid} options={[{ v: 3, label: '3×3 (1–9)' }, { v: 4, label: '4×4 (1–16)' }, { v: 5, label: '5×5 (1–25)' }]} />
+            <Choice label="Use" value={gridMode} onChange={setGridMode} options={[{ v: 'numbers', label: 'Numbers' }, { v: 'letters', label: 'Letters' }]} />
+          </>
+        )}
+        {meta.key === 'oddone' && <Choice label="Grid" value={oddGrid} onChange={setOddGrid} options={[3, 4, 5, 6, 8].map(g => ({ v: g, label: `${g}×${g}` }))} />}
+        {showCount && <Choice label={meta.key === 'dots' ? 'Dots' : meta.key === 'oddone' ? 'Rounds' : 'Turns'} value={count} onChange={setCount} options={counts.map(c => ({ v: c, label: String(c) }))} />}
       </div>
       {playing && <BrainBreakOverlay game={playing} onClose={() => setPlaying(null)} />}
     </div>
@@ -93,9 +117,17 @@ function GameRow({ meta }: { meta: typeof GAMES[number] }) {
 }
 
 export default function OcularMotorLibrary() {
+  // Playful (emoji, animals) for younger spellers; grown-up (plain shapes,
+  // letters) for teens and adults. Applies to every game below.
+  const [style, setStyle] = useState<GameStyle>('playful')
   return (
     <div className="space-y-3">
-      {GAMES.map(g => <GameRow key={g.key} meta={g} />)}
+      <div className="flex items-center gap-2 flex-wrap bg-gray-50 rounded-xl px-4 py-3">
+        <span className="text-sm font-semibold text-gray-700">Style:</span>
+        <button type="button" onClick={() => setStyle('playful')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${style === 'playful' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🐸 Playful (kids)</button>
+        <button type="button" onClick={() => setStyle('grownup')} className={`px-3 py-1.5 rounded-lg text-sm border-2 ${style === 'grownup' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300'}`}>🔵 Grown-up (teens & adults)</button>
+      </div>
+      {GAMES.map(g => <GameRow key={g.key} meta={g} style={style} />)}
     </div>
   )
 }
