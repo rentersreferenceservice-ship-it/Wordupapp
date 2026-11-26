@@ -34,6 +34,18 @@ export type BrainBreak =
   | { type: 'match'; pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }
   | { type: 'wordsearch'; words: string[]; size: number }
   | { type: 'tictactoe'; x: string; o: string }
+  // Eye-hand (oculomotor) practice — the Eye-Hand Games library
+  | EyeHandGame
+
+export type TargetSize = 'small' | 'medium' | 'large'
+export type GameSpeed = 'slow' | 'medium' | 'fast'
+export type EyeHandGame =
+  | { type: 'bubbles'; count: number; size: TargetSize }
+  | { type: 'followstar'; count: number; size: TargetSize; speed: GameSpeed }
+  | { type: 'leftright'; count: number; size: TargetSize }
+  | { type: 'dots'; count: number; size: TargetSize; mode: 'numbers' | 'letters' }
+  | { type: 'findletter'; count: number; board: 'three' | 'alphabet' | 'keyboard' }
+  | { type: 'cardmatch'; pairs: number }
 
 export interface Lesson {
   id: string

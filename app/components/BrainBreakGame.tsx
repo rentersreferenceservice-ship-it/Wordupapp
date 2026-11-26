@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { BrainBreak } from '@/lib/types'
+import EyeHandGameView from './EyeHandGames'
 
 // VAKT sensory-break games. Built for spellers: tap-only (no dragging),
 // big targets, no timers, no penalties beyond the game itself.
@@ -11,6 +12,12 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   match: 'Picture Match',
   wordsearch: 'Word Search',
   tictactoe: 'Tic-Tac-Toe',
+  bubbles: 'Pop the Bubbles',
+  followstar: 'Follow the Star',
+  leftright: 'Left–Right Jump',
+  dots: 'Connect the Dots',
+  findletter: 'Find the Letter',
+  cardmatch: 'Card Match',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -261,5 +268,6 @@ export default function BrainBreakGame({ game }: { game: BrainBreak }) {
     case 'match': return <PictureMatch pairs={game.pairs} />
     case 'wordsearch': return <WordSearch words={game.words} size={game.size} />
     case 'tictactoe': return <TicTacToe x={game.x} o={game.o} />
+    default: return <EyeHandGameView game={game} />
   }
 }

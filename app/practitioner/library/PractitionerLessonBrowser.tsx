@@ -189,6 +189,9 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           <Link href="/practitioner/submit" className="bg-gray-100 text-gray-700 border-2 border-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center">
             Upload Lesson
           </Link>
+          <Link href="/eye-hand-games" className="bg-purple-100 text-purple-800 border-2 border-purple-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors text-center">
+            👀 Eye-Hand Games
+          </Link>
           <button
             onClick={() => setShowSuggest(true)}
             className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors text-center"
