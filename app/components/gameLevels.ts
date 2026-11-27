@@ -68,6 +68,10 @@ export function levelsFor(game: string, style: GameStyle = 'playful'): BrainBrea
     case 'match':
       // A new picture set each level, growing from 3 to 5 pairs.
       return [3, 4, 5].flatMap(n => MATCH_SETS.map(set => ({ type: 'match' as const, pairs: set.pairs.slice(0, n) })))
+    case 'dressup':
+      // Right clothes only first, then 1, 2 and 3 that don't fit the scene.
+      return ([['snow', 0], ['summer', 0], ['rain', 1], ['picnic', 1], ['party', 1], ['beach', 2], ['sports', 2], ['school', 2], ['fall', 3],
+        ['snow', 3], ['summer', 3], ['rain', 3]] as const).map(([scenario, distractors]) => ({ type: 'dressup', scenario, distractors }))
     default:
       return []
   }

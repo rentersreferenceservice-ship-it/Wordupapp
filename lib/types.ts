@@ -61,6 +61,7 @@ export type EyeHandGame =
   | { type: 'pattern'; grid: number; squares: number; rounds: number }
   | { type: 'spotdiff'; grid: number; rounds: number; style?: GameStyle }
   | { type: 'reachpoke'; layout: 'three' | 'alphabet' | 'keyboard'; count: number }
+  | { type: 'dressup'; scenario: string; distractors: number }
   // Picture Puzzle: a series of levels (more pieces each time). Each level is
   // a bright cartoon scene built from emoji — or a photo (older puzzles).
   | { type: 'puzzle'; levels?: PuzzleLevel[]; imageUrl?: string; grid?: number; ghost?: boolean }

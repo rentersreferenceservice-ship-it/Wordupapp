@@ -4,6 +4,7 @@ import { useSignalComplete } from './gameComplete'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { BrainBreak } from '@/lib/types'
 import EyeHandGameView from './EyeHandGames'
+import DressUp from './DressUp'
 import dynamic from 'next/dynamic'
 
 // LevelRunner renders BrainBreakGame itself, so load it lazily (no import cycle).
@@ -34,6 +35,7 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   reachpoke: 'Reach & Poke',
   puzzle: 'Picture Puzzle',
   levels: 'Levels',
+  dressup: 'Dress for the Day',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -342,6 +344,7 @@ export default function BrainBreakGame({ game }: { game: BrainBreak }) {
     case 'match': return <PictureMatch pairs={game.pairs} />
     case 'wordsearch': return <WordSearch words={game.words} size={game.size} />
     case 'tictactoe': return <TicTacToe x={game.x} o={game.o} />
+    case 'dressup': return <DressUp scenario={game.scenario} distractors={game.distractors} />
     case 'levels': return <LevelRunnerLazy game={game.game} style={game.style} start={game.start} />
     default: return <EyeHandGameView game={game} />
   }

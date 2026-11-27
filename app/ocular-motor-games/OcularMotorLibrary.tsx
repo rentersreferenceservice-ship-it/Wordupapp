@@ -6,15 +6,17 @@ import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 import { PUZZLE_SETS, simpleScene } from '@/app/components/EyeHandGames'
 import { MATCH_SETS, levelsFor } from '@/app/components/gameLevels'
+import { DRESSUP_SCENARIOS } from '@/app/components/DressUp'
 import { savedLevel } from '@/app/components/LevelRunner'
 
-type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle' | 'match'
+type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle' | 'match' | 'dressup'
 
 const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠', cups: '⚪', findall: '🔠', spotdiff: '♦️' }
 
 const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
   { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
   { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Three bright pictures, one after another. Drag each piece to its spot (a faint outline shows where) — or tap a piece, then where it goes.' },
+  { key: 'dressup', emoji: '👕', name: 'Dress for the Day', skill: 'Motor planning & placing', ages: 'All ages', how: 'Poke a piece of clothing to pick it up, then poke where it goes on the person — snow day, beach, party and more. Later levels mix in clothes that don’t fit the scene.' },
   { key: 'match', emoji: '🚒', name: 'Picture Match (draw a line)', skill: 'Eye-guided reaching', ages: 'All ages', how: 'Draw a line from each picture to the one it goes with — like a fire truck to a fire hat. Or tap one, then the other.' },
   { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', ages: 'All ages', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
   { key: 'maze', emoji: '⭐', name: 'Star Maze', skill: 'Eye-guided movement', ages: 'All ages', how: 'Guide the star through the maze to the flag — slide it, or tap one square at a time.' },
@@ -73,6 +75,8 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [puzzleSet, setPuzzleSet] = useState(0)
   const [startPieces, setStartPieces] = useState(teen ? 3 : 2)
   const [matchSet, setMatchSet] = useState(0)
+  const [scenario, setScenario] = useState('snow')
+  const [wrongCount, setWrongCount] = useState(0)
   const [matchCount, setMatchCount] = useState(teen ? 5 : 3)
   const [playing, setPlaying] = useState<BrainBreak | null>(null)
   const [sent, setSent] = useState(false)
@@ -87,6 +91,7 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   function build(): BrainBreak {
     switch (meta.key) {
       case 'match': return { type: 'match', pairs: MATCH_SETS[matchSet].pairs.slice(0, matchCount) }
+      case 'dressup': return { type: 'dressup', scenario, distractors: wrongCount }
       case 'cardmatch': return { type: 'cardmatch', pairs, style }
       case 'bubbles': return { type: 'bubbles', count, size, style }
       case 'maze': return { type: 'maze', cells, mode: mazeMode, style }
@@ -191,6 +196,12 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
           <>
             <Choice label="Grid" value={patGrid} onChange={setPatGrid} options={[3, 4, 5].map(g => ({ v: g, label: `${g}×${g}` }))} />
             <Choice label="Squares" value={patSquares} onChange={setPatSquares} options={[2, 3, 4, 5, 7].map(c => ({ v: c, label: String(c) }))} />
+          </>
+        )}
+        {meta.key === 'dressup' && (
+          <>
+            <Choice label="Outing" value={scenario} onChange={setScenario} options={Object.entries(DRESSUP_SCENARIOS).map(([k, v]) => ({ v: k, label: `${v.emoji} ${v.title}` }))} />
+            <Choice label="Wrong" value={wrongCount} onChange={setWrongCount} options={[0, 1, 2, 3].map(c => ({ v: c, label: c === 0 ? 'None' : String(c) }))} />
           </>
         )}
         {meta.key === 'match' && (
