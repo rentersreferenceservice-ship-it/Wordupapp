@@ -5,35 +5,76 @@ import { HOME_ACTIVITIES, HOME_GROUPS, type HomeActivity, type HomeGroup } from 
 
 const escape = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!))
 
-// Opens a clean, printable one-page sheet in a new window: the chosen
-// activities with steps, easier/harder, and a Mon–Sun row to tick off.
+const GROUP_COLOR: Record<HomeGroup, { main: string; soft: string; label: string }> = {
+  torso: { main: '#ea580c', soft: '#fff7ed', label: 'Torso & Shoulder' },
+  arm: { main: '#2563eb', soft: '#eff6ff', label: 'Arm & Reach' },
+  wrist: { main: '#7c3aed', soft: '#f5f3ff', label: 'Wrist' },
+  finger: { main: '#059669', soft: '#ecfdf5', label: 'Hand & Pointer Finger' },
+}
+
+// Opens a printable practice sheet in a new window: a "how to use" box, then
+// one full card per activity — what you need, numbered steps, a tip, how
+// much, easier/harder, and a Mon–Sun check-off row with a notes line.
 function printSheet(activities: HomeActivity[], speller: string) {
   const w = window.open('', '_blank')
   if (!w) return
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => `<span class="day"><span class="box"></span>${d}</span>`).join('')
-  const cards = activities.map(a => `
-    <div class="card">
-      <h3>${a.emoji} ${escape(a.name)} <small>${escape(a.position)}</small></h3>
-      <p class="builds">Builds: ${escape(a.builds)}</p>
+  const cards = activities.map(a => {
+    const c = GROUP_COLOR[a.group]
+    return `
+    <div class="card" style="border-left-color:${c.main}">
+      <div class="top">
+        <div class="icon" style="background:${c.soft}">${a.emoji}</div>
+        <div>
+          <h2>${escape(a.name)}</h2>
+          <div class="tags"><span class="tag" style="background:${c.soft};color:${c.main}">${c.label}</span><span class="tag">${escape(a.position)}</span><span class="tag">⏱ ${escape(a.howMuch)}</span></div>
+          <p class="why"><b>Why it helps:</b> ${escape(a.builds)}</p>
+        </div>
+      </div>
+      <p class="need"><b>You'll need:</b> ${a.needs.map(escape).join(' · ')}</p>
+      <p class="h">How to do it</p>
       <ol>${a.steps.map(s => `<li>${escape(s)}</li>`).join('')}</ol>
-      <p class="adj"><b>Easier:</b> ${escape(a.easier)} &nbsp; <b>Harder:</b> ${escape(a.harder)}</p>
-      <div class="days">${days}</div>
-    </div>`).join('')
+      <div class="tip" style="background:${c.soft}"><b>💡 Helpful tip:</b> ${escape(a.tip)}</div>
+      <div class="adj"><div><b>Make it easier:</b> ${escape(a.easier)}</div><div><b>Make it harder:</b> ${escape(a.harder)}</div></div>
+      <div class="days"><b>Days we practiced:</b> ${days}</div>
+      <div class="notes">Notes: ______________________________________________________________</div>
+    </div>`
+  }).join('')
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Motor Planning at Home</title>
 <style>
-  body { font-family: Arial, sans-serif; color: #111; margin: 24px; }
-  h1 { font-size: 22px; margin: 0 0 4px; } .sub { color: #444; font-size: 13px; margin: 0 0 14px; }
-  .card { border: 1.5px solid #bbb; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; break-inside: avoid; }
-  h3 { font-size: 16px; margin: 0 0 2px; } h3 small { font-weight: normal; color: #666; font-size: 12px; margin-left: 6px; }
-  .builds { font-size: 12px; color: #555; margin: 0 0 4px; } ol { margin: 4px 0 4px 18px; padding: 0; font-size: 14px; }
-  .adj { font-size: 12px; margin: 4px 0 6px; } .days { display: flex; gap: 12px; font-size: 12px; }
-  .day { display: inline-flex; align-items: center; gap: 4px; } .box { width: 14px; height: 14px; border: 1.5px solid #333; display: inline-block; }
-  .foot { font-size: 11px; color: #777; margin-top: 12px; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 28px; }
+  header { border-bottom: 3px solid #111; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  header h1 { font-size: 26px; margin: 0; } header .who { font-size: 14px; color: #333; }
+  .howto { border: 2px solid #111; border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; font-size: 14px; }
+  .howto b { font-size: 15px; } .howto ul { margin: 6px 0 0 18px; padding: 0; } .howto li { margin: 2px 0; }
+  .card { border: 1.5px solid #ccc; border-left: 8px solid; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
+  .top { display: flex; gap: 14px; align-items: center; }
+  .icon { width: 64px; height: 64px; border-radius: 16px; font-size: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  h2 { font-size: 20px; margin: 0 0 4px; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #f3f4f6; color: #374151; font-weight: bold; }
+  .why { font-size: 13px; margin: 2px 0 0; color: #333; }
+  .need { font-size: 14px; margin: 10px 0 4px; }
+  .h { font-size: 15px; font-weight: bold; margin: 8px 0 2px; }
+  ol { margin: 0 0 8px 22px; padding: 0; font-size: 15px; line-height: 1.45; }
+  .tip { border-radius: 10px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px; }
+  .adj { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; margin-bottom: 10px; }
+  .days { display: flex; gap: 12px; align-items: center; font-size: 13px; flex-wrap: wrap; }
+  .day { display: inline-flex; align-items: center; gap: 4px; } .box { width: 16px; height: 16px; border: 2px solid #333; border-radius: 3px; display: inline-block; }
+  .notes { font-size: 13px; color: #555; margin-top: 10px; }
+  .foot { font-size: 11px; color: #777; margin-top: 8px; text-align: center; }
 </style></head><body>
-<h1>Motor Planning at Home${speller ? ` — ${escape(speller)}` : ''}</h1>
-<p class="sub">Everyday activities that build the steady body, arm and pointer finger used to point to letters. Do a few each day and check off the days you practiced. Keep it fun — stop before it gets frustrating.</p>
+<header><h1>🏠 Motor Planning at Home</h1><div class="who">${speller ? `<b>${escape(speller)}</b> · ` : ''}Week of: ____________</div></header>
+<div class="howto"><b>How to use this sheet</b>
+  <ul>
+    <li>These everyday activities build the steady body, arm and pointer finger used to point to letters.</li>
+    <li>Pick a calm time and do 2–3 activities a day. Short and happy beats long and frustrating — stop while it's still going well.</li>
+    <li>Check a box each day you practice, and jot notes on what was easy or hard. Bring this sheet to your next session.</li>
+  </ul>
+</div>
 ${cards}
-<p class="foot">From Word Up · wordups2c.com/motor-planning</p>
+<p class="foot">From Word Up · wordups2c.com/at-home</p>
 <script>window.onload = () => { window.print() }</script>
 </body></html>`)
   w.document.close()
@@ -80,8 +121,10 @@ export default function HomeActivities() {
                 <span className={`mt-0.5 w-5 h-5 shrink-0 rounded border-2 flex items-center justify-center text-xs ${on ? 'bg-green-600 border-green-600 text-white' : 'border-gray-400'}`}>{on ? '✓' : ''}</span>
                 <div>
                   <p className="font-semibold text-gray-900">{a.emoji} {a.name}</p>
-                  <p className="text-xs text-purple-700">{a.builds} · {a.position}</p>
-                  <p className="text-sm text-gray-600 mt-1">{a.steps.join(' ')}</p>
+                  <p className="text-xs text-purple-700">{a.builds} · {a.position} · {a.howMuch}</p>
+                  <p className="text-xs text-gray-600 mt-1"><b>You&apos;ll need:</b> {a.needs.join(', ')}</p>
+                  <ol className="list-decimal list-inside text-sm text-gray-700 mt-1 space-y-0.5">{a.steps.map((st, i) => <li key={i}>{st}</li>)}</ol>
+                  <p className="text-xs text-gray-600 mt-1">💡 {a.tip}</p>
                   <p className="text-xs text-gray-500 mt-1"><b>Easier:</b> {a.easier} <b>Harder:</b> {a.harder}</p>
                 </div>
               </div>
