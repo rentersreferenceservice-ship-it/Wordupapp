@@ -55,6 +55,16 @@ export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; b
     wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }] },
 }
 
+// Things that come in pairs show on both feet / both hands (the left one
+// mirrored so they look like a real pair); things you hold go in one hand.
+const PAIRED_HANDS = new Set(['🧤'])
+function wornAt(i: Item): { x: number; y: number; size: number; flip?: boolean }[] {
+  if (i.zone === 'feet') return [{ x: 40, y: 89, size: 20, flip: true }, { x: 60, y: 89, size: 20 }]
+  if (i.zone === 'hand' && PAIRED_HANDS.has(i.e)) return [{ x: 16, y: 50, size: 18, flip: true }, { x: 84, y: 50, size: 18 }]
+  const z = ZONES[i.zone]
+  return [{ x: z.x, y: z.y, size: z.size }]
+}
+
 const SKIN = ['#f9d7b5', '#e8b98f', '#c68a5b', '#8d5a3b', '#5c3a25']
 
 function Doll({ skin }: { skin: string }) {
@@ -142,10 +152,10 @@ export default function DressUp({ scenario, distractors }: { scenario: string; d
             <span key={z} className="absolute rounded-full border-4 border-dashed border-blue-500/70 bg-white/30 pointer-events-none animate-pulse"
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: '22%', aspectRatio: '1', transform: 'translate(-50%, -50%)' }} />
           ))}
-          {sc.items.filter(i => placed.includes(i.e + i.zone)).map(i => (
-            <span key={i.e + i.zone} className="absolute leading-none pointer-events-none"
-              style={{ left: `${ZONES[i.zone].x}%`, top: `${ZONES[i.zone].y}%`, transform: 'translate(-50%, -50%)', fontSize: `calc(${ZONES[i.zone].size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>
-          ))}
+          {sc.items.filter(i => placed.includes(i.e + i.zone)).flatMap(i => wornAt(i).map((spot, k) => (
+            <span key={i.e + i.zone + k} className="absolute leading-none pointer-events-none"
+              style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `translate(-50%, -50%)${spot.flip ? ' scaleX(-1)' : ''}`, fontSize: `calc(${spot.size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>
+          )))}
         </div>
         {!done && (
           <div className="grid grid-cols-4 sm:grid-cols-2 gap-2">
