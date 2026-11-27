@@ -1,5 +1,6 @@
 'use client'
 
+import { useSignalComplete } from './gameComplete'
 import { useMemo, useRef, useState } from 'react'
 import type { EyeHandGame, GameSpeed, GameStyle, PuzzleLevel, PuzzleScene, TargetSize } from '@/lib/types'
 
@@ -11,6 +12,7 @@ const TARGET_PX: Record<TargetSize, number> = { small: 64, medium: 96, large: 13
 const MOVE_SECONDS: Record<GameSpeed, number> = { slow: 3, medium: 2, fast: 1.2 }
 
 function Done({ text }: { text: string }) {
+  useSignalComplete()
   return <p className="text-center text-2xl font-bold text-green-600 mt-4">{text}</p>
 }
 
@@ -906,7 +908,7 @@ function PicturePuzzle({ levels, ghost }: { levels: PuzzleLevel[]; ghost?: boole
       <p className="text-center text-gray-500 mb-3">
         Puzzle {k + 1} of {levels.length} · {levels[k].grid * levels[k].grid} pieces — drag each piece to its spot, or tap a piece then where it goes.
       </p>
-      <PuzzleLevelView key={k} level={levels[k]} ghost={ghost} onDone={() => setLevelDone(true)} />
+      <PuzzleLevelView key={k} level={levels[k]} ghost={ghost} onDone={() => (levels.length === 1 ? setK(1) : setLevelDone(true))} />
       {levelDone && (
         <div className="text-center mt-4">
           <p className="text-2xl font-bold text-green-600">🎉 Puzzle {k + 1} done!</p>

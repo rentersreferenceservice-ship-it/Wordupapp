@@ -64,6 +64,8 @@ export type EyeHandGame =
   // Picture Puzzle: a series of levels (more pieces each time). Each level is
   // a bright cartoon scene built from emoji — or a photo (older puzzles).
   | { type: 'puzzle'; levels?: PuzzleLevel[]; imageUrl?: string; grid?: number; ghost?: boolean }
+  // A ladder of progressively harder levels of one game (see app/components/gameLevels.ts).
+  | { type: 'levels'; game: string; style?: GameStyle; start?: number }
 
 export interface Lesson {
   id: string

@@ -1,8 +1,13 @@
 'use client'
 
+import { useSignalComplete } from './gameComplete'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { BrainBreak } from '@/lib/types'
 import EyeHandGameView from './EyeHandGames'
+import dynamic from 'next/dynamic'
+
+// LevelRunner renders BrainBreakGame itself, so load it lazily (no import cycle).
+const LevelRunnerLazy = dynamic(() => import('./LevelRunner'), { ssr: false })
 
 // VAKT sensory-break games. Built for spellers: big targets, no timers, no
 // penalties beyond the game itself. Anything that can be dragged can also be
@@ -28,6 +33,7 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   spotdiff: 'Spot the Difference',
   reachpoke: 'Reach & Poke',
   puzzle: 'Picture Puzzle',
+  levels: 'Levels',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -42,6 +48,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 function Done({ text }: { text: string }) {
+  useSignalComplete()
   return <p className="text-center text-2xl font-bold text-green-600 mt-4">{text}</p>
 }
 
@@ -335,6 +342,7 @@ export default function BrainBreakGame({ game }: { game: BrainBreak }) {
     case 'match': return <PictureMatch pairs={game.pairs} />
     case 'wordsearch': return <WordSearch words={game.words} size={game.size} />
     case 'tictactoe': return <TicTacToe x={game.x} o={game.o} />
+    case 'levels': return <LevelRunnerLazy game={game.game} style={game.style} start={game.start} />
     default: return <EyeHandGameView game={game} />
   }
 }

@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { BrainBreak, EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 import { PUZZLE_SETS, simpleScene } from '@/app/components/EyeHandGames'
+import { MATCH_SETS, levelsFor } from '@/app/components/gameLevels'
+import { savedLevel } from '@/app/components/LevelRunner'
 
 type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle' | 'match'
 
@@ -43,26 +45,6 @@ function Choice<T extends string | number>({ label, value, options, onChange }: 
   )
 }
 
-// Ready-made "goes together" sets for Picture Match.
-const MATCH_SETS: { label: string; pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }[] = [
-  { label: '🚒 Helpers', pairs: [
-    { a: '🚒', aLabel: 'Fire truck', b: '⛑️', bLabel: 'Fire hat' }, { a: '🚓', aLabel: 'Police car', b: '👮', bLabel: 'Police officer' },
-    { a: '🚑', aLabel: 'Ambulance', b: '🩺', bLabel: 'Stethoscope' }, { a: '📬', aLabel: 'Mailbox', b: '✉️', bLabel: 'Letter' },
-    { a: '🚌', aLabel: 'School bus', b: '🎒', bLabel: 'Backpack' } ] },
-  { label: '🐝 Animals & homes', pairs: [
-    { a: '🐝', aLabel: 'Bee', b: '🍯', bLabel: 'Honey' }, { a: '🐦', aLabel: 'Bird', b: '🪺', bLabel: 'Nest' },
-    { a: '🐟', aLabel: 'Fish', b: '🌊', bLabel: 'Water' }, { a: '🐶', aLabel: 'Dog', b: '🦴', bLabel: 'Bone' },
-    { a: '🐰', aLabel: 'Rabbit', b: '🥕', bLabel: 'Carrot' } ] },
-  { label: '☔ Weather & clothes', pairs: [
-    { a: '🌧️', aLabel: 'Rain', b: '☂️', bLabel: 'Umbrella' }, { a: '❄️', aLabel: 'Snow', b: '🧤', bLabel: 'Gloves' },
-    { a: '☀️', aLabel: 'Sun', b: '🕶️', bLabel: 'Sunglasses' }, { a: '🌬️', aLabel: 'Wind', b: '🪁', bLabel: 'Kite' },
-    { a: '🏖️', aLabel: 'Beach', b: '🩱', bLabel: 'Swimsuit' } ] },
-  { label: '🍳 Kitchen', pairs: [
-    { a: '🥣', aLabel: 'Cereal', b: '🥄', bLabel: 'Spoon' }, { a: '🍞', aLabel: 'Bread', b: '🧈', bLabel: 'Butter' },
-    { a: '☕', aLabel: 'Coffee', b: '🫖', bLabel: 'Pot' }, { a: '🥚', aLabel: 'Eggs', b: '🍳', bLabel: 'Frying pan' },
-    { a: '🍝', aLabel: 'Spaghetti', b: '🍴', bLabel: 'Fork' } ] },
-]
-
 const SIZES: { v: TargetSize; label: string }[] = [{ v: 'large', label: 'Large' }, { v: 'medium', label: 'Medium' }, { v: 'small', label: 'Small' }]
 
 function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle }) {
@@ -94,6 +76,13 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [matchCount, setMatchCount] = useState(teen ? 5 : 3)
   const [playing, setPlaying] = useState<BrainBreak | null>(null)
   const [sent, setSent] = useState(false)
+  const [sentLevels, setSentLevels] = useState(false)
+  const [showCustom, setShowCustom] = useState(false)
+  // Level ladder: starts where this device left off.
+  const levelCount = levelsFor(meta.key, style).length
+  const [startLevel, setStartLevel] = useState(0)
+  useEffect(() => { setStartLevel(savedLevel(meta.key, style)) }, [meta.key, style])
+  const levelsGame: BrainBreak = { type: 'levels', game: meta.key, style, start: startLevel }
 
   function build(): BrainBreak {
     switch (meta.key) {
@@ -132,17 +121,39 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
           </p>
           <p className="text-sm text-gray-500 mt-0.5">{meta.how}</p>
         </div>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => setPlaying(build())} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700">▶ Play here</button>
+        <div className="flex gap-2 flex-wrap">
+          <button type="button" onClick={() => setPlaying(levelsGame)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700">
+            ▶ Play levels{startLevel > 0 ? ` (from ${startLevel + 1})` : ''}
+          </button>
           {tablet.code && (
-            <button type="button" onClick={() => { tablet.sendGame(build()); setSent(true); setTimeout(() => setSent(false), 1500) }}
+            <button type="button" onClick={() => { tablet.sendGame(levelsGame); setSentLevels(true); setTimeout(() => setSentLevels(false), 1500) }}
               className="bg-white text-purple-700 border-2 border-purple-300 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-50">
-              {sent ? '✓ Sent' : '📲 Send to tablet'}
+              {sentLevels ? '✓ Sent' : '📲 Send levels to tablet'}
             </button>
           )}
         </div>
       </div>
-      <div className="space-y-2">
+      {levelCount > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-500 w-14">Start at</span>
+          {Array.from({ length: levelCount }, (_, i) => (
+            <button key={i} type="button" onClick={() => setStartLevel(i)}
+              className={`w-8 h-8 rounded-full text-xs font-bold border-2 ${startLevel === i ? 'bg-purple-600 text-white border-purple-600' : 'bg-white border-gray-200 text-gray-600'}`}>{i + 1}</button>
+          ))}
+        </div>
+      )}
+      <button type="button" onClick={() => setShowCustom(v => !v)} className="text-xs text-gray-500 underline">
+        {showCustom ? 'Hide custom settings' : 'Custom settings'}
+      </button>
+      {showCustom && (
+      <div className="space-y-2 border-t border-gray-100 pt-3">
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setPlaying(build())} className="bg-white text-purple-700 border-2 border-purple-300 px-3 py-1.5 rounded-lg text-sm font-semibold">▶ Play with these settings</button>
+          {tablet.code && (
+            <button type="button" onClick={() => { tablet.sendGame(build()); setSent(true); setTimeout(() => setSent(false), 1500) }}
+              className="bg-white text-purple-700 border-2 border-purple-300 px-3 py-1.5 rounded-lg text-sm font-semibold">{sent ? '✓ Sent' : '📲 Send these to tablet'}</button>
+          )}
+        </div>
         {meta.key === 'cardmatch' && (
           <Choice label="Cards" value={pairs} onChange={setPairs}
             options={[2, 3, 4, 6, 8, 10].map(p => ({ v: p, label: `${p * 2}${p === 2 ? ' (ages 6–8 start)' : ''}` }))} />
@@ -198,7 +209,8 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
         {['cups', 'pattern', 'spotdiff'].includes(meta.key) && <Choice label="Rounds" value={rounds} onChange={setRounds} options={[3, 5, 8, 10].map(c => ({ v: c, label: String(c) }))} />}
         {showCount && <Choice label={meta.key === 'dots' ? 'Dots' : meta.key === 'oddone' ? 'Rounds' : 'Turns'} value={count} onChange={setCount} options={counts.map(c => ({ v: c, label: String(c) }))} />}
       </div>
-      {playing && <BrainBreakOverlay game={playing} onClose={() => setPlaying(null)} />}
+      )}
+      {playing && <BrainBreakOverlay game={playing} onClose={() => { setPlaying(null); setStartLevel(savedLevel(meta.key, style)) }} />}
     </div>
   )
 }
