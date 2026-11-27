@@ -25,37 +25,73 @@ const ZONES: Record<Zone, { x: number; y: number; size: number }> = {
   hand: { x: 77, y: 52, size: 22 },
 }
 
-export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; bg: string; decor: string[]; items: Item[]; wrong: Item[] }> = {
+// Each outing has a few choices per body spot (one is picked at random each
+// time, so replays look different) and a pool of things that DON'T fit the
+// scene (a few are picked at random at higher levels).
+type Slot = { zone: Zone; options: { e: string; label: string }[] }
+const o = (e: string, label: string) => ({ e, label })
+
+export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; bg: string; decor: string[]; slots: Slot[]; wrong: Item[] }> = {
   snow: { title: 'Snow day', emoji: '❄️', bg: 'linear-gradient(#dbeafe, #f8fafc)', decor: ['❄️', '🏔️', '❄️', '⛷️'],
-    items: [{ e: '🥽', label: 'Ski goggles', zone: 'head' }, { e: '🧣', label: 'Scarf', zone: 'neck' }, { e: '🧥', label: 'Coat', zone: 'torso' }, { e: '👖', label: 'Snow pants', zone: 'legs' }, { e: '👢', label: 'Boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }],
-    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '👒', label: 'Sun hat', zone: 'head' }] },
+    slots: [{ zone: 'head', options: [o('🥽', 'Ski goggles')] }, { zone: 'neck', options: [o('🧣', 'Scarf')] }, { zone: 'torso', options: [o('🧥', 'Winter coat')] }, { zone: 'legs', options: [o('👖', 'Snow pants')] }, { zone: 'feet', options: [o('👢', 'Snow boots')] }, { zone: 'hand', options: [o('🧤', 'Mittens')] }],
+    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '👒', label: 'Sun hat', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }] },
   summer: { title: 'Hot summer day', emoji: '☀️', bg: 'linear-gradient(#fef3c7, #fde68a)', decor: ['☀️', '🌳', '🌻', '🦋'],
-    items: [{ e: '🧢', label: 'Cap', zone: 'head' }, { e: '👕', label: 'T-shirt', zone: 'torso' }, { e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '👡', label: 'Sandals', zone: 'feet' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }],
-    wrong: [{ e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '👢', label: 'Snow boots', zone: 'feet' }] },
+    slots: [{ zone: 'head', options: [o('🧢', 'Cap'), o('👒', 'Sun hat')] }, { zone: 'torso', options: [o('👕', 'T-shirt'), o('🎽', 'Tank top')] }, { zone: 'legs', options: [o('🩳', 'Shorts')] }, { zone: 'feet', options: [o('👡', 'Sandals'), o('🩴', 'Flip-flops')] }, { zone: 'hand', options: [o('🍦', 'Ice cream'), o('🍉', 'Watermelon'), o('🥤', 'Cold drink')] }],
+    wrong: [{ e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧣', label: 'Scarf', zone: 'neck' }] },
   rain: { title: 'Rainy day', emoji: '🌧️', bg: 'linear-gradient(#cbd5e1, #e2e8f0)', decor: ['🌧️', '☁️', '💧', '🌈'],
-    items: [{ e: '🧥', label: 'Raincoat', zone: 'torso' }, { e: '👖', label: 'Pants', zone: 'legs' }, { e: '👢', label: 'Rain boots', zone: 'feet' }, { e: '☂️', label: 'Umbrella', zone: 'hand' }],
-    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🕶️', label: 'Sunglasses', zone: 'hand' }] },
+    slots: [{ zone: 'torso', options: [o('🧥', 'Raincoat')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('👢', 'Rain boots')] }, { zone: 'hand', options: [o('☂️', 'Umbrella')] }],
+    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🕶️', label: 'Sunglasses', zone: 'head' }, { e: '👒', label: 'Sun hat', zone: 'head' }] },
   picnic: { title: 'Picnic in the park', emoji: '🧺', bg: 'linear-gradient(#bae6fd 0 55%, #bbf7d0 55%)', decor: ['☀️', '🌳', '🦋', '🌼'],
-    items: [{ e: '👒', label: 'Sun hat', zone: 'head' }, { e: '👕', label: 'T-shirt', zone: 'torso' }, { e: '👖', label: 'Jeans', zone: 'legs' }, { e: '👟', label: 'Sneakers', zone: 'feet' }, { e: '🧺', label: 'Picnic basket', zone: 'hand' }],
-    wrong: [{ e: '🧣', label: 'Scarf', zone: 'neck' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
-  party: { title: 'Party (suit)', emoji: '🎉', bg: 'linear-gradient(#fce7f3, #ede9fe)', decor: ['🎈', '🎊', '🎂', '🎈'],
-    items: [{ e: '👑', label: 'Party crown', zone: 'head' }, { e: '👔', label: 'Dress shirt', zone: 'torso' }, { e: '👖', label: 'Nice pants', zone: 'legs' }, { e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🎁', label: 'Present', zone: 'hand' }],
-    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
-  partydress: { title: 'Party (dress)', emoji: '💃', bg: 'linear-gradient(#fce7f3, #fbcfe8)', decor: ['🎈', '🎊', '🎂', '🎈'],
-    items: [{ e: '🎀', label: 'Bow', zone: 'head' }, { e: '👗', label: 'Party dress', zone: 'torso' }, { e: '🥿', label: 'Flat shoes', zone: 'feet' }, { e: '🎁', label: 'Present', zone: 'hand' }],
-    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
-  beach: { title: 'Day at the beach', emoji: '🏖️', bg: 'linear-gradient(#7dd3fc 0 55%, #fde68a 55%)', decor: ['☀️', '🌴', '🌊', '🐚'],
-    items: [{ e: '👒', label: 'Sun hat', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🪣', label: 'Sand bucket', zone: 'hand' }],
-    wrong: [{ e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
-  sports: { title: 'Soccer game', emoji: '⚽', bg: 'linear-gradient(#bbf7d0, #86efac)', decor: ['🥅', '☀️', '🏆', '⚽'],
-    items: [{ e: '🧢', label: 'Cap', zone: 'head' }, { e: '🎽', label: 'Jersey', zone: 'torso' }, { e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '👟', label: 'Sneakers', zone: 'feet' }, { e: '⚽', label: 'Soccer ball', zone: 'hand' }],
-    wrong: [{ e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '☂️', label: 'Umbrella', zone: 'hand' }] },
+    slots: [{ zone: 'head', options: [o('👒', 'Sun hat'), o('🧢', 'Cap')] }, { zone: 'torso', options: [o('👕', 'T-shirt'), o('👚', 'Blouse')] }, { zone: 'legs', options: [o('👖', 'Jeans'), o('🩳', 'Shorts')] }, { zone: 'feet', options: [o('👟', 'Sneakers')] }, { zone: 'hand', options: [o('🧺', 'Picnic basket'), o('🥪', 'Sandwich')] }],
+    wrong: [{ e: '🧣', label: 'Scarf', zone: 'neck' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '🥽', label: 'Ski goggles', zone: 'head' }] },
   school: { title: 'Off to school', emoji: '🏫', bg: 'linear-gradient(#fef9c3, #fde68a)', decor: ['🏫', '✏️', '📚', '🍎'],
-    items: [{ e: '👕', label: 'Shirt', zone: 'torso' }, { e: '👖', label: 'Pants', zone: 'legs' }, { e: '👟', label: 'Sneakers', zone: 'feet' }, { e: '🎒', label: 'Backpack', zone: 'hand' }],
-    wrong: [{ e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🏖️', label: 'Beach umbrella', zone: 'hand' }] },
+    slots: [{ zone: 'torso', options: [o('👕', 'Shirt'), o('👚', 'Blouse')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('👟', 'Sneakers')] }, { zone: 'hand', options: [o('🎒', 'Backpack'), o('📚', 'Books')] }],
+    wrong: [{ e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🛟', label: 'Swim ring', zone: 'hand' }, { e: '👑', label: 'Crown', zone: 'head' }] },
+  beach: { title: 'Day at the beach', emoji: '🏖️', bg: 'linear-gradient(#7dd3fc 0 55%, #fde68a 55%)', decor: ['☀️', '🌴', '🌊', '🐚'],
+    slots: [{ zone: 'head', options: [o('👒', 'Sun hat'), o('🕶️', 'Sunglasses')] }, { zone: 'torso', options: [o('🩱', 'Swimsuit')] }, { zone: 'feet', options: [o('🩴', 'Flip-flops')] }, { zone: 'hand', options: [o('🪣', 'Sand bucket'), o('🏐', 'Beach ball')] }],
+    wrong: [{ e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '🧣', label: 'Scarf', zone: 'neck' }] },
+  pool: { title: 'Swimming pool', emoji: '🏊', bg: 'linear-gradient(#a5f3fc, #22d3ee)', decor: ['☀️', '🌊', '🏊', '💦'],
+    slots: [{ zone: 'head', options: [o('🥽', 'Swim goggles')] }, { zone: 'legs', options: [o('🩲', 'Swim trunks')] }, { zone: 'feet', options: [o('🩴', 'Flip-flops')] }, { zone: 'hand', options: [o('🛟', 'Swim ring')] }],
+    wrong: [{ e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '👔', label: 'Dress shirt', zone: 'torso' }, { e: '🧣', label: 'Scarf', zone: 'neck' }] },
+  party: { title: 'Party (suit)', emoji: '🎉', bg: 'linear-gradient(#fce7f3, #ede9fe)', decor: ['🎈', '🎊', '🎂', '🎈'],
+    slots: [{ zone: 'head', options: [o('👑', 'Party crown')] }, { zone: 'torso', options: [o('👔', 'Dress shirt')] }, { zone: 'legs', options: [o('👖', 'Nice pants')] }, { zone: 'feet', options: [o('👞', 'Dress shoes')] }, { zone: 'hand', options: [o('🎁', 'Present'), o('🎈', 'Balloon')] }],
+    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }] },
+  partydress: { title: 'Party (dress)', emoji: '💃', bg: 'linear-gradient(#fce7f3, #fbcfe8)', decor: ['🎈', '🎊', '🎂', '🎈'],
+    slots: [{ zone: 'head', options: [o('🎀', 'Bow'), o('👑', 'Party crown')] }, { zone: 'torso', options: [o('👗', 'Party dress')] }, { zone: 'feet', options: [o('🥿', 'Flat shoes')] }, { zone: 'hand', options: [o('🎁', 'Present'), o('🎈', 'Balloon')] }],
+    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '⛑️', label: 'Hard hat', zone: 'head' }] },
+  soccer: { title: 'Soccer game', emoji: '⚽', bg: 'linear-gradient(#bbf7d0, #86efac)', decor: ['🥅', '☀️', '🏆', '⚽'],
+    slots: [{ zone: 'head', options: [o('🧢', 'Cap')] }, { zone: 'torso', options: [o('🎽', 'Jersey')] }, { zone: 'legs', options: [o('🩳', 'Shorts')] }, { zone: 'feet', options: [o('👟', 'Cleats')] }, { zone: 'hand', options: [o('⚽', 'Soccer ball')] }],
+    wrong: [{ e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🧥', label: 'Winter coat', zone: 'torso' }, { e: '☂️', label: 'Umbrella', zone: 'hand' }, { e: '👗', label: 'Party dress', zone: 'torso' }] },
+  baseball: { title: 'Baseball game', emoji: '⚾', bg: 'linear-gradient(#bae6fd 0 50%, #bbf7d0 50%)', decor: ['☀️', '🏟️', '⚾', '🌭'],
+    slots: [{ zone: 'head', options: [o('🧢', 'Baseball cap')] }, { zone: 'torso', options: [o('👕', 'Team shirt')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('👟', 'Sneakers')] }, { zone: 'hand', options: [o('⚾', 'Baseball'), o('🌭', 'Hot dog')] }],
+    wrong: [{ e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🎀', label: 'Bow', zone: 'head' }, { e: '☂️', label: 'Umbrella', zone: 'hand' }] },
   fall: { title: 'Fall leaves', emoji: '🍂', bg: 'linear-gradient(#fed7aa, #fdba74)', decor: ['🍁', '🌳', '🍂', '🎃'],
-    items: [{ e: '🧣', label: 'Scarf', zone: 'neck' }, { e: '🧥', label: 'Jacket', zone: 'torso' }, { e: '👖', label: 'Jeans', zone: 'legs' }, { e: '🥾', label: 'Boots', zone: 'feet' }, { e: '🍂', label: 'Leaves', zone: 'hand' }],
-    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }] },
+    slots: [{ zone: 'neck', options: [o('🧣', 'Scarf')] }, { zone: 'torso', options: [o('🧥', 'Jacket')] }, { zone: 'legs', options: [o('👖', 'Jeans')] }, { zone: 'feet', options: [o('🥾', 'Boots')] }, { zone: 'hand', options: [o('🍂', 'Leaves'), o('🎃', 'Pumpkin')] }],
+    wrong: [{ e: '🩳', label: 'Shorts', zone: 'legs' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }] },
+  hiking: { title: 'Hiking trip', emoji: '🥾', bg: 'linear-gradient(#bae6fd 0 50%, #a3e635 50%)', decor: ['⛰️', '🌲', '🦅', '🌲'],
+    slots: [{ zone: 'head', options: [o('🧢', 'Cap'), o('👒', 'Sun hat')] }, { zone: 'torso', options: [o('👕', 'T-shirt')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('🥾', 'Hiking boots')] }, { zone: 'hand', options: [o('🎒', 'Backpack'), o('🧭', 'Compass')] }],
+    wrong: [{ e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '👗', label: 'Party dress', zone: 'torso' }, { e: '🎈', label: 'Balloon', zone: 'hand' }] },
+  camping: { title: 'Camping at night', emoji: '🏕️', bg: 'linear-gradient(#c7d2fe, #a5b4fc)', decor: ['🌙', '⛺', '⭐', '🔥'],
+    slots: [{ zone: 'head', options: [o('🧢', 'Cap')] }, { zone: 'torso', options: [o('🧥', 'Warm jacket')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('🥾', 'Boots')] }, { zone: 'hand', options: [o('🔦', 'Flashlight')] }],
+    wrong: [{ e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🥿', label: 'Flat shoes', zone: 'feet' }, { e: '👑', label: 'Crown', zone: 'head' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }] },
+  gardening: { title: 'Working in the garden', emoji: '🌱', bg: 'linear-gradient(#fef9c3 0 45%, #a16207 45%)', decor: ['☀️', '🌻', '🐝', '🌷'],
+    slots: [{ zone: 'head', options: [o('👒', 'Sun hat')] }, { zone: 'torso', options: [o('👕', 'Old T-shirt')] }, { zone: 'legs', options: [o('👖', 'Work pants')] }, { zone: 'feet', options: [o('🥾', 'Boots')] }, { zone: 'hand', options: [o('🪴', 'Plant'), o('🌱', 'Seedling')] }],
+    wrong: [{ e: '👔', label: 'Dress shirt', zone: 'torso' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '👑', label: 'Crown', zone: 'head' }, { e: '🛟', label: 'Swim ring', zone: 'hand' }] },
+  construction: { title: 'Construction worker', emoji: '👷', bg: 'linear-gradient(#fef08a, #facc15)', decor: ['🏗️', '🚧', '🧱', '🚜'],
+    slots: [{ zone: 'head', options: [o('⛑️', 'Hard hat')] }, { zone: 'torso', options: [o('🦺', 'Safety vest')] }, { zone: 'legs', options: [o('👖', 'Work pants')] }, { zone: 'feet', options: [o('🥾', 'Work boots')] }, { zone: 'hand', options: [o('🔨', 'Hammer'), o('🔧', 'Wrench')] }],
+    wrong: [{ e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '👗', label: 'Party dress', zone: 'torso' }, { e: '🎀', label: 'Bow', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }] },
+  doctor: { title: 'Doctor at work', emoji: '🩺', bg: 'linear-gradient(#e0f2fe, #f0f9ff)', decor: ['🏥', '💊', '❤️', '🩹'],
+    slots: [{ zone: 'neck', options: [o('🩺', 'Stethoscope')] }, { zone: 'torso', options: [o('🥼', 'White coat')] }, { zone: 'legs', options: [o('👖', 'Pants')] }, { zone: 'feet', options: [o('👟', 'Comfy shoes')] }, { zone: 'hand', options: [o('📋', 'Clipboard')] }],
+    wrong: [{ e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '⛑️', label: 'Hard hat', zone: 'head' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }] },
+  skating: { title: 'Ice skating', emoji: '⛸️', bg: 'linear-gradient(#e0f2fe, #bae6fd)', decor: ['❄️', '⛄', '❄️', '🌲'],
+    slots: [{ zone: 'neck', options: [o('🧣', 'Scarf')] }, { zone: 'torso', options: [o('🧥', 'Warm coat')] }, { zone: 'legs', options: [o('👖', 'Warm pants')] }, { zone: 'feet', options: [o('⛸️', 'Ice skates')] }, { zone: 'hand', options: [o('🧤', 'Mittens')] }],
+    wrong: [{ e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '👒', label: 'Sun hat', zone: 'head' }, { e: '🍦', label: 'Ice cream', zone: 'hand' }] },
+  graduation: { title: 'Graduation day', emoji: '🎓', bg: 'linear-gradient(#ede9fe, #ddd6fe)', decor: ['🎉', '🏫', '⭐', '🎊'],
+    slots: [{ zone: 'head', options: [o('🎓', 'Graduation cap')] }, { zone: 'torso', options: [o('👔', 'Dress shirt')] }, { zone: 'legs', options: [o('👖', 'Nice pants')] }, { zone: 'feet', options: [o('👞', 'Dress shoes')] }, { zone: 'hand', options: [o('📜', 'Diploma')] }],
+    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '🛟', label: 'Swim ring', zone: 'hand' }] },
+  art: { title: 'Art class', emoji: '🎨', bg: 'linear-gradient(#fae8ff, #f5d0fe)', decor: ['🖼️', '✏️', '🌈', '🖍️'],
+    slots: [{ zone: 'torso', options: [o('🥼', 'Paint smock')] }, { zone: 'legs', options: [o('👖', 'Old pants')] }, { zone: 'feet', options: [o('👟', 'Sneakers')] }, { zone: 'hand', options: [o('🎨', 'Paint palette'), o('🖌️', 'Paintbrush')] }],
+    wrong: [{ e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '👑', label: 'Crown', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '👢', label: 'Snow boots', zone: 'feet' }] },
 }
 
 // Things that come in pairs show on both feet / both hands (the left one
@@ -107,18 +143,21 @@ function Done({ text }: { text: string }) {
 
 export default function DressUp({ scenario, distractors }: { scenario: string; distractors: number }) {
   const sc = DRESSUP_SCENARIOS[scenario] ?? DRESSUP_SCENARIOS.snow
+  // Pick one option per spot and a random few wrong things — different each time.
+  const items = useMemo(() => sc.slots.map(sl => ({ ...sl.options[Math.floor(Math.random() * sl.options.length)], zone: sl.zone })), [sc])
   const tray = useMemo(() => {
-    const all = [...sc.items.map(i => ({ ...i, ok: true })), ...sc.wrong.slice(0, distractors).map(i => ({ ...i, ok: false }))]
+    const wrong = [...sc.wrong].sort(() => Math.random() - 0.5).filter(w => !items.some(i => i.e === w.e)).slice(0, distractors)
+    const all = [...items.map(i => ({ ...i, ok: true })), ...wrong.map(i => ({ ...i, ok: false }))]
     for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [all[i], all[j]] = [all[j], all[i]] }
     return all
-  }, [sc, distractors])
+  }, [sc, items, distractors])
   const [skin, setSkin] = useState(SKIN[2])
   const [placed, setPlaced] = useState<string[]>([])
   const [selected, setSelected] = useState<number | null>(null)
   const [wiggle, setWiggle] = useState<number | null>(null)
   const [hint, setHint] = useState('')
   const dollRef = useRef<HTMLDivElement>(null)
-  const done = sc.items.every(i => placed.includes(i.e + i.zone))
+  const done = items.every(i => placed.includes(i.e + i.zone))
 
   function zoneAt(x: number, y: number): Zone | null {
     const r = dollRef.current?.getBoundingClientRect()
@@ -165,12 +204,12 @@ export default function DressUp({ scenario, distractors }: { scenario: string; d
           ))}
           <Doll skin={skin} />
           {/* Poke targets while something is picked up */}
-          {selected !== null && (Object.entries(ZONES) as [Zone, typeof ZONES[Zone]][]).filter(([z]) => !sc.items.some(i => i.zone === z && placed.includes(i.e + i.zone))).map(([z, p]) => (
+          {selected !== null && (Object.entries(ZONES) as [Zone, typeof ZONES[Zone]][]).filter(([z]) => !items.some(i => i.zone === z && placed.includes(i.e + i.zone))).map(([z, p]) => (
             <span key={z} className="absolute rounded-full border-4 border-dashed border-blue-500/70 bg-white/30 pointer-events-none animate-pulse"
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: '22%', aspectRatio: '1', transform: 'translate(-50%, -50%)' }} />
           ))}
           {(() => {
-            const worn = sc.items.filter(i => placed.includes(i.e + i.zone))
+            const worn = items.filter(i => placed.includes(i.e + i.zone))
             const draw = (list: Item[]) => list.flatMap(i => wornAt(i).map((spot, k) => (
               <span key={i.e + i.zone + k} className="absolute leading-none pointer-events-none"
                 style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `translate(-50%, -50%)${spot.flip ? ' scaleX(-1)' : ''}`, fontSize: `calc(${spot.size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>

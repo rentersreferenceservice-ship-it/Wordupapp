@@ -69,9 +69,12 @@ export function levelsFor(game: string, style: GameStyle = 'playful'): BrainBrea
       // A new picture set each level, growing from 3 to 5 pairs.
       return [3, 4, 5].flatMap(n => MATCH_SETS.map(set => ({ type: 'match' as const, pairs: set.pairs.slice(0, n) })))
     case 'dressup':
-      // Right clothes only first, then 1, 2 and 3 that don't fit the scene.
-      return ([['snow', 0], ['summer', 0], ['rain', 1], ['picnic', 1], ['party', 1], ['partydress', 1], ['beach', 2], ['sports', 2], ['school', 2], ['fall', 3],
-        ['snow', 3], ['summer', 3], ['rain', 3]] as const).map(([scenario, distractors]) => ({ type: 'dressup', scenario, distractors }))
+      // 20 different outings — no repeats — easy to harder: right clothes
+      // only, then 1, 2 and 3 things that don't fit the scene. Outfits and
+      // wrong items are re-picked each time, so replays look different too.
+      return ([['snow', 0], ['summer', 0], ['rain', 0], ['picnic', 0], ['school', 1], ['beach', 1], ['pool', 1], ['party', 1], ['partydress', 1], ['soccer', 1],
+        ['baseball', 2], ['fall', 2], ['hiking', 2], ['camping', 2], ['gardening', 2], ['construction', 2], ['doctor', 3], ['skating', 3], ['graduation', 3], ['art', 3]] as const)
+        .map(([scenario, distractors]) => ({ type: 'dressup', scenario, distractors }))
     default:
       return []
   }
