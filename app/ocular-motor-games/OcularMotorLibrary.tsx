@@ -1,16 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
+import type { BrainBreak, EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 
-type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle'
+type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle' | 'match'
 
 const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠', cups: '⚪', findall: '🔠', spotdiff: '♦️' }
 
 const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
   { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
+  { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Drag each piece to its spot to rebuild the picture — or tap a piece, then tap where it goes.' },
+  { key: 'match', emoji: '🚒', name: 'Picture Match (draw a line)', skill: 'Eye-guided reaching', ages: 'All ages', how: 'Draw a line from each picture to the one it goes with — like a fire truck to a fire hat. Or tap one, then the other.' },
   { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', ages: 'All ages', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
   { key: 'maze', emoji: '⭐', name: 'Star Maze', skill: 'Eye-guided movement', ages: 'All ages', how: 'Guide the star through the maze to the flag — slide it, or tap one square at a time.' },
   { key: 'leftright', emoji: '↔️', name: 'Left–Right Jump', skill: 'Crossing the midline', ages: 'All ages', how: 'Targets jump between the far left and far right. Tap each one.' },
@@ -21,7 +23,6 @@ const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: s
   { key: 'cups', emoji: '🥤', name: 'Cup Shuffle', skill: 'Smooth tracking', ages: 'All ages', how: 'Watch the cup with the ball as the cups slowly swap — then tap where it ended up.' },
   { key: 'findall', emoji: '⭐', name: 'Find Them All', skill: 'Visual scanning', ages: 'All ages', how: 'Tap every target hidden among other shapes — like every ⭐, or every E among F, P and B.' },
   { key: 'pattern', emoji: '🟦', name: 'Copy the Pattern', skill: 'Visual memory', ages: 'All ages', how: 'Some squares light up. Remember them, tap “I’m ready”, then tap the same squares.' },
-  { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Drag each piece to its spot to rebuild the picture — or tap a piece, then tap where it goes.' },
   { key: 'spotdiff', emoji: '👀', name: 'Spot the Difference', skill: 'Comparing side to side', ages: 'All ages', how: 'Two grids side by side — one picture is different. Find it.' },
 ]
 
@@ -48,6 +49,26 @@ const PUZZLE_PICS: { label: string; url: string }[] = [
   { label: '🐶 Dog', url: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
   { label: '🌊 Beach', url: 'https://images.unsplash.com/photo-1506252374453-ef5237291d83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
   { label: '🦋 Butterfly', url: 'https://images.unsplash.com/photo-1586190605851-4a26c9ec04bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
+]
+
+// Ready-made "goes together" sets for Picture Match.
+const MATCH_SETS: { label: string; pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }[] = [
+  { label: '🚒 Helpers', pairs: [
+    { a: '🚒', aLabel: 'Fire truck', b: '⛑️', bLabel: 'Fire hat' }, { a: '🚓', aLabel: 'Police car', b: '👮', bLabel: 'Police officer' },
+    { a: '🚑', aLabel: 'Ambulance', b: '🩺', bLabel: 'Stethoscope' }, { a: '📬', aLabel: 'Mailbox', b: '✉️', bLabel: 'Letter' },
+    { a: '🚌', aLabel: 'School bus', b: '🎒', bLabel: 'Backpack' } ] },
+  { label: '🐝 Animals & homes', pairs: [
+    { a: '🐝', aLabel: 'Bee', b: '🍯', bLabel: 'Honey' }, { a: '🐦', aLabel: 'Bird', b: '🪺', bLabel: 'Nest' },
+    { a: '🐟', aLabel: 'Fish', b: '🌊', bLabel: 'Water' }, { a: '🐶', aLabel: 'Dog', b: '🦴', bLabel: 'Bone' },
+    { a: '🐰', aLabel: 'Rabbit', b: '🥕', bLabel: 'Carrot' } ] },
+  { label: '☔ Weather & clothes', pairs: [
+    { a: '🌧️', aLabel: 'Rain', b: '☂️', bLabel: 'Umbrella' }, { a: '❄️', aLabel: 'Snow', b: '🧤', bLabel: 'Gloves' },
+    { a: '☀️', aLabel: 'Sun', b: '🕶️', bLabel: 'Sunglasses' }, { a: '🌬️', aLabel: 'Wind', b: '🪁', bLabel: 'Kite' },
+    { a: '🏖️', aLabel: 'Beach', b: '🩱', bLabel: 'Swimsuit' } ] },
+  { label: '🍳 Kitchen', pairs: [
+    { a: '🥣', aLabel: 'Cereal', b: '🥄', bLabel: 'Spoon' }, { a: '🍞', aLabel: 'Bread', b: '🧈', bLabel: 'Butter' },
+    { a: '☕', aLabel: 'Coffee', b: '🫖', bLabel: 'Pot' }, { a: '🥚', aLabel: 'Eggs', b: '🍳', bLabel: 'Frying pan' },
+    { a: '🍝', aLabel: 'Spaghetti', b: '🍴', bLabel: 'Fork' } ] },
 ]
 
 const SIZES: { v: TargetSize; label: string }[] = [{ v: 'large', label: 'Large' }, { v: 'medium', label: 'Medium' }, { v: 'small', label: 'Small' }]
@@ -77,11 +98,14 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [rounds, setRounds] = useState(5)
   const [pic, setPic] = useState(PUZZLE_PICS[0].url)
   const [pieces, setPieces] = useState(teen ? 4 : 2)
-  const [playing, setPlaying] = useState<EyeHandGame | null>(null)
+  const [matchSet, setMatchSet] = useState(0)
+  const [matchCount, setMatchCount] = useState(teen ? 5 : 3)
+  const [playing, setPlaying] = useState<BrainBreak | null>(null)
   const [sent, setSent] = useState(false)
 
-  function build(): EyeHandGame {
+  function build(): BrainBreak {
     switch (meta.key) {
+      case 'match': return { type: 'match', pairs: MATCH_SETS[matchSet].pairs.slice(0, matchCount) }
       case 'cardmatch': return { type: 'cardmatch', pairs, style }
       case 'bubbles': return { type: 'bubbles', count, size, style }
       case 'maze': return { type: 'maze', cells, mode: mazeMode, style }
@@ -160,6 +184,12 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
           <>
             <Choice label="Grid" value={patGrid} onChange={setPatGrid} options={[3, 4, 5].map(g => ({ v: g, label: `${g}×${g}` }))} />
             <Choice label="Squares" value={patSquares} onChange={setPatSquares} options={[2, 3, 4, 5, 7].map(c => ({ v: c, label: String(c) }))} />
+          </>
+        )}
+        {meta.key === 'match' && (
+          <>
+            <Choice label="Pictures" value={matchSet} onChange={setMatchSet} options={MATCH_SETS.map((m, i) => ({ v: i, label: m.label }))} />
+            <Choice label="Pairs" value={matchCount} onChange={setMatchCount} options={[3, 4, 5].map(c => ({ v: c, label: String(c) }))} />
           </>
         )}
         {meta.key === 'puzzle' && (
