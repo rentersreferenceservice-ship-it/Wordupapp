@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createIntakeRequest } from '@/lib/intakeStore'
 import { sendIntakeRequestEmail } from '@/lib/intakeEmail'
+import { getSupabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,8 +23,23 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'A recipient phone number is required' }, { status: 400 })
   }
 
+  // If this email already belongs to exactly one of the practitioner's
+  // spellers, attach the form to them — otherwise approving it created a
+  // duplicate speller and the answers never reached the existing profile.
+  // (Siblings can share a parent's email; then it stays unattached.)
+  let studentId: string | null = null
+  let linkedStudentName: string | null = null
+  if (recipientEmail.includes('@')) {
+    const { data: matches } = await getSupabase()
+      .from('students')
+      .select('id, name')
+      .eq('practitioner_id', userId)
+      .ilike('guardian_email', recipientEmail.trim())
+    if (matches?.length === 1) { studentId = matches[0].id; linkedStudentName = matches[0].name }
+  }
+
   const request = await createIntakeRequest(userId, {
-    studentId: null,
+    studentId,
     channel,
     recipientEmail: recipientEmail || null,
     recipientPhone: recipientPhone || null,
@@ -36,5 +52,5 @@ export async function POST(req: NextRequest) {
   }
 
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wordups2c.com'
-  return Response.json({ ok: true, token: request.token, link: `${origin}/intake/${request.token}` })
+  return Response.json({ ok: true, token: request.token, link: `${origin}/intake/${request.token}`, linkedStudentName })
 }

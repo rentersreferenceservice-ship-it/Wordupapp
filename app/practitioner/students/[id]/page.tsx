@@ -53,6 +53,14 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
     getStudentProfile(id).catch(() => null),
   ])
   const invoices = invoicesResult.data ?? []
+  const { data: pendingIntakeRows } = await getSupabase()
+    .from('intake_requests')
+    .select('id, submitted_at')
+    .eq('student_id', id)
+    .eq('practitioner_id', userId)
+    .eq('status', 'submitted')
+    .order('submitted_at', { ascending: false })
+  const pendingIntakes = pendingIntakeRows ?? []
   const todayStr = new Date().toISOString().split('T')[0]
 
   if (!student || student.practitionerId !== userId) redirect('/practitioner/dashboard')
@@ -182,6 +190,16 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
           </ul>
         )}
       </div>
+
+      {/* A family filled out an info form for this speller — waiting for review */}
+      {pendingIntakes.length > 0 && (
+        <div className="mb-6 bg-amber-50 border-2 border-amber-300 rounded-xl px-5 py-4 flex items-center justify-between gap-3 flex-wrap print:hidden">
+          <p className="text-sm text-amber-900">
+            <span className="font-semibold">📋 Updated info is waiting for your review</span> — submitted {new Date(pendingIntakes[0].submitted_at).toLocaleDateString()}. Review it to add it to this profile.
+          </p>
+          <Link href={`/practitioner/inquiries/${pendingIntakes[0].id}`} className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600">Review</Link>
+        </div>
+      )}
 
       {/* Client Profile (from intake) */}
       <StudentProfileSection profile={studentProfile} />
