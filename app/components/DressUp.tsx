@@ -19,10 +19,10 @@ interface Item { e: string; label: string; zone: Zone }
 const ZONES: Record<Zone, { x: number; y: number; size: number }> = {
   head: { x: 50, y: 9, size: 26 },
   neck: { x: 50, y: 25, size: 22 },
-  torso: { x: 50, y: 38, size: 42 },
+  torso: { x: 50, y: 37, size: 36 },
   legs: { x: 50, y: 64, size: 36 },
   feet: { x: 50, y: 90, size: 30 },
-  hand: { x: 84, y: 50, size: 22 },
+  hand: { x: 77, y: 52, size: 22 },
 }
 
 export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; bg: string; decor: string[]; items: Item[]; wrong: Item[] }> = {
@@ -38,8 +38,11 @@ export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; b
   picnic: { title: 'Picnic in the park', emoji: '🧺', bg: 'linear-gradient(#bae6fd 0 55%, #bbf7d0 55%)', decor: ['☀️', '🌳', '🦋', '🌼'],
     items: [{ e: '👒', label: 'Sun hat', zone: 'head' }, { e: '👕', label: 'T-shirt', zone: 'torso' }, { e: '👖', label: 'Jeans', zone: 'legs' }, { e: '👟', label: 'Sneakers', zone: 'feet' }, { e: '🧺', label: 'Picnic basket', zone: 'hand' }],
     wrong: [{ e: '🧣', label: 'Scarf', zone: 'neck' }, { e: '👢', label: 'Snow boots', zone: 'feet' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
-  party: { title: 'Going to a party', emoji: '🎉', bg: 'linear-gradient(#fce7f3, #ede9fe)', decor: ['🎈', '🎊', '🎂', '🎈'],
-    items: [{ e: '🎀', label: 'Bow', zone: 'head' }, { e: '👔', label: 'Dress shirt', zone: 'torso' }, { e: '👖', label: 'Nice pants', zone: 'legs' }, { e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🎁', label: 'Present', zone: 'hand' }],
+  party: { title: 'Party (suit)', emoji: '🎉', bg: 'linear-gradient(#fce7f3, #ede9fe)', decor: ['🎈', '🎊', '🎂', '🎈'],
+    items: [{ e: '👑', label: 'Party crown', zone: 'head' }, { e: '👔', label: 'Dress shirt', zone: 'torso' }, { e: '👖', label: 'Nice pants', zone: 'legs' }, { e: '👞', label: 'Dress shoes', zone: 'feet' }, { e: '🎁', label: 'Present', zone: 'hand' }],
+    wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
+  partydress: { title: 'Party (dress)', emoji: '💃', bg: 'linear-gradient(#fce7f3, #fbcfe8)', decor: ['🎈', '🎊', '🎂', '🎈'],
+    items: [{ e: '🎀', label: 'Bow', zone: 'head' }, { e: '👗', label: 'Party dress', zone: 'torso' }, { e: '🥿', label: 'Flat shoes', zone: 'feet' }, { e: '🎁', label: 'Present', zone: 'hand' }],
     wrong: [{ e: '🥾', label: 'Hiking boots', zone: 'feet' }, { e: '🦺', label: 'Safety vest', zone: 'torso' }, { e: '🧤', label: 'Mittens', zone: 'hand' }] },
   beach: { title: 'Day at the beach', emoji: '🏖️', bg: 'linear-gradient(#7dd3fc 0 55%, #fde68a 55%)', decor: ['☀️', '🌴', '🌊', '🐚'],
     items: [{ e: '👒', label: 'Sun hat', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '🩴', label: 'Flip-flops', zone: 'feet' }, { e: '🪣', label: 'Sand bucket', zone: 'hand' }],
@@ -60,7 +63,10 @@ export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; b
 const PAIRED_HANDS = new Set(['🧤'])
 function wornAt(i: Item): { x: number; y: number; size: number; flip?: boolean }[] {
   if (i.zone === 'feet') return [{ x: 40, y: 89, size: 20, flip: true }, { x: 60, y: 89, size: 20 }]
-  if (i.zone === 'hand' && PAIRED_HANDS.has(i.e)) return [{ x: 16, y: 50, size: 18, flip: true }, { x: 84, y: 50, size: 18 }]
+  if (i.zone === 'hand' && PAIRED_HANDS.has(i.e)) return [{ x: 23, y: 52, size: 16, flip: true }, { x: 77, y: 52, size: 16 }]
+  if (i.e === '👗') return [{ x: 50, y: 50, size: 56 }]
+  // Held things sit just above the hand so the hand looks like it's gripping them.
+  if (i.zone === 'hand') return [{ x: 79, y: 45, size: 22 }]
   const z = ZONES[i.zone]
   return [{ x: z.x, y: z.y, size: z.size }]
 }
@@ -73,12 +79,23 @@ function Doll({ skin }: { skin: string }) {
       <circle cx="50" cy="16" r="11" fill={skin} />
       <rect x="45" y="26" width="10" height="6" fill={skin} />
       <rect x="33" y="31" width="34" height="38" rx="9" fill={skin} />
-      <rect x="21" y="33" width="10" height="34" rx="5" fill={skin} />
-      <rect x="69" y="33" width="10" height="34" rx="5" fill={skin} />
+      <rect x="18" y="33" width="10" height="36" rx="5" fill={skin} transform="rotate(8 23 33)" />
+      <rect x="72" y="33" width="10" height="36" rx="5" fill={skin} transform="rotate(-8 77 33)" />
       <rect x="37" y="66" width="11" height="54" rx="5" fill={skin} />
       <rect x="52" y="66" width="11" height="54" rx="5" fill={skin} />
       <ellipse cx="42" cy="124" rx="8" ry="4" fill={skin} />
       <ellipse cx="58" cy="124" rx="8" ry="4" fill={skin} />
+    </svg>
+  )
+}
+
+// Hands drawn on top of the clothes, so short sleeves still show hands and
+// held things (ice cream, umbrella) look gripped.
+function Hands({ skin }: { skin: string }) {
+  return (
+    <svg viewBox="0 0 100 140" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
+      <circle cx="23" cy="72" r="6" fill={skin} stroke="#00000022" strokeWidth="0.8" />
+      <circle cx="77" cy="72" r="6" fill={skin} stroke="#00000022" strokeWidth="0.8" />
     </svg>
   )
 }
@@ -152,10 +169,21 @@ export default function DressUp({ scenario, distractors }: { scenario: string; d
             <span key={z} className="absolute rounded-full border-4 border-dashed border-blue-500/70 bg-white/30 pointer-events-none animate-pulse"
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: '22%', aspectRatio: '1', transform: 'translate(-50%, -50%)' }} />
           ))}
-          {sc.items.filter(i => placed.includes(i.e + i.zone)).flatMap(i => wornAt(i).map((spot, k) => (
-            <span key={i.e + i.zone + k} className="absolute leading-none pointer-events-none"
-              style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `translate(-50%, -50%)${spot.flip ? ' scaleX(-1)' : ''}`, fontSize: `calc(${spot.size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>
-          )))}
+          {(() => {
+            const worn = sc.items.filter(i => placed.includes(i.e + i.zone))
+            const draw = (list: Item[]) => list.flatMap(i => wornAt(i).map((spot, k) => (
+              <span key={i.e + i.zone + k} className="absolute leading-none pointer-events-none"
+                style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `translate(-50%, -50%)${spot.flip ? ' scaleX(-1)' : ''}`, fontSize: `calc(${spot.size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>
+            )))
+            return (
+              <>
+                {draw(worn.filter(i => i.zone !== 'hand'))}
+                {draw(worn.filter(i => i.zone === 'hand' && !PAIRED_HANDS.has(i.e)))}
+                <Hands skin={skin} />
+                {draw(worn.filter(i => i.zone === 'hand' && PAIRED_HANDS.has(i.e)))}
+              </>
+            )
+          })()}
         </div>
         {!done && (
           <div className="grid grid-cols-4 sm:grid-cols-2 gap-2">
