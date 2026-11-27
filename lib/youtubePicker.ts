@@ -21,6 +21,8 @@ type PickOpts = {
   lessonTitle: string
   ageGroup: string
   maxSeconds?: number
+  /** Skip YouTube's own search fallback (100 quota units) — for bulk jobs. */
+  webOnly?: boolean
 }
 
 type Candidate = { videoId: string; title: string; channel: string; description: string; secs: number }
@@ -138,5 +140,6 @@ export async function pickYoutubeVideo(opts: PickOpts): Promise<PickedVideo | nu
     if (e instanceof YoutubeQuotaError) throw e
   }
   // 2) YouTube's own search as a backup (100 units).
+  if (opts.webOnly) return null
   return choose(await candidatesFromYoutubeSearch(opts, maxSeconds), opts)
 }

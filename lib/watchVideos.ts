@@ -69,14 +69,14 @@ export function withoutActivityVideo(h: Lesson['hunks'][number]): Lesson['hunks'
   }
 }
 
-export async function addWatchVideos(lesson: Lesson): Promise<Lesson> {
+export async function addWatchVideos(lesson: Lesson, opts: { webOnly?: boolean } = {}): Promise<Lesson> {
   const plan = await planClips(lesson)
   // Keep clips a page already has; only fill pages without one.
   if (plan) plan.clips = plan.clips.filter(c => !lesson.hunks.find(h => h.number === c.page)?.watchVideo)
   if (!plan || !plan.clips.length) return { ...lesson, hunks: lesson.hunks.map(h => (h.watchVideo ? withoutActivityVideo(h) : h)) }
   const picks = await Promise.all(plan.clips.map(async c => {
     try {
-      const p = await pickYoutubeVideo({ query: c.query, description: c.description, lessonTitle: lesson.title, ageGroup: lesson.ageGroup, maxSeconds: 120 })
+      const p = await pickYoutubeVideo({ query: c.query, description: c.description, lessonTitle: lesson.title, ageGroup: lesson.ageGroup, maxSeconds: 120, webOnly: opts.webOnly })
       return p ? { page: c.page, video: { ...p, description: c.description } } : null
     } catch (e) {
       if (e instanceof YoutubeQuotaError) return null
