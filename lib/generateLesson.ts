@@ -3,6 +3,7 @@ import type { Lesson, Hunk } from './types'
 import { v4 as uuidv4 } from 'uuid'
 import { addBrainBreaks } from './brainBreaks'
 import { pickYoutubeVideo } from './youtubePicker'
+import { addWatchVideos } from './watchVideos'
 
 const SYSTEM_PROMPT = `You are an expert letterboard lesson writer following the January 2026 Gold Standard for Word Up, LLC.
 
@@ -727,5 +728,7 @@ FACT RULES: Every specific fact in the lesson — dates, numbers, measurements, 
 
   // Two VAKT sensory-break games (after pages 3 and 6). Never block a lesson on them.
   const annotated = await annotateKeywords(lesson, client)
-  return addBrainBreaks(annotated).catch(() => annotated)
+  const withBreaks = await addBrainBreaks(annotated).catch(() => annotated)
+  // Extra "Watch & listen" clips for sensory-rich topics (none for abstract ones).
+  return addWatchVideos(withBreaks).catch(() => withBreaks)
 }

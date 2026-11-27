@@ -9,6 +9,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabaseClient'
 import { generateQRDataUrlFromUrl } from '@/lib/qrcode'
 import VaktVideoQR from '@/app/components/VaktVideoQR'
 import BrainBreakCard from '@/app/components/BrainBreakCard'
+import WatchVideoCard from '@/app/components/WatchVideoCard'
 import type { BrainBreak } from '@/lib/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
@@ -1225,6 +1226,9 @@ export default function SessionPlayer({ sessionId, studentName, sessionDate, les
           )}
 
           <p className="text-gray-900 leading-relaxed mb-5">{hunk.text}</p>
+          {hunk.watchVideo && (
+            <WatchVideoCard video={hunk.watchVideo} onSendToTablet={() => handleSendVideoToTt(hunk.watchVideo!.videoId, hunk.watchVideo!.title)} />
+          )}
 
           {/* Spelling words */}
           <div className="mb-5 p-3 bg-gray-50 rounded-xl">

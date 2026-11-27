@@ -15,6 +15,7 @@ import VaktVideoQR from '@/app/components/VaktVideoQR'
 import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
 import SendToTabletButton from '@/app/components/SendToTabletButton'
 import BrainBreakCard from '@/app/components/BrainBreakCard'
+import WatchVideoCard from '@/app/components/WatchVideoCard'
 import Link from 'next/link'
 import AddBrainBreaksButton from '@/app/components/AddBrainBreaksButton'
 import { auth } from '@clerk/nextjs/server'
@@ -235,6 +236,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
               />
             )}
             <p className="mb-3 text-gray-900 leading-relaxed">{hunk.text}</p>
+            {hunk.watchVideo && <WatchVideoCard video={hunk.watchVideo} />}
             <div className="space-y-2 pl-2">
               {hunk.questions.map((q, qi) => {
                 const qrDataUrl = q.type === 'VAKT' ? qrMap[`${hunk.number}-${qi}`] : undefined

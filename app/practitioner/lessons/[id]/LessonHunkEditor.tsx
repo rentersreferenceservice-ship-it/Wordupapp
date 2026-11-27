@@ -6,6 +6,7 @@ import VaktVideoQR from '@/app/components/VaktVideoQR'
 import TabletConnectionProvider from '@/app/components/TabletConnectionProvider'
 import SendToTabletButton from '@/app/components/SendToTabletButton'
 import BrainBreakCard from '@/app/components/BrainBreakCard'
+import WatchVideoCard from '@/app/components/WatchVideoCard'
 import type { Student } from '@/lib/practitionerStore'
 import StartSessionFromLesson from './StartSessionFromLesson'
 
@@ -194,6 +195,7 @@ export default function LessonHunkEditor({
             ) : (
               <div className="group relative mb-3">
                 <p className="text-gray-900 leading-relaxed">{hunk.text}</p>
+                {hunk.watchVideo && <div className="mt-3"><WatchVideoCard video={hunk.watchVideo} /></div>}
                 {isAdmin && (
                   <button
                     onClick={() => startHunkEdit(hunkIdx)}

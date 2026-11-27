@@ -25,6 +25,8 @@ export interface Hunk {
   imageAlt?: string
   /** VAKT sensory-break game shown after this hunk (see lib/brainBreaks.ts). */
   brainBreak?: BrainBreak
+  /** Short "Watch & listen" clip for sensory-rich pages (see lib/watchVideos.ts). */
+  watchVideo?: { videoId: string; title: string; duration: string; description: string }
 }
 
 // Short sensory-break games placed between hunks. Built for spellers:
