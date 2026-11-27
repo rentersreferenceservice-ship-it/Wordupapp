@@ -349,6 +349,9 @@ export default function LessonBrowser({ lessons, isSubscribed = false }: { lesso
           <Link href="/motor-planning" className="bg-orange-100 text-orange-800 border-2 border-orange-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors text-center">
             🖐️ Motor Planning Exercises
           </Link>
+          <Link href="/at-home" className="bg-green-100 text-green-800 border-2 border-green-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors text-center">
+            🏠 At-Home Activities
+          </Link>
           <button
             onClick={() => setShowSuggest(true)}
             className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors text-center"

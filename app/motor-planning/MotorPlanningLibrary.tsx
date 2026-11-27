@@ -6,7 +6,7 @@ import { MOTOR_EXERCISES, MOTOR_GROUPS, WARM_UP, type MotorExercise } from '@/li
 import { youtubeVideoUrl } from '@/lib/qrcode'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
-import HomeActivities from './HomeActivities'
+import Link from 'next/link'
 
 // Optional count helper for holds ("Hold 10 seconds") — counts up once a
 // second so the speller and partner can see it. Nothing happens at the end
@@ -157,6 +157,10 @@ export default function MotorPlanningLibrary() {
   const [big, setBig] = useState<MotorExercise | null>(null)
   return (
     <div className="space-y-6">
+      <Link href="/at-home" className="block border-2 border-green-300 bg-green-50 rounded-2xl px-4 py-3 hover:bg-green-100">
+        <p className="font-bold text-green-800">🏠 Looking for things to do at home? →</p>
+        <p className="text-sm text-green-700">35 everyday chores and play activities, with a printable sheet for families.</p>
+      </Link>
       <div className="border-2 border-orange-300 bg-orange-50 rounded-2xl p-4 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <p className="font-bold text-gray-900">🔥 Pre-Session Warm-Up</p>
@@ -188,10 +192,6 @@ export default function MotorPlanningLibrary() {
           </div>
         </section>
       ))}
-
-      <div className="pt-4 border-t-2 border-gray-100">
-        <HomeActivities />
-      </div>
 
       {warmUp && <WarmUp onClose={() => setWarmUp(false)} />}
       {big && <Overlay title={`🖐️ ${big.name}`} onClose={() => setBig(null)}><ExerciseScreen ex={big} /></Overlay>}
