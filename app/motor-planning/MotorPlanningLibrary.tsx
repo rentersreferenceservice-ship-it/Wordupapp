@@ -6,6 +6,7 @@ import { MOTOR_EXERCISES, MOTOR_GROUPS, WARM_UP, type MotorExercise } from '@/li
 import { youtubeVideoUrl } from '@/lib/qrcode'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
+import HomeActivities from './HomeActivities'
 
 // Optional count helper for holds ("Hold 10 seconds") — counts up once a
 // second so the speller and partner can see it. Nothing happens at the end
@@ -187,6 +188,10 @@ export default function MotorPlanningLibrary() {
           </div>
         </section>
       ))}
+
+      <div className="pt-4 border-t-2 border-gray-100">
+        <HomeActivities />
+      </div>
 
       {warmUp && <WarmUp onClose={() => setWarmUp(false)} />}
       {big && <Overlay title={`🖐️ ${big.name}`} onClose={() => setBig(null)}><ExerciseScreen ex={big} /></Overlay>}
