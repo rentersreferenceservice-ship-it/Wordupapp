@@ -40,6 +40,9 @@ export type BrainBreak =
   | EyeHandGame
 
 export type TargetSize = 'small' | 'medium' | 'large'
+/** A cartoon puzzle picture: a background plus emoji placed by % position and size. */
+export interface PuzzleScene { bg: string; items: { e: string; x: number; y: number; s: number }[] }
+export interface PuzzleLevel { grid: number; scene?: PuzzleScene; imageUrl?: string }
 /** Playful = emoji/animals; grown-up = plain shapes and letters for teens and adults. */
 export type GameStyle = 'playful' | 'grownup'
 export type GameSpeed = 'slow' | 'medium' | 'fast'
@@ -58,7 +61,9 @@ export type EyeHandGame =
   | { type: 'pattern'; grid: number; squares: number; rounds: number }
   | { type: 'spotdiff'; grid: number; rounds: number; style?: GameStyle }
   | { type: 'reachpoke'; layout: 'three' | 'alphabet' | 'keyboard'; count: number }
-  | { type: 'puzzle'; imageUrl: string; grid: number; ghost?: boolean }
+  // Picture Puzzle: a series of levels (more pieces each time). Each level is
+  // a bright cartoon scene built from emoji — or a photo (older puzzles).
+  | { type: 'puzzle'; levels?: PuzzleLevel[]; imageUrl?: string; grid?: number; ghost?: boolean }
 
 export interface Lesson {
   id: string

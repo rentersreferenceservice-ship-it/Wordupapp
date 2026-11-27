@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { BrainBreak, EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
+import { PUZZLE_SETS, simpleScene } from '@/app/components/EyeHandGames'
 
 type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle' | 'match'
 
@@ -11,7 +12,7 @@ const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bu
 
 const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: string; how: string }[] = [
   { key: 'cardmatch', emoji: '🃏', name: 'Card Match', skill: 'Visual scanning', ages: 'All ages', how: 'All cards face up — find the two that are the same and tap them both.' },
-  { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Drag each piece to its spot to rebuild the picture — or tap a piece, then tap where it goes.' },
+  { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Three bright pictures, one after another. Drag each piece to its spot (a faint outline shows where) — or tap a piece, then where it goes.' },
   { key: 'match', emoji: '🚒', name: 'Picture Match (draw a line)', skill: 'Eye-guided reaching', ages: 'All ages', how: 'Draw a line from each picture to the one it goes with — like a fire truck to a fire hat. Or tap one, then the other.' },
   { key: 'bubbles', emoji: '🫧', name: 'Pop the Bubbles', skill: 'Quick eye jumps', ages: 'All ages', how: 'One bubble at a time appears in a new spot. Tap it to pop it.' },
   { key: 'maze', emoji: '⭐', name: 'Star Maze', skill: 'Eye-guided movement', ages: 'All ages', how: 'Guide the star through the maze to the flag — slide it, or tap one square at a time.' },
@@ -41,15 +42,6 @@ function Choice<T extends string | number>({ label, value, options, onChange }: 
     </div>
   )
 }
-
-// Photos from the lesson library for the stand-alone puzzle (lesson brain
-// breaks use that lesson's own photo).
-const PUZZLE_PICS: { label: string; url: string }[] = [
-  { label: '🐙 Octopus', url: 'https://images.unsplash.com/photo-1683163826671-7c79d06088b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
-  { label: '🐶 Dog', url: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
-  { label: '🌊 Beach', url: 'https://images.unsplash.com/photo-1506252374453-ef5237291d83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
-  { label: '🦋 Butterfly', url: 'https://images.unsplash.com/photo-1586190605851-4a26c9ec04bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
-]
 
 // Ready-made "goes together" sets for Picture Match.
 const MATCH_SETS: { label: string; pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }[] = [
@@ -96,8 +88,8 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [patSquares, setPatSquares] = useState(teen ? 5 : 2)
   const [spotGrid, setSpotGrid] = useState(teen ? 5 : 3)
   const [rounds, setRounds] = useState(5)
-  const [pic, setPic] = useState(PUZZLE_PICS[0].url)
-  const [pieces, setPieces] = useState(teen ? 4 : 2)
+  const [puzzleSet, setPuzzleSet] = useState(0)
+  const [startPieces, setStartPieces] = useState(teen ? 3 : 2)
   const [matchSet, setMatchSet] = useState(0)
   const [matchCount, setMatchCount] = useState(teen ? 5 : 3)
   const [playing, setPlaying] = useState<BrainBreak | null>(null)
@@ -118,7 +110,11 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
       case 'findall': return { type: 'findall', grid: findGrid, targets: findTargets, style }
       case 'pattern': return { type: 'pattern', grid: patGrid, squares: patSquares, rounds }
       case 'spotdiff': return { type: 'spotdiff', grid: spotGrid, rounds, style }
-      case 'puzzle': return { type: 'puzzle', imageUrl: pic, grid: pieces, ghost: pieces <= 3 }
+      // Three levels, a new picture each: 4, 4, 9 pieces — or 9, 9, 9.
+      case 'puzzle': return {
+        type: 'puzzle', ghost: true,
+        levels: PUZZLE_SETS[puzzleSet].emoji.map((e, i) => ({ grid: startPieces === 2 ? [2, 2, 3][i] : 3, scene: simpleScene(e, i) })),
+      }
     }
   }
 
@@ -194,8 +190,8 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
         )}
         {meta.key === 'puzzle' && (
           <>
-            <Choice label="Picture" value={pic} onChange={setPic} options={PUZZLE_PICS.map(p => ({ v: p.url, label: p.label }))} />
-            <Choice label="Pieces" value={pieces} onChange={setPieces} options={[{ v: 2, label: '4' }, { v: 3, label: '9' }, { v: 4, label: '16' }]} />
+            <Choice label="Pictures" value={puzzleSet} onChange={setPuzzleSet} options={PUZZLE_SETS.map((p, i) => ({ v: i, label: p.label }))} />
+            <Choice label="Pieces" value={startPieces} onChange={setStartPieces} options={[{ v: 2, label: '4 → 4 → 9' }, { v: 3, label: '9 → 9 → 9' }]} />
           </>
         )}
         {meta.key === 'spotdiff' && <Choice label="Grid" value={spotGrid} onChange={setSpotGrid} options={[3, 4, 5, 6].map(g => ({ v: g, label: `${g}×${g}` }))} />}

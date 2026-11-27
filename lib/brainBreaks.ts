@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import type { BrainBreak, EyeHandGame, Lesson } from './types'
+import type { BrainBreak, EyeHandGame, Lesson, PuzzleScene } from './types'
 
 // Two sensory breaks per lesson, after pages 3 and 6. Hangman and word
 // search use the lesson's own spelling words (no AI needed); picture match
@@ -31,6 +31,14 @@ function maxWordLength(ageGroup: string): number {
   return 12
 }
 
+// Same as simpleScene in app/components/EyeHandGames.tsx (kept here so the
+// server-side generator doesn't import a client component).
+const PUZZLE_STRIPES = [['#fde68a', '#fca5a5', '#93c5fd'], ['#bbf7d0', '#fde68a', '#f9a8d4'], ['#c7d2fe', '#a7f3d0', '#fed7aa']]
+function simpleScene(emoji: string, i: number): PuzzleScene {
+  const [a, b, c] = PUZZLE_STRIPES[i % PUZZLE_STRIPES.length]
+  return { bg: `linear-gradient(${a} 0 33.4%, ${b} 33.4% 66.7%, ${c} 66.7% 100%)`, items: [{ e: emoji, x: 50, y: 52, s: 86 }] }
+}
+
 // 0 = ages 6–8, 1 = 9–11, 2 = 12–14, 3 = teens & adults.
 function ageLevel(ageGroup: string): 0 | 1 | 2 | 3 {
   if (isYoung(ageGroup)) return 0
@@ -60,7 +68,7 @@ function ocularMotorOptions(ageGroup: string): EyeHandGame[] {
   ]
 }
 
-async function topicEmoji(lesson: Lesson, guessWord?: string): Promise<{ pairs: { a: string; aLabel: string; b: string; bLabel: string }[]; x: string; o: string; clue?: string } | null> {
+async function topicEmoji(lesson: Lesson, guessWord?: string): Promise<{ pairs: { a: string; aLabel: string; b: string; bLabel: string }[]; x: string; o: string; clue?: string; puzzle?: string[] } | null> {
   try {
     const client = new Anthropic()
     const message = await client.messages.create({
@@ -68,21 +76,23 @@ async function topicEmoji(lesson: Lesson, guessWord?: string): Promise<{ pairs: 
       max_tokens: 4000,
       messages: [{
         role: 'user',
-        content: `A lesson titled "${lesson.title}" for ${lesson.ageGroup}. Create content for three quick games.
+        content: `A lesson titled "${lesson.title}" for ${lesson.ageGroup}. Create content for four quick games.
 
 1. A picture-matching game: ${isYoung(lesson.ageGroup) ? 4 : 5} pairs of things that go together and relate to the topic (like a fire truck 🚒 and a firefighter helmet ⛑️). Each side is ONE emoji plus a 1–3 word label. Use common emoji that display on phones and tablets.
 2. Two different topic emoji to use instead of X and O in tic-tac-toe.
-3. A word-guessing game for the word "${guessWord ?? ''}": write ONE short clue (under 15 words) that helps a ${lesson.ageGroup} student guess it, using what the lesson teaches. Never use the word itself or a form of it in the clue.
+3. A picture puzzle: 3 different single emoji of one clear, recognizable object each, closely tied to the lesson topic (e.g. for fire safety: "🚒","🧯","👩‍🚒"). Each will be shown very large.
+4. A word-guessing game for the word "${guessWord ?? ''}": write ONE short clue (under 15 words) that helps a ${lesson.ageGroup} student guess it, using what the lesson teaches. Never use the word itself or a form of it in the clue.
 
 Reply with ONLY JSON in this shape:
-{"pairs":[{"a":"🚒","aLabel":"Fire truck","b":"⛑️","bLabel":"Helmet"}],"x":"🦖","o":"🌋","clue":"Lizards lie on a warm one of these to soak up the sun."}`,
+{"pairs":[{"a":"🚒","aLabel":"Fire truck","b":"⛑️","bLabel":"Helmet"}],"x":"🦖","o":"🌋","clue":"Lizards lie on a warm one of these to soak up the sun.","puzzle":["🦎","🌵","☀️"]}`,
       }],
     })
     const text = message.content.filter((b): b is Anthropic.TextBlock => b.type === 'text').map(b => b.text).join('')
     const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
     if (!Array.isArray(json.pairs) || json.pairs.length < 3 || !json.x || !json.o) return null
     const clue = typeof json.clue === 'string' && guessWord && !json.clue.toUpperCase().includes(guessWord) ? json.clue.trim() : undefined
-    return { pairs: json.pairs.slice(0, 6), x: String(json.x), o: String(json.o), clue }
+    const puzzle = Array.isArray(json.puzzle) ? json.puzzle.filter((e: unknown) => typeof e === 'string' && e.trim()).slice(0, 3) : undefined
+    return { pairs: json.pairs.slice(0, 6), x: String(json.x), o: String(json.o), clue, puzzle }
   } catch {
     return null
   }
@@ -132,10 +142,14 @@ export async function addBrainBreaks(lesson: Lesson): Promise<Lesson> {
   const match = options.find(o => o.type === 'match')
   const ttt = options.find(o => o.type === 'tictactoe')
   const wordGame = wordGames.length ? pickOne(wordGames) : undefined
-  // Picture Puzzle from one of the lesson's own page photos (near the break).
-  const photo = [6, 5, 7, 4, 8, 3, 2, 1].map(n => lesson.hunks.find(h => h.number === n)?.imageUrl).find(Boolean)
+  // Picture Puzzle: three big, simple pictures tied to the lesson (one per
+  // level, with a faint outline to follow), 4 pieces up to 9 — never 16.
   const lv = ageLevel(lesson.ageGroup)
-  const puzzle: BrainBreak | undefined = photo ? { type: 'puzzle', imageUrl: photo, grid: [2, 3, 3, 4][lv], ghost: lv <= 1 } : undefined
+  const puzzleEmoji = emoji?.puzzle?.length === 3 ? emoji.puzzle : emoji?.pairs.slice(0, 3).map(p => p.a)
+  const grids = [[2, 2, 3], [2, 3, 3], [2, 3, 3], [3, 3, 3]][lv]
+  const puzzle: BrainBreak | undefined = puzzleEmoji?.length === 3
+    ? { type: 'puzzle', ghost: true, levels: puzzleEmoji.map((e, i) => ({ grid: grids[i], scene: simpleScene(e, i) })) }
+    : undefined
   const roll = Math.random()
   const playGame = roll < 0.4
     ? pickOne(ocularMotorOptions(lesson.ageGroup))

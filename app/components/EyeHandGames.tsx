@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
-import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
+import type { EyeHandGame, GameSpeed, GameStyle, PuzzleLevel, PuzzleScene, TargetSize } from '@/lib/types'
 
 // Eye-hand (oculomotor) practice for spellers. Tap-only, no timers, no
 // penalties: a wrong tap just gives a gentle shake. Size, speed and count
@@ -760,12 +760,65 @@ function ReachPoke({ layout, count }: { layout: 'three' | 'alphabet' | 'keyboard
   )
 }
 
-// ── Picture Puzzle: put the lesson's picture back together ───────────────
-// Drag a piece onto its spot — or tap a piece, then tap its spot (for
-// spellers who can't drag yet). Pieces only snap into their own spot; a
-// wrong spot sends the piece back with a gentle wiggle.
-function PicturePuzzle({ imageUrl, grid, ghost }: { imageUrl: string; grid: number; ghost?: boolean }) {
-  const total = grid * grid
+// ── Picture Puzzle: rebuild a bright cartoon picture, level by level ────
+// Each level is a picture (a cartoon emoji scene — or a photo for older
+// puzzles) cut into grid×grid pieces, with more pieces each level. Drag a
+// piece to its spot, or tap a piece then its spot; pieces only snap into
+// their own spot (a wrong spot wiggles it back).
+
+// Puzzle pictures are ONE big emoji filling the board over colored stripes
+// (one color per row), so every tile has a clear part of the picture and a
+// color cue. Sparse scenes left most tiles blank sky — too hard for spellers
+// working on motor planning.
+const PUZZLE_STRIPES: string[][] = [
+  ['#fde68a', '#fca5a5', '#93c5fd'],
+  ['#bbf7d0', '#fde68a', '#f9a8d4'],
+  ['#c7d2fe', '#a7f3d0', '#fed7aa'],
+  ['#fecaca', '#bfdbfe', '#d9f99d'],
+]
+
+export function simpleScene(emoji: string, i = 0): PuzzleScene {
+  const [a, b, c] = PUZZLE_STRIPES[i % PUZZLE_STRIPES.length]
+  return { bg: `linear-gradient(${a} 0 33.4%, ${b} 33.4% 66.7%, ${c} 66.7% 100%)`, items: [{ e: emoji, x: 50, y: 52, s: 86 }] }
+}
+
+/** Picture sets for the Ocular Motor Games page — three pictures each, one per level. */
+export const PUZZLE_SETS: { label: string; emoji: string[] }[] = [
+  { label: '🐶 Animals', emoji: ['🐶', '🦁', '🐢'] },
+  { label: '🚒 Vehicles', emoji: ['🚒', '🚌', '🚀'] },
+  { label: '🌻 Nature', emoji: ['🌻', '🦋', '🌈'] },
+  { label: '🍎 Food', emoji: ['🍎', '🍕', '🍦'] },
+  { label: '⛄ Seasons', emoji: ['⛄', '🎃', '🌷'] },
+]
+
+// A cartoon scene that fills its box; emoji sizes scale with the box.
+function SceneView({ scene }: { scene: PuzzleScene }) {
+  return (
+    <div className="absolute inset-0 overflow-hidden" style={{ background: scene.bg, containerType: 'size' } as React.CSSProperties}>
+      {scene.items.map((it, i) => (
+        <span key={i} className="absolute leading-none" style={{ left: `${it.x}%`, top: `${it.y}%`, transform: 'translate(-50%, -50%)', fontSize: `${it.s}cqmin` }}>{it.e}</span>
+      ))}
+    </div>
+  )
+}
+
+// One piece: a window onto the full picture, offset to its row and column.
+function PuzzlePiece({ level, piece }: { level: PuzzleLevel; piece: number }) {
+  const g = level.grid, col = piece % g, row = Math.floor(piece / g)
+  if (level.imageUrl) {
+    return <div className="absolute inset-0" style={{ backgroundImage: `url("${level.imageUrl}")`, backgroundSize: `${g * 100}% ${g * 100}%`, backgroundPosition: `${col * (100 / (g - 1))}% ${row * (100 / (g - 1))}%` }} />
+  }
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute" style={{ width: `${g * 100}%`, height: `${g * 100}%`, left: `${-col * 100}%`, top: `${-row * 100}%` }}>
+        {level.scene && <SceneView scene={level.scene} />}
+      </div>
+    </div>
+  )
+}
+
+function PuzzleLevelView({ level, ghost, onDone }: { level: PuzzleLevel; ghost?: boolean; onDone: () => void }) {
+  const grid = level.grid, total = grid * grid
   const tray = useMemo(() => {
     const a = Array.from({ length: total }, (_, i) => i)
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
@@ -778,25 +831,21 @@ function PicturePuzzle({ imageUrl, grid, ghost }: { imageUrl: string; grid: numb
   const boardRef = useRef<HTMLDivElement>(null)
   const done = placed.length === total
 
-  const pieceStyle = (piece: number): React.CSSProperties => ({
-    backgroundImage: `url("${imageUrl}")`,
-    backgroundSize: `${grid * 100}% ${grid * 100}%`,
-    backgroundPosition: `${(piece % grid) * (100 / (grid - 1))}% ${Math.floor(piece / grid) * (100 / (grid - 1))}%`,
-  })
-
   function tryPlace(piece: number, slot: number) {
-    if (piece === slot) { setPlaced(p => [...p, piece]); setSelected(null) }
-    else { setWrong(piece); setTimeout(() => setWrong(null), 500) }
+    if (piece === slot) {
+      const next = [...placed, piece]
+      setPlaced(next); setSelected(null)
+      if (next.length === total) onDone()
+    } else { setWrong(piece); setTimeout(() => setWrong(null), 500) }
   }
 
   function slotAt(x: number, y: number): number | null {
-    const el = boardRef.current
-    if (!el) return null
-    const r = el.getBoundingClientRect()
-    if (x < r.left || x > r.right || y < r.top || y > r.bottom) return null
+    const r = boardRef.current?.getBoundingClientRect()
+    if (!r || x < r.left || x > r.right || y < r.top || y > r.bottom) return null
     return Math.floor(((y - r.top) / r.height) * grid) * grid + Math.floor(((x - r.left) / r.width) * grid)
   }
 
+  const pieceW = `min(${Math.round(80 / Math.max(3, grid))}vw, ${Math.round(420 / Math.max(3, grid))}px)`
   return (
     <div className="select-none" style={{ touchAction: 'none' }}
       onPointerMove={e => { if (drag) setDrag({ ...drag, x: e.clientX, y: e.clientY }) }}
@@ -806,20 +855,22 @@ function PicturePuzzle({ imageUrl, grid, ghost }: { imageUrl: string; grid: numb
         if (slot !== null) tryPlace(drag.piece, slot)
         setDrag(null)
       }}>
-      <p className="text-center text-gray-500 mb-3">{done ? '' : 'Drag each piece to its spot — or tap a piece, then tap where it goes.'}</p>
       <div ref={boardRef} className="relative mx-auto w-full max-w-[min(90vw,480px)] aspect-[4/3] rounded-xl border-4 border-gray-700 overflow-hidden bg-gray-100"
         style={{ display: 'grid', gridTemplateColumns: `repeat(${grid}, 1fr)`, gridTemplateRows: `repeat(${grid}, 1fr)` }}>
-        {ghost && !done && <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `url("${imageUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
+        {ghost && !done && (
+          <div className="absolute inset-0 opacity-25 pointer-events-none">
+            {level.scene ? <SceneView scene={level.scene} /> : <div className="absolute inset-0" style={{ backgroundImage: `url("${level.imageUrl}")`, backgroundSize: 'cover' }} />}
+          </div>
+        )}
         {Array.from({ length: total }, (_, slot) => (
           <button key={slot} type="button" aria-label="puzzle spot"
             onClick={() => { if (selected !== null && !placed.includes(slot)) tryPlace(selected, slot) }}
-            className={`relative ${done ? '' : 'border border-white/70'}`}
-            style={placed.includes(slot) ? pieceStyle(slot) : undefined} />
+            className={`relative ${done ? '' : 'border border-white/80'}`}>
+            {placed.includes(slot) && <PuzzlePiece level={level} piece={slot} />}
+          </button>
         ))}
       </div>
-      {done ? (
-        <Done text="🎉 You finished the puzzle!" />
-      ) : (
+      {!done && (
         <div className="flex flex-wrap justify-center gap-2 mt-4 mx-auto max-w-[min(90vw,520px)]">
           {tray.filter(p => !placed.includes(p)).map(piece => (
             <div key={piece}
@@ -828,14 +879,40 @@ function PicturePuzzle({ imageUrl, grid, ghost }: { imageUrl: string; grid: numb
                 setSelected(piece)
                 setDrag({ piece, x: e.clientX, y: e.clientY, w })
               }}
-              className={`rounded-lg border-4 cursor-grab ${selected === piece ? 'border-blue-500' : wrong === piece ? 'border-red-400 animate-bounce' : 'border-white shadow'} ${drag?.piece === piece ? 'opacity-30' : ''}`}
-              style={{ ...pieceStyle(piece), width: `min(${Math.round(80 / Math.max(3, grid))}vw, ${Math.round(420 / Math.max(3, grid))}px)`, aspectRatio: '4 / 3' }} />
+              className={`relative rounded-lg border-4 overflow-hidden cursor-grab ${selected === piece ? 'border-blue-500' : wrong === piece ? 'border-red-400 animate-bounce' : 'border-white shadow'} ${drag?.piece === piece ? 'opacity-30' : ''}`}
+              style={{ width: pieceW, aspectRatio: '4 / 3' }}>
+              <PuzzlePiece level={level} piece={piece} />
+            </div>
           ))}
         </div>
       )}
       {drag && (
-        <div className="fixed pointer-events-none rounded-lg border-4 border-blue-500 shadow-2xl z-[60]"
-          style={{ ...pieceStyle(drag.piece), width: drag.w, aspectRatio: '4 / 3', left: drag.x - drag.w / 2, top: drag.y - (drag.w * 3) / 8 }} />
+        <div className="fixed pointer-events-none rounded-lg border-4 border-blue-500 shadow-2xl z-[60] overflow-hidden"
+          style={{ width: drag.w, aspectRatio: '4 / 3', left: drag.x - drag.w / 2, top: drag.y - (drag.w * 3) / 8 }}>
+          <PuzzlePiece level={level} piece={drag.piece} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PicturePuzzle({ levels, ghost }: { levels: PuzzleLevel[]; ghost?: boolean }) {
+  const [k, setK] = useState(0)
+  const [levelDone, setLevelDone] = useState(false)
+  if (k >= levels.length) return <Done text="🎉 You finished every puzzle!" />
+  const last = k === levels.length - 1
+  return (
+    <div>
+      <p className="text-center text-gray-500 mb-3">
+        Puzzle {k + 1} of {levels.length} · {levels[k].grid * levels[k].grid} pieces — drag each piece to its spot, or tap a piece then where it goes.
+      </p>
+      <PuzzleLevelView key={k} level={levels[k]} ghost={ghost} onDone={() => setLevelDone(true)} />
+      {levelDone && (
+        <div className="text-center mt-4">
+          <p className="text-2xl font-bold text-green-600">🎉 Puzzle {k + 1} done!</p>
+          <button type="button" onClick={() => { setLevelDone(false); setK(v => v + 1) }}
+            className="mt-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold">{last ? 'Finish' : 'Next puzzle →'}</button>
+        </div>
       )}
     </div>
   )
@@ -857,6 +934,6 @@ export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
     case 'pattern': return <CopyPattern grid={game.grid} squares={game.squares} rounds={game.rounds} />
     case 'spotdiff': return <SpotDiff grid={game.grid} rounds={game.rounds} style={game.style} />
     case 'reachpoke': return <ReachPoke layout={game.layout} count={game.count} />
-    case 'puzzle': return <PicturePuzzle imageUrl={game.imageUrl} grid={game.grid} ghost={game.ghost} />
+    case 'puzzle': return <PicturePuzzle levels={game.levels?.length ? game.levels : [{ grid: game.grid ?? 3, imageUrl: game.imageUrl }]} ghost={game.ghost} />
   }
 }
