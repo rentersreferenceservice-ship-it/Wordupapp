@@ -22,6 +22,14 @@ export default async function PractitionerDashboard() {
   const subscription = await getPractitionerSubscription(userId)
   if (!subscription?.isActive) redirect('/practitioner/subscribe')
 
+  // Forms families have submitted that still need the practitioner's review.
+  const { count: toReviewCount } = await getSupabase()
+    .from('intake_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('practitioner_id', userId)
+    .eq('status', 'submitted')
+  const toReview = toReviewCount ?? 0
+
   const [students, sessions, { data: rawUnpaid }] = await Promise.all([
     getStudents(userId),
     getSessions(userId),
@@ -174,9 +182,17 @@ export default async function PractitionerDashboard() {
               <Link href="/practitioner/books" className="text-xs text-gray-500 hover:underline">
                 My Books
               </Link>
-              <Link href="/practitioner/inquiries" className="text-xs text-gray-500 hover:underline">
-                Pending Intakes &amp; Updates
-              </Link>
+              {/* Stands out when a family has submitted a form that needs review */}
+              {toReview > 0 ? (
+                <Link href="/practitioner/inquiries" className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border-2 border-amber-400 px-2.5 py-1 rounded-lg text-xs font-bold hover:bg-amber-200 animate-pulse">
+                  ⭐ Pending Intakes &amp; Updates
+                  <span className="bg-red-600 text-white rounded-full px-1.5 py-0.5 text-[10px] leading-none">{toReview} to review</span>
+                </Link>
+              ) : (
+                <Link href="/practitioner/inquiries" className="text-xs text-gray-500 hover:underline">
+                  Pending Intakes &amp; Updates
+                </Link>
+              )}
               <Link href="/practitioner/inquiries/new" className="bg-white text-blue-700 border-2 border-blue-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
                 + New Intake
               </Link>
