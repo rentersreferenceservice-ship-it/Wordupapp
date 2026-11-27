@@ -192,6 +192,9 @@ export default function PractitionerLessonBrowser({ lessons }: { lessons: Lesson
           <Link href="/ocular-motor-games" className="bg-purple-100 text-purple-800 border-2 border-purple-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors text-center">
             👀 Ocular Motor Games
           </Link>
+          <Link href="/motor-planning" className="bg-orange-100 text-orange-800 border-2 border-orange-400 px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors text-center">
+            🖐️ Motor Planning Exercises
+          </Link>
           <button
             onClick={() => setShowSuggest(true)}
             className="bg-yellow-200 border-2 border-blue-600 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-300 transition-colors text-center"

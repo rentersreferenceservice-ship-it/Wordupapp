@@ -57,6 +57,7 @@ export type EyeHandGame =
   | { type: 'findall'; grid: number; targets: number; style?: GameStyle }
   | { type: 'pattern'; grid: number; squares: number; rounds: number }
   | { type: 'spotdiff'; grid: number; rounds: number; style?: GameStyle }
+  | { type: 'reachpoke'; layout: 'three' | 'alphabet' | 'keyboard'; count: number }
 
 export interface Lesson {
   id: string

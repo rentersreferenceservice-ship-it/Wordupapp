@@ -699,6 +699,67 @@ function SpotDiff({ grid, rounds, style }: { grid: number; rounds: number; style
   )
 }
 
+// ── Reach & Poke: practice the real letterboard reach ────────────────────
+// A letter on a letterboard-style layout lights up; reach and poke it with
+// the pointer finger. The next letter is always far from the last one, so
+// every poke is a real reach (often across the middle).
+const REACH_LAYOUTS: Record<'three' | 'alphabet' | 'keyboard', string[]> = {
+  three: ['ABC', 'DEF', 'GHI'],
+  alphabet: ['ABCDEFG', 'HIJKLMN', 'OPQRSTU', 'VWXYZ'],
+  keyboard: ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'],
+}
+
+function ReachPoke({ layout, count }: { layout: 'three' | 'alphabet' | 'keyboard'; count: number }) {
+  const rows = REACH_LAYOUTS[layout]
+  const cells = useMemo(() => rows.flatMap((row, r) => row.split('').map((l, c) => ({ l, r, c }))), [rows])
+  const pickFar = (prev?: { r: number; c: number }) => {
+    if (!prev) return cells[Math.floor(Math.random() * cells.length)]
+    const far = cells.filter(x => Math.hypot(x.r - prev.r, (x.c - prev.c) / 1.5) >= (layout === 'three' ? 1.5 : 2.5))
+    const pool = far.length ? far : cells
+    return pool[Math.floor(Math.random() * pool.length)]
+  }
+  const [n, setN] = useState(0)
+  const [target, setTarget] = useState(() => pickFar())
+  const [hit, setHit] = useState(false)
+  const [miss, setMiss] = useState<string | null>(null)
+
+  function poke(l: string) {
+    if (hit) return
+    if (l === target.l) {
+      setHit(true)
+      setTimeout(() => { setHit(false); setN(v => v + 1); setTarget(t => pickFar(t)) }, 450)
+    } else { setMiss(l); setTimeout(() => setMiss(null), 400) }
+  }
+
+  if (n >= count) return <Done text="🎉 Great reaching!" />
+  const big = layout === 'three'
+  return (
+    <div>
+      <Progress done={n} total={count} />
+      <p className="text-center text-gray-500 mb-4">Make a pointer finger ☝️ and poke the glowing letter. Bring your hand back between pokes.</p>
+      <div className="space-y-2 select-none">
+        {rows.map(row => (
+          <div key={row} className="flex justify-center gap-2">
+            {row.split('').map(l => {
+              const isTarget = l === target.l
+              return (
+                <button key={l} type="button" onClick={() => poke(l)}
+                  className={`rounded-xl border-4 font-bold flex items-center justify-center transition-colors ${big ? 'w-24 h-24 text-5xl' : 'w-10 h-14 sm:w-14 sm:h-16 text-2xl'} ${
+                    isTarget && hit ? 'bg-green-500 text-white border-green-600'
+                      : isTarget ? 'bg-yellow-300 border-yellow-500 animate-pulse'
+                        : miss === l ? 'bg-red-50 border-red-300' : 'bg-white border-gray-300 text-gray-700'
+                  }`}>
+                  {l}
+                </button>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
   switch (game.type) {
     case 'bubbles': return <Bubbles count={game.count} size={game.size} style={game.style} />
@@ -714,5 +775,6 @@ export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
     case 'findall': return <FindAll grid={game.grid} targets={game.targets} style={game.style} />
     case 'pattern': return <CopyPattern grid={game.grid} squares={game.squares} rounds={game.rounds} />
     case 'spotdiff': return <SpotDiff grid={game.grid} rounds={game.rounds} style={game.style} />
+    case 'reachpoke': return <ReachPoke layout={game.layout} count={game.count} />
   }
 }

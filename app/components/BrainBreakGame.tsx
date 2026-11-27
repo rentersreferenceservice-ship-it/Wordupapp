@@ -25,6 +25,7 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   findall: 'Find Them All',
   pattern: 'Copy the Pattern',
   spotdiff: 'Spot the Difference',
+  reachpoke: 'Reach & Poke',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
