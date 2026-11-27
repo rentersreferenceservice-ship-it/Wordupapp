@@ -132,9 +132,15 @@ export async function addBrainBreaks(lesson: Lesson): Promise<Lesson> {
   const match = options.find(o => o.type === 'match')
   const ttt = options.find(o => o.type === 'tictactoe')
   const wordGame = wordGames.length ? pickOne(wordGames) : undefined
-  const playGame = Math.random() < 0.5
+  // Picture Puzzle from one of the lesson's own page photos (near the break).
+  const photo = [6, 5, 7, 4, 8, 3, 2, 1].map(n => lesson.hunks.find(h => h.number === n)?.imageUrl).find(Boolean)
+  const lv = ageLevel(lesson.ageGroup)
+  const puzzle: BrainBreak | undefined = photo ? { type: 'puzzle', imageUrl: photo, grid: [2, 3, 3, 4][lv], ghost: lv <= 1 } : undefined
+  const roll = Math.random()
+  const playGame = roll < 0.4
     ? pickOne(ocularMotorOptions(lesson.ageGroup))
-    : match && (!ttt || Math.random() < 0.7) ? match : ttt
+    : roll < 0.6 && puzzle ? puzzle
+      : match && (!ttt || Math.random() < 0.7) ? match : ttt
   const picks = [wordGame, playGame].filter((o): o is BrainBreak => !!o)
 
   return {

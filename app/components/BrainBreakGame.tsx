@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { BrainBreak } from '@/lib/types'
 import EyeHandGameView from './EyeHandGames'
 
-// VAKT sensory-break games. Built for spellers: tap-only (no dragging),
-// big targets, no timers, no penalties beyond the game itself.
+// VAKT sensory-break games. Built for spellers: big targets, no timers, no
+// penalties beyond the game itself. Anything that can be dragged can also be
+// done by tapping, for spellers who can't drag yet.
 
 export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   hangman: 'Word Guess',
@@ -26,6 +27,7 @@ export const BRAIN_BREAK_NAMES: Record<BrainBreak['type'], string> = {
   pattern: 'Copy the Pattern',
   spotdiff: 'Spot the Difference',
   reachpoke: 'Reach & Poke',
+  puzzle: 'Picture Puzzle',
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -91,32 +93,88 @@ function WordGuess({ word, hint }: { word: string; hint: string }) {
 }
 
 // ── Picture Match: tap a picture, then its partner ───────────────────────
+// Tap a picture, then its partner — or drag a line from one to the other
+// (like drawing a line on a worksheet). Matched pairs stay joined by a line.
 function PictureMatch({ pairs }: { pairs: { a: string; aLabel: string; b: string; bLabel: string }[] }) {
   const right = useMemo(() => shuffle(pairs.map((p, i) => ({ ...p, i }))), [pairs])
   const [picked, setPicked] = useState<number | null>(null)
   const [matched, setMatched] = useState<number[]>([])
   const [wrong, setWrong] = useState<number | null>(null)
+  const [lines, setLines] = useState<{ x1: number; y1: number; x2: number; y2: number }[]>([])
+  const [live, setLive] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
+  const leftRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const rightRefs = useRef<Record<number, HTMLButtonElement | null>>({})
+  const drag = useRef<{ from: number; moved: boolean; sx: number; sy: number } | null>(null)
+  const justDragged = useRef(false)
   const done = matched.length === pairs.length
 
-  function tapRight(i: number) {
-    if (picked === null || matched.includes(i)) return
-    if (picked === i) {
-      setMatched(m => [...m, i])
-      setPicked(null)
-    } else {
-      setWrong(i)
-      setTimeout(() => setWrong(null), 600)
-    }
+  // Edge-center points of a card, relative to the game box.
+  function anchor(el: HTMLElement | null | undefined, side: 'left' | 'right') {
+    const box = boxRef.current?.getBoundingClientRect()
+    const r = el?.getBoundingClientRect()
+    if (!box || !r) return null
+    return { x: (side === 'right' ? r.right : r.left) - box.left, y: r.top + r.height / 2 - box.top }
+  }
+
+  const drawMatched = () => {
+    setLines(matched.flatMap(i => {
+      const a = anchor(leftRefs.current[i], 'right'), b = anchor(rightRefs.current[i], 'left')
+      return a && b ? [{ x1: a.x, y1: a.y, x2: b.x, y2: b.y }] : []
+    }))
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(drawMatched, [matched])
+  useEffect(() => {
+    window.addEventListener('resize', drawMatched)
+    return () => window.removeEventListener('resize', drawMatched)
+  })
+
+  function tryMatch(i: number, from = picked) {
+    if (from === null || matched.includes(i)) return
+    if (from === i) { setMatched(m => [...m, i]); setPicked(null) }
+    else { setWrong(i); setTimeout(() => setWrong(null), 600) }
   }
 
   const card = 'w-full flex items-center gap-3 px-3 py-3 rounded-2xl border-4 text-left transition-colors'
   return (
     <div>
-      <p className="text-center text-gray-500 mb-4">Tap a picture on the left, then the one it goes with on the right.</p>
-      <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
+      <p className="text-center text-gray-500 mb-4">Draw a line from a picture on the left to the one it goes with — or tap one, then the other.</p>
+      <div ref={boxRef} className="relative grid grid-cols-2 gap-x-16 gap-y-3 max-w-xl mx-auto select-none"
+        onPointerMove={e => {
+          const d = drag.current
+          if (!d) return
+          if (Math.hypot(e.clientX - d.sx, e.clientY - d.sy) > 8) d.moved = true
+          const a = anchor(leftRefs.current[d.from], 'right'), box = boxRef.current!.getBoundingClientRect()
+          if (a) setLive({ x1: a.x, y1: a.y, x2: e.clientX - box.left, y2: e.clientY - box.top })
+        }}
+        onPointerUp={e => {
+          const d = drag.current
+          drag.current = null
+          setLive(null)
+          if (!d?.moved) return
+          justDragged.current = true
+          setTimeout(() => { justDragged.current = false }, 0)
+          const hit = Object.entries(rightRefs.current).find(([, el]) => {
+            const r = el?.getBoundingClientRect()
+            return r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom
+          })
+          if (hit) tryMatch(Number(hit[0]), d.from)
+        }}>
+        <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+          {lines.map((l, k) => <line key={k} {...l} stroke="#16a34a" strokeWidth={5} strokeLinecap="round" />)}
+          {live && <line {...live} stroke="#2563eb" strokeWidth={5} strokeLinecap="round" strokeDasharray="10 8" />}
+        </svg>
         <div className="space-y-3">
           {pairs.map((p, i) => (
-            <button key={i} type="button" disabled={matched.includes(i)} onClick={() => setPicked(i)}
+            <button key={i} ref={el => { leftRefs.current[i] = el }} type="button" disabled={matched.includes(i)}
+              style={{ touchAction: 'none' }}
+              onPointerDown={e => {
+                if (matched.includes(i)) return
+                setPicked(i)
+                drag.current = { from: i, moved: false, sx: e.clientX, sy: e.clientY }
+                boxRef.current?.setPointerCapture(e.pointerId)
+              }}
               className={`${card} ${matched.includes(i) ? 'border-green-400 bg-green-50' : picked === i ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
               <span className="text-4xl">{p.a}</span><span className="text-base font-medium">{p.aLabel}</span>
             </button>
@@ -124,7 +182,8 @@ function PictureMatch({ pairs }: { pairs: { a: string; aLabel: string; b: string
         </div>
         <div className="space-y-3">
           {right.map(p => (
-            <button key={p.i} type="button" disabled={matched.includes(p.i)} onClick={() => tapRight(p.i)}
+            <button key={p.i} ref={el => { rightRefs.current[p.i] = el }} type="button" disabled={matched.includes(p.i)}
+              onClick={() => { if (!justDragged.current) tryMatch(p.i) }}
               className={`${card} ${matched.includes(p.i) ? 'border-green-400 bg-green-50' : wrong === p.i ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white'}`}>
               <span className="text-4xl">{p.b}</span><span className="text-base font-medium">{p.bLabel}</span>
             </button>

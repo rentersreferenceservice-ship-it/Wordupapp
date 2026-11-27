@@ -5,7 +5,7 @@ import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 import { BrainBreakOverlay } from '@/app/components/BrainBreakCard'
 import { useTabletConnection } from '@/app/components/TabletConnectionProvider'
 
-type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff'
+type GameKey = 'cardmatch' | 'bubbles' | 'maze' | 'leftright' | 'dots' | 'findletter' | 'numbergrid' | 'oddone' | 'cups' | 'findall' | 'pattern' | 'spotdiff' | 'puzzle'
 
 const GROWNUP_ICON: Partial<Record<GameKey, string>> = { cardmatch: '♠️', bubbles: '🔵', maze: '🔵', leftright: '🟠', cups: '⚪', findall: '🔠', spotdiff: '♦️' }
 
@@ -21,6 +21,7 @@ const GAMES: { key: GameKey; emoji: string; name: string; skill: string; ages: s
   { key: 'cups', emoji: '🥤', name: 'Cup Shuffle', skill: 'Smooth tracking', ages: 'All ages', how: 'Watch the cup with the ball as the cups slowly swap — then tap where it ended up.' },
   { key: 'findall', emoji: '⭐', name: 'Find Them All', skill: 'Visual scanning', ages: 'All ages', how: 'Tap every target hidden among other shapes — like every ⭐, or every E among F, P and B.' },
   { key: 'pattern', emoji: '🟦', name: 'Copy the Pattern', skill: 'Visual memory', ages: 'All ages', how: 'Some squares light up. Remember them, tap “I’m ready”, then tap the same squares.' },
+  { key: 'puzzle', emoji: '🧩', name: 'Picture Puzzle', skill: 'Planning & placing', ages: 'All ages', how: 'Drag each piece to its spot to rebuild the picture — or tap a piece, then tap where it goes.' },
   { key: 'spotdiff', emoji: '👀', name: 'Spot the Difference', skill: 'Comparing side to side', ages: 'All ages', how: 'Two grids side by side — one picture is different. Find it.' },
 ]
 
@@ -39,6 +40,15 @@ function Choice<T extends string | number>({ label, value, options, onChange }: 
     </div>
   )
 }
+
+// Photos from the lesson library for the stand-alone puzzle (lesson brain
+// breaks use that lesson's own photo).
+const PUZZLE_PICS: { label: string; url: string }[] = [
+  { label: '🐙 Octopus', url: 'https://images.unsplash.com/photo-1683163826671-7c79d06088b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
+  { label: '🐶 Dog', url: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
+  { label: '🌊 Beach', url: 'https://images.unsplash.com/photo-1506252374453-ef5237291d83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
+  { label: '🦋 Butterfly', url: 'https://images.unsplash.com/photo-1586190605851-4a26c9ec04bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080' },
+]
 
 const SIZES: { v: TargetSize; label: string }[] = [{ v: 'large', label: 'Large' }, { v: 'medium', label: 'Medium' }, { v: 'small', label: 'Small' }]
 
@@ -65,6 +75,8 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
   const [patSquares, setPatSquares] = useState(teen ? 5 : 2)
   const [spotGrid, setSpotGrid] = useState(teen ? 5 : 3)
   const [rounds, setRounds] = useState(5)
+  const [pic, setPic] = useState(PUZZLE_PICS[0].url)
+  const [pieces, setPieces] = useState(teen ? 4 : 2)
   const [playing, setPlaying] = useState<EyeHandGame | null>(null)
   const [sent, setSent] = useState(false)
 
@@ -82,6 +94,7 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
       case 'findall': return { type: 'findall', grid: findGrid, targets: findTargets, style }
       case 'pattern': return { type: 'pattern', grid: patGrid, squares: patSquares, rounds }
       case 'spotdiff': return { type: 'spotdiff', grid: spotGrid, rounds, style }
+      case 'puzzle': return { type: 'puzzle', imageUrl: pic, grid: pieces, ghost: pieces <= 3 }
     }
   }
 
@@ -147,6 +160,12 @@ function GameRow({ meta, style }: { meta: typeof GAMES[number]; style: GameStyle
           <>
             <Choice label="Grid" value={patGrid} onChange={setPatGrid} options={[3, 4, 5].map(g => ({ v: g, label: `${g}×${g}` }))} />
             <Choice label="Squares" value={patSquares} onChange={setPatSquares} options={[2, 3, 4, 5, 7].map(c => ({ v: c, label: String(c) }))} />
+          </>
+        )}
+        {meta.key === 'puzzle' && (
+          <>
+            <Choice label="Picture" value={pic} onChange={setPic} options={PUZZLE_PICS.map(p => ({ v: p.url, label: p.label }))} />
+            <Choice label="Pieces" value={pieces} onChange={setPieces} options={[{ v: 2, label: '4' }, { v: 3, label: '9' }, { v: 4, label: '16' }]} />
           </>
         )}
         {meta.key === 'spotdiff' && <Choice label="Grid" value={spotGrid} onChange={setSpotGrid} options={[3, 4, 5, 6].map(g => ({ v: g, label: `${g}×${g}` }))} />}

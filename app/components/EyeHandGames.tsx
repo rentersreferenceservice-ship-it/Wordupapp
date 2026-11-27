@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { EyeHandGame, GameSpeed, GameStyle, TargetSize } from '@/lib/types'
 
 // Eye-hand (oculomotor) practice for spellers. Tap-only, no timers, no
@@ -760,6 +760,87 @@ function ReachPoke({ layout, count }: { layout: 'three' | 'alphabet' | 'keyboard
   )
 }
 
+// ── Picture Puzzle: put the lesson's picture back together ───────────────
+// Drag a piece onto its spot — or tap a piece, then tap its spot (for
+// spellers who can't drag yet). Pieces only snap into their own spot; a
+// wrong spot sends the piece back with a gentle wiggle.
+function PicturePuzzle({ imageUrl, grid, ghost }: { imageUrl: string; grid: number; ghost?: boolean }) {
+  const total = grid * grid
+  const tray = useMemo(() => {
+    const a = Array.from({ length: total }, (_, i) => i)
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
+    return a
+  }, [total])
+  const [placed, setPlaced] = useState<number[]>([])
+  const [selected, setSelected] = useState<number | null>(null)
+  const [wrong, setWrong] = useState<number | null>(null)
+  const [drag, setDrag] = useState<{ piece: number; x: number; y: number; w: number } | null>(null)
+  const boardRef = useRef<HTMLDivElement>(null)
+  const done = placed.length === total
+
+  const pieceStyle = (piece: number): React.CSSProperties => ({
+    backgroundImage: `url("${imageUrl}")`,
+    backgroundSize: `${grid * 100}% ${grid * 100}%`,
+    backgroundPosition: `${(piece % grid) * (100 / (grid - 1))}% ${Math.floor(piece / grid) * (100 / (grid - 1))}%`,
+  })
+
+  function tryPlace(piece: number, slot: number) {
+    if (piece === slot) { setPlaced(p => [...p, piece]); setSelected(null) }
+    else { setWrong(piece); setTimeout(() => setWrong(null), 500) }
+  }
+
+  function slotAt(x: number, y: number): number | null {
+    const el = boardRef.current
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    if (x < r.left || x > r.right || y < r.top || y > r.bottom) return null
+    return Math.floor(((y - r.top) / r.height) * grid) * grid + Math.floor(((x - r.left) / r.width) * grid)
+  }
+
+  return (
+    <div className="select-none" style={{ touchAction: 'none' }}
+      onPointerMove={e => { if (drag) setDrag({ ...drag, x: e.clientX, y: e.clientY }) }}
+      onPointerUp={e => {
+        if (!drag) return
+        const slot = slotAt(e.clientX, e.clientY)
+        if (slot !== null) tryPlace(drag.piece, slot)
+        setDrag(null)
+      }}>
+      <p className="text-center text-gray-500 mb-3">{done ? '' : 'Drag each piece to its spot — or tap a piece, then tap where it goes.'}</p>
+      <div ref={boardRef} className="relative mx-auto w-full max-w-[min(90vw,480px)] aspect-[4/3] rounded-xl border-4 border-gray-700 overflow-hidden bg-gray-100"
+        style={{ display: 'grid', gridTemplateColumns: `repeat(${grid}, 1fr)`, gridTemplateRows: `repeat(${grid}, 1fr)` }}>
+        {ghost && !done && <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `url("${imageUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
+        {Array.from({ length: total }, (_, slot) => (
+          <button key={slot} type="button" aria-label="puzzle spot"
+            onClick={() => { if (selected !== null && !placed.includes(slot)) tryPlace(selected, slot) }}
+            className={`relative ${done ? '' : 'border border-white/70'}`}
+            style={placed.includes(slot) ? pieceStyle(slot) : undefined} />
+        ))}
+      </div>
+      {done ? (
+        <Done text="🎉 You finished the puzzle!" />
+      ) : (
+        <div className="flex flex-wrap justify-center gap-2 mt-4 mx-auto max-w-[min(90vw,520px)]">
+          {tray.filter(p => !placed.includes(p)).map(piece => (
+            <div key={piece}
+              onPointerDown={e => {
+                const w = (e.currentTarget as HTMLDivElement).getBoundingClientRect().width
+                setSelected(piece)
+                setDrag({ piece, x: e.clientX, y: e.clientY, w })
+              }}
+              className={`rounded-lg border-4 cursor-grab ${selected === piece ? 'border-blue-500' : wrong === piece ? 'border-red-400 animate-bounce' : 'border-white shadow'} ${drag?.piece === piece ? 'opacity-30' : ''}`}
+              style={{ ...pieceStyle(piece), width: `min(${Math.round(80 / Math.max(3, grid))}vw, ${Math.round(420 / Math.max(3, grid))}px)`, aspectRatio: '4 / 3' }} />
+          ))}
+        </div>
+      )}
+      {drag && (
+        <div className="fixed pointer-events-none rounded-lg border-4 border-blue-500 shadow-2xl z-[60]"
+          style={{ ...pieceStyle(drag.piece), width: drag.w, aspectRatio: '4 / 3', left: drag.x - drag.w / 2, top: drag.y - (drag.w * 3) / 8 }} />
+      )}
+    </div>
+  )
+}
+
 export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
   switch (game.type) {
     case 'bubbles': return <Bubbles count={game.count} size={game.size} style={game.style} />
@@ -776,5 +857,6 @@ export default function EyeHandGameView({ game }: { game: EyeHandGame }) {
     case 'pattern': return <CopyPattern grid={game.grid} squares={game.squares} rounds={game.rounds} />
     case 'spotdiff': return <SpotDiff grid={game.grid} rounds={game.rounds} style={game.style} />
     case 'reachpoke': return <ReachPoke layout={game.layout} count={game.count} />
+    case 'puzzle': return <PicturePuzzle imageUrl={game.imageUrl} grid={game.grid} ghost={game.ghost} />
   }
 }
