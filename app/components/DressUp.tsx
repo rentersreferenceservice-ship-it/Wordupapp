@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import { useSignalComplete } from './gameComplete'
+import { CLOTHES, ClothingSvg, Doll, Hands, LAYER, PREVIEW_BOX } from './PaperDollClothes'
 
 // "Dress for the Day" — a paper-doll motor planning game. Poke a piece of
 // clothing to pick it up, then poke where it goes on the person — tap only,
@@ -21,8 +22,8 @@ const ZONES: Record<Zone, { x: number; y: number; size: number }> = {
   neck: { x: 50, y: 25, size: 22 },
   torso: { x: 50, y: 37, size: 36 },
   legs: { x: 50, y: 64, size: 36 },
-  feet: { x: 50, y: 90, size: 30 },
-  hand: { x: 77, y: 52, size: 22 },
+  feet: { x: 50, y: 88, size: 30 },
+  hand: { x: 73, y: 51, size: 22 },
 }
 
 // Each outing has a few choices per body spot (one is picked at random each
@@ -94,47 +95,7 @@ export const DRESSUP_SCENARIOS: Record<string, { title: string; emoji: string; b
     wrong: [{ e: '🧤', label: 'Mittens', zone: 'hand' }, { e: '👑', label: 'Crown', zone: 'head' }, { e: '🩱', label: 'Swimsuit', zone: 'torso' }, { e: '👢', label: 'Snow boots', zone: 'feet' }] },
 }
 
-// Things that come in pairs show on both feet / both hands (the left one
-// mirrored so they look like a real pair); things you hold go in one hand.
-const PAIRED_HANDS = new Set(['🧤'])
-function wornAt(i: Item): { x: number; y: number; size: number; flip?: boolean }[] {
-  if (i.zone === 'feet') return [{ x: 40, y: 89, size: 20, flip: true }, { x: 60, y: 89, size: 20 }]
-  if (i.zone === 'hand' && PAIRED_HANDS.has(i.e)) return [{ x: 23, y: 52, size: 16, flip: true }, { x: 77, y: 52, size: 16 }]
-  if (i.e === '👗') return [{ x: 50, y: 50, size: 56 }]
-  // Held things sit just above the hand so the hand looks like it's gripping them.
-  if (i.zone === 'hand') return [{ x: 79, y: 45, size: 22 }]
-  const z = ZONES[i.zone]
-  return [{ x: z.x, y: z.y, size: z.size }]
-}
-
 const SKIN = ['#f9d7b5', '#e8b98f', '#c68a5b', '#8d5a3b', '#5c3a25']
-
-function Doll({ skin }: { skin: string }) {
-  return (
-    <svg viewBox="0 0 100 140" className="absolute inset-0 w-full h-full" aria-hidden>
-      <circle cx="50" cy="16" r="11" fill={skin} />
-      <rect x="45" y="26" width="10" height="6" fill={skin} />
-      <rect x="33" y="31" width="34" height="38" rx="9" fill={skin} />
-      <rect x="18" y="33" width="10" height="36" rx="5" fill={skin} transform="rotate(8 23 33)" />
-      <rect x="72" y="33" width="10" height="36" rx="5" fill={skin} transform="rotate(-8 77 33)" />
-      <rect x="37" y="66" width="11" height="54" rx="5" fill={skin} />
-      <rect x="52" y="66" width="11" height="54" rx="5" fill={skin} />
-      <ellipse cx="42" cy="124" rx="8" ry="4" fill={skin} />
-      <ellipse cx="58" cy="124" rx="8" ry="4" fill={skin} />
-    </svg>
-  )
-}
-
-// Hands drawn on top of the clothes, so short sleeves still show hands and
-// held things (ice cream, umbrella) look gripped.
-function Hands({ skin }: { skin: string }) {
-  return (
-    <svg viewBox="0 0 100 140" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
-      <circle cx="23" cy="72" r="6" fill={skin} stroke="#00000022" strokeWidth="0.8" />
-      <circle cx="77" cy="72" r="6" fill={skin} stroke="#00000022" strokeWidth="0.8" />
-    </svg>
-  )
-}
 
 function Done({ text }: { text: string }) {
   useSignalComplete()
@@ -202,27 +163,34 @@ export default function DressUp({ scenario, distractors }: { scenario: string; d
           {sc.decor.map((d, i) => (
             <span key={i} className="absolute text-2xl sm:text-3xl opacity-70 pointer-events-none" style={{ left: `${[8, 92, 10, 90][i]}%`, top: `${[8, 10, 78, 80][i]}%`, transform: 'translate(-50%, -50%)' }}>{d}</span>
           ))}
-          <Doll skin={skin} />
+          {(() => {
+            // Clothes are drawn to fit the doll (same drawing space), layered
+            // legs → feet → body → neck → head; hands go on top of sleeves.
+            const worn = items.filter(i => placed.includes(i.e + i.zone))
+            const drawn = worn.filter(i => CLOTHES[i.label] && CLOTHES[i.label].kind !== 'mittens').sort((a, b) => LAYER[a.zone] - LAYER[b.zone])
+            const mittens = worn.filter(i => CLOTHES[i.label]?.kind === 'mittens')
+            const held = worn.filter(i => i.zone === 'hand' && !CLOTHES[i.label])
+            return (
+              <>
+                <svg viewBox="0 0 100 140" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
+                  <Doll skin={skin} />
+                  {drawn.map(i => <ClothingSvg key={i.label} {...CLOTHES[i.label]} />)}
+                </svg>
+                {held.map(i => (
+                  <span key={i.label} className="absolute leading-none pointer-events-none" style={{ left: '79%', top: '45%', transform: 'translate(-50%, -50%)', fontSize: 'calc(0.22 * min(16rem, 56vw))' }}>{i.e}</span>
+                ))}
+                <svg viewBox="0 0 100 140" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
+                  <Hands skin={skin} />
+                  {mittens.map(i => <ClothingSvg key={i.label} {...CLOTHES[i.label]} />)}
+                </svg>
+              </>
+            )
+          })()}
           {/* Poke targets while something is picked up */}
           {selected !== null && (Object.entries(ZONES) as [Zone, typeof ZONES[Zone]][]).filter(([z]) => !items.some(i => i.zone === z && placed.includes(i.e + i.zone))).map(([z, p]) => (
             <span key={z} className="absolute rounded-full border-4 border-dashed border-blue-500/70 bg-white/30 pointer-events-none animate-pulse"
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: '22%', aspectRatio: '1', transform: 'translate(-50%, -50%)' }} />
           ))}
-          {(() => {
-            const worn = items.filter(i => placed.includes(i.e + i.zone))
-            const draw = (list: Item[]) => list.flatMap(i => wornAt(i).map((spot, k) => (
-              <span key={i.e + i.zone + k} className="absolute leading-none pointer-events-none"
-                style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `translate(-50%, -50%)${spot.flip ? ' scaleX(-1)' : ''}`, fontSize: `calc(${spot.size} * 0.01 * min(16rem, 56vw))` }}>{i.e}</span>
-            )))
-            return (
-              <>
-                {draw(worn.filter(i => i.zone !== 'hand'))}
-                {draw(worn.filter(i => i.zone === 'hand' && !PAIRED_HANDS.has(i.e)))}
-                <Hands skin={skin} />
-                {draw(worn.filter(i => i.zone === 'hand' && PAIRED_HANDS.has(i.e)))}
-              </>
-            )
-          })()}
         </div>
         {!done && (
           <div className="grid grid-cols-4 sm:grid-cols-2 gap-2">
@@ -230,7 +198,9 @@ export default function DressUp({ scenario, distractors }: { scenario: string; d
               <button key={idx} type="button"
                 onClick={() => setSelected(selected === idx ? null : idx)}
                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-4 bg-white flex flex-col items-center justify-center transition-transform ${selected === idx ? 'border-blue-500 -translate-y-2 shadow-lg animate-bounce' : wiggle === idx ? 'border-red-400 animate-bounce' : 'border-gray-200 shadow'}`}>
-                <span className="text-3xl sm:text-4xl leading-none">{it.e}</span>
+                {CLOTHES[it.label]
+                  ? <svg viewBox={PREVIEW_BOX[it.zone]} className="w-12 h-10 sm:w-14 sm:h-12" aria-hidden><ClothingSvg {...CLOTHES[it.label]} /></svg>
+                  : <span className="text-3xl sm:text-4xl leading-none">{it.e}</span>}
                 <span className="text-[10px] text-gray-600 mt-0.5">{it.label}</span>
               </button>
             ))}
